@@ -42,10 +42,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "Dummifier", description = "Whois data dummifier")
 /**
  * in jmxterm, run with:
- *      run dummify jdbc:mariadb://<host>/<db> <user> <pass> <env>
+ *      run dummify
  *
  * in console, run with
- *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mariadb://localhost/BLAH --user XXX --pass XXX --env XXX
+ *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx
  *
  */
 public class DatabaseDummifierJmx extends JmxBase {
