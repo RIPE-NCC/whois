@@ -3598,7 +3598,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(SearchResult.class);
 
         final List<Domain> domainResults = searchResult.getDomainSearchResults();
-        assertThat(domainResults, is(nullValue()));
+        assertThat(domainResults, is(empty()));
         assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
@@ -3611,7 +3611,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(SearchResult.class);
 
         final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults, is(nullValue()));
+        assertThat(ipResults, is(empty()));
         assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
                 "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
@@ -3702,7 +3702,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(SearchResult.class);
 
         final List<Domain> domainResults = searchResult.getDomainSearchResults();
-        assertThat(domainResults, is(nullValue()));
+        assertThat(domainResults, is(empty()));
         assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
 
@@ -3715,7 +3715,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(SearchResult.class);
 
         final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults, is(nullValue()));
+        assertThat(ipResults, is(empty()));
         assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
                 "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
     }
