@@ -29,6 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -58,10 +59,15 @@ public class DatabaseDummifierJmx extends JmxBase {
     private static final AtomicInteger jobsDone = new AtomicInteger();
 
     @Autowired
-    public DatabaseDummifierJmx(@Value("${whois.environment:}") final String environment,
+    public DatabaseDummifierJmx(@Value("${whois.environment}") final String environment,
                                 @Qualifier("whoisMasterDataSource") final DataSource writeDataSource) {
         super(LOGGER);
-        this.environment = Environment.valueOf(environment.toUpperCase());
+
+        try {
+            this.environment = Environment.valueOf(environment.toUpperCase());
+        } catch (final IllegalArgumentException e) {
+            throw new IllegalArgumentException(unsupportedEnvironment(environment), e);
+        }
 
         this.jdbcTemplate = new JdbcTemplate(writeDataSource);
         final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);
@@ -69,6 +75,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
     }
+
 
     @ManagedOperation(description = "Dummify")
     public String dummify() {
@@ -209,5 +216,13 @@ public class DatabaseDummifierJmx extends JmxBase {
 
             return builder.get();
         }
+    }
+
+    private static String unsupportedEnvironment(String environment) {
+        return String.format("Invalid environment: %s, available environments are: %s",
+                environment,
+                String.join(", ", Arrays.stream(Environment.values())
+                        .map(Enum::name)
+                        .toArray(String[]::new)));
     }
 }
