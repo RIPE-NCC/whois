@@ -29,7 +29,7 @@ public class PgpCredential implements Credential {
     }
 
     public static PgpCredential createOfferedCredential(@Nullable final String clearText) {
-        return createOfferedCredential(clearText, StandardCharsets.ISO_8859_1);
+        return createOfferedCredential(clearText, StandardCharsets.UTF_8);
     }
 
     public static PgpCredential createOfferedCredential(@Nullable final String clearText, final Charset charset) {

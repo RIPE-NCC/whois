@@ -52,7 +52,7 @@ public class FileHelper {
         final File gzipFile = File.createTempFile(gzipFilename, ".gz", directory);
 
         try (final FileOutputStream fileOutputStream = new FileOutputStream(gzipFile)) {
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), StandardCharsets.ISO_8859_1));
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), StandardCharsets.UTF_8));
             writer.write(content);
             writer.flush();
             writer.close();
