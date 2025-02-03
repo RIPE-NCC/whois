@@ -22,7 +22,7 @@ public class SentryConfigurations {
     @Autowired
     public SentryConfigurations(
             @Value("${sentry.dsn:}") final String sentryDsn,
-            @Value("${sentry.environment:}") final String environment,
+            @Value("${whois.environment:}") final String environment,
             final ApplicationVersion applicationVersion) {
         this.applicationVersion = applicationVersion;
         this.sentryDsn = sentryDsn;

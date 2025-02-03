@@ -1,9 +1,6 @@
 package net.ripe.db.whois.common;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.jdbc.SimpleDataSourceFactory;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierRC;
@@ -14,13 +11,14 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jmx.export.annotation.ManagedOperation;
-import org.springframework.jmx.export.annotation.ManagedOperationParameter;
-import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionDefinition;
@@ -31,9 +29,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -43,103 +41,80 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "Dummifier", description = "Whois data dummifier")
 /**
  * in jmxterm, run with:
- *      run dummify jdbc:mariadb://<host>/<db> <user> <pass> <env>
+ *      run dummify
  *
  * in console, run with
- *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx --jdbc-url jdbc:mariadb://localhost/BLAH --user XXX --pass XXX --env XXX
+ *      java -Xmx1G -cp whois.jar net.ripe.db.whois.common.DatabaseDummifierJmx
  *
  */
 public class DatabaseDummifierJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDummifierJmx.class);
+    private final TransactionTemplate transactionTemplate;
 
-    private static final String ARG_JDBCURL = "jdbc-url";
-    private static final String ARG_USER = "user";
-    private static final String ARG_PASS = "pass";
-
-    private static final String ARG_ENV = "env";
-
-    private static TransactionTemplate transactionTemplate;
-    private static JdbcTemplate jdbcTemplate;
-
-    private static JdbcTemplate internalTemplate;
+    private final Environment environment;
+    private final JdbcTemplate jdbcTemplate;
 
     private static final DummifierRC dummifier = new DummifierRC();
-
     private static final AtomicInteger jobsAdded = new AtomicInteger();
     private static final AtomicInteger jobsDone = new AtomicInteger();
 
-    public DatabaseDummifierJmx() {
+    @Autowired
+    public DatabaseDummifierJmx(@Value("${whois.environment}") final String environment,
+                                @Qualifier("whoisMasterDataSource") final DataSource writeDataSource) {
         super(LOGGER);
+
+        try {
+            this.environment = Environment.valueOf(environment.toUpperCase());
+        } catch (final IllegalArgumentException e) {
+            throw new IllegalArgumentException(unsupportedEnvironment(environment), e);
+        }
+
+        this.jdbcTemplate = new JdbcTemplate(writeDataSource);
+        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
     }
 
+
     @ManagedOperation(description = "Dummify")
-    @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "jdbcUrl", description = "jdbc url"),
-            @ManagedOperationParameter(name = "user", description = "jdbc username"),
-            @ManagedOperationParameter(name = "pass", description = "jdbc password"),
-            @ManagedOperationParameter(name= "env", description = "current environment")
-    })
-    public String dummify(final String jdbcUrl, final String user, final String pass, final Environment env) {
-        return invokeOperation("dummify", jdbcUrl, new Callable<String>() {
-            @Override
-            public String call() {
-                final SimpleDataSourceFactory simpleDataSourceFactory = new SimpleDataSourceFactory("org.mariadb.jdbc.Driver");
-                final DataSource dataSource = simpleDataSourceFactory.createDataSource(jdbcUrl, user, pass);
-                jdbcTemplate = new JdbcTemplate(dataSource);
+    public String dummify() {
+        return invokeOperation("dummy", "Dummification of " + environment, () -> {
+            if (Environment.PROD.equals(environment)) {
+                throw new IllegalArgumentException("dummifier runs on non-production environments only");
+            }
 
-                final DataSource internalSource = simpleDataSourceFactory.createDataSource("jdbc:mariadb://localhost/INTERNALS_RIPE", user, pass);
-                internalTemplate = new JdbcTemplate(internalSource);
+            // sadly Executors don't offer a bounded/blocking submit() implementation
+            int numThreads = Runtime.getRuntime().availableProcessors();
+            final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
+            final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
+                    0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
-                validateEnvironment(env);
+            LOGGER.info("Started {} threads", numThreads);
 
-                final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
-                transactionTemplate = new TransactionTemplate(transactionManager);
-                transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+            addWork("last", executorService);
+            addWork("history", executorService);
+            cleanUpAuthIndex(executorService);
 
-                // sadly Executors don't offer a bounded/blocking submit() implementation
-                int numThreads = Runtime.getRuntime().availableProcessors();
-                final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-                final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                        0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
+            executorService.shutdown();
 
-                LOGGER.info("Started {} threads", numThreads);
-
-                addWork("last", jdbcTemplate, executorService);
-                addWork("history", jdbcTemplate, executorService);
-                cleanUpAuthIndex(jdbcTemplate, executorService);
-
-                executorService.shutdown();
-
-                try {
-                    while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
-                        LOGGER.info("ExecutorService {} active {} completed {} tasks",
+            try {
+                while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+                    LOGGER.info("ExecutorService {} active {} completed {} tasks",
                             ((ThreadPoolExecutor) executorService).getActiveCount(),
                             ((ThreadPoolExecutor) executorService).getCompletedTaskCount(),
                             ((ThreadPoolExecutor) executorService).getTaskCount());
-                    }
-                } catch (InterruptedException e) {
-                    LOGGER.error("shutdown", e);
                 }
-
-                return "Database dummified";
+            } catch (InterruptedException e) {
+                LOGGER.error("shutdown", e);
             }
+
+            return "Database dummified";
         });
     }
 
-    private void validateEnvironment(final Environment env) {
-        final String dbEnvironment = internalTemplate.queryForObject("SELECT name FROM environment LIMIT 1", String.class);
-        if (dbEnvironment == null){
-            throw new IllegalStateException("Environment not specified in the schema");
-        }
-        if (!env.name().equalsIgnoreCase(dbEnvironment)){
-            throw new IllegalArgumentException("Requested environment and database environment doesn't match");
-        }
-        if (Environment.PROD.equals(env)) {
-            throw new IllegalArgumentException("dummifier runs on non-production environments only");
-        }
-    }
 
-    private void addWork(final String table, final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
+    private void addWork(final String table,  final ExecutorService executorService) {
         LOGGER.info("Dummifying {}", table);
         transactionTemplate.execute(new TransactionCallback<Object>() {
             @Override
@@ -160,7 +135,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         LOGGER.info("Jobs size:{}", jobsAdded);
     }
 
-    private void cleanUpAuthIndex(final JdbcTemplate jdbcTemplate, final ExecutorService executorService) {
+    private void cleanUpAuthIndex(final ExecutorService executorService) {
         LOGGER.info("Removing index entries for SSO lines");
         transactionTemplate.execute(new TransactionCallback<Object>() {
             @Override
@@ -182,7 +157,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         LOGGER.info("Jobs size:{}", jobsAdded);
     }
 
-    static final class DatabaseObjectProcessor implements Runnable {
+    final class DatabaseObjectProcessor implements Runnable {
         final int objectId;
         final int sequenceId;
         final String table;
@@ -241,28 +216,11 @@ public class DatabaseDummifierJmx extends JmxBase {
         }
     }
 
-    private static OptionParser setupOptionParser() {
-        final OptionParser parser = new OptionParser();
-        parser.accepts(ARG_JDBCURL).withRequiredArg().required();
-        parser.accepts(ARG_USER).withRequiredArg().required();
-        parser.accepts(ARG_PASS).withRequiredArg().required();
-        parser.accepts(ARG_ENV).withRequiredArg().required();
-        return parser;
-    }
-
-    public static void main(String[] argv) {
-        final OptionSet options = setupOptionParser().parse(argv);
-        String jdbcUrl = options.valueOf(ARG_JDBCURL).toString();
-        String user = options.valueOf(ARG_USER).toString();
-        String pass = options.valueOf(ARG_PASS).toString();
-        final Environment env;
-        try {
-            env = Environment.valueOf(options.valueOf(ARG_ENV).toString().toUpperCase());
-        } catch (IllegalArgumentException ex){
-            throw new IllegalArgumentException("Env property doesn't match. Available env: DEV, PREPDEV, TRAINING, " +
-                    "TEST, RC, " +
-                    "PROD");
-        }
-        new DatabaseDummifierJmx().dummify(jdbcUrl, user, pass, env);
+    private static String unsupportedEnvironment(String environment) {
+        return String.format("Invalid environment: %s, available environments are: %s",
+                environment,
+                String.join(", ", Arrays.stream(Environment.values())
+                        .map(Enum::name)
+                        .toArray(String[]::new)));
     }
 }
