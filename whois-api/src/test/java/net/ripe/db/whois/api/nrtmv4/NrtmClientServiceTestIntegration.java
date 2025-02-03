@@ -318,14 +318,14 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is("application/jose+json"));
 
         final JWSObject jwsObjectParsed = JWSObject.parse(response.readEntity(String.class));
-        assertTrue(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActivePublicKey()));
+        assertTrue(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActiveKeyPair().pemFormat()));
 
         assertThat(jwsObjectParsed.getPayload().toString(), containsString("\"source\":\"TEST\""));
 
         final Response responseNonAuth = getResponseFromHttpsRequest("TEST-NONAUTH/update-notification-file.jose", MediaType.APPLICATION_JSON);
         final JWSObject jwsObjectParsedNonAuth = JWSObject.parse(responseNonAuth.readEntity(String.class));
 
-        assertTrue(JWSUtil.verifySignature(jwsObjectParsedNonAuth, nrtmKeyConfigDao.getActivePublicKey()));
+        assertTrue(JWSUtil.verifySignature(jwsObjectParsedNonAuth, nrtmKeyConfigDao.getActiveKeyPair().pemFormat()));
 
         assertThat(responseNonAuth.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(responseNonAuth.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=60"));
@@ -341,7 +341,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         final JWSObject jwsObjectParsed = JWSObject.parse(notificationFile);
 
-        assertTrue(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActivePublicKey()));
+        assertTrue(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActiveKeyPair().pemFormat()));
         assertThat(jwsObjectParsed.getPayload().toString(), containsString("https://nrtm.ripe.net//4e0c9366-0eb2-42be-bc20-f66d11791d49/nrtm-snapshot.1.RIPE.abb5672a6f3f533ce8caf76b0a3fe995.json.gz"));
     }
 
@@ -353,12 +353,12 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
         final String notificationFile = getResponseFromHttpsRequest("TEST/update-notification-file.jose", MediaType.APPLICATION_JSON).readEntity(String.class);
 
         final JWSObject jwsObjectParsed = JWSObject.parse(notificationFile);
-        assertTrue(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActivePublicKey()));
+        assertTrue(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActiveKeyPair().pemFormat()));
 
         testDateTimeProvider.setTime(testDateTimeProvider.getCurrentDateTime().plusDays(4));
         nrtmKeyPairService.forceRotateKey();
 
-        assertFalse(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActivePublicKey()));
+        assertFalse(JWSUtil.verifySignature(jwsObjectParsed, nrtmKeyConfigDao.getActiveKeyPair().pemFormat()));
     }
 
     @Test

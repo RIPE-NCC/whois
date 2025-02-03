@@ -10,6 +10,7 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
@@ -41,13 +42,13 @@ public class JWSUtil {
         }
     }
 
-    public static boolean verifySignature(final JWSObject jwsObjectParsed, final byte[] publicKey) {
+    public static boolean verifySignature(final JWSObject jwsObjectParsed, final String pemFormat) {
         try {
-            final ECKey parsedPublicKey =  ECKey.parse(getPublicKey(publicKey));
+            final ECKey parsedPublicKey = (ECKey) JWK.parseFromPEMEncodedObjects(pemFormat);
 
             final JWSVerifier verifier = new ECDSAVerifier(parsedPublicKey);
             return jwsObjectParsed.verify(verifier);
-        } catch (JOSEException | ParseException ex) {
+        } catch (JOSEException ex) {
             LOGGER.error("failed to verify signature {}", ex.getMessage());
             throw new IllegalStateException("failed to sign contents of file");
         }
