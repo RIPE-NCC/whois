@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  */
 public class DatabaseDummifierJmx extends JmxBase {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDummifierJmx.class);
     private final TransactionTemplate transactionTemplate;
 
@@ -74,6 +73,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
     }
 
 
