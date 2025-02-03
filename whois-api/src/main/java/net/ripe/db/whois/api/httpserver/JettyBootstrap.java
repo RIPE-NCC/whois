@@ -222,6 +222,9 @@ public class JettyBootstrap implements ApplicationService {
         server.setHandler(handlers);
 
         server.setStopAtShutdown(false);
+        LOGGER.info("Server stop timeout was {}ms", server.getStopTimeout());
+        server.setStopTimeout(10_000L);
+
         server.setRequestLog(createRequestLog());
 
         if (rewriteEngineEnabled) {
