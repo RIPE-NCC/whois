@@ -221,9 +221,8 @@ public class JettyBootstrap implements ApplicationService {
         setConnectors(server);
         server.setHandler(handlers);
 
-        server.setStopAtShutdown(false);
-        LOGGER.info("Server stop timeout was {}ms", server.getStopTimeout());
-        server.setStopTimeout(10_000L);
+        server.setStopAtShutdown(true);
+        server.setStopTimeout(20_000L);
 
         server.setRequestLog(createRequestLog());
 
