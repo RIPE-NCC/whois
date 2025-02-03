@@ -1,5 +1,8 @@
 # next
 
+# 1.115.1
+[update] ApiKey fix parsing details
+
 # 1.115
 
 [all] Apikey authentication (#1569, #1597, #1618, #1620, #1622, #1624, #1626, #1627)
