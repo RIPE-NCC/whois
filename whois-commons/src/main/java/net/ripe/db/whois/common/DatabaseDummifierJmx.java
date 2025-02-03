@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DatabaseDummifierJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDummifierJmx.class);
-    private static TransactionTemplate transactionTemplate;
+    private final TransactionTemplate transactionTemplate;
 
     private final Environment environment;
     private final JdbcTemplate jdbcTemplate;
@@ -71,8 +71,8 @@ public class DatabaseDummifierJmx extends JmxBase {
 
         this.jdbcTemplate = new JdbcTemplate(writeDataSource);
         final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);
-        transactionTemplate = new TransactionTemplate(transactionManager);
-        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
     }
 
@@ -123,7 +123,7 @@ public class DatabaseDummifierJmx extends JmxBase {
                     @Override
                     public DatabaseObjectProcessor extractData(final ResultSet rs) throws SQLException, DataAccessException {
                         while (rs.next()) {
-                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), rs.getBytes(3), table, jdbcTemplate));
+                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), rs.getBytes(3), table));
                             jobsAdded.incrementAndGet();
                         }
                         return null;
@@ -157,19 +157,17 @@ public class DatabaseDummifierJmx extends JmxBase {
         LOGGER.info("Jobs size:{}", jobsAdded);
     }
 
-    static final class DatabaseObjectProcessor implements Runnable {
+    final class DatabaseObjectProcessor implements Runnable {
         final int objectId;
         final int sequenceId;
         final String table;
         final byte[] object;
-        final JdbcTemplate jdbcTemplate;
 
-        private DatabaseObjectProcessor(int objectId, int sequenceId, byte[] object, String table, JdbcTemplate jdbcTemplate) {
+        private DatabaseObjectProcessor(int objectId, int sequenceId, byte[] object, String table) {
             this.objectId = objectId;
             this.sequenceId = sequenceId;
             this.table = table;
             this.object = object;
-            this.jdbcTemplate = jdbcTemplate;
         }
 
         @Override
