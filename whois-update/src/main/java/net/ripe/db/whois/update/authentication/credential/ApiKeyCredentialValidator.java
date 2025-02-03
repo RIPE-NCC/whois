@@ -24,6 +24,9 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
     @Value("${apikey.authenticate.enabled:false}")
     private boolean enabled;
 
+    @Value("${whois.environment}")
+    private String environment;
+
     @Autowired
     public ApiKeyCredentialValidator(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
@@ -48,7 +51,7 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
         for (final APIKeyCredential offered : offeredCredentials) {
 
             final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
-            if(!validateScope(oAuthSession, List.of(maintainer))) {
+            if(!validateScope(oAuthSession, List.of(maintainer), environment)) {
                 continue;
             }
 

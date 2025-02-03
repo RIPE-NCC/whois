@@ -2,7 +2,7 @@
 package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
+import net.ripe.db.whois.common.Environment;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
@@ -85,6 +86,7 @@ public class RpslResponseDecoratorTest {
                 ssoTokenTranslator,
                 authServiceClient,
                 clientAuthCertificateValidator,
+                Environment.DEV.name(),
                 decorator);
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);

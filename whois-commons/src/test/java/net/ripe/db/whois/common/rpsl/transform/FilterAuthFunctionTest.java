@@ -1,12 +1,13 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
-import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
+import net.ripe.db.whois.common.Environment;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import org.apache.commons.compress.utils.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,7 +91,8 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_md5_filtered_incorrect_password() {
-        subject = new FilterAuthFunction(Collections.singletonList("test0"), null, null, ssoTokenTranslator, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.singletonList("test0"), null, null, ssoTokenTranslator,
+                authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, Environment.DEV.name());
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner:         WEIRD-MNT\n" +
                 "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
@@ -111,7 +113,8 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_md5_unfiltered() {
-        subject = new FilterAuthFunction(Collections.singletonList("test1"), null, null, ssoTokenTranslator, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.singletonList("test1"), null, null, ssoTokenTranslator,
+                authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, Environment.DEV.name());
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner:         WEIRD-MNT\n" +
                 "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
@@ -155,7 +158,8 @@ public class FilterAuthFunctionTest {
                 "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
                 "source: RIPE");
 
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, "token", ssoTokenTranslator, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, "token", ssoTokenTranslator,
+                authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, Environment.DEV.name());
         final RpslObject result = subject.apply(rpslObject);
 
         assertThat(result.toString(), is(
@@ -175,7 +179,8 @@ public class FilterAuthFunctionTest {
                 "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
                 "source: RIPE");
 
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, "token", ssoTokenTranslator, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, "token", ssoTokenTranslator,
+                authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, Environment.DEV.name());
         final RpslObject result = subject.apply(rpslObject);
 
         assertThat(result.toString(), is(
@@ -192,7 +197,8 @@ public class FilterAuthFunctionTest {
             when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
             when(authServiceClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(AuthServiceClientException.class);
 
-            subject = new FilterAuthFunction(Collections.<String>emptyList(), null, "token", ssoTokenTranslator, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+            subject = new FilterAuthFunction(Collections.<String>emptyList(), null, "token", ssoTokenTranslator,
+                    authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, Environment.DEV.name());
             subject.apply(RpslObject.parse("" +
                     "mntner: SSO-MNT\n" +
                     "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
@@ -206,7 +212,8 @@ public class FilterAuthFunctionTest {
 
         when(ssoTokenTranslator.translateSsoToken("token")).thenThrow(AuthServiceClientException.class);
 
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), null,  "token", ssoTokenTranslator, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), null,  "token", ssoTokenTranslator,
+                authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, Environment.DEV.name());
         final RpslObject result = subject.apply(
                 RpslObject.parse("" +
                         "mntner: SSO-MNT\n" +
@@ -222,7 +229,8 @@ public class FilterAuthFunctionTest {
     @Test
     public void sso_token_translator_exception() {
         when(ssoTokenTranslator.translateSsoToken(any(String.class))).thenThrow(AuthServiceClientException.class);
-        subject = new FilterAuthFunction(Collections.emptyList(), null, "token", ssoTokenTranslator, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.emptyList(), null, "token", ssoTokenTranslator,
+                authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, Environment.DEV.name());
 
         final RpslObject result = subject.apply(
                 RpslObject.parse("" +

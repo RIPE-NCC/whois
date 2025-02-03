@@ -3,11 +3,9 @@ package net.ripe.db.whois.query.planner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
-import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
@@ -15,6 +13,8 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
@@ -23,6 +23,7 @@ import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -62,6 +63,7 @@ public class RpslResponseDecorator {
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
     private final ClientAuthCertificateValidator clientAuthCertificateValidator;
+    private final String environment;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -74,6 +76,7 @@ public class RpslResponseDecorator {
                                  final SsoTokenTranslator ssoTokenTranslator,
                                  final AuthServiceClient authServiceClient,
                                  final ClientAuthCertificateValidator clientAuthCertificateValidator,
+                                 @Value("${whois.environment}") final String environment,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -90,6 +93,7 @@ public class RpslResponseDecorator {
         this.toShorthandFunction = new ToShorthandFunction();
         this.toKeysFunction = new ToKeysFunction();
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
+        this.environment = environment;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -168,7 +172,7 @@ public class RpslResponseDecorator {
                 (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasNotCertificates(certificates) && oAuthSession == null)?
                         FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, oAuthSession, ssoToken, ssoTokenTranslator, authServiceClient,
-                                rpslObjectDao, certificates, clientAuthCertificateValidator);
+                                rpslObjectDao, certificates, clientAuthCertificateValidator, environment);
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {

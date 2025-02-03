@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -43,8 +44,11 @@ import java.util.List;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.APIKEY_TO_OAUTHSESSION;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_FULL_ENV_SIGNATURE_API_KEY;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_FULL_WRONG_ENV_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_SIGNATURE_API_KEY;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_NOT_MNT_ENV_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
@@ -59,6 +63,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -813,6 +818,50 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
         assertThat(remaining, is(limit));
+    }
+
+    @Test
+    public void update_object_with_apikey_with_mnt_with_sso_using_env_scope() {
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_FULL_ENV_SIGNATURE_API_KEY))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().size(), is(1));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueForAttribute(AttributeType.REMARKS), is("more_test"));
+    }
+
+    @Test
+    public void update_object_with_apikey_with_no_mnt_with_sso_using_env_scope() {
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_NOT_MNT_ENV_SIGNATURE_API_KEY))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().size(), is(1));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueForAttribute(AttributeType.REMARKS), is("more_test"));
+    }
+
+    @Test
+    public void update_object_with_apikey_with_mnt_with_sso_using_wrong_env_scope() {
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_FULL_WRONG_ENV_SIGNATURE_API_KEY))
+                    .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
     }
 
     private static void assertIrt(final WhoisObject whoisObject, final boolean isFIltered) {

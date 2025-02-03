@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.apiKey;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -23,14 +24,18 @@ public class ApiKeyUtils {
 
     public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
 
-    public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
-        if(StringUtils.isEmpty(oAuthSession.getScope())) {
+    public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final String environment) {
+        if (StringUtils.isEmpty(oAuthSession.getScope())) {
             return true;
         }
 
         final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(oAuthSession.getScope());
 
-        if(StringUtils.isEmpty(scopeFormatter.getScopeKey()) || StringUtils.isEmpty(scopeFormatter.getScopeType()) || StringUtils.isEmpty(scopeFormatter.getAppName())) {
+        if (!StringUtil.isNullOrEmpty(scopeFormatter.scopeEnv) && !environment.equalsIgnoreCase(scopeFormatter.scopeEnv)){
+            return false;
+        }
+
+        if (StringUtils.isEmpty(scopeFormatter.getScopeKey()) || StringUtils.isEmpty(scopeFormatter.getScopeType()) || StringUtils.isEmpty(scopeFormatter.getAppName())) {
             return true;
         }
 
@@ -39,16 +44,17 @@ public class ApiKeyUtils {
                     && maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
     }
 
-    public static boolean hasValidApiKey(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
-        if(oAuthSession == null || oAuthSession.getUuid() == null) {
+    public static boolean hasValidApiKey(final OAuthSession oAuthSession, final List<RpslObject> maintainers,
+                                         final List<RpslAttribute> authAttributes, final String environment) {
+        if (oAuthSession == null || oAuthSession.getUuid() == null) {
             return false;
         }
 
-        if(Arrays.stream(oAuthSession.getAud()).noneMatch(appName -> appName.equalsIgnoreCase("whois"))) {
+        if (Arrays.stream(oAuthSession.getAud()).noneMatch(appName -> appName.equalsIgnoreCase("whois"))) {
             return false;
         }
 
-        if(!ApiKeyUtils.validateScope(oAuthSession, maintainers)) {
+        if (!ApiKeyUtils.validateScope(oAuthSession, maintainers, environment)) {
             return false;
         }
 
@@ -74,7 +80,7 @@ public class ApiKeyUtils {
     }
 
     public static String getApiKeyId(final String authHeader) {
-        if(authHeader == null || !authHeader.startsWith("Basic ")) {
+        if (authHeader == null || !authHeader.startsWith("Basic ")) {
             return null;
         }
 
