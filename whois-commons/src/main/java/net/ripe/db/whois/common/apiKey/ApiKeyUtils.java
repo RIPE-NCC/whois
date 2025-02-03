@@ -28,9 +28,7 @@ public class ApiKeyUtils {
             return true;
         }
 
-        final List<String> scopes = Arrays.asList(StringUtils.split(oAuthSession.getScope(), " "));
-        final Optional<String> whoisScope = scopes.stream().filter(scope -> scope.startsWith("whois")).findFirst();
-
+        final Optional<String> whoisScope = getWhoisScope(oAuthSession);
         if(whoisScope.isEmpty()) {
             return true;
         }
@@ -44,6 +42,11 @@ public class ApiKeyUtils {
         return "whois".equalsIgnoreCase(scopeFormatter.getAppName())
                     && ObjectType.MNTNER.getName().equalsIgnoreCase(scopeFormatter.getScopeType())
                     && maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
+    }
+
+    private static Optional<String> getWhoisScope(OAuthSession oAuthSession) {
+        final List<String> scopes = Arrays.asList(StringUtils.split(oAuthSession.getScope(), " "));
+        return scopes.stream().filter(scope -> scope.startsWith("whois")).findFirst();
     }
 
     public static boolean hasValidApiKey(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
