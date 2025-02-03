@@ -262,6 +262,7 @@ public class JettyBootstrap implements ApplicationService {
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
+        connector.setShutdownIdleTimeout(10_000L);
         connector.setPort(this.port);
         return connector;
     }
@@ -344,6 +345,7 @@ public class JettyBootstrap implements ApplicationService {
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
         sslConnector.setPort(port);
+        sslConnector.setShutdownIdleTimeout(10_000L);
         return sslConnector;
     }
 
