@@ -221,8 +221,8 @@ public class JettyBootstrap implements ApplicationService {
         setConnectors(server);
         server.setHandler(handlers);
 
-        server.setStopAtShutdown(true);
-        server.setStopTimeout(20_000L);
+        server.setStopAtShutdown(false);    // don't stop immediately
+        server.setStopTimeout(30_000L);
 
         server.setRequestLog(createRequestLog());
 
@@ -261,7 +261,7 @@ public class JettyBootstrap implements ApplicationService {
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
-        connector.setShutdownIdleTimeout(10_000L);
+        connector.setShutdownIdleTimeout(20_000L);
         connector.setPort(this.port);
         return connector;
     }
@@ -344,7 +344,7 @@ public class JettyBootstrap implements ApplicationService {
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
         sslConnector.setPort(port);
-        sslConnector.setShutdownIdleTimeout(10_000L);
+        sslConnector.setShutdownIdleTimeout(20_000L);
         return sslConnector;
     }
 
