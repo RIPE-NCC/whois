@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 public class ApiKeyUtils {
@@ -27,7 +28,14 @@ public class ApiKeyUtils {
             return true;
         }
 
-        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(oAuthSession.getScope());
+        final List<String> scopes = Arrays.asList(StringUtils.split(oAuthSession.getScope(), " "));
+        final Optional<String> whoisScope = scopes.stream().filter(scope -> scope.startsWith("whois")).findFirst();
+
+        if(whoisScope.isEmpty()) {
+            return true;
+        }
+
+        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope.get());
 
         if(StringUtils.isEmpty(scopeFormatter.getScopeKey()) || StringUtils.isEmpty(scopeFormatter.getScopeType()) || StringUtils.isEmpty(scopeFormatter.getAppName())) {
             return true;
