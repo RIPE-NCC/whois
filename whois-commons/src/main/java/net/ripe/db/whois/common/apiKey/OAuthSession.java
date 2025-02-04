@@ -93,7 +93,12 @@ public class OAuthSession implements Serializable {
         public ScopeFormatter(final String scope) {
             final String[] parts = scope.split("[:.]");
 
-            if (parts.length <= 4){
+            if (parts.length < 3){
+                this.appName = null;
+                this.scopeType = null;
+                this.scopeEnv = null;
+                this.scopeKey = null;
+            } else {
                 this.appName = parts[0];
                 if (parts[1].equals("mntner")){
                     this.scopeType = parts[1];
@@ -104,11 +109,6 @@ public class OAuthSession implements Serializable {
                     this.scopeKey = null;
                     this.scopeEnv = parts[2];
                 }
-            } else {
-                this.appName = null;
-                this.scopeType = null;
-                this.scopeEnv = null;
-                this.scopeKey = null;
             }
         }
 
