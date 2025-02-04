@@ -59,7 +59,7 @@ public class ApiKeyUtils {
                 .filter(scopeFormatter -> !StringUtil.isNullOrEmpty(scopeFormatter.getScopeEnv()))
                 .findFirst();
 
-        return environmentScope.map(scopeFormatter -> environment.name().equals(scopeFormatter.scopeEnv)).orElse(true);
+        return environmentScope.map(scopeFormatter -> environment.name().equals(scopeFormatter.getScopeEnv())).orElse(true);
     }
 
 
