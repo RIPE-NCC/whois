@@ -37,7 +37,7 @@ public class ApiKeyUtils {
 
         final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope.get());
 
-        if (!StringUtil.isNullOrEmpty(scopeFormatter.scopeEnv) && !environment.equalsIgnoreCase(scopeFormatter.scopeEnv)){
+        if (!StringUtil.isNullOrEmpty(scopeFormatter.getScopeEnv()) && !environment.equalsIgnoreCase(scopeFormatter.getScopeEnv())){
             return false;
         }
 

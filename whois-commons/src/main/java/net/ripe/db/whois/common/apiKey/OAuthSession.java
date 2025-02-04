@@ -128,7 +128,11 @@ public class OAuthSession implements Serializable {
         public String getAppName() {
             return appName;
         }
-    }
+
+       public String getScopeEnv() {
+           return scopeEnv;
+       }
+   }
 
     public static OAuthSession from(final OAuthSession oAuthSession, final String keyId) {
         if(oAuthSession == null) {
