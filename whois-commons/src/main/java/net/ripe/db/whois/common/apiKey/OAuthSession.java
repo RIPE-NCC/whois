@@ -79,7 +79,7 @@ public class OAuthSession implements Serializable {
                 .add("keyId", keyId)
                 .add("email", email)
                 .add("uuid", uuid)
-                .add("scopes", scope)
+                .add("scope", scope)
                 .toString();
     }
 
@@ -104,11 +104,6 @@ public class OAuthSession implements Serializable {
                     this.scopeKey = null;
                     this.scopeEnv = parts[2];
                 }
-            } else if (parts.length <= 6){
-                this.appName = parts[0];
-                this.scopeEnv = parts[2];
-                this.scopeType = parts[3];
-                this.scopeKey = parts[4];
             } else {
                 this.appName = null;
                 this.scopeType = null;

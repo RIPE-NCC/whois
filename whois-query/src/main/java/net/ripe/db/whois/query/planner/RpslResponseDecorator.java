@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Environment;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -63,7 +64,7 @@ public class RpslResponseDecorator {
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
     private final ClientAuthCertificateValidator clientAuthCertificateValidator;
-    private final String environment;
+    private final Environment environment;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -93,7 +94,7 @@ public class RpslResponseDecorator {
         this.toShorthandFunction = new ToShorthandFunction();
         this.toKeysFunction = new ToKeysFunction();
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
-        this.environment = environment;
+        this.environment = Environment.valueOf(environment.toUpperCase());
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {

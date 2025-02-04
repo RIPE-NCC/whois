@@ -50,19 +50,21 @@ public class ApiKeyAuthServerDummy implements Stub {
     public static final String BASIC_AUTH_INVALID_SIGNATURE_API_KEY = "TXp1ZzRxRVlpSTVET1dqOXI1Qkp1Y2k4OnZBdzgyRTFCMkZ2dFVyYjB0MDF0Ykt2cg==";
     public static final String BASIC_AUTH_FULL_ENV_SIGNATURE_API_KEY = "M1RFMEtZWDM1U1pRVUtJQUJNNVZBT0dXOllDZms2a09BaUhYRUl6cnhmTzRTTm9vRQ==";
     public static final String BASIC_AUTH_NOT_MNT_ENV_SIGNATURE_API_KEY = "U0o5NjkxTlhVS1pGVlpNUVhMUVlCVlJIOnE0dWI4T0xPY3RKR3J5SjhtUHZBQ0tKMQ==";
-    public static final String BASIC_AUTH_FULL_WRONG_ENV_SIGNATURE_API_KEY = "UlFNTzVBU05SVU44WkpOUDZUQ1MxUTJROmNvdjRWejdBR2JyNDRjRmZROFBVMVY0Wg==";
+    public static final String BASIC_AUTH_WRONG_ENV_SIGNATURE_API_KEY = "UlFNTzVBU05SVU44WkpOUDZUQ1MxUTJROmNvdjRWejdBR2JyNDRjRmZROFBVMVY0Wg==";
+    public static final String BASIC_AUTH_FULL_WRONG_ENV_SIGNATURE_API_KEY = "UabNTzVBU05SVU44WkpOUDZUQ1MxUTJROmNvdjRWejdBR2JyNDRjRmZROFBVMVY0Wg==";
 
     public static final Map<String, OAuthSession> APIKEY_TO_OAUTHSESSION =  Maps.newHashMap();
 
     {
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY", "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY", "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.environment:LOCALHOST.write"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NO_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw","person@net.net", "906635c2-0405-429a-800b-0602bd716124", null));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw","person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw", "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_TEST_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT profile email"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INVALID_SIGNATURE_API_KEY, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","invalid@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:TEST-MNT"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_FULL_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "3TE0KYX35SZQUKIABM5VAOGW","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:LOCALHOST.mntner:OWNER-MNT.write"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_NOT_MNT_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "SJ9691NXUKZFVZMQXLQYBVRH","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:LOCALHOST.write"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_FULL_WRONG_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "RQMO5ASNRUN8ZJNP6TCS1Q2Q","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:PREPDEV.write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_FULL_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "3TE0KYX35SZQUKIABM5VAOGW","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.mntner:OWNER-MNT.write whois.environment:LOCALHOST.write profile email"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_NOT_MNT_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "SJ9691NXUKZFVZMQXLQYBVRH","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.environment:LOCALHOST.write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_WRONG_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "RQMO5ASNRUN8ZJNP6TCS1Q2Q","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:PREPDEV.write profile email"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_FULL_WRONG_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "aaMO5ASNRUN8ZJNP6TCS1Q2Q","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:PREPDEV.write whois.mntner:OWNER-MNT.write profile email"));
     }
 
     private Server server;

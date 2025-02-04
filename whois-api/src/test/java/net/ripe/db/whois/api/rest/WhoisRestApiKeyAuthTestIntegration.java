@@ -53,6 +53,7 @@ import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_M
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_TEST_MNT;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_WRONG_ENV_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.rest.WhoisRestBasicAuthTestIntegration.getBasicAuthenticationHeader;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -848,6 +849,20 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         assertThat(whoisResources.getWhoisObjects().size(), is(1));
         assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueForAttribute(AttributeType.REMARKS), is("more_test"));
+    }
+
+    @Test
+    public void update_object_with_apikey_with_no_mnt_with_sso_using_wrong_env_scope() {
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        assertThrows(NotAuthorizedException.class, () -> {
+            SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_WRONG_ENV_SIGNATURE_API_KEY))
+                    .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
     }
 
     @Test

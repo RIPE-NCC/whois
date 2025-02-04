@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.authentication.credential;
 
+import net.ripe.db.whois.common.Environment;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.APIKeyCredential;
@@ -51,7 +52,7 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
         for (final APIKeyCredential offered : offeredCredentials) {
 
             final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
-            if(!validateScope(oAuthSession, List.of(maintainer), environment)) {
+            if(!validateScope(oAuthSession, List.of(maintainer), Environment.valueOf(environment.toUpperCase()))) {
                 continue;
             }
 
