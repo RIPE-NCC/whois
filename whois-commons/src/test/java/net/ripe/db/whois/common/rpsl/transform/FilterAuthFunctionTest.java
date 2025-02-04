@@ -230,7 +230,8 @@ public class FilterAuthFunctionTest {
     public void sso_token_translator_exception() {
         when(ssoTokenTranslator.translateSsoToken(any(String.class))).thenThrow(AuthServiceClientException.class);
         subject = new FilterAuthFunction(Collections.emptyList(), null, "token", ssoTokenTranslator,
-                authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, Environment.LOCALHOST);
+                authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator,
+                Environment.LOCALHOST);
 
         final RpslObject result = subject.apply(
                 RpslObject.parse("" +

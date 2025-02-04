@@ -77,7 +77,7 @@ public class ApiKeyUtils {
             return false;
         }
 
-        if (!ApiKeyUtils.validateScope(oAuthSession, maintainers, environment)) {
+        if (!validateScope(oAuthSession, maintainers, environment)) {
             return false;
         }
 

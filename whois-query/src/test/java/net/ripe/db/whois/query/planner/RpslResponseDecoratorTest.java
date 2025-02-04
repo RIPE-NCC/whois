@@ -86,7 +86,7 @@ public class RpslResponseDecoratorTest {
                 ssoTokenTranslator,
                 authServiceClient,
                 clientAuthCertificateValidator,
-                Environment.DEV.name(),
+                Environment.LOCALHOST.name(),
                 decorator);
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);
