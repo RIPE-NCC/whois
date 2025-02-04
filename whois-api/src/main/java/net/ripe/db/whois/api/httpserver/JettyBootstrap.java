@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
@@ -46,6 +47,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 // TODO: [ES] remove duplicate code from InternalJettyBootstrap in whois-internal
 @Component
@@ -221,7 +224,9 @@ public class JettyBootstrap implements ApplicationService {
         setConnectors(server);
         server.setHandler(handlers);
 
-        server.setStopAtShutdown(false);
+        server.setStopAtShutdown(false);    // don't stop immediately
+        server.setStopTimeout(30_000L);
+
         server.setRequestLog(createRequestLog());
 
         if (rewriteEngineEnabled) {
@@ -258,7 +263,13 @@ public class JettyBootstrap implements ApplicationService {
     private Connector createInsecureConnector(final Server server, final HttpConfiguration httpConfiguration) {
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
-        final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
+        final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration)) {
+            @Override
+            public CompletableFuture<Void> shutdown() {
+                return CompletableFuture.runAsync(() -> {Uninterruptibles.sleepUninterruptibly(20_000L, TimeUnit.MILLISECONDS);});
+            }
+        };
+        connector.setShutdownIdleTimeout(20_000L);
         connector.setPort(this.port);
         return connector;
     }
@@ -339,8 +350,14 @@ public class JettyBootstrap implements ApplicationService {
 
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
-        final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
+        final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration)) {
+            @Override
+            public CompletableFuture<Void> shutdown() {
+                return CompletableFuture.runAsync(() -> {Uninterruptibles.sleepUninterruptibly(20_000L, TimeUnit.MILLISECONDS);});
+            }
+        };
         sslConnector.setPort(port);
+        sslConnector.setShutdownIdleTimeout(20_000L);
         return sslConnector;
     }
 
