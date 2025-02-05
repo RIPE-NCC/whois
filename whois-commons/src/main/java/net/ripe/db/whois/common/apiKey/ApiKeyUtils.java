@@ -24,18 +24,19 @@ public class ApiKeyUtils {
 
     public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
-        if(StringUtils.isEmpty(oAuthSession.getScope())) {
+
+        if (StringUtils.isEmpty(oAuthSession.getScope())) {
             return true;
         }
 
         final Optional<String> whoisScope = getWhoisScope(oAuthSession);
-        if(whoisScope.isEmpty()) {
+        if (whoisScope.isEmpty()) {
             return true;
         }
 
         final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope.get());
 
-        if(StringUtils.isEmpty(scopeFormatter.getScopeKey()) || StringUtils.isEmpty(scopeFormatter.getScopeType()) || StringUtils.isEmpty(scopeFormatter.getAppName())) {
+        if (StringUtils.isEmpty(scopeFormatter.getScopeKey()) || StringUtils.isEmpty(scopeFormatter.getScopeType()) || StringUtils.isEmpty(scopeFormatter.getAppName())) {
             return true;
         }
 
