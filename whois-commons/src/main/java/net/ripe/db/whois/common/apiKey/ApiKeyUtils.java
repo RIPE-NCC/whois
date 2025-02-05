@@ -40,13 +40,11 @@ public class ApiKeyUtils {
         }
 
         final Optional<OAuthSession.ScopeFormatter> mntnerScope = whoisScope.stream()
-                .filter(scopeFormatter -> !StringUtils.isEmpty(scopeFormatter.getScopeKey()) &&
-                        OAuthSession.ScopeType.MNTNER.equals(scopeFormatter.getScopeType()) &&
-                        !StringUtils.isEmpty(scopeFormatter.getAppName()))
+                .filter(scopeFormatter -> OAuthSession.ScopeType.MNTNER.equals(scopeFormatter.getScopeType()))
                 .findFirst();
 
-        return mntnerScope.map(scopeFormatter -> "whois".equalsIgnoreCase(scopeFormatter.getAppName())
-                && maintainers.stream().anyMatch(maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString())))
+        return mntnerScope.map(scopeFormatter -> maintainers.stream()
+                        .anyMatch(maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString())))
                 .orElse(true);
 
     }
