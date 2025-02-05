@@ -98,7 +98,7 @@ public class ApiKeyUtils {
     }
 
     public static String getApiKeyId(final String authHeader) {
-        if ("Basic ".startsWith(authHeader)) {
+        if(authHeader == null || !authHeader.startsWith("Basic ")) {
             return null;
         }
 
