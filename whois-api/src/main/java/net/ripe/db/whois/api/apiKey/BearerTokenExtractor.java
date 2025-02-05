@@ -26,12 +26,15 @@ public class BearerTokenExtractor   {
 
     private final ApiPublicKeyLoader apiPublicKeyLoader;
     private final boolean enabled;
+    private final String environment;
 
     @Autowired
     public BearerTokenExtractor(final ApiPublicKeyLoader apiPublicKeyLoader,
+                                @Value("${whois.environment}") final String environment,
                                 @Value("${apikey.authenticate.enabled:false}") final boolean enabled) {
         this.apiPublicKeyLoader = apiPublicKeyLoader;
         this.enabled = enabled;
+        this.environment = environment;
     }
 
     @Nullable
