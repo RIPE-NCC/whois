@@ -14,6 +14,7 @@ import jakarta.annotation.PreDestroy;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.ripe.db.whois.common.Environment;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.apiKey.ApiKeyAuthServiceClient;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
@@ -41,6 +42,7 @@ import java.util.Map;
 @Component
 public class ApiKeyAuthServerDummy implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyAuthServerDummy.class);
+    private static final String ENVIRONMENT = Environment.LOCALHOST.name();
     public static final String[] AUD = {"account", "whois"};
     public static final String BASIC_AUTH_TEST_NO_MNT = "eFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==";
     public static final String BASIC_AUTH_PERSON_NO_MNT = "bDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
@@ -56,15 +58,15 @@ public class ApiKeyAuthServerDummy implements Stub {
     public static final Map<String, OAuthSession> APIKEY_TO_OAUTHSESSION =  Maps.newHashMap();
 
     {
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY", "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.environment:LOCALHOST.write"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NO_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw","person@net.net", "906635c2-0405-429a-800b-0602bd716124", null));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw", "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_TEST_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT profile email"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INVALID_SIGNATURE_API_KEY, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","invalid@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:TEST-MNT"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_FULL_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "3TE0KYX35SZQUKIABM5VAOGW","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.mntner:OWNER-MNT.write whois.environment:LOCALHOST.write profile email"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_NOT_MNT_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "SJ9691NXUKZFVZMQXLQYBVRH","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.environment:LOCALHOST.write"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_WRONG_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "RQMO5ASNRUN8ZJNP6TCS1Q2Q","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:PREPDEV.write profile email"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_FULL_WRONG_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "aaMO5ASNRUN8ZJNP6TCS1Q2Q","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:PREPDEV.write whois.mntner:OWNER-MNT.write profile email"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY", "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.environment:LOCALHOST.write", ENVIRONMENT));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NO_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw","person@net.net", "906635c2-0405-429a-800b-0602bd716124", null, ENVIRONMENT));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT, new OAuthSession(AUD, "l6lRZgvOFIphjiGwtCGuLwqw", "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT", ENVIRONMENT));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_TEST_MNT, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT profile email", ENVIRONMENT));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INVALID_SIGNATURE_API_KEY, new OAuthSession(AUD, "hHZjAbXPtxGxUJCgdwv2ufhY","invalid@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:TEST-MNT", ENVIRONMENT));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_FULL_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "3TE0KYX35SZQUKIABM5VAOGW","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.mntner:OWNER-MNT.write whois.environment:LOCALHOST.write profile email", ENVIRONMENT));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_NOT_MNT_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "SJ9691NXUKZFVZMQXLQYBVRH","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.environment:LOCALHOST.write", ENVIRONMENT));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_WRONG_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "RQMO5ASNRUN8ZJNP6TCS1Q2Q","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:PREPDEV.write profile email", ENVIRONMENT));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_FULL_WRONG_ENV_SIGNATURE_API_KEY, new OAuthSession(AUD, "aaMO5ASNRUN8ZJNP6TCS1Q2Q","test@ripe.net", "906635c2-0405-429a-800b-0602bd716124", "whois.environment:PREPDEV.write whois.mntner:OWNER-MNT.write profile email", ENVIRONMENT));
     }
 
     private Server server;

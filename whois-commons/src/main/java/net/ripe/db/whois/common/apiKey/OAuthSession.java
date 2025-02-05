@@ -6,6 +6,7 @@ import io.netty.util.internal.StringUtil;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import net.ripe.db.whois.common.Environment;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -29,28 +30,33 @@ public class OAuthSession implements Serializable {
 
     private final String scope;
 
+    private final Environment env;
+
     public OAuthSession() {
         this.aud = null;
         this.email = null;
         this.keyId = null;
         this.uuid = null;
         this.scope = null;
+        this.env = null;
     }
 
-    public OAuthSession(final String[] aud, final String keyId, final String email, final String uuid, final String scope) {
+    public OAuthSession(final String[] aud, final String keyId, final String email, final String uuid, final String scope, final String environment) {
         this.aud = aud;
         this.email = email;
         this.uuid = uuid;
         this.scope = scope;
         this.keyId = keyId;
+        this.env = Environment.valueOf(environment.toUpperCase());
     }
 
-    public OAuthSession(final String keyId) {
+    public OAuthSession(final String keyId, final String environment) {
         this.aud = null;
         this.email = null;
         this.keyId = keyId;
         this.uuid = null;
         this.scope = null;
+        this.env = Environment.valueOf(environment.toUpperCase());
     }
 
     public String[] getAud() {
@@ -71,6 +77,10 @@ public class OAuthSession implements Serializable {
 
     public String getScope() {
         return scope;
+    }
+
+    public Environment getEnv() {
+        return env;
     }
 
     @Override
@@ -128,12 +138,12 @@ public class OAuthSession implements Serializable {
         }
    }
 
-    public static OAuthSession from(final OAuthSession oAuthSession, final String keyId) {
+    public static OAuthSession from(final OAuthSession oAuthSession, final String keyId, final String environment) {
         if(oAuthSession == null) {
-            return new OAuthSession(keyId);
+            return new OAuthSession(keyId, environment);
         }
 
-        return new OAuthSession(oAuthSession.getAud(), keyId, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope());
+        return new OAuthSession(oAuthSession.getAud(), keyId, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope(), environment);
     }
 
     public enum ScopeType {

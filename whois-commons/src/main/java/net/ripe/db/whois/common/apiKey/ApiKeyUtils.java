@@ -25,7 +25,7 @@ public class ApiKeyUtils {
 
     public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
 
-    public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final Environment environment) {
+    public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
         if (StringUtil.isNullOrEmpty(oAuthSession.getScope())) {
             return true;
         }
@@ -35,7 +35,7 @@ public class ApiKeyUtils {
             return true;
         }
 
-        if (!isValidEnvironment(environment, whoisScope)) {
+        if (!isValidEnvironment(oAuthSession.getEnv(), whoisScope)) {
             return false;
         }
 
@@ -63,7 +63,7 @@ public class ApiKeyUtils {
         return scopes.stream().filter(scope -> scope.startsWith("whois")).toList();
     }
 
-    public static boolean hasValidApiKey(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes, final Environment environment) {
+    public static boolean hasValidApiKey(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
         if (oAuthSession == null || oAuthSession.getUuid() == null) {
             return false;
         }
@@ -72,7 +72,7 @@ public class ApiKeyUtils {
             return false;
         }
 
-        if (!validateScope(oAuthSession, maintainers, environment)) {
+        if (!validateScope(oAuthSession, maintainers)) {
             return false;
         }
 
