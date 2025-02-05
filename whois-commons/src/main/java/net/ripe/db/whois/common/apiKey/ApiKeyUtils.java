@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.Environment;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
@@ -40,15 +39,13 @@ public class ApiKeyUtils {
             return false;
         }
 
-        final Optional<OAuthSession.ScopeFormatter> scope = whoisScope.stream()
+        final Optional<OAuthSession.ScopeFormatter> mntnerScope = whoisScope.stream()
                 .filter(scopeFormatter -> !StringUtils.isEmpty(scopeFormatter.getScopeKey()) &&
-                        !StringUtils.isEmpty(scopeFormatter.getScopeType()) &&
+                        OAuthSession.ScopeType.MNTNER.equals(scopeFormatter.getScopeType()) &&
                         !StringUtils.isEmpty(scopeFormatter.getAppName()))
                 .findFirst();
 
-
-        return scope.map(scopeFormatter -> "whois".equalsIgnoreCase(scopeFormatter.getAppName())
-                && ObjectType.MNTNER.getName().equalsIgnoreCase(scopeFormatter.getScopeType())
+        return mntnerScope.map(scopeFormatter -> "whois".equalsIgnoreCase(scopeFormatter.getAppName())
                 && maintainers.stream().anyMatch(maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString())))
                 .orElse(true);
 
@@ -56,10 +53,10 @@ public class ApiKeyUtils {
 
     private static boolean isValidEnvironment(final Environment environment, final List<OAuthSession.ScopeFormatter> whoisScope) {
         final Optional<OAuthSession.ScopeFormatter> environmentScope = whoisScope.stream()
-                .filter(scopeFormatter -> !StringUtil.isNullOrEmpty(scopeFormatter.getScopeEnv()))
+                .filter(scopeFormatter -> OAuthSession.ScopeType.ENVIRONMENT.equals(scopeFormatter.getScopeType()))
                 .findFirst();
 
-        return environmentScope.map(scopeFormatter -> environment.name().equals(scopeFormatter.getScopeEnv())).orElse(true);
+        return environmentScope.map(scopeFormatter -> environment.name().equals(scopeFormatter.getScopeKey())).orElse(true);
     }
 
 

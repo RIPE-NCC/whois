@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.apiKey;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.MoreObjects;
+import io.netty.util.internal.StringUtil;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -86,8 +87,7 @@ public class OAuthSession implements Serializable {
    public static class ScopeFormatter {
 
         final String appName;
-        final String scopeType;
-        final String scopeEnv;
+        final ScopeType scopeType;
         final String scopeKey;
 
         public ScopeFormatter(final String scope) {
@@ -96,23 +96,15 @@ public class OAuthSession implements Serializable {
             if (parts.length < 3){
                 this.appName = null;
                 this.scopeType = null;
-                this.scopeEnv = null;
                 this.scopeKey = null;
             } else {
                 this.appName = parts[0];
-                if (parts[1].equals("mntner")){
-                    this.scopeType = parts[1];
-                    this.scopeKey = parts[2];
-                    this.scopeEnv = null;
-                } else {
-                    this.scopeType = null;
-                    this.scopeKey = null;
-                    this.scopeEnv = parts[2];
-                }
+                this.scopeType = setScopeType(parts[1].toUpperCase());
+                this.scopeKey = parts[2];
             }
         }
 
-        public String getScopeType() {
+        public ScopeType getScopeType() {
             return scopeType;
         }
 
@@ -124,9 +116,16 @@ public class OAuthSession implements Serializable {
             return appName;
         }
 
-       public String getScopeEnv() {
-           return scopeEnv;
-       }
+        private ScopeType setScopeType(final String type) {
+            if (StringUtil.isNullOrEmpty(type)){
+                return null;
+            }
+            try {
+                return ScopeType.valueOf(type);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
    }
 
     public static OAuthSession from(final OAuthSession oAuthSession, final String keyId) {
@@ -135,5 +134,10 @@ public class OAuthSession implements Serializable {
         }
 
         return new OAuthSession(oAuthSession.getAud(), keyId, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope());
+    }
+
+    public enum ScopeType {
+        MNTNER,
+        ENVIRONMENT
     }
 }
