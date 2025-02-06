@@ -89,9 +89,10 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getSnapshotFile(final String url){
+    public byte[] getSnapshotFile(final String url, final String source){
         try {
             final Response response = client.target(baseUrl)
+                    .path(source)
                     .path(url)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
@@ -105,9 +106,10 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getDeltaFile(final String url){
+    public byte[] getDeltaFile(final String url, final String resource){
         try {
             final Response response = client.target(baseUrl)
+                    .path(resource)
                     .path(url)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Response.class);

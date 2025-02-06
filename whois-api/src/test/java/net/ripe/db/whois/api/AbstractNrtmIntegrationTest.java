@@ -7,16 +7,16 @@ import com.nimbusds.jose.JWSObject;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
-import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
-import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
-import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
+import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
+import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -209,7 +209,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected String getSnapshotNameFromUpdateNotification(final UpdateNotificationFile notificationFile) {
-        return notificationFile.getSnapshot().getUrl().split("/")[1];
+        return notificationFile.getSnapshot().getUrl();
     }
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName)  {
@@ -226,7 +226,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {
-        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[1];
+        return notificationFile.getDeltas().get(deltaPosition).getUrl();
     }
 
     protected void addPublicKeyinPemFormat(final long id) {

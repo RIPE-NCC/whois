@@ -51,7 +51,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         }
 
         freshDeltas.forEach(delta -> {
-            final byte[] deltaFilePayload = nrtmRestClient.getDeltaFile(delta.getUrl());
+            final byte[] deltaFilePayload = nrtmRestClient.getDeltaFile(delta.getUrl(), source);
 
             if (deltaFilePayload == null || deltaFilePayload.length == 0){
                 LOGGER.error("This cannot happen. UNF has a non-existing delta");
