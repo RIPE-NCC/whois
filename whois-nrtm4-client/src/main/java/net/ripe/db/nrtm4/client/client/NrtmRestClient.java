@@ -106,10 +106,10 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getDeltaFile(final String url, final String resource){
+    public byte[] getDeltaFile(final String url, final String source){
         try {
             final Response response = client.target(baseUrl)
-                    .path(resource)
+                    .path(source)
                     .path(url)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Response.class);
