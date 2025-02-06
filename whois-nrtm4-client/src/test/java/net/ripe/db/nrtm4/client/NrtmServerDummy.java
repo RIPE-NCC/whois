@@ -8,7 +8,9 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.Ed25519Signer;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.OctetKeyPair;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -57,8 +59,7 @@ public class NrtmServerDummy implements Stub {
 
     private final List<Mock> mocks;
 
-    private final static String PRIVATE_KEY = "{\"kty\":\"OKP\",\"d\":\"xzyMhzxbCpv-A1UDYMlGXdheAHDQuB-n5hV0I-J8PgQ\",\"crv\":\"Ed25519\",\"kid\":\"a9ddf4a5-0ca0-47b1-a80d-3c63fd5c19c5\",\"x\":\"ry9yLgcy1eUNX1lDs852mmUXRoy4qZW1HSOu54qBCHI\"}";
-
+    private final static String PRIVATE_KEY = "{\"kty\":\"EC\",\"d\":\"s5oYmEj_z_PaY2CO5sSQjuj6YaPwkFlAQGg064LlJVQ\",\"crv\":\"P-256\",\"kid\":\"cbc61f4e-7b78-4b7d-b934-bb1f4174a75e\",\"x\":\"lNjob69Ki9GH0NJ6gbQnXO0n-aMiZrpq8aAC2U-IWAY\",\"y\":\"NAg9cxYj5qyyD7c7yoJpHpFGjHVWUVMGJQKYYKjukY8\"}";
     private final static String RIPE_NONAUTH_SNAP_HASH = "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2";
 
     private final static String RIPE_SNAP_HASH = "7c9d1a1ebc73dc719e11c1046fae6598c35ae507a391d142beebe33865f077a0";
@@ -356,11 +357,11 @@ public class NrtmServerDummy implements Stub {
     private static String signWithJWS(final String payload)  {
 
         try {
-            final OctetKeyPair jwk = OctetKeyPair.parse(new String(PRIVATE_KEY.getBytes()));
-            final JWSSigner signer = new Ed25519Signer(jwk);
+            final ECKey jwk = ECKey.parse(new String(new String(PRIVATE_KEY.getBytes())));
+            final JWSSigner signer = new ECDSASigner(jwk);
 
             final JWSObject jwsObject = new JWSObject(
-                    new JWSHeader.Builder(JWSAlgorithm.Ed25519).keyID(jwk.getKeyID()).build(),
+                    new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(jwk.getKeyID()).build(),
                     new Payload(payload));
 
             jwsObject.sign(signer);

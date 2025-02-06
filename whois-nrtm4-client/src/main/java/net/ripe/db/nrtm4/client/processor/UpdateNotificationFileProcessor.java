@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.crypto.Ed25519Verifier;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.OctetKeyPair;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
@@ -173,9 +175,9 @@ public class UpdateNotificationFileProcessor {
 
     private boolean isCorrectSignature(final JWSObject jwsObjectParsed) {
         try {
-            final OctetKeyPair parsedPublicKey =  OctetKeyPair.parse(readPublicKey());
+            final ECKey parsedPublicKey =  ECKey.parse(readPublicKey());
 
-            final JWSVerifier verifier = new Ed25519Verifier(parsedPublicKey);
+            final JWSVerifier verifier = new ECDSAVerifier(parsedPublicKey);
             return jwsObjectParsed.verify(verifier);
         } catch (JOSEException | ParseException ex) {
             LOGGER.error("failed to verify signature {}", ex.getMessage());
