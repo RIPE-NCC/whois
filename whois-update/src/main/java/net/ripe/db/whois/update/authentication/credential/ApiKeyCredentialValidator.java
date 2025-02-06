@@ -53,7 +53,7 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
             }
 
             if (oAuthSession.getUuid() != null && oAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
-                log(update, String.format("Validated %s with API KEY for user: %s with apiKey: %s.", update.getFormattedKey(), oAuthSession.getEmail(), oAuthSession.getKeyId()));
+                log(update, String.format("Validated %s with API KEY for user: %s with apiKey: %s in %s environment.", update.getFormattedKey(), oAuthSession.getEmail(), oAuthSession.getKeyId(), oAuthSession.getEnv()));
 
                 update.getUpdate().setEffectiveCredential(String.format("%s (%s)", oAuthSession.getEmail(), oAuthSession.getKeyId()), Update.EffectiveCredentialType.APIKEY);
                 return true;
