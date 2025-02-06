@@ -122,19 +122,12 @@ public class NrtmClientService {
                 .build();
     }
 
-    private Response getResponse(final String payload) {
-        return Response.ok(payload)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .build();
-    }
-
     private Response getResponseForJWS(final String payload) {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .build();
     }
-
-
+    
     private Response getResponseForDelta(final String payload) {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
