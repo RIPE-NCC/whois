@@ -91,13 +91,11 @@ CREATE TABLE `key_pair`
 (
     `id`          int unsigned    NOT NULL AUTO_INCREMENT,
     `private_key` VARBINARY(3000) NOT NULL,
-    `public_key`  VARBINARY(3000) NOT NULL,
     `pem_format`  VARCHAR(255) NULL,
     `created`     bigint unsigned NOT NULL,
     `expires`     bigint unsigned NOT NULL,
     `is_active`   bit(1) NOT NULL DEFAULT b'0',
     UNIQUE KEY `private_key_name_uk` (`private_key`),
-    UNIQUE KEY `public_key_name_uk` (`public_key`),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

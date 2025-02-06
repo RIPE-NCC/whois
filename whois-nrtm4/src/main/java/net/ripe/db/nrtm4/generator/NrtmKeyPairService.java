@@ -49,13 +49,12 @@ public class NrtmKeyPairService {
            final ECKey jwk = new ECKeyGenerator(Curve.P_256).keyID(UUID.randomUUID().toString()).generate();
 
             final byte[] privateKey = jwk.toJSONString().getBytes();
-            final byte[] publicKey = jwk.toPublicJWK().toJSONString().getBytes();
             final String pemFormat = JWSUtil.publicKeyInPemFormat(jwk);
 
             final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
             final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
 
-            final NrtmKeyRecord keyRecord = NrtmKeyRecord.of(privateKey, publicKey, pemFormat, isActive, createdTimestamp, expires );
+            final NrtmKeyRecord keyRecord = NrtmKeyRecord.of(privateKey, pemFormat, isActive, createdTimestamp, expires );
             nrtmKeyConfigDao.saveKeyPair(keyRecord);
 
             return keyRecord;

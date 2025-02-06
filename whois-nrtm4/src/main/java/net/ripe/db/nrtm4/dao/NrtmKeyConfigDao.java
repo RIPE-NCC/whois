@@ -24,17 +24,13 @@ public class NrtmKeyConfigDao {
         return readTemplate.queryForObject("SELECT private_key FROM key_pair where is_active= true", (rs, rowNum) -> rs.getBytes(1));
     }
 
-    public byte[] getActivePublicKey() {
-        return readTemplate.queryForObject("SELECT public_key FROM key_pair where is_active= true", (rs, rowNum) -> rs.getBytes(1));
-    }
-
     public void saveKeyPair(final NrtmKeyRecord nrtmKeyRecord) {
         final String sql = """
-        INSERT INTO key_pair (private_key, public_key, pem_format, created, expires, is_active)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO key_pair (private_key, pem_format, created, expires, is_active)
+        VALUES (?, ?, ?, ?, ?)
         """;
 
-        writeTemplate.update(sql,nrtmKeyRecord.privateKey(), nrtmKeyRecord.publicKey(), nrtmKeyRecord.pemFormat(), nrtmKeyRecord.createdTimestamp(), nrtmKeyRecord.expires(), nrtmKeyRecord.isActive());
+        writeTemplate.update(sql,nrtmKeyRecord.privateKey(), nrtmKeyRecord.pemFormat(), nrtmKeyRecord.createdTimestamp(), nrtmKeyRecord.expires(), nrtmKeyRecord.isActive());
     }
 
     public void deleteKeyPair(final NrtmKeyRecord nrtmKeyRecord) {
@@ -47,27 +43,25 @@ public class NrtmKeyConfigDao {
 
     public NrtmKeyRecord getActiveKeyPair() {
         return readTemplate.queryForObject(
-                    "SELECT id, private_key, public_key, pem_format, is_active, created, expires FROM key_pair WHERE is_active = true",
+                    "SELECT id, private_key, pem_format, is_active, created, expires FROM key_pair WHERE is_active = true",
                     (rs, rn) -> new NrtmKeyRecord(rs.getLong(1),
                                                   rs.getBytes(2),
-                                                  rs.getBytes(3),
-                                                  rs.getString(4),
-                                                  rs.getBoolean(5),
-                                                  rs.getLong(6),
-                                                  rs.getLong(7))
+                                                  rs.getString(3),
+                                                  rs.getBoolean(4),
+                                                  rs.getLong(5),
+                                                  rs.getLong(6))
                     );
     }
 
     public List<NrtmKeyRecord> getAllKeyPair() {
         return readTemplate.query(
-                "SELECT id, private_key, public_key, pem_format, is_active, created, expires FROM key_pair",
+                "SELECT id, private_key, pem_format, is_active, created, expires FROM key_pair",
                 (rs, rn) -> new NrtmKeyRecord(rs.getLong(1),
                         rs.getBytes(2),
-                        rs.getBytes(3),
-                        rs.getString(4),
-                        rs.getBoolean(5),
-                        rs.getLong(6),
-                        rs.getLong(7))
+                        rs.getString(3),
+                        rs.getBoolean(4),
+                        rs.getLong(5),
+                        rs.getLong(6))
         );
     }
 

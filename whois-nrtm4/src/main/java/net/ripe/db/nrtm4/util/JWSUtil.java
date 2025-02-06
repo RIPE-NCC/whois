@@ -54,10 +54,6 @@ public class JWSUtil {
         }
     }
 
-    public static String getPublicKey(final byte[] publicKey) {
-        return new String(publicKey);
-    }
-
     public static String publicKeyInPemFormat(final ECKey ecKey) {
         try {
            final StringWriter stringWriter = new StringWriter();
