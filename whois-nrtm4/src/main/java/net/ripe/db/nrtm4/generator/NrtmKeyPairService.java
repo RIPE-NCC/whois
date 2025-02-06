@@ -2,11 +2,12 @@ package net.ripe.db.nrtm4.generator;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.OctetKeyPair;
-import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
+import net.ripe.db.nrtm4.util.JWSUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import org.mariadb.jdbc.internal.logging.Logger;
 import org.mariadb.jdbc.internal.logging.LoggerFactory;
@@ -45,15 +46,16 @@ public class NrtmKeyPairService {
 
     public NrtmKeyRecord generateKeyRecord(final boolean isActive) {
         try {
-           final OctetKeyPair jwk = new OctetKeyPairGenerator(Curve.Ed25519).keyID(UUID.randomUUID().toString()).generate();
+           final ECKey jwk = new ECKeyGenerator(Curve.P_256).keyID(UUID.randomUUID().toString()).generate();
 
             final byte[] privateKey = jwk.toJSONString().getBytes();
             final byte[] publicKey = jwk.toPublicJWK().toJSONString().getBytes();
+            final String pemFormat = JWSUtil.publicKeyInPemFormat(jwk);
 
             final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
             final long expires = dateTimeProvider.getCurrentDateTime().plusYears(1).toEpochSecond(ZoneOffset.UTC);
 
-            final NrtmKeyRecord keyRecord = NrtmKeyRecord.of(privateKey, publicKey, isActive, createdTimestamp, expires );
+            final NrtmKeyRecord keyRecord = NrtmKeyRecord.of(privateKey, publicKey, pemFormat, isActive, createdTimestamp, expires );
             nrtmKeyConfigDao.saveKeyPair(keyRecord);
 
             return keyRecord;

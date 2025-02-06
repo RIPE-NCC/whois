@@ -30,11 +30,11 @@ public class NrtmKeyConfigDao {
 
     public void saveKeyPair(final NrtmKeyRecord nrtmKeyRecord) {
         final String sql = """
-        INSERT INTO key_pair (private_key, public_key, created, expires, is_active)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO key_pair (private_key, public_key, pem_format, created, expires, is_active)
+        VALUES (?, ?, ?, ?, ?, ?)
         """;
 
-        writeTemplate.update(sql,nrtmKeyRecord.privateKey(), nrtmKeyRecord.publicKey(), nrtmKeyRecord.createdTimestamp(), nrtmKeyRecord.expires(), nrtmKeyRecord.isActive());
+        writeTemplate.update(sql,nrtmKeyRecord.privateKey(), nrtmKeyRecord.publicKey(), nrtmKeyRecord.pemFormat(), nrtmKeyRecord.createdTimestamp(), nrtmKeyRecord.expires(), nrtmKeyRecord.isActive());
     }
 
     public void deleteKeyPair(final NrtmKeyRecord nrtmKeyRecord) {

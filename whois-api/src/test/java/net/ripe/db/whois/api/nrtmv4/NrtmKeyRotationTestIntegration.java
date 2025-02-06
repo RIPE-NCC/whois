@@ -69,28 +69,6 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
     }
 
     @Test
-    public void should_not_add_next_signing_key_if_no_pem_format()  {
-        setTime(LocalDateTime.now().minusDays(1));
-
-        snapshotFileGenerator.createSnapshot();
-
-        setTime(LocalDateTime.now().plusYears(1).minusDays(7));
-
-        nrtmKeyPairService.generateOrRotateNextKey();
-        updateNotificationFileGenerator.generateFile();
-
-        final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
-        final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
-
-        assertThat(nrtmKeyPairService.getNextkeyPair().pemFormat(), is(nullValue()));
-        assertThat(testIteration.getSource().getName(), is("TEST"));
-        assertThat(testIteration.getNextSigningKey(), is(nullValue()));
-
-        assertThat(testNonAuthIteration.getSource().getName(), is("TEST-NONAUTH"));
-        assertThat(testNonAuthIteration.getNextSigningKey(), is(nullValue()));
-    }
-
-    @Test
     public void should_rotate_next_key_as_new_key()  {
 
         //No new signing next key till expiry is greater than 7 days
