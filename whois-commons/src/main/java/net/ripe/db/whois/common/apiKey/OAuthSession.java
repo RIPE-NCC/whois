@@ -50,13 +50,13 @@ public class OAuthSession implements Serializable {
         this.env = Environment.valueOf(environment.toUpperCase());
     }
 
-    public OAuthSession(final String keyId, final String environment) {
+    public OAuthSession(final String keyId) {
         this.aud = null;
         this.email = null;
         this.keyId = keyId;
         this.uuid = null;
         this.scope = null;
-        this.env = Environment.valueOf(environment.toUpperCase());
+        this.env = null;
     }
 
     public String[] getAud() {
@@ -91,6 +91,7 @@ public class OAuthSession implements Serializable {
                 .add("email", email)
                 .add("uuid", uuid)
                 .add("scope", scope)
+                .add("environment", env)
                 .toString();
     }
 
@@ -140,7 +141,7 @@ public class OAuthSession implements Serializable {
 
     public static OAuthSession from(final OAuthSession oAuthSession, final String keyId, final String environment) {
         if(oAuthSession == null) {
-            return new OAuthSession(keyId, environment);
+            return new OAuthSession(keyId);
         }
 
         return new OAuthSession(oAuthSession.getAud(), keyId, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope(), environment);

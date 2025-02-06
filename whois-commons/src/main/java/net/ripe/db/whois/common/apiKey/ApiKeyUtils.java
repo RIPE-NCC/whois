@@ -39,28 +39,33 @@ public class ApiKeyUtils {
             return false;
         }
 
-        final Optional<OAuthSession.ScopeFormatter> mntnerScope = whoisScope.stream()
-                .filter(scopeFormatter -> OAuthSession.ScopeType.MNTNER.equals(scopeFormatter.getScopeType()))
-                .findFirst();
-
-        return mntnerScope.map(scopeFormatter -> maintainers.stream()
+        return getMntnerScope(whoisScope).map(scopeFormatter -> maintainers.stream()
                         .anyMatch(maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString())))
                 .orElse(true);
 
     }
 
     private static boolean isValidEnvironment(final Environment environment, final List<OAuthSession.ScopeFormatter> whoisScope) {
-        final Optional<OAuthSession.ScopeFormatter> environmentScope = whoisScope.stream()
-                .filter(scopeFormatter -> OAuthSession.ScopeType.ENVIRONMENT.equals(scopeFormatter.getScopeType()))
-                .findFirst();
+        final Optional<OAuthSession.ScopeFormatter> environmentScope = getEnvironmentScope(whoisScope);
 
         return environmentScope.map(scopeFormatter -> environment.name().equals(scopeFormatter.getScopeKey())).orElse(true);
     }
 
-
     private static List<String> getWhoisScope(final OAuthSession oAuthSession) {
         final List<String> scopes = Arrays.asList(StringUtils.split(oAuthSession.getScope(), " "));
         return scopes.stream().filter(scope -> scope.startsWith("whois")).toList();
+    }
+
+    private static Optional<OAuthSession.ScopeFormatter> getMntnerScope(final List<OAuthSession.ScopeFormatter> whoisScope) {
+        return whoisScope.stream()
+                .filter(scopeFormatter -> OAuthSession.ScopeType.MNTNER.equals(scopeFormatter.getScopeType()))
+                .findFirst();
+    }
+
+    private static Optional<OAuthSession.ScopeFormatter> getEnvironmentScope(final List<OAuthSession.ScopeFormatter> whoisScope) {
+        return whoisScope.stream()
+                .filter(scopeFormatter -> OAuthSession.ScopeType.ENVIRONMENT.equals(scopeFormatter.getScopeType()))
+                .findFirst();
     }
 
     public static boolean hasValidApiKey(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {

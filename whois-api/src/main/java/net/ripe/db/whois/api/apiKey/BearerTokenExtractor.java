@@ -49,7 +49,7 @@ public class BearerTokenExtractor   {
 
     private OAuthSession getOAuthSession(final String bearerToken, final String apiKeyId) {
         if(StringUtils.isEmpty(bearerToken)) {
-            return new OAuthSession(apiKeyId, this.environment);
+            return new OAuthSession(apiKeyId);
         }
 
         try {
@@ -57,17 +57,17 @@ public class BearerTokenExtractor   {
 
             if(!verifyJWTSignature(signedJWT)) {
               LOGGER.debug("JWT signature verification failed for {}", apiKeyId);
-              return new OAuthSession(apiKeyId, this.environment);
+              return new OAuthSession(apiKeyId);
             }
             
             //TODO[MA]: remove when apiKeyId is available from api registry call
             return OAuthSession.from(new ObjectMapper().readValue(signedJWT.getPayload().toString(), OAuthSession.class), apiKeyId, this.environment);
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
-            return  new OAuthSession(apiKeyId, this.environment);
+            return  new OAuthSession(apiKeyId);
         } catch (Exception e) {
             LOGGER.error("Failed to read OAuthSession, this should never have happened", e);
-            return new OAuthSession(apiKeyId, this.environment);
+            return new OAuthSession(apiKeyId);
         }
     }
 
