@@ -7,13 +7,10 @@ import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-
 import org.apache.commons.compress.utils.Lists;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,10 +20,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +73,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             throw new IllegalArgumentException("Snapshot link does not exist in the Update Notification File");
         }
 
-        final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl());
+        final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl(), source);
 
         final String payloadHash = calculateSha256(payload);
         if (!snapshot.getHash().equals(calculateSha256(payload))){
