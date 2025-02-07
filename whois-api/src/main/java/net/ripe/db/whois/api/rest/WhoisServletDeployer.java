@@ -54,6 +54,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final HttpsBasicAuthFiler httpsBasicAuthFiler;
     private final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter;
     private final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter;
+    private final AuthorizedRipeRequestFilter authorizedRipeRequestFilter;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -74,7 +75,8 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final HttpsBasicAuthFiler httpsBasicAuthFiler,
                                 final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter,
                                 final ClientCertificateService clientCertificateService,
-                                final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter) {
+                                final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter,
+                                final AuthorizedRipeRequestFilter authorizedRipeRequestFilter) {
         this.whoisRestService = whoisRestService;
         this.whoisSearchService = whoisSearchService;
         this.whoisVersionService = whoisVersionService;
@@ -94,6 +96,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.httpsBasicAuthFiler = httpsBasicAuthFiler;
         this.httpsAPIKeyAuthFilter = httpsAPIKeyAuthFilter;
         this.syncUpdatesHttpSchemeFilter = syncUpdatesHttpSchemeFilter;
+        this.authorizedRipeRequestFilter = authorizedRipeRequestFilter;
     }
 
     @Override
@@ -101,7 +104,9 @@ public class WhoisServletDeployer implements ServletDeployer {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(httpsAPIKeyAuthFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(httpsBasicAuthFiler), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(authorizedRipeRequestFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(syncUpdatesHttpSchemeFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(authorizedRipeRequestFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         EncodingFilter.enableFor(resourceConfig, GZipEncoder.class);
