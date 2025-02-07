@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -51,7 +53,7 @@ public class AuthorizedRipeRequestFilter implements Filter {
     }
 
     private boolean isAuthenticated(final HttpServletRequest httpRequest){
-        final String authHeader = httpRequest.getHeader("Authorization");
+        final String authHeader = httpRequest.getHeader(HttpHeader.AUTHORIZATION.name());
         return httpRequest.getParameterMap().containsKey("password") ||
                 httpRequest.getParameterMap().containsKey(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) ||
                 httpRequest.getParameterMap().containsKey(AuthServiceClient.TOKEN_KEY) ||
@@ -60,6 +62,6 @@ public class AuthorizedRipeRequestFilter implements Filter {
 
     private boolean isUpdateRequest(final HttpServletRequest httpRequest){
         final String method = httpRequest.getMethod();
-        return "POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method);
+        return HttpMethod.POST.name().equalsIgnoreCase(method) || HttpMethod.PUT.name().equalsIgnoreCase(method);
     }
 }
