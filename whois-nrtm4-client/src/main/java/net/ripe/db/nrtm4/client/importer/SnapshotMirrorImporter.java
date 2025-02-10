@@ -75,7 +75,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             throw new IllegalArgumentException("Snapshot link does not exist in the Update Notification File");
         }
 
-        final byte[] payload = nrtmRestClient.getSnapshotFile(getUrlFromRelativePath(unfUri, snapshot.getUrl()));
+        final byte[] payload = nrtmRestClient.getSnapshotFile(getUriFromRelativePath(unfUri, snapshot.getUrl()));
 
         final String payloadHash = calculateSha256(payload);
         if (!snapshot.getHash().equals(calculateSha256(payload))){

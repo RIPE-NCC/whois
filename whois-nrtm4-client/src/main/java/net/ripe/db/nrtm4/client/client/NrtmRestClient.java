@@ -78,8 +78,8 @@ public class NrtmRestClient {
         }
     }
 
-    public String getNotificationFileSignature(final String unfUrl){
-        return client.target(unfUrl)
+    public String getNotificationFileSignature(final String unfUri){
+        return client.target(unfUri)
                 .request()
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .get(String.class);

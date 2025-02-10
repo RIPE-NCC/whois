@@ -36,7 +36,7 @@ public abstract class AbstractMirrorImporter {
         nrtm4ClientRepository.truncateTables();
     }
 
-    URI getUrlFromRelativePath(final URI unfUri, final String relativePath){
+    URI getUriFromRelativePath(final URI unfUri, final String relativePath){
         return unfUri.resolve(relativePath);
     }
 }
