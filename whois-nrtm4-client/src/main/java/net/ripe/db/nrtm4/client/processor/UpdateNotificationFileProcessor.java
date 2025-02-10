@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,24 +62,26 @@ public class UpdateNotificationFileProcessor {
     }
 
     public void processFile(){
-        final StringBuilder filesCommonPath = new StringBuilder(baseUrl); // unf, snap, delta common path of their URL (match the RFC)
+        final List<UpdateNotificationFileInfo> notificationFilePerSource =
+                nrtmRestClient.getNrtmAvailableSources(baseUrl).stream()
+                        .map(source -> {
+                            final String uri = baseUrl.concat("/")
+                                    .concat(source)
+                                    .concat("/update-notification-file.jose");
+                            return new UpdateNotificationFileInfo(uri, source, nrtmRestClient.getNotificationFileSignature(uri));
+                        }).toList();
+        LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.stream()
+                .map(UpdateNotificationFileInfo::getSource)
+                .collect(Collectors.joining(",")));
 
-        final Map<String, String> notificationFilePerSource =
-                nrtmRestClient.getNrtmAvailableSources(baseUrl)
-                .stream()
-                .collect(Collectors.toMap(
-                        source -> source,
-                        source -> nrtmRestClient.getNotificationFileSignature(filesCommonPath.append(source).toString())
-                ));
-        LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();
 
         final String hostname = Hosts.getInstanceName();
 
-        notificationFilePerSource.forEach((source, updateNotificationSignature) -> {
+        notificationFilePerSource.forEach(updateNotificationFileInfo -> {
             final NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
                     .stream()
-                    .filter(nrtmVersionInfo -> nrtmVersionInfo.source() != null && nrtmVersionInfo.source().equals(source))
+                    .filter(nrtmVersionInfo -> nrtmVersionInfo.source() != null && nrtmVersionInfo.source().equals(updateNotificationFileInfo.getSource()))
                     .findFirst()
                     .orElse(null);
 
@@ -91,13 +92,14 @@ public class UpdateNotificationFileProcessor {
 
             final JWSObject jwsObjectParsed;
             try {
-                jwsObjectParsed = JWSObject.parse(updateNotificationSignature);
+                jwsObjectParsed = JWSObject.parse(updateNotificationFileInfo.getUnfSignature());
             } catch (ParseException e) {
                 return;
             }
 
             if (!isCorrectSignature(jwsObjectParsed)) {
-                LOGGER.error("Update Notification File not corrected signed for {} source", source);
+                LOGGER.error("Update Notification File not corrected signed for {} source",
+                        updateNotificationFileInfo.getSource());
                 return;
             }
 
@@ -114,23 +116,27 @@ public class UpdateNotificationFileProcessor {
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()) {
-                LOGGER.info("The local version cannot be higher than the update notification version {}", source);
+                LOGGER.info("The local version cannot be higher than the update notification version {}",
+                        updateNotificationFileInfo.getSource());
                 snapshotImporter.truncateTables();
                 return;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())) {
-                LOGGER.info("There is no new version associated with the source {}", source);
+                LOGGER.info("There is no new version associated with the source {}", updateNotificationFileInfo.getSource());
                 return;
             }
 
             try {
                 if (nrtmClientLastVersionInfo == null) {
-                    snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), filesCommonPath.append(source).toString(), updateNotificationFile.getSnapshot());
+                    snapshotImporter.doImport(updateNotificationFileInfo.getSource(),
+                            updateNotificationFile.getSessionID(), updateNotificationFileInfo.getUnfUri(),
+                            updateNotificationFile.getSnapshot());
                 }
-                final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
-                deltaImporter.doImport(source, updateNotificationFile.getSessionID(), filesCommonPath.append(source).toString(), newDeltas);
-                persistUpdateFileVersion(source, updateNotificationFile, hostname);
+                final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(updateNotificationFileInfo.getSource(), updateNotificationFile);
+                deltaImporter.doImport(updateNotificationFileInfo.getSource(), updateNotificationFile.getSessionID(),
+                        updateNotificationFileInfo.getUnfUri(), newDeltas);
+                persistUpdateFileVersion(updateNotificationFileInfo.getSource(), updateNotificationFile, hostname);
             } catch (Exception ex){
                 LOGGER.error("Failed to mirror database, cleaning up the tables", ex);
                 cleanUpTablesSafely();

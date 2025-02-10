@@ -3,6 +3,7 @@ package net.ripe.db.nrtm4.client.importer;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -33,5 +34,9 @@ public abstract class AbstractMirrorImporter {
     public void truncateTables(){
         nrtm4ClientInfoRepository.truncateTables();
         nrtm4ClientRepository.truncateTables();
+    }
+
+    URI getUrlFromRelativePath(final URI unfUri, final String relativePath){
+        return unfUri.resolve(relativePath);
     }
 }

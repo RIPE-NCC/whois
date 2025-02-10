@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.net.URI;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,19 +78,17 @@ public class NrtmRestClient {
         }
     }
 
-    public String getNotificationFileSignature(final String commonPath){
-        return client.target(commonPath)
-                .path("update-notification-file.jose")
+    public String getNotificationFileSignature(final String unfUrl){
+        return client.target(unfUrl)
                 .request()
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .get(String.class);
     }
 
     @Nullable
-    public byte[] getSnapshotFile(final String commonPath, final String fileName){
+    public byte[] getSnapshotFile(final URI uri){
         try {
-            final Response response = client.target(commonPath)
-                    .path(fileName)
+            final Response response = client.target(uri)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
@@ -102,10 +101,9 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getDeltaFile(final String commonPath, final String fileName){
+    public byte[] getDeltaFile(final URI uri){
         try {
-            final Response response = client.target(commonPath)
-                    .path(fileName)
+            final Response response = client.target(uri)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Response.class);
 

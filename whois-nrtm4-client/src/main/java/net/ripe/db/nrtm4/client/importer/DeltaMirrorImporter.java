@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -44,7 +45,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
 
     public void doImport(final String source,
                          final String sessionId,
-                         final String commonPath,
+                         final URI unfUri,
                          final List<UpdateNotificationFileResponse.NrtmFileLink> freshDeltas){
         if (freshDeltas.isEmpty()) {
             LOGGER.info("No new deltas to be processed");
@@ -52,7 +53,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         }
 
         freshDeltas.forEach(delta -> {
-            final byte[] deltaFilePayload = nrtmRestClient.getDeltaFile(commonPath, delta.getUrl());
+            final byte[] deltaFilePayload = nrtmRestClient.getDeltaFile(getUrlFromRelativePath(unfUri, delta.getUrl()));
 
             if (deltaFilePayload == null || deltaFilePayload.length == 0){
                 LOGGER.error("This cannot happen. UNF has a non-existing delta");
