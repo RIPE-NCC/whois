@@ -22,7 +22,6 @@ import org.eclipse.jetty.http.HttpScheme;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +36,6 @@ public class NrtmRestClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmRestClient.class);
 
-    private final String baseUrl;
 
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
 
@@ -45,7 +43,7 @@ public class NrtmRestClient {
 
     private final Client client;
 
-    public NrtmRestClient(@Value("${nrtm.baseUrl}") final String baseUrl) {
+    public NrtmRestClient() {
         final ObjectMapper objectMapper = JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();
@@ -64,10 +62,9 @@ public class NrtmRestClient {
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
                 .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
                 .build();
-        this.baseUrl = baseUrl;
     }
 
-    public List<String> getNrtmAvailableSources(){
+    public List<String> getNrtmAvailableSources(final String baseUrl){
         try {
             final String response = client.target(baseUrl)
                     .request(MediaType.TEXT_HTML_TYPE)
@@ -80,8 +77,8 @@ public class NrtmRestClient {
         }
     }
 
-    public String getNotificationFileSignature(final String source){
-        return client.target(String.format("%s/%s", baseUrl, source))
+    public String getNotificationFileSignature(final String commonPath){
+        return client.target(commonPath)
                 .path("update-notification-file.jose")
                 .request()
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
@@ -89,11 +86,10 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getSnapshotFile(final String url, final String source){
+    public byte[] getSnapshotFile(final String commonPath, final String fileName){
         try {
-            final Response response = client.target(baseUrl)
-                    .path(source)
-                    .path(url)
+            final Response response = client.target(commonPath)
+                    .path(fileName)
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
@@ -106,11 +102,10 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getDeltaFile(final String url, final String source){
+    public byte[] getDeltaFile(final String commonPath, final String fileName){
         try {
-            final Response response = client.target(baseUrl)
-                    .path(source)
-                    .path(url)
+            final Response response = client.target(commonPath)
+                    .path(fileName)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Response.class);
 

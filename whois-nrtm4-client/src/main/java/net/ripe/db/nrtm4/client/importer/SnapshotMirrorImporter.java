@@ -64,6 +64,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
     public void doImport(final String source,
                          final String sessionId,
+                         final String commonPath,
                          final UpdateNotificationFileResponse.NrtmFileLink snapshot){
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
@@ -73,7 +74,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             throw new IllegalArgumentException("Snapshot link does not exist in the Update Notification File");
         }
 
-        final byte[] payload = nrtmRestClient.getSnapshotFile(snapshot.getUrl(), source);
+        final byte[] payload = nrtmRestClient.getSnapshotFile(commonPath, snapshot.getUrl());
 
         final String payloadHash = calculateSha256(payload);
         if (!snapshot.getHash().equals(calculateSha256(payload))){

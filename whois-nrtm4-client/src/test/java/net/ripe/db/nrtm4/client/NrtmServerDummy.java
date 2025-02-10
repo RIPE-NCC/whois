@@ -15,7 +15,7 @@ import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.nrtm4.client.client.NrtmRestClient;
+import net.ripe.db.nrtm4.client.processor.UpdateNotificationFileProcessor;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
@@ -54,7 +54,7 @@ public class NrtmServerDummy implements Stub {
 
     public static final String RECORD_SEPARATOR = "\u001E";
 
-    private final NrtmRestClient nrtmRestClient;
+    private final UpdateNotificationFileProcessor updateNotificationFileProcessor;
 
     private final List<Mock> mocks;
 
@@ -123,8 +123,8 @@ public class NrtmServerDummy implements Stub {
                 """;
 
     @Autowired
-    public NrtmServerDummy(final NrtmRestClient nrtmRestClient) {
-        this.nrtmRestClient = nrtmRestClient;
+    public NrtmServerDummy(final UpdateNotificationFileProcessor updateNotificationFileProcessor) {
+        this.updateNotificationFileProcessor = updateNotificationFileProcessor;
         this.mocks = Lists.newArrayList();
     }
 
@@ -143,7 +143,7 @@ public class NrtmServerDummy implements Stub {
         initialiseMocks();
         final String restUrl = String.format("http://localhost:%s/nrtmv4", getPort());
         LOGGER.info("NRTM Service dummy server restUrl: {}", restUrl);
-        ReflectionTestUtils.setField(nrtmRestClient, "baseUrl", restUrl);
+        ReflectionTestUtils.setField(updateNotificationFileProcessor, "baseUrl", restUrl);
     }
 
     @PreDestroy

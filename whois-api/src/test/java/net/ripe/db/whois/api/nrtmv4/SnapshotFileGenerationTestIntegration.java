@@ -10,9 +10,9 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
-import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
@@ -504,6 +504,23 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
         assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).created()));
         assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST")).get(0).created()));
+    }
+
+    @Test
+    public void snap_url_should_be_relative_to_unf_url() throws IOException {
+        final String unfPath = "TEST/update-notification-file.jose";
+
+        setTime(LocalDateTime.now().minusHours(1));
+        snapshotFileGenerator.createSnapshot();
+
+        updateNotificationFileGenerator.generateFile();
+
+        final UpdateNotificationFile firsIteration = getNotificationFileByUrl(unfPath);
+        final Response response = getResponseFromHttpsRequest(composeUrlFromRelativePath(unfPath,
+                firsIteration.getSnapshot().getUrl()), MediaType.APPLICATION_JSON);
+
+        final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+        assertThat(records.length, is(not(0)));
     }
 
     public static String decompress(byte[] compressed) throws IOException {

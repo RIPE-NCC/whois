@@ -5,11 +5,13 @@ import com.google.common.collect.Lists;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Tag;
@@ -366,5 +368,36 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         assertThat(firstIteration.getDeltas().size(), is(1));
         assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3L));
         assertThat(publishableFile.getSnapshot().getVersion(), is(not(firstIteration.getSnapshot().getVersion())));
+    }
+
+    @Test
+    public void delta_url_should_be_relative_to_unf_url() {
+        final String unfPath = "TEST/update-notification-file.jose";
+
+        setTime(LocalDateTime.now().minusHours(1));
+        snapshotFileGenerator.createSnapshot();
+
+        generateDeltas(Lists.newArrayList(RpslObject.parse("""
+                inet6num:       ::/0
+                netname:        IANA-BLK
+                descr:          The whole IPv6 address space:Updated for test
+                country:        NL
+                tech-c:         TP1-TEST
+                admin-c:        TP1-TEST
+                status:         OTHER
+                mnt-by:         OWNER-MNT
+                created:         2022-08-14T11:48:28Z
+                last-modified:   2022-10-25T12:22:39Z
+                source:         TEST""")));
+
+        updateNotificationFileGenerator.generateFile();
+
+        final UpdateNotificationFile firsIteration = getNotificationFileByUrl(unfPath);
+        final Response response = getResponseFromHttpsRequest(composeUrlFromRelativePath(unfPath,
+                firsIteration.getDeltas().getFirst().getUrl()), "application/json-seq");
+
+        final String stringResponse = response.readEntity(String.class);
+        final String[] deltas = StringUtils.split( stringResponse, NrtmFileUtil.RECORD_SEPERATOR);
+        assertThat(deltas.length, is(not(0)));
     }
 }

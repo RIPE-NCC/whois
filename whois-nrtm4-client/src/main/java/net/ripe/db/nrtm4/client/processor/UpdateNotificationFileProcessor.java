@@ -6,20 +6,19 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.crypto.Ed25519Verifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.OctetKeyPair;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.importer.DeltaMirrorImporter;
 import net.ripe.db.nrtm4.client.importer.SnapshotMirrorImporter;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
@@ -48,24 +47,30 @@ public class UpdateNotificationFileProcessor {
 
     private final static String PUBLIC_KEY_PATH = "public.key";
 
+    private final String baseUrl;
 
-    public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
-                                           final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
-                                           final SnapshotMirrorImporter snapshotImporter,
-                                           final DeltaMirrorImporter deltaImporter) {
+    public UpdateNotificationFileProcessor(
+            @Value("${nrtm.baseUrl}") final String baseUrl,
+            final NrtmRestClient nrtmRestClient,
+            final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
+            final SnapshotMirrorImporter snapshotImporter,
+            final DeltaMirrorImporter deltaImporter) {
         this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
         this.snapshotImporter = snapshotImporter;
         this.deltaImporter = deltaImporter;
+        this.baseUrl = baseUrl;
     }
 
     public void processFile(){
+        final String filesCommonPath = baseUrl + "/%s"; // unf, snap, delta common path of their URL (match the RFC)
+
         final Map<String, String> notificationFilePerSource =
-                nrtmRestClient.getNrtmAvailableSources()
+                nrtmRestClient.getNrtmAvailableSources(baseUrl)
                 .stream()
                 .collect(Collectors.toMap(
-                        string -> string,
-                        nrtmRestClient::getNotificationFileSignature
+                        source -> source,
+                        source -> nrtmRestClient.getNotificationFileSignature(String.format(filesCommonPath, source))
                 ));
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();
@@ -120,12 +125,12 @@ public class UpdateNotificationFileProcessor {
             }
 
             try {
+                final String commonSourcePath = String.format(filesCommonPath, source);
                 if (nrtmClientLastVersionInfo == null) {
-                    snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
+                    snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), commonSourcePath, updateNotificationFile.getSnapshot());
                 }
-
                 final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
-                deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
+                deltaImporter.doImport(source, updateNotificationFile.getSessionID(), commonSourcePath, newDeltas);
                 persistUpdateFileVersion(source, updateNotificationFile, hostname);
             } catch (Exception ex){
                 LOGGER.error("Failed to mirror database, cleaning up the tables", ex);
