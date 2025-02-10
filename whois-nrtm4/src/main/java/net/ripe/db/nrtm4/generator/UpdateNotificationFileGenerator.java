@@ -168,7 +168,7 @@ public class UpdateNotificationFileGenerator {
     }
 
     private String urlString(final String fileName) {
-        return String.format("%s", fileName);
+        return fileName;
     }
 
     private String getPayload(final SnapshotFileVersionInfo snapshotFile, final List<DeltaFileVersionInfo> deltaFiles, final NrtmVersionInfo fileVersion, final NrtmKeyRecord nextKey, final long createdTimestamp) {

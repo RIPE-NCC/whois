@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 
@@ -302,7 +303,6 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected String composeUrlFromRelativePath(final String unfUrl, final String relativePath){
-        return unfUrl.replace("update-notification-file.jose", "")
-                .concat(relativePath);
+        return URI.create(unfUrl).resolve(relativePath).toString();
     }
 }
