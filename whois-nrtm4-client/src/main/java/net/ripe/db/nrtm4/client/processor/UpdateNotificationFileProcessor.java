@@ -63,14 +63,14 @@ public class UpdateNotificationFileProcessor {
     }
 
     public void processFile(){
-        final String filesCommonPath = baseUrl + "/%s"; // unf, snap, delta common path of their URL (match the RFC)
+        final StringBuilder filesCommonPath = new StringBuilder(baseUrl); // unf, snap, delta common path of their URL (match the RFC)
 
         final Map<String, String> notificationFilePerSource =
                 nrtmRestClient.getNrtmAvailableSources(baseUrl)
                 .stream()
                 .collect(Collectors.toMap(
                         source -> source,
-                        source -> nrtmRestClient.getNotificationFileSignature(String.format(filesCommonPath, source))
+                        source -> nrtmRestClient.getNotificationFileSignature(filesCommonPath.append(source).toString())
                 ));
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();
@@ -125,12 +125,11 @@ public class UpdateNotificationFileProcessor {
             }
 
             try {
-                final String commonSourcePath = String.format(filesCommonPath, source);
                 if (nrtmClientLastVersionInfo == null) {
-                    snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), commonSourcePath, updateNotificationFile.getSnapshot());
+                    snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), filesCommonPath.append(source).toString(), updateNotificationFile.getSnapshot());
                 }
                 final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
-                deltaImporter.doImport(source, updateNotificationFile.getSessionID(), commonSourcePath, newDeltas);
+                deltaImporter.doImport(source, updateNotificationFile.getSessionID(), filesCommonPath.append(source).toString(), newDeltas);
                 persistUpdateFileVersion(source, updateNotificationFile, hostname);
             } catch (Exception ex){
                 LOGGER.error("Failed to mirror database, cleaning up the tables", ex);
