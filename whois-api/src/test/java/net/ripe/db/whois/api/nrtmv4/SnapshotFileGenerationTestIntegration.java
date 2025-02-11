@@ -506,22 +506,6 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST")).get(0).created()));
     }
 
-    @Test
-    public void snap_url_should_be_relative_to_unf_url() throws IOException {
-        final String unfPath = "TEST/update-notification-file.jose";
-
-        setTime(LocalDateTime.now().minusHours(1));
-        snapshotFileGenerator.createSnapshot();
-
-        updateNotificationFileGenerator.generateFile();
-
-        final UpdateNotificationFile firsIteration = getNotificationFileByUrl(unfPath);
-        final Response response = getResponseFromHttpsRequest(composeUrlFromRelativePath(unfPath,
-                firsIteration.getSnapshot().getUrl()), MediaType.APPLICATION_JSON);
-
-        final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
-        assertThat(records.length, is(not(0)));
-    }
 
     public static String decompress(byte[] compressed) throws IOException {
         try (Reader reader = new InputStreamReader(new GzipCompressorInputStream(new ByteArrayInputStream(compressed)))) {

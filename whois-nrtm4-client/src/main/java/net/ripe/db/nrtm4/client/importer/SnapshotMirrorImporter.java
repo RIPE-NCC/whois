@@ -22,7 +22,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +64,6 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
 
     public void doImport(final String source,
                          final String sessionId,
-                         final URI unfUri,
                          final UpdateNotificationFileResponse.NrtmFileLink snapshot){
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
@@ -75,7 +73,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
             throw new IllegalArgumentException("Snapshot link does not exist in the Update Notification File");
         }
 
-        final byte[] payload = nrtmRestClient.getSnapshotFile(getUriFromRelativePath(unfUri, snapshot.getUrl()));
+        final byte[] payload = nrtmRestClient.getSnapshotFile(source, snapshot.getUrl());
 
         final String payloadHash = calculateSha256(payload);
         if (!snapshot.getHash().equals(calculateSha256(payload))){

@@ -22,6 +22,7 @@ import org.eclipse.jetty.http.HttpScheme;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +38,7 @@ public class NrtmRestClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NrtmRestClient.class);
 
+    private final String baseUrl;
 
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
 
@@ -44,7 +46,7 @@ public class NrtmRestClient {
 
     private final Client client;
 
-    public NrtmRestClient() {
+    public NrtmRestClient(@Value("${nrtm.baseUrl}") final String baseUrl) {
         final ObjectMapper objectMapper = JsonMapper.builder()
                 .enable(SerializationFeature.INDENT_OUTPUT)
                 .build();
@@ -63,9 +65,10 @@ public class NrtmRestClient {
                 .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
                 .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
                 .build();
+        this.baseUrl = baseUrl;
     }
 
-    public List<String> getNrtmAvailableSources(final String baseUrl){
+    public List<String> getNrtmAvailableSources(){
         try {
             final String response = client.target(baseUrl)
                     .request(MediaType.TEXT_HTML_TYPE)
@@ -78,17 +81,17 @@ public class NrtmRestClient {
         }
     }
 
-    public String getNotificationFileSignature(final String unfUri){
-        return client.target(unfUri)
+    public String getNotificationFile(final String source){
+        return client.target(calculateUNFPath(source))
                 .request()
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .get(String.class);
     }
 
     @Nullable
-    public byte[] getSnapshotFile(final URI uri){
+    public byte[] getSnapshotFile(final String source, final String fileName){
         try {
-            final Response response = client.target(uri)
+            final Response response = client.target(calculateFilePath(source, fileName))
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
@@ -101,9 +104,9 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getDeltaFile(final URI uri){
+    public byte[] getDeltaFile(final String source, final String fileName){
         try {
-            final Response response = client.target(uri)
+            final Response response = client.target(calculateFilePath(source, fileName))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Response.class);
 
@@ -112,6 +115,15 @@ public class NrtmRestClient {
             LOGGER.error("Unable to get the records from the snapshot", ex);
             return null;
         }
+    }
+
+    private URI calculateFilePath(final String source, final String fileName){
+        final String unfPath = calculateUNFPath(source);
+        return URI.create(unfPath).resolve(fileName);
+    }
+
+    private String calculateUNFPath(final String source){
+        return String.format("%s/%s/update-notification-file.jose", baseUrl, source);
     }
 
     private static List<String> extractSources(final String html) {

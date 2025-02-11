@@ -225,15 +225,18 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName)  {
-        final UpdateNotificationFile notificationFile = getNotificationFileBySource(sourceName);
-        return getResponseFromHttpsRequest(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile)
+        final String unfUrl = sourceName + "/update-notification-file.jose";
+        final UpdateNotificationFile notificationFile = getNotificationFileByUrl(unfUrl);
+        return getResponseFromHttpsRequest(composeUrlFromRelativePath(unfUrl, getSnapshotNameFromUpdateNotification(notificationFile))
                 , MediaType.APPLICATION_JSON);
     }
 
     protected String[] getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
-        final UpdateNotificationFile updateNotificationResponse = getNotificationFileBySource(sourceName);
+        final String unfUrl = sourceName + "/update-notification-file.jose";
+        final UpdateNotificationFile updateNotificationResponse = getNotificationFileByUrl(unfUrl);
 
-        final String response = getResponseFromHttpsRequest(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition), "application/json-seq").readEntity(String.class);
+        final String response = getResponseFromHttpsRequest(composeUrlFromRelativePath(unfUrl, getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
+                , "application/json-seq").readEntity(String.class);
         return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
     }
 
