@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
-import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.DummifierNrtmV4;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -367,5 +367,4 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3L));
         assertThat(publishableFile.getSnapshot().getVersion(), is(not(firstIteration.getSnapshot().getVersion())));
     }
-
 }

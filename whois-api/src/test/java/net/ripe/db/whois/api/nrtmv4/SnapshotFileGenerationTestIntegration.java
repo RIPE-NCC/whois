@@ -10,9 +10,9 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
-import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
+import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.domain.CIString;
@@ -505,7 +505,6 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
         assertThat(versionsBySource.get(CIString.ciString("TEST-NONAUTH")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST-NONAUTH")).get(0).created()));
         assertThat(versionsBySource.get(CIString.ciString("TEST")).get(0).created(), is(versionsBySource1.get(CIString.ciString("TEST")).get(0).created()));
     }
-
 
     public static String decompress(byte[] compressed) throws IOException {
         try (Reader reader = new InputStreamReader(new GzipCompressorInputStream(new ByteArrayInputStream(compressed)))) {
