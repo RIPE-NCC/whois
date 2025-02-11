@@ -82,7 +82,7 @@ public class NrtmRestClient {
     }
 
     public String getNotificationFile(final String source){
-        return client.target(calculateUNFPath(source))
+        return client.target(getUNFPath(source))
                 .request()
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .get(String.class);
@@ -118,11 +118,11 @@ public class NrtmRestClient {
     }
 
     private URI calculateFilePath(final String source, final String fileName){
-        final String unfPath = calculateUNFPath(source);
+        final String unfPath = getUNFPath(source);
         return URI.create(unfPath).resolve(fileName);
     }
 
-    private String calculateUNFPath(final String source){
+    private String getUNFPath(final String source){
         return String.format("%s/%s/update-notification-file.jose", baseUrl, source);
     }
 

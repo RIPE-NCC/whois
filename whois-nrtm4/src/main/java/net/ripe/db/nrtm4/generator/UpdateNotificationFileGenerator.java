@@ -163,13 +163,10 @@ public class UpdateNotificationFileGenerator {
     private UpdateNotificationFile.NrtmFileLink getPublishableFile(final NrtmVersionInfo versionInfo, final String file, final String hash) {
         return new UpdateNotificationFile.NrtmFileLink(
                 versionInfo.version(),
-                urlString(file),
+                file,
                 hash);
     }
-
-    private String urlString(final String fileName) {
-        return fileName;
-    }
+    
 
     private String getPayload(final SnapshotFileVersionInfo snapshotFile, final List<DeltaFileVersionInfo> deltaFiles, final NrtmVersionInfo fileVersion, final NrtmKeyRecord nextKey, final long createdTimestamp) {
         try {
