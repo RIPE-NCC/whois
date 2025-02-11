@@ -209,17 +209,6 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         }
     }
 
-    protected UpdateNotificationFile getNotificationFileByUrl(final String url) {
-        try {
-            final Response response = getResponseFromHttpsRequest(url, MediaType.APPLICATION_JSON);
-            final JWSObject jwsObjectParsed = JWSObject.parse(response.readEntity(String.class));
-
-            return new ObjectMapper().readValue(jwsObjectParsed.getPayload().toString(), UpdateNotificationFile.class);
-        } catch (IOException | ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     protected String getSnapshotNameFromUpdateNotification(final UpdateNotificationFile notificationFile) {
         return notificationFile.getSnapshot().getUrl();
     }
