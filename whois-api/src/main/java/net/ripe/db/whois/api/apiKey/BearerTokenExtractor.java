@@ -48,6 +48,12 @@ public class BearerTokenExtractor   {
         return getOAuthSession(bearerToken, apiKeyId);
     }
 
+    @Nullable
+    public OAuthSession extractAndValidateAudience(final HttpServletRequest request, final String apiKeyId) {
+      final OAuthSession oAuthSession = extractBearerToken(request, apiKeyId);
+      return ApiKeyUtils.validateAudience(oAuthSession, whoisKeycloakId) ? oAuthSession : new OAuthSession(apiKeyId);
+    }
+
     private OAuthSession getOAuthSession(final String bearerToken, final String apiKeyId) {
         if(StringUtils.isEmpty(bearerToken)) {
             return new OAuthSession(apiKeyId);
@@ -62,10 +68,7 @@ public class BearerTokenExtractor   {
             }
 
             //TODO[MA]: remove when apiKeyId is available from api registry call
-            final OAuthSession oAuthSession = OAuthSession.from(new ObjectMapper().readValue(signedJWT.getPayload().toString(), OAuthSession.class), apiKeyId);
-
-            return ApiKeyUtils.validateAudience(oAuthSession, whoisKeycloakId) ? oAuthSession : new OAuthSession(apiKeyId);
-
+            return OAuthSession.from(new ObjectMapper().readValue(signedJWT.getPayload().toString(), OAuthSession.class), apiKeyId);
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
             return  new OAuthSession(apiKeyId);

@@ -26,6 +26,7 @@ import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -271,6 +272,22 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .get(String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+        assertThat(response, containsString("***Warning: The API key cannot be used because it was created for a different\n" +
+                "            application or environment"));
+    }
+
+    @Test
+    public void lookup_correct_api_key_with_sso_and_filtered_wrong_audience() {
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertIrt(whoisObject, true);
     }
 
     @Test
