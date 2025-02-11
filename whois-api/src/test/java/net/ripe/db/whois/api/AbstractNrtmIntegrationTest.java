@@ -225,17 +225,17 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName)  {
-        final String unfUrl = sourceName + "/update-notification-file.jose";
-        final UpdateNotificationFile notificationFile = getNotificationFileByUrl(unfUrl);
-        return getResponseFromHttpsRequest(composeUrlFromRelativePath(unfUrl, getSnapshotNameFromUpdateNotification(notificationFile))
+        final UpdateNotificationFile notificationFile = getNotificationFileBySource(sourceName);
+        return getResponseFromAbsolutePathHttpRequest(composeUrlFromRelativePath(getUpdateNotificationFileAbsolutePath(sourceName),
+                        getSnapshotNameFromUpdateNotification(notificationFile))
                 , MediaType.APPLICATION_JSON);
     }
 
     protected String[] getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
-        final String unfUrl = sourceName + "/update-notification-file.jose";
-        final UpdateNotificationFile updateNotificationResponse = getNotificationFileByUrl(unfUrl);
+        final UpdateNotificationFile updateNotificationResponse = getNotificationFileBySource(sourceName);
 
-        final String response = getResponseFromHttpsRequest(composeUrlFromRelativePath(unfUrl, getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
+        final String response = getResponseFromAbsolutePathHttpRequest(composeUrlFromRelativePath(getUpdateNotificationFileAbsolutePath(sourceName),
+                        getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
                 , "application/json-seq").readEntity(String.class);
         return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
     }
@@ -262,6 +262,10 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         deltaFileGenerator.createDeltas();
     }
 
+    protected Response getResponseFromAbsolutePathHttpRequest(@Nullable final String path, final String mediaType) {
+        return RestTest.target(path).request(mediaType).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString()).get(Response.class);
+    }
+
     protected Response getResponseFromHttpsRequest(@Nullable final String path, final String mediaType) {
         return getWebTarget(path).request(mediaType).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString()).get(Response.class);
     }
@@ -276,6 +280,10 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
             webTarget = RestTest.target(getPort(), String.format("nrtmv4/%s", path));
         }
         return webTarget;
+    }
+
+    private URI getUpdateNotificationFileAbsolutePath(final String source){
+        return getWebTarget(source + "/update-notification-file.jose").getUri();
     }
 
     @NotNull
@@ -305,7 +313,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 NrtmDocumentType.getDocumentType(jsonObject.getString("type")));
     }
 
-    protected String composeUrlFromRelativePath(final String unfUrl, final String relativePath){
-        return URI.create(unfUrl).resolve(relativePath).toString();
+    protected String composeUrlFromRelativePath(final URI unfUri, final String relativePath){
+        return unfUri.resolve(relativePath).toString();
     }
 }
