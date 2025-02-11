@@ -8,6 +8,7 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.servlet.http.HttpServletRequest;
+import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -26,12 +27,15 @@ public class BearerTokenExtractor   {
 
     private final ApiPublicKeyLoader apiPublicKeyLoader;
     private final boolean enabled;
+    private final String whoisKeycloakId;
 
     @Autowired
     public BearerTokenExtractor(final ApiPublicKeyLoader apiPublicKeyLoader,
-                                @Value("${apikey.authenticate.enabled:false}") final boolean enabled) {
+                                @Value("${apikey.authenticate.enabled:false}") final boolean enabled,
+                                @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId) {
         this.apiPublicKeyLoader = apiPublicKeyLoader;
         this.enabled = enabled;
+        this.whoisKeycloakId = whoisKeycloakId;
     }
 
     @Nullable
@@ -56,9 +60,12 @@ public class BearerTokenExtractor   {
               LOGGER.debug("JWT signature verification failed for {}", apiKeyId);
               return new OAuthSession(apiKeyId);
             }
-            
+
             //TODO[MA]: remove when apiKeyId is available from api registry call
-            return OAuthSession.from(new ObjectMapper().readValue(signedJWT.getPayload().toString(), OAuthSession.class), apiKeyId);
+            final OAuthSession oAuthSession = OAuthSession.from(new ObjectMapper().readValue(signedJWT.getPayload().toString(), OAuthSession.class), apiKeyId);
+
+            return ApiKeyUtils.validateAudience(oAuthSession, whoisKeycloakId) ? oAuthSession : new OAuthSession(apiKeyId);
+
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
             return  new OAuthSession(apiKeyId);
