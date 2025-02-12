@@ -54,7 +54,10 @@ public class UpdateNotificationFileProcessor {
                                            final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
                                            final SnapshotMirrorImporter snapshotImporter,
                                            final DeltaMirrorImporter deltaImporter,
-                                           @Value("${nrtm4.public.key:/export/service/whois/public.key}") final String publicKeyPath) {
+                                           @Value("${nrtm4.public.key:}") final String publicKeyPath) {
+        if (StringUtil.isNullOrEmpty(publicKeyPath)) {
+            throw new IllegalArgumentException("Public key path is empty");
+        }
         this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
         this.snapshotImporter = snapshotImporter;
