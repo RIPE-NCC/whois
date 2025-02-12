@@ -1,4 +1,4 @@
-package net.ripe.db.nrtm4;
+package net.ripe.db.nrtm4.servlet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
@@ -7,6 +7,7 @@ import com.nimbusds.jose.JWSObject;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import net.ripe.db.nrtm4.AbstractNrtmIntegrationTest;
 import net.ripe.db.nrtm4.dao.DeltaFileDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
@@ -54,7 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTest {
+public class NrtmControllerTestIntegration extends AbstractNrtmIntegrationTest {
 
     @Autowired
     DummifierNrtmV4 dummifierNrtm;
