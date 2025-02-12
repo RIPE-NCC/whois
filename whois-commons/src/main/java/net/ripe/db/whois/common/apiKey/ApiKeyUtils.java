@@ -55,10 +55,6 @@ public class ApiKeyUtils {
             return false;
         }
 
-        if(Arrays.stream(oAuthSession.getAud()).noneMatch(appName -> appName.equalsIgnoreCase("whois"))) {
-            return false;
-        }
-
         if(!ApiKeyUtils.validateScope(oAuthSession, maintainers)) {
             return false;
         }
@@ -77,6 +73,10 @@ public class ApiKeyUtils {
         }
 
         return false;
+    }
+
+    public static boolean validateAudience(final OAuthSession oAuthSession, final String keycloakClientId) {
+        return oAuthSession != null && oAuthSession.getAud() != null && Arrays.stream(oAuthSession.getAud()).anyMatch(appName -> appName.equalsIgnoreCase(keycloakClientId));
     }
 
     public static boolean isAPIKeyRequest(final String authHeader) {
