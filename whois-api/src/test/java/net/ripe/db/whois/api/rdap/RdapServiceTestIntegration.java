@@ -596,10 +596,10 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Entity.class);
 
         assertThat(entity.getEntitySearchResults(), hasSize(2));
-        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("AC1-TEST"));
-        assertThat(entity.getEntitySearchResults().get(0).getRoles().get(0).name(), is("ABUSE"));
-        assertThat(entity.getEntitySearchResults().get(1).getHandle(), is("OWNER-MNT"));
-        assertThat(entity.getEntitySearchResults().get(1).getRoles().get(0).name(), is("REGISTRANT"));
+        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entity.getEntitySearchResults().get(0).getRoles().get(0).name(), is("REGISTRANT"));
+        assertThat(entity.getEntitySearchResults().get(1).getHandle(), is("AC1-TEST"));
+        assertThat(entity.getEntitySearchResults().get(1).getRoles().get(0).name(), is("ABUSE"));
     }
 
 
@@ -1998,7 +1998,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "role:          Abuse Contact\n" +
                 "address:       Singel 358\n" +
                 "phone:         +31 6 12345678\n" +
-                "nic-hdl:       AB-TEST\n" +
+                "nic-hdl:       AC1-TEST\n" +
                 "e-mail:        work@test.com\n" +
                 "e-mail:        personal@test.com\n" +
                 "abuse-mailbox: abuse@test.net\n" +
@@ -2015,7 +2015,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "admin-c:       TP1-TEST\n" +
                 "tech-c:        TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
-                "abuse-c:       AB-TEST\n" +
+                "abuse-c:       AC1-TEST\n" +
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:        TEST");
@@ -2031,7 +2031,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(0).getRoles(), contains(Role.REGISTRANT));
         assertThat(entities.get(1).getHandle(), is("OWNER-MNT"));
         assertThat(entities.get(2).getHandle(), is("TP1-TEST"));
-        assertThat(entities.get(3).getHandle(), is("AB-TEST"));
+        assertThat(entities.get(3).getHandle(), is("AC1-TEST"));
         assertThat(entities.get(3).getRoles(), contains(Role.ABUSE));
         assertThat(entities.get(3).getVCardArray(), hasSize(2));
         assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));

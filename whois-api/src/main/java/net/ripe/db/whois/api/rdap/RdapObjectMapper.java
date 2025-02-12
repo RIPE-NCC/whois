@@ -82,7 +82,6 @@ import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
-import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
@@ -130,7 +129,6 @@ public class RdapObjectMapper {
             MNT_BY, Role.REGISTRANT,
             ZONE_C, Role.ZONE,
             ORG, Role.REGISTRANT,// TODO: [MA] both mnt_by and org have same role
-            ABUSE_C, Role.ABUSE,
             MNT_IRT, Role.ABUSE);
 
     @Autowired
@@ -229,6 +227,7 @@ public class RdapObjectMapper {
                                         final List<RpslObjectInfo> autnumResult,
                                         final List<RpslObjectInfo> inetnumResult,
                                         final List<RpslObjectInfo> inet6numResult,
+                                        final AbuseContact abuseContact,
                                         final int maxResultSize) {
 
         final List<Autnum> autnums = mapAutnums(requestUrl, autnumResult);
@@ -236,7 +235,7 @@ public class RdapObjectMapper {
         final List<RpslObjectInfo> topLevelInetnums = new TopLevelFilter<Ipv4Resource>(inetnumResult).getTopLevelValues();
         final List<RpslObjectInfo> topLevelInet6nums = new TopLevelFilter<Ipv4Resource>(inet6numResult).getTopLevelValues();
 
-        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, null);
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, abuseContact);
         final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize);
 
         if ((topLevelInetnums.size() + topLevelInet6nums.size()) > maxResultSize) {
