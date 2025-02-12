@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.nrtm4;
+package net.ripe.db.nrtm4.servlet;
 
 import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
@@ -15,13 +15,13 @@ import java.util.EnumSet;
 @Component
 public class WhoisNrtmServletDeployer implements ServletDeployer {
 
-    private final NrtmClientService nrtmClientService;
+    private final NrtmController nrtmClientService;
     private final NrtmExceptionMapper nrtmExceptionMapper;
 
     private final NrtmHttpSchemeFilter nrtmHttpSchemeFilter;
 
     @Autowired
-    public WhoisNrtmServletDeployer(final NrtmClientService nrtmClientService,
+    public WhoisNrtmServletDeployer(final NrtmController nrtmClientService,
                                     final NrtmExceptionMapper nrtmExceptionMapper, final NrtmHttpSchemeFilter nrtmHttpSchemeFilter) {
         this.nrtmClientService = nrtmClientService;
         this.nrtmExceptionMapper = nrtmExceptionMapper;

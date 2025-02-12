@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.nrtm4;
+package net.ripe.db.nrtm4.servlet;
 
 import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.BadRequestException;
@@ -11,11 +11,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
-import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
-import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
+import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
+import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
+import net.ripe.db.nrtm4.util.Ed25519Util;
+import net.ripe.db.nrtm4.util.JWSUtil;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +26,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 
-import static net.ripe.db.nrtm4.util.Ed25519Util.signWithEd25519;
-import static net.ripe.db.nrtm4.util.JWSUtil.signWithJWS;
-
 @Component
 @Path("/")
-public class NrtmClientService {
+public class NrtmController {
 
     public static final String SOURCE_LINK_PAGE = "<html><header><title>NRTM Version 4</title></header><body>%s<body></html>";
     private final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao;
@@ -40,7 +39,7 @@ public class NrtmClientService {
     final String nrtmUrl;
 
     @Autowired
-    public NrtmClientService(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
+    public NrtmController(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
                              final NrtmSourceDao nrtmSourceDao,
                              final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao,
                              final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao,
@@ -83,11 +82,11 @@ public class NrtmClientService {
                     .orElseThrow(() -> new NotFoundException("update-notification-file does not exists for source " + source));
 
             if(fileName.endsWith(".jose")) {
-               return getResponseForJWS(signWithJWS(payload, nrtmKeyConfigDao.getActivePrivateKey()));
+               return getResponseForJWS(JWSUtil.signWithJWS(payload, nrtmKeyConfigDao.getActivePrivateKey()));
             }
 
             //TODO: remove once client is also shifted to JWS
-            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getActivePrivateKey()))
+            return fileName.endsWith(".sig") ?  getResponse(Ed25519Util.signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getActivePrivateKey()))
                     : getResponse(payload);
         }
 

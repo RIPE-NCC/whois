@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api;
+package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,37 +7,39 @@ import com.nimbusds.jose.JWSObject;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
-import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
-import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
-import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
+import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
+import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
-import org.jetbrains.annotations.NotNull;
+import org.hamcrest.MatcherAssert;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest{
+public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     protected UpdateNotificationFileGenerator updateNotificationFileGenerator;
@@ -263,7 +265,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         return webTarget;
     }
 
-    @NotNull
+    @Nonnull
     protected static List<DeltaFileRecord> getDeltaChanges(final String[] records) throws JsonProcessingException {
         final List<DeltaFileRecord> deltaFileRecords = Lists.newArrayList();
 
@@ -275,10 +277,10 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     protected static void assertNrtmFileInfo(final String nrtmInfo, final String type, final int version, final String source) throws JSONException {
         final JSONObject jsonObject = new JSONObject(nrtmInfo);
-        assertThat(jsonObject.getInt("nrtm_version"), is(4));
-        assertThat(jsonObject.getString("type"), is(type));
-        assertThat(jsonObject.getString("source"), is(source));
-        assertThat(jsonObject.getInt("version"), is(version));
+        MatcherAssert.assertThat(jsonObject.getInt("nrtm_version"), is(4));
+        MatcherAssert.assertThat(jsonObject.getString("type"), is(type));
+        MatcherAssert.assertThat(jsonObject.getString("source"), is(source));
+        MatcherAssert.assertThat(jsonObject.getInt("version"), is(version));
     }
 
     protected static NrtmVersionRecord getNrtmVersionInfo(final String nrtmInfo) throws JSONException {
