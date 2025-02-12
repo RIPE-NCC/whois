@@ -122,6 +122,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Referenced %s object %s from %s: %s is missing mandatory attribute \"%s:\"", objectType.getName(), objectName, viaType.getName(), viaName, attributeType.getName());
     }
 
+    public static Message invalidApiKeyAudience() {
+        return new Message(Type.WARNING, "The API key cannot be used because it was created for a different application or environment");
+    }
+
     public static Message invalidIpv4Address(final RpslAttribute attribute, final CharSequence value) {
         return new MessageWithAttribute(Type.ERROR, attribute, "%s is not a valid IPv4 address", value);
     }
