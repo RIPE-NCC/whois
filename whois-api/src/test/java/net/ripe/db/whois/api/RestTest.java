@@ -43,6 +43,10 @@ public class RestTest {
                 .build();
     }
 
+    public static WebTarget target(final String fullPath) {
+        return client.target(fullPath);
+    }
+
     public static WebTarget target(final int port, final String path) {
         return client.target(String.format("http://localhost:%d/%s", port, path));
     }

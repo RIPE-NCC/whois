@@ -6,17 +6,15 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.crypto.Ed25519Verifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.OctetKeyPair;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.importer.DeltaMirrorImporter;
 import net.ripe.db.nrtm4.client.importer.SnapshotMirrorImporter;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +48,9 @@ public class UpdateNotificationFileProcessor {
 
 
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
-                                           final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
-                                           final SnapshotMirrorImporter snapshotImporter,
-                                           final DeltaMirrorImporter deltaImporter) {
+            final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
+            final SnapshotMirrorImporter snapshotImporter,
+            final DeltaMirrorImporter deltaImporter) {
         this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
         this.snapshotImporter = snapshotImporter;
@@ -65,7 +63,7 @@ public class UpdateNotificationFileProcessor {
                 .stream()
                 .collect(Collectors.toMap(
                         string -> string,
-                        nrtmRestClient::getNotificationFileSignature
+                        nrtmRestClient::getNotificationFile
                 ));
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();
