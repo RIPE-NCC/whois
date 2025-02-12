@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.net.URI;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,19 +81,17 @@ public class NrtmRestClient {
         }
     }
 
-    public String getNotificationFileSignature(final String source){
-        return client.target(String.format("%s/%s", baseUrl, source))
-                .path("update-notification-file.jose")
+    public String getNotificationFile(final String source){
+        return client.target(getUNFPath(source))
                 .request()
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .get(String.class);
     }
 
     @Nullable
-    public byte[] getSnapshotFile(final String url){
+    public byte[] getSnapshotFile(final String source, final String fileName){
         try {
-            final Response response = client.target(baseUrl)
-                    .path(url)
+            final Response response = client.target(calculateFilePath(source, fileName))
                     .request(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString())
                     .get(Response.class);
@@ -105,10 +104,9 @@ public class NrtmRestClient {
     }
 
     @Nullable
-    public byte[] getDeltaFile(final String url){
+    public byte[] getDeltaFile(final String source, final String fileName){
         try {
-            final Response response = client.target(baseUrl)
-                    .path(url)
+            final Response response = client.target(calculateFilePath(source, fileName))
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Response.class);
 
@@ -117,6 +115,15 @@ public class NrtmRestClient {
             LOGGER.error("Unable to get the records from the snapshot", ex);
             return null;
         }
+    }
+
+    private URI calculateFilePath(final String source, final String fileName){
+        final String unfPath = getUNFPath(source);
+        return URI.create(unfPath).resolve(fileName);
+    }
+
+    private String getUNFPath(final String source){
+        return String.format("%s/%s/update-notification-file.jose", baseUrl, source);
     }
 
     private static List<String> extractSources(final String html) {

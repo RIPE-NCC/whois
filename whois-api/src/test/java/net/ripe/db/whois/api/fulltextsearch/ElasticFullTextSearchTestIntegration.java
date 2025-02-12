@@ -36,6 +36,7 @@ import java.io.StringReader;
 import java.net.Inet4Address;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2720,6 +2721,8 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
     }
+
+
     private String getHost(final String url) {
         final URI uri = URI.create(url);
         return uri.getHost();
@@ -2895,6 +2898,32 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         assertThat(numFound(query("q=test.it")), is(1L));
     }
+
+    @Test
+    public void fulltext_search_expected_hl() {
+        databaseHelper.addObject("""
+                person: First Last
+                nic-hdl: AA1-RIPE
+                remarks: Other remark
+                e-mail:  it@test.it
+                source: RIPE
+                """);
+
+        databaseHelper.addObject("""
+                mntner:         MHM-MNT
+                admin-c:        AA1-RIPE
+                mnt-by:         MHM-MNT
+                created:        2024-07-01T11:02:24Z
+                last-modified:  2025-02-03T08:54:01Z
+                source:         TEST
+                """);
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(%22MHM%5C-MNT%22)&start=0&wt=json");
+        assertThat(getHighlightRecordsKeys(queryResponse), containsInAnyOrder("mnt-by", "mntner"));
+    }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {
@@ -2917,10 +2946,18 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     private List<String> getHighlightValues(final QueryResponse queryResponse) {
         return queryResponse.getHighlighting()
                 .values().stream()
-                    .map(entry -> entry.values())
-                    .flatMap(next -> next.stream())
+                    .map(Map::values)
+                    .flatMap(Collection::stream)
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
+    }
+
+    private List<String> getHighlightRecordsKeys(final QueryResponse queryResponse) {
+        return queryResponse.getHighlighting()
+                .values().stream()
+                .map(Map::keySet)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     private String searchQuery(final String queryString) {

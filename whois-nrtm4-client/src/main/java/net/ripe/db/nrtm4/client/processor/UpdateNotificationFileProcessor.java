@@ -5,25 +5,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.Ed25519Verifier;
-import com.nimbusds.jose.jwk.OctetKeyPair;
+import com.nimbusds.jose.crypto.ECDSAVerifier;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
+import io.netty.util.internal.StringUtil;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
+import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.importer.DeltaMirrorImporter;
 import net.ripe.db.nrtm4.client.importer.SnapshotMirrorImporter;
-import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.whois.common.domain.Hosts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -43,17 +47,19 @@ public class UpdateNotificationFileProcessor {
 
     private final SnapshotMirrorImporter snapshotImporter;
 
-    private final static String PUBLIC_KEY_PATH = "public.key";
+    private final String publicKeyPath;
 
 
     public UpdateNotificationFileProcessor(final NrtmRestClient nrtmRestClient,
                                            final Nrtm4ClientInfoRepository nrtm4ClientMirrorDao,
                                            final SnapshotMirrorImporter snapshotImporter,
-                                           final DeltaMirrorImporter deltaImporter) {
+                                           final DeltaMirrorImporter deltaImporter,
+                                           @Value("${nrtm4.public.key:/export/service/whois/public.key}") final String publicKeyPath) {
         this.nrtmRestClient = nrtmRestClient;
         this.nrtm4ClientMirrorDao = nrtm4ClientMirrorDao;
         this.snapshotImporter = snapshotImporter;
         this.deltaImporter = deltaImporter;
+        this.publicKeyPath = publicKeyPath;
     }
 
     public void processFile(){
@@ -62,7 +68,7 @@ public class UpdateNotificationFileProcessor {
                 .stream()
                 .collect(Collectors.toMap(
                         string -> string,
-                        nrtmRestClient::getNotificationFileSignature
+                        nrtmRestClient::getNotificationFile
                 ));
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();
@@ -173,26 +179,27 @@ public class UpdateNotificationFileProcessor {
 
     private boolean isCorrectSignature(final JWSObject jwsObjectParsed) {
         try {
-            final OctetKeyPair parsedPublicKey =  OctetKeyPair.parse(readPublicKey());
+            final ECKey parsedPublicKey = (ECKey) JWK.parseFromPEMEncodedObjects(readPublicKey());
 
-            final JWSVerifier verifier = new Ed25519Verifier(parsedPublicKey);
+            final JWSVerifier verifier = new ECDSAVerifier(parsedPublicKey);
             return jwsObjectParsed.verify(verifier);
-        } catch (JOSEException | ParseException ex) {
+        } catch (JOSEException ex) {
             LOGGER.error("failed to verify signature {}", ex.getMessage());
             return false;
         }
     }
 
-    private static String readPublicKey() {
+    private String readPublicKey() {
         try {
-            try (InputStream inputStream = UpdateNotificationFileProcessor.class.getClassLoader().getResourceAsStream(PUBLIC_KEY_PATH)) {
-                if (inputStream == null) {
-                    throw new FileNotFoundException("Public key file not found in resources: " + PUBLIC_KEY_PATH);
-                }
-                return new String(inputStream.readAllBytes());
+            final String publicKey = Files.readString(Path.of(publicKeyPath));
+
+            if (StringUtil.isNullOrEmpty(publicKey)) {
+                throw new FileNotFoundException("Public key file not found in resources: " + publicKeyPath);
             }
+
+            return publicKey;
         } catch (IOException ex){
-            throw new IllegalStateException("Public key file not found in resources: " + PUBLIC_KEY_PATH);
+            throw new IllegalStateException("Public key file not found in resources: " + publicKeyPath);
         }
     }
 

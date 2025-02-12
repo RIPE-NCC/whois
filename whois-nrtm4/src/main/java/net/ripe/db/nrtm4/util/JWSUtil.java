@@ -7,14 +7,18 @@ import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.Ed25519Signer;
-import com.nimbusds.jose.crypto.Ed25519Verifier;
+import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.crypto.ECDSAVerifier;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.OctetKeyPair;
-import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemObjectGenerator;
+import org.bouncycastle.util.io.pem.PemWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.text.ParseException;
 
 public class JWSUtil {
@@ -22,11 +26,11 @@ public class JWSUtil {
 
     public static String signWithJWS(final String payload, final byte[] privateKey)  {
         try {
-            final OctetKeyPair jwk = OctetKeyPair.parse(new String(privateKey));
-            final JWSSigner signer = new Ed25519Signer(jwk);
+            final ECKey jwk = ECKey.parse(new String(privateKey));
+            final JWSSigner signer = new ECDSASigner(jwk);
 
             final JWSObject jwsObject = new JWSObject(
-                    new JWSHeader.Builder(JWSAlgorithm.Ed25519).keyID(jwk.getKeyID()).build(),
+                    new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(jwk.getKeyID()).build(),
                     new Payload(payload));
 
             jwsObject.sign(signer);
@@ -38,20 +42,31 @@ public class JWSUtil {
         }
     }
 
-    public static boolean verifySignature(final JWSObject jwsObjectParsed, final byte[] publicKey) {
-
+    public static boolean verifySignature(final JWSObject jwsObjectParsed, final String pemFormat) {
         try {
-            final OctetKeyPair parsedPublicKey =  OctetKeyPair.parse(getPublicKey(publicKey));
+            final ECKey parsedPublicKey = (ECKey) JWK.parseFromPEMEncodedObjects(pemFormat);
 
-            final JWSVerifier verifier = new Ed25519Verifier(parsedPublicKey);
+            final JWSVerifier verifier = new ECDSAVerifier(parsedPublicKey);
             return jwsObjectParsed.verify(verifier);
-        } catch (JOSEException | ParseException ex) {
+        } catch (JOSEException ex) {
             LOGGER.error("failed to verify signature {}", ex.getMessage());
             throw new IllegalStateException("failed to sign contents of file");
         }
     }
 
-    public static String getPublicKey(final byte[] publicKey) {
-        return new String(publicKey);
+    public static String publicKeyInPemFormat(final ECKey ecKey) {
+        try {
+           final StringWriter stringWriter = new StringWriter();
+           final PemWriter writer = new PemWriter(stringWriter);
+           final PemObjectGenerator pemObject = new PemObject("PUBLIC KEY", ecKey.toPublicJWK().toECPublicKey().getEncoded());
+           writer.writeObject(pemObject);
+           writer.close();
+
+           return stringWriter.toString();
+
+        } catch (IOException | JOSEException ex) {
+            LOGGER.error("failed to generate publickey in Pem format {}", ex.getMessage());
+            return null;
+        }
     }
-}
+ }
