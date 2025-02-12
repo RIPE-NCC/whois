@@ -82,6 +82,7 @@ import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.ORGANISATION;
+import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
@@ -129,6 +130,7 @@ public class RdapObjectMapper {
             MNT_BY, Role.REGISTRANT,
             ZONE_C, Role.ZONE,
             ORG, Role.REGISTRANT,// TODO: [MA] both mnt_by and org have same role
+            ABUSE_C, Role.ABUSE,
             MNT_IRT, Role.ABUSE);
 
     @Autowired

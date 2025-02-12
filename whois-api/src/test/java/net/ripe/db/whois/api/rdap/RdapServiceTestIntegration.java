@@ -459,7 +459,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
     }
 
-    //
+    // organisation
 
     @Test
     public void lookup_org_single_language_codes() {
@@ -564,7 +564,47 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_multiple_redaction_inside_network() {
+    public void lookup_org_with_abuse_contact_entity() {
+        databaseHelper.addObject("" +
+                "role:          Abuse Contact\n" +
+                "address:       Singel 358\n" +
+                "phone:         +31 6 12345678\n" +
+                "nic-hdl:       AC1-TEST\n" +
+                "e-mail:        work@test.com\n" +
+                "e-mail:        personal@test.com\n" +
+                "abuse-mailbox: abuse@test.net\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TO2-TEST\n" +
+                "org-name:      Test organisation\n" +
+                "org-type:      OTHER\n" +
+                "abuse-c:       AC1-TEST\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "e-mail:        org@test.com\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        final Entity entity = createResource("entity/ORG-TO2-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getEntitySearchResults(), hasSize(2));
+        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("AC1-TEST"));
+        assertThat(entity.getEntitySearchResults().get(0).getRoles().get(0).name(), is("ABUSE"));
+        assertThat(entity.getEntitySearchResults().get(1).getHandle(), is("OWNER-MNT"));
+        assertThat(entity.getEntitySearchResults().get(1).getRoles().get(0).name(), is("REGISTRANT"));
+    }
+
+
+    @Test
+    public void lookup_domain_multiple_redaction_inside_network() {
 
         databaseHelper.addObject("" +
                 "inetnum:       80.179.52.0 - 80.179.55.255\n" +
@@ -610,7 +650,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_multiple_attr_redactions_in_networks() {
+    public void lookup_org_multiple_attr_redactions_in_networks() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.255.255.255\n" +
                 "netname:      TEST-NET-NAME\n" +
