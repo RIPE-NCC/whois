@@ -12,7 +12,7 @@
 
     <bean class="net.ripe.db.whois.query.WhoisQueryConfig" />
     <import resource="applicationContext-update.xml"/>
-    <bean class="net.ripe.db.nrtm4.Nrtmv4Config" />
+<!--    <bean class="net.ripe.db.nrtm4.Nrtmv4Config" />-->
 
     <context:component-scan base-package="net.ripe.db.whois.api"/>
 
