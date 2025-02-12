@@ -68,7 +68,7 @@ public class UpdateNotificationFileProcessor {
                 .stream()
                 .collect(Collectors.toMap(
                         string -> string,
-                        nrtmRestClient::getNotificationFileSignature
+                        nrtmRestClient::getNotificationFile
                 ));
         LOGGER.info("Succeeded to read notification files from {}", notificationFilePerSource.keySet());
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();

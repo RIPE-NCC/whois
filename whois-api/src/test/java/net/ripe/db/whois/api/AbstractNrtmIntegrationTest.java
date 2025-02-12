@@ -7,16 +7,16 @@ import com.nimbusds.jose.JWSObject;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
-import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
-import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
-import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
+import net.ripe.db.nrtm4.generator.DeltaFileGenerator;
+import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
+import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
+import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 
@@ -209,24 +210,27 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
     }
 
     protected String getSnapshotNameFromUpdateNotification(final UpdateNotificationFile notificationFile) {
-        return notificationFile.getSnapshot().getUrl().split("/")[1];
+        return notificationFile.getSnapshot().getUrl();
     }
 
     protected Response getSnapshotFromUpdateNotificationBySource(final String sourceName)  {
         final UpdateNotificationFile notificationFile = getNotificationFileBySource(sourceName);
-        return getResponseFromHttpsRequest(sourceName + "/" + getSnapshotNameFromUpdateNotification(notificationFile)
+        return getResponseFromAbsolutePathHttpRequest(composeUrlFromRelativePath(getUpdateNotificationFileAbsolutePath(sourceName),
+                        getSnapshotNameFromUpdateNotification(notificationFile))
                 , MediaType.APPLICATION_JSON);
     }
 
     protected String[] getDeltasFromUpdateNotificationBySource(final String sourceName, final int deltaPosition) {
         final UpdateNotificationFile updateNotificationResponse = getNotificationFileBySource(sourceName);
 
-        final String response = getResponseFromHttpsRequest(sourceName + "/" + getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition), "application/json-seq").readEntity(String.class);
+        final String response = getResponseFromAbsolutePathHttpRequest(composeUrlFromRelativePath(getUpdateNotificationFileAbsolutePath(sourceName),
+                        getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
+                , "application/json-seq").readEntity(String.class);
         return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
     }
 
     protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {
-        return notificationFile.getDeltas().get(deltaPosition).getUrl().split("/")[1];
+        return notificationFile.getDeltas().get(deltaPosition).getUrl();
     }
 
     protected void addPublicKeyinPemFormat(final long id) {
@@ -247,6 +251,10 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         deltaFileGenerator.createDeltas();
     }
 
+    protected Response getResponseFromAbsolutePathHttpRequest(@Nullable final String path, final String mediaType) {
+        return RestTest.target(path).request(mediaType).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString()).get(Response.class);
+    }
+
     protected Response getResponseFromHttpsRequest(@Nullable final String path, final String mediaType) {
         return getWebTarget(path).request(mediaType).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString()).get(Response.class);
     }
@@ -261,6 +269,10 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
             webTarget = RestTest.target(getPort(), String.format("nrtmv4/%s", path));
         }
         return webTarget;
+    }
+
+    private URI getUpdateNotificationFileAbsolutePath(final String source){
+        return getWebTarget(source + "/update-notification-file.jose").getUri();
     }
 
     @NotNull
@@ -290,4 +302,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
                 NrtmDocumentType.getDocumentType(jsonObject.getString("type")));
     }
 
+    protected String composeUrlFromRelativePath(final URI unfUri, final String relativePath){
+        return unfUri.resolve(relativePath).toString();
+    }
 }
