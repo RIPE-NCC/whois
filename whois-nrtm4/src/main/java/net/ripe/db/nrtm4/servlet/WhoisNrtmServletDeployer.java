@@ -15,13 +15,13 @@ import java.util.EnumSet;
 @Component
 public class WhoisNrtmServletDeployer implements ServletDeployer {
 
-    private final NrtmController nrtmClientService;
+    private final NrtmService nrtmClientService;
     private final NrtmExceptionMapper nrtmExceptionMapper;
 
     private final NrtmHttpSchemeFilter nrtmHttpSchemeFilter;
 
     @Autowired
-    public WhoisNrtmServletDeployer(final NrtmController nrtmClientService,
+    public WhoisNrtmServletDeployer(final NrtmService nrtmClientService,
                                     final NrtmExceptionMapper nrtmExceptionMapper, final NrtmHttpSchemeFilter nrtmHttpSchemeFilter) {
         this.nrtmClientService = nrtmClientService;
         this.nrtmExceptionMapper = nrtmExceptionMapper;

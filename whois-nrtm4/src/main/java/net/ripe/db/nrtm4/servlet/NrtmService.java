@@ -28,7 +28,7 @@ import static net.ripe.db.nrtm4.util.JWSUtil.signWithJWS;
 
 @Component
 @Path("/")
-public class NrtmController {
+public class NrtmService {
 
     public static final String SOURCE_LINK_PAGE = "<html><header><title>NRTM Version 4</title></header><body>%s<body></html>";
     private final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao;
@@ -39,7 +39,7 @@ public class NrtmController {
     final String nrtmUrl;
 
     @Autowired
-    public NrtmController(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
+    public NrtmService(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
                              final NrtmSourceDao nrtmSourceDao,
                              final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao,
                              final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao,
