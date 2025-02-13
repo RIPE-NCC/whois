@@ -63,11 +63,11 @@ public class MemberByRefValidator implements BusinessRuleValidator {
 
     private Set<String> findUnsupportedMembers(final Collection<RpslObjectInfo> incomingReferences, final Set<CIString> membersByRef) {
         final Set<String> unsupportedMembers = Sets.newLinkedHashSet();
-        for (final RpslObjectInfo refResourceInfo : incomingReferences) {
+        for (final RpslObjectInfo incomingRefs : incomingReferences) {
             try {
-                final RpslObject refResource = objectDao.getByKey(refResourceInfo.getObjectType(), refResourceInfo.getKey());
+                final RpslObject refResource = objectDao.getByKey(incomingRefs.getObjectType(), incomingRefs.getKey());
                 if (!isValidMember(membersByRef, refResource.getValuesForAttribute(AttributeType.MNT_BY))) {
-                    unsupportedMembers.add(refResourceInfo.getKey());
+                    unsupportedMembers.add(incomingRefs.getKey());
                 }
             } catch (EmptyResultDataAccessException e) {
                 //Error Message already added by the ReferencedObjectsExistValidator.
