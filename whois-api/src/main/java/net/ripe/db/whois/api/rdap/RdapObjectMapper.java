@@ -227,6 +227,7 @@ public class RdapObjectMapper {
                                         final List<RpslObjectInfo> autnumResult,
                                         final List<RpslObjectInfo> inetnumResult,
                                         final List<RpslObjectInfo> inet6numResult,
+                                        final AbuseContact abuseContact,
                                         final int maxResultSize) {
 
         final List<Autnum> autnums = mapAutnums(requestUrl, autnumResult);
@@ -234,7 +235,7 @@ public class RdapObjectMapper {
         final List<RpslObjectInfo> topLevelInetnums = new TopLevelFilter<Ipv4Resource>(inetnumResult).getTopLevelValues();
         final List<RpslObjectInfo> topLevelInet6nums = new TopLevelFilter<Ipv4Resource>(inet6numResult).getTopLevelValues();
 
-        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, null);
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, abuseContact);
         final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize);
 
         if ((topLevelInetnums.size() + topLevelInet6nums.size()) > maxResultSize) {

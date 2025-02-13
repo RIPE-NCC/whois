@@ -154,6 +154,7 @@ public class AbuseCFinder {
                 return role;
 
             case AUT_NUM:
+            case ORGANISATION:
                 return getAbuseContactRoleInternal(rpslObject);
 
             default:

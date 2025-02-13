@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
+import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.query.query.Query;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -173,6 +175,7 @@ public class RdapLookupService {
                 autnumResult,
                 inetnumResult,
                 inet6numResult,
+                getAbuseContact(organisation),
                 maxEntityResultSize);
     }
 
@@ -235,7 +238,12 @@ public class RdapLookupService {
         return rdapObjectMapper.map(
                 getRequestUrl(request),
                 resultObject,
-                abuseCFinder.getAbuseContact(resultObject).orElse(null));
+                getAbuseContact(resultObject));
+    }
+
+    @Nullable
+    private AbuseContact getAbuseContact(final RpslObject resultObject) {
+        return abuseCFinder.getAbuseContact(resultObject).orElse(null);
     }
 
 }
