@@ -189,7 +189,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
 
         then:
         createResponse =~ /SUCCEEDED/
-        createResponse.contains("***Warning:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+        createResponse.contains("***Warning: Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                 "            referenced set [rtrs-no-mbrsbyref]")
     }
 
@@ -339,7 +339,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         updateResponse =~ /SUCCESS/
         updateResponse.contains(
-                "***Warning:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                "***Warning: Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                         "            referenced set [rtrs-no-mbrsbyref]")
     }
 

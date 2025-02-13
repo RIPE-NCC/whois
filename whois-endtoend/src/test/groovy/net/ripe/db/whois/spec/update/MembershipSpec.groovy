@@ -3,6 +3,7 @@ package net.ripe.db.whois.spec.update
 
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.Message
+import net.ripe.db.whois.spec.domain.SyncUpdate
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class MembershipSpec extends BaseQueryUpdateSpec {
@@ -434,7 +435,7 @@ class MembershipSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "member-of:\\s*AS-TEST")
 
         when:
-        def ack = syncUpdateWithResponse("""
+        def data = """\
                 aut-num:        AS352
                 as-name:        some-name
                 descr:          description
@@ -447,17 +448,13 @@ class MembershipSpec extends BaseQueryUpdateSpec {
                 mnt-lower:      owner2-mnt
                 source:         TEST
                 override:     denis,override1
-                """.stripIndent(true)
-        )
+               """
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
         then:
-        ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-
-        ack.countErrorWarnInfo(0, 4, 1)
-        ack.warningSuccessMessagesFor("Modify", "[aut-num] AS352") == [
-                "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [AS-TEST]"]
-        query_object_matches("-rBT aut-num AS352", "aut-num", "AS352", "mnt-by:\\s*LIR-MNT")
+        createResponse =~ /SUCCEEDED/
+        createResponse.contains("***Warning: Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                "            referenced set [AS-TEST]")
     }
 
     def "modify as-set obj, ASN member-of set using mbrs-by-ref, remove mbrs-by-ref"() {

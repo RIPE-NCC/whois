@@ -928,9 +928,9 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate create
 
         then:
-        response =~ /FAIL/
+        response =~ /SUCCESS/
         response.contains(
-                "***Warning:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                "***Warning: Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                         "            referenced set [RS-BLA123]")
     }
 
@@ -1000,7 +1000,7 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
         then:
         response =~ /Modify SUCCEEDED: \[route\] 193.254.30.0\/24AS12726/
         response.contains(
-                "***Warning:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                "***Warning: Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                         "            referenced set [RS-BLA123]")
     }
 
