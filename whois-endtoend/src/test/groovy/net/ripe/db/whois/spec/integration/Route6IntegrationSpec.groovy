@@ -741,6 +741,27 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                         "            referenced set [RS-BLA123]")
     }
 
+    def "create route6 member-of does not exist in route-set, override"() {
+        when:
+        def create = new SyncUpdate(data: """\
+                route6: 5353::0/24
+                descr: Test route6
+                origin: AS123
+                mnt-by: TEST-MNT
+                member-of: RS-BLA123
+                source: TEST
+                override:     denis,override1
+                """.stripIndent(true))
+
+        then:
+        def response = syncUpdate create
+
+        then:
+        response =~ /SUCCEEDED/
+        response.contains(
+                "***Warning:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                        "            referenced set [RS-BLA123]")
+    }
 
     def "modify route6 succeeds"() {
         when:
@@ -792,6 +813,26 @@ class Route6IntegrationSpec extends BaseWhoisSourceSpec {
                 "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                         "            referenced set [RS-BLA123]")
     }
+
+    def "modify route6 fail on route-set reference, using override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    route6:           9999::/24
+                    descr:           Test route
+                    origin:          AS12726
+                    mnt-by:          TEST-MNT
+                    member-of:       RS-BLA123
+                    source:          TEST
+                    override:     denis,override1
+                """.stripIndent(true)))
+
+        then:
+        response =~ /Modify SUCCEEDED: \[route6\] 9999::\/24AS12726/
+        response.contains(
+                "***Warning:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                        "            referenced set [RS-BLA123]")
+    }
+
 
     def "modify route6 change maintainers"() {
         when:

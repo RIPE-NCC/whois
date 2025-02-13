@@ -912,6 +912,28 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                         "            referenced set [RS-BLA123]")
     }
 
+    def "create route member-of does not exist in route-set, override"() {
+        when:
+        def create = new SyncUpdate(data: """\
+                route: 198.0/32
+                descr: other route
+                origin: AS456
+                mnt-by: TEST-MNT
+                member-of: RS-BLA123
+                source: TEST
+                override:     denis,override1
+                """.stripIndent(true))
+
+        then:
+        def response = syncUpdate create
+
+        then:
+        response =~ /FAIL/
+        response.contains(
+                "***Warning:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                        "            referenced set [RS-BLA123]")
+    }
+
     def "modify route succeeds"() {
       when:
         def response = syncUpdate(new SyncUpdate(data: """\
@@ -962,6 +984,26 @@ class RouteIntegrationSpec extends BaseWhoisSourceSpec {
                 "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                         "            referenced set [RS-BLA123]")
     }
+
+    def "modify route success on route-set reference, override"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    route:           193.254.30.0/24
+                    descr:           Test route
+                    origin:          AS12726
+                    mnt-by:          TEST-MNT
+                    member-of:       RS-BLA123
+                    source:          TEST
+                    override:     denis,override1
+                """.stripIndent(true)))
+
+        then:
+        response =~ /Modify SUCCEEDED: \[route\] 193.254.30.0\/24AS12726/
+        response.contains(
+                "***Warning:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                        "            referenced set [RS-BLA123]")
+    }
+
 
     def "modify route change maintainers"() {
       when:
