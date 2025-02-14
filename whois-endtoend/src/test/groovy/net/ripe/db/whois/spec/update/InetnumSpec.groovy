@@ -3864,6 +3864,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 remarks:      early comment
                 mnt-lower:    RIPE-NCC-HM-MNT, owner-mnt
                 geoloc:      10.568 158.552
+                geofeed:     https://example.com/geofeed.csv
                 mnt-irt:      irt-test
                 tech-c:       TP1-TEST
                 org:          ORG-OTO1-TEST
@@ -3882,7 +3883,11 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 tech-c:       TP3-TEST
                 admin-c:      TP2-TEST
+                abuse-c:      AH200-TEST
                 remarks:      late comment
+
+                # optional "sponsoring-org:" attribute not allowed with "ASSIGNED PA" status
+                # optional "assignment-size:" only allowed with AGGREGATED-BY-LIR status
 
                 password: hm
                 password: end
