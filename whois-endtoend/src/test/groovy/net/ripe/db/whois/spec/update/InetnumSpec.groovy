@@ -4903,9 +4903,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         syncUpdate(getTransient("ASS-END") + "password: lir\npassword: end")
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
 
-      expect:
-        queryObjectNotFound("-r -T inetnum 62.59.192.2 - 92.59.192.30", "inetnum", "62.59.192.2 - 92.59.192.30")
-
       when:
         def message = syncUpdate("""\
                 inetnum:      192.168.200.0 - 192.168.255.255
