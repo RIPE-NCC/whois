@@ -5608,7 +5608,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
     }
 
-    def "Remove mnt-routes, inverse lookup"() {
+    def "Remove mnt-routes by hostmaster, inverse lookup"() {
       when:
         def message = syncUpdate("""\
                 inetnum:      192.168.128.0 - 192.168.255.255
@@ -5651,9 +5651,61 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
+                """.stripIndent(true))
+      then:
+        def updateAck = new AckResponse("", update)
+        updateAck.summary.nrFound == 1
+        updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
+        updateAck.summary.assertErrors(0, 0, 0, 0)
+
+        queryObjectNotFound("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
+    }
+
+   def "Remove mnt-routes by user maintainer, inverse lookup"() {
+      when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR2-MNT
+                mnt-routes:   LIR2-MNT ANY
+                source:       TEST
+
+                password: hm
                 password: lir
                 password: end
                 password: owner3
+                """.stripIndent(true))
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        queryObject("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
+
+      when:
+        def update = syncUpdate("""\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR2-MNT
+                source:       TEST
+
+                password: lir2
                 """.stripIndent(true))
       then:
         def updateAck = new AckResponse("", update)
