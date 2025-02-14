@@ -6159,4 +6159,67 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         then:
         created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
     }
+
+    def "Child creation breaks the hierarchy then error"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    213.131.110.0 - 213.131.111.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true))
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    213.131.110.4 - 213.131.110.7
+                    netname:    RIPE-NCC
+                    status:     LIR-PARTITIONED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 213.131.110.4 - 213.131.110.7/
+        created =~ /inetnum parent has incorrect status: ASSIGNED PA/
+    }
+
+    def "Parent creation breaks the hierarchy then error"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    213.131.110.4 - 213.131.110.7
+                    netname:    RIPE-NCC
+                    status:     LIR-PARTITIONED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true))
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    213.131.110.0 - 213.131.111.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 213.131.110.0 - 213.131.111.255/
+        created =~ /Status ASSIGNED PA not allowed when more specific object
+            '213.131.110.4 - 213.131.110.7' has status LIR-PARTITIONED PA/
+    }
 }
