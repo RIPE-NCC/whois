@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.nrtm4;
+package net.ripe.db.nrtm4.servlet;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
