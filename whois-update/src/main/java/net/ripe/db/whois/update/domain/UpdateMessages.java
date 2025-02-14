@@ -398,7 +398,7 @@ public final class UpdateMessages {
     }
 
     public static Message membersByRefChangedInSet(final Set<String> asName) {
-        return new Message(Type.WARNING, "mbrs-by-ref has changed therefore %s will fail to update", asName);
+        return new Message(Type.WARNING, "Changing mbrs-by-ref:  may cause updates to %s to fail, because the member-of: reference in %s is no longer protected", asName, asName);
     }
 
     public static Message dnsCheckTimeout() {

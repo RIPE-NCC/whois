@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class MemberByRefValidator implements BusinessRuleValidator {
+public class MembersByRefValidator implements BusinessRuleValidator {
 
-    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
+    private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.AS_SET, ObjectType.ROUTE_SET, ObjectType.RTR_SET, ObjectType.PEERING_SET);
 
     private static final CIString ANY = CIString.ciString("ANY");
@@ -34,7 +34,7 @@ public class MemberByRefValidator implements BusinessRuleValidator {
     private final RpslObjectDao objectDao;
 
     @Autowired
-    public MemberByRefValidator(final RpslObjectDao objectDao) {
+    public MembersByRefValidator(final RpslObjectDao objectDao) {
         this.objectDao = objectDao;
     }
 

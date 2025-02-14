@@ -14,7 +14,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
     @Override
     Map<String, String> getFixtures() {
         return [
-                "UPD-MNT"      : """\   
+                "UPD-MNT"      : """\
             mntner: UPD-MNT
             descr: description
             admin-c: AP1-TEST
@@ -122,6 +122,16 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c:         AP1-TEST
             mnt-by:         UPD-MNT
             mbrs-by-ref:    UPD-MNT
+            source:         TEST
+            """,
+                "AS-BLOCK2"    : """\
+            as-block:       AS300 - AS500
+            descr:          RIPE NCC ASN block
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            mnt-by:         UPD-MNT
+            mnt-lower:      OTHER-MNT
             source:         TEST
             """,
                 "AS-BLOCK2"    : """\
@@ -533,7 +543,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        AP1-TEST
             notify:         noreply@ripe.net
             mnt-by:         OTHER-MNT
-            mbrs-by-ref:    UPD-MNT    # matches AS1 mntner
+            mbrs-by-ref:    UPD-MNT    # matches AS101 mntner
             source:         TEST
             override: denis,override1
             """.stripIndent(true))
@@ -574,7 +584,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             """.stripIndent(true))
         then:
         replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
-        replacedMntner.contains("***Warning: mbrs-by-ref has changed therefore [AS101] will fail to update")
+        replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
     }
 
     def "change mbrs-by-ref from as-set do not add warning if mbrs-by-ref is ANY"() {
@@ -589,7 +600,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             admin-c:        AP1-TEST
             notify:         noreply@ripe.net
             mnt-by:         OTHER-MNT
-            mbrs-by-ref:    UPD-MNT    # matches AS1 mntner
+            mbrs-by-ref:    UPD-MNT    # matches AS101 mntner
             source:         TEST
             override: denis,override1
             """.stripIndent(true))
@@ -630,7 +641,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             """.stripIndent(true))
         then:
         replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
-        !replacedMntner.contains("***Warning: mbrs-by-ref has changed therefore [AS101] will fail to update")
+        !replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
     }
 
     def "change mbrs-by-ref from as-set do not add warning if member-of valid"() {
@@ -687,7 +699,8 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             """.stripIndent(true))
         then:
         replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
-        !replacedMntner.contains("***Warning: mbrs-by-ref has changed therefore [AS101] will fail to update")
+        !replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
     }
 
     def "modify, added member-of value does not exist"() {
