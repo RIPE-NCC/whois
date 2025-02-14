@@ -4859,6 +4859,41 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.0.128", "inetnum", "192.168.0.0 - 192.168.0.128")
     }
 
+    def "modify 1 object, change status"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-8") + "country: NL\nmnt-by: LIR-MNT\noverride: denis,override1")
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                status:       SUB-ALLOCATED PA
+                country:      NL
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "status value cannot be changed, you must delete and re-create the object"]
+        ack.warningMessagesFor("Modify", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
+
+        query_object_matches("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255", "ALLOCATED PA")
+    }
+
     def "modify 3 objects, change status"() {
       given:
         syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
