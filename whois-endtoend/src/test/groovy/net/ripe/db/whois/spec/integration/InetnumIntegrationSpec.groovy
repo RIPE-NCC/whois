@@ -667,7 +667,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     country: DK
                     admin-c: TEST-PN
                     tech-c: TEST-PN
-                    status: ALLOCATED PI
+                    status: ALLOCATED PA
                     mnt-by: RIPE-NCC-HM-MNT
                     org: ORG-TOL5-TEST
                     source: TEST
@@ -676,6 +676,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     """.stripIndent(true)))
         then:
         response =~ /Create FAILED: \[inetnum\] 192.0.0.1\/24/
+        response =~ /Syntax error in 192.0.0.1\/24/
     }
 
     def "modify status ALLOCATED PA has reference to RIR organisation"() {
