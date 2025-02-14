@@ -133,16 +133,6 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:         UPD-MNT
             mnt-lower:      OTHER-MNT
             source:         TEST
-            """,
-                "AS-BLOCK2"    : """\
-            as-block:       AS300 - AS500
-            descr:          RIPE NCC ASN block
-            org:            ORG-NCC1-RIPE
-            admin-c:        AP1-TEST
-            tech-c:         AP1-TEST
-            mnt-by:         UPD-MNT
-            mnt-lower:      OTHER-MNT
-            source:         TEST
             """
         ]
     }
