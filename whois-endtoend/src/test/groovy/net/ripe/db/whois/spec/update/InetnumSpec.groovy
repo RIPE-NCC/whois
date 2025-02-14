@@ -6159,4 +6159,48 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         then:
         created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
     }
+
+    def "update LEGACY to unsupported hierarchy using override allowed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.115.107.0 - 192.115.107.255
+                    netname:    RIPE-NCC
+                    status:     LEGACY
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true))
+
+        databaseHelper.addObject("""\
+                    inetnum:    192.115.104.0 - 192.115.107.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true))
+        whoisFixture.reloadTrees()
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.115.107.0 - 192.115.107.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        override: denis,override1
+                    """.stripIndent(true)))
+        then:
+        update =~ /SUCCEEDED/
+        update =~ /Warning: inetnum parent has incorrect status: ALLOCATED PA/
+    }
 }
