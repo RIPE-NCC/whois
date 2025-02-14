@@ -397,6 +397,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set %s", asName);
     }
 
+    public static Message membersByRefChangedInSet(final Set<String> asName) {
+        return new Message(Type.WARNING, "Changing mbrs-by-ref:  may cause updates to %s to fail, because the member-of: reference in %s is no longer protected", asName, asName);
+    }
+
     public static Message dnsCheckTimeout() {
         return new Message(Type.ERROR, "Timeout performing DNS check");
     }
