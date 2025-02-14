@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -41,24 +40,20 @@ public class MemberByRefValidator implements BusinessRuleValidator {
 
     @Override
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
-        final Set<CIString> membersByRef = update.getUpdatedObject().getValuesForAttribute((AttributeType.MBRS_BY_REF));
-        if (membersByRef.isEmpty() || membersByRef.contains(ANY) || !hasMembersByRefChanged(update)) {
+        final Set<CIString> updMbrsOfRef = update.getUpdatedObject().getValuesForAttribute((AttributeType.MBRS_BY_REF));
+        if (updMbrsOfRef.isEmpty() || updMbrsOfRef.contains(ANY) || hasMembersByRefNotChanged(update)) {
             return Collections.emptyList();
         }
 
         final List<RpslObjectInfo> incomingReferences = objectDao.findByAttribute( AttributeType.MEMBER_OF, update.getUpdatedObject().getKey().toString());
 
-        final Set<String> unsupportedSets = findUnsupportedMembers(incomingReferences, membersByRef);
-        if (!unsupportedSets.isEmpty()) {
-            //TODO: change error message
-            return Arrays.asList(UpdateMessages.membersByRefChangedInSet(unsupportedSets));
-        }
+        final Set<String> unsupportedSets = findUnsupportedMembers(incomingReferences, updMbrsOfRef);
 
-        return Collections.emptyList();
+        return unsupportedSets.isEmpty() ? Collections.emptyList() : List.of(UpdateMessages.membersByRefChangedInSet(unsupportedSets));
     }
 
-    private boolean hasMembersByRefChanged(final PreparedUpdate update) {
-        return !update.getDifferences(AttributeType.MBRS_BY_REF).isEmpty();
+    private boolean hasMembersByRefNotChanged(final PreparedUpdate update) {
+        return update.getDifferences(AttributeType.MBRS_BY_REF).isEmpty();
     }
 
     private Set<String> findUnsupportedMembers(final Collection<RpslObjectInfo> incomingReferences, final Set<CIString> membersByRef) {
