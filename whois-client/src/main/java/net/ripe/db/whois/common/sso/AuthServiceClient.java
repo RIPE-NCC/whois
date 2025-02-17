@@ -19,6 +19,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.whois.common.aspects.Stopwatch;
 import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.common.sso.domain.MemberContactsResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
@@ -31,7 +32,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,7 +92,7 @@ public class AuthServiceClient {
                 .build();
     }
 
-    @Nullable
+    @Stopwatch(thresholdMs = 100L)
     @Cacheable(cacheNames="ssoValidateToken")
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
@@ -130,6 +130,7 @@ public class AuthServiceClient {
             null);
     }
 
+    @Stopwatch(thresholdMs = 100L)
     @Cacheable(cacheNames="ssoUuid")
     public String getUuid(final String username) {
         if (StringUtils.isEmpty(username)) {
@@ -159,6 +160,7 @@ public class AuthServiceClient {
         }
     }
 
+    @Stopwatch(thresholdMs = 100L)
     @Cacheable(cacheNames="ssoUserDetails")
     public ValidateTokenResponse getUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
@@ -185,6 +187,7 @@ public class AuthServiceClient {
         }
     }
 
+    @Stopwatch(thresholdMs = 100L)
     @Cacheable(cacheNames="ssoHistoricalUserDetails")
     public HistoricalUserResponse getHistoricalUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
