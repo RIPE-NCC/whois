@@ -75,7 +75,7 @@ public class ApiPublicKeyLoaderDummy implements Stub {
 
         final String restUrl = String.format("http://localhost:%s/realms/ripe-ncc/protocol/openid-connect/certs", getPort());
         LOGGER.info("Load API key  dummy server restUrl: {}", restUrl);
-        ReflectionTestUtils.setField(apiPublicKeyLoader, "restUrl", restUrl);
+        ReflectionTestUtils.setField(apiPublicKeyLoader, "jwksSetUrl", restUrl);
     }
 
     @PreDestroy
