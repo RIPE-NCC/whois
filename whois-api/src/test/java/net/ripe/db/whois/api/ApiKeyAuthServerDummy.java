@@ -9,6 +9,7 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.ServletException;
@@ -110,7 +111,13 @@ public class ApiKeyAuthServerDummy implements Stub {
 
                 JWSObject jwsObject = new JWSObject(
                         new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(privateKey.getKeyID()).build(),
-                        new Payload(ApiKeyUtils.getOAuthSession(oAuthSession)));
+                        //new Payload(ApiKeyUtils.getOAuthSession(oAuthSession)));
+                        new Payload( new JWTClaimsSet.Builder()
+                                .audience(oAuthSession.getAud())
+                                .claim("email", oAuthSession.getEmail())
+                                .claim("scope", oAuthSession.getScope())
+                                .claim("uuid", oAuthSession.getUuid())
+                                .build().toJSONObject()));
 
                 jwsObject.sign(signer);
 

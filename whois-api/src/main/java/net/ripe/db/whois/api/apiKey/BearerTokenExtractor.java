@@ -88,10 +88,9 @@ public class BearerTokenExtractor   {
 
     private boolean verifyJWTSignature(final SignedJWT signedJWT) {
         try {
-            final JWKSet rsaKeys = apiPublicKeyLoader.loadPublicKey();
+            final RSAKey publicKey = apiPublicKeyLoader.loadPublicKey(signedJWT.getHeader().getKeyID());
 
-            final JWK publicKeys = rsaKeys.getKeyByKeyId(signedJWT.getHeader().getKeyID());
-            final JWSVerifier verifier = new RSASSAVerifier((RSAKey) publicKeys);
+            final JWSVerifier verifier = new RSASSAVerifier(publicKey);
 
             return signedJWT.verify(verifier);
         } catch (Exception ex) {
