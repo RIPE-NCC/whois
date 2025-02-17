@@ -11,11 +11,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.google.common.collect.Lists;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.util.JSONObjectUtils;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import com.nimbusds.jose.jwk.RSAKey;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.whois.common.aspects.Stopwatch;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -25,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
@@ -66,21 +66,22 @@ public class ApiPublicKeyLoader {
                 .build();
     }
 
+    @Stopwatch(thresholdMs = 100L)
     @Cacheable(cacheNames = "JWTpublicKeyDetails")
     public List<RSAKey> loadPublicKey() throws ParseException {
         if(StringUtils.isEmpty(restUrl)) {
-            LOGGER.warn("Skipping JWT verification as url is null");
+            LOGGER.warn("Skipping load public key as URL is null or empty");
             return Collections.emptyList();
         }
 
-        LOGGER.debug("Loading public key from {}", restUrl);
+        LOGGER.debug("Loading public key");
         try {
-            return  getListOfKeys(client.target(restUrl)
+            return getListOfKeys(client.target(restUrl)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(String.class));
 
         } catch (Exception e) {
-            LOGGER.error("Failed to load RSA public key  apikey due to {}:{}", e.getClass().getName(), e.getMessage());
+            LOGGER.error("Failed to load public key", e);
             throw e;
         }
     }
