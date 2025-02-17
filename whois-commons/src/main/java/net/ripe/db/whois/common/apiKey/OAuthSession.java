@@ -8,6 +8,8 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -18,7 +20,7 @@ public class OAuthSession implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final String[] aud;
+    private final List<String> aud;
 
     private final String email;
 
@@ -36,7 +38,7 @@ public class OAuthSession implements Serializable {
         this.scope = null;
     }
 
-    public OAuthSession(final String[] aud, final String keyId, final String email, final String uuid, final String scope) {
+    public OAuthSession(final List<String> aud, final String keyId, final String email, final String uuid, final String scope) {
         this.aud = aud;
         this.email = email;
         this.uuid = uuid;
@@ -45,14 +47,14 @@ public class OAuthSession implements Serializable {
     }
 
     public OAuthSession(final String keyId) {
-        this.aud = null;
+        this.aud = Collections.emptyList();
         this.email = null;
         this.keyId = keyId;
         this.uuid = null;
         this.scope = null;
     }
 
-    public String[] getAud() {
+    public List<String> getAud() {
         return aud;
     }
 
@@ -114,13 +116,5 @@ public class OAuthSession implements Serializable {
         public String getAppName() {
             return appName;
         }
-    }
-
-    public static OAuthSession from(final OAuthSession oAuthSession, final String keyId) {
-        if(oAuthSession == null) {
-            return new OAuthSession(keyId);
-        }
-
-        return new OAuthSession(oAuthSession.getAud(), keyId, oAuthSession.getEmail(), oAuthSession.getUuid(), oAuthSession.getScope());
     }
 }

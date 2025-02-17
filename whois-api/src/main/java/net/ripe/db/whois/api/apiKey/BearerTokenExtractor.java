@@ -1,11 +1,10 @@
 package net.ripe.db.whois.api.apiKey;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.HttpHeaders;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 @Component
 public class BearerTokenExtractor   {
@@ -63,15 +61,16 @@ public class BearerTokenExtractor   {
             final SignedJWT signedJWT = SignedJWT.parse(StringUtils.substringAfter(bearerToken, "Bearer "));
 
             if(!verifyJWTSignature(signedJWT)) {
-              LOGGER.debug("JWT signature verification failed for {}", apiKeyId);
               return new OAuthSession(apiKeyId);
             }
 
-            //TODO[MA]: remove when apiKeyId is available from api registry call
-            return OAuthSession.from(new ObjectMapper().readValue(signedJWT.getPayload().toString(), OAuthSession.class), apiKeyId);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
-            return  new OAuthSession(apiKeyId);
+            final JWTClaimsSet claimSet = signedJWT.getJWTClaimsSet();
+
+            return new OAuthSession(claimSet.getAudience(),
+                                    apiKeyId,
+                                    claimSet.getStringClaim("email"),
+                                    claimSet.getStringClaim("uuid"),
+                                    claimSet.getStringClaim("scope"));
         } catch (Exception e) {
             LOGGER.error("Failed to read OAuthSession, this should never have happened", e);
             return new OAuthSession(apiKeyId);
@@ -80,19 +79,13 @@ public class BearerTokenExtractor   {
 
     private boolean verifyJWTSignature(final SignedJWT signedJWT) {
         try {
-            final List<RSAKey> rsaKeys = apiPublicKeyLoader.loadPublicKey();
+            final RSAKey publicKey = apiPublicKeyLoader.loadPublicKey(signedJWT.getHeader().getKeyID());
 
-            if(rsaKeys.isEmpty()) {
-              LOGGER.debug("RSA public key is not available");
-              return true;
-            }
-
-            final RSAKey publicKey = rsaKeys.stream().filter( rsaKey -> rsaKey.getKeyID().equals(signedJWT.getHeader().getKeyID())).findFirst().get();
             final JWSVerifier verifier = new RSASSAVerifier(publicKey);
 
             return signedJWT.verify(verifier);
         } catch (Exception ex) {
-            LOGGER.debug("failed to verify signature {}", ex.getMessage());
+            LOGGER.error("failed to verify signature {}", ex.getMessage());
             return false;
         }
     }
