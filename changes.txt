@@ -1,11 +1,24 @@
 # next
 
+# 1.116
+
+[rdap] RDAP Relation Searches Endpoint (#1603)
+[rdap] Fixes to RDAP RIR-Search (Basic Searches) Feature (#1611)
+[rdap] Return Abuse-c Entity for RDAP organisation Entity Query (#1659)
+[update] Update key-cert lookup URL in update notification (#1631)
+[update] Warn if mbrs-by-ref in set object is changed (#1662)
+[update] Warn on override if set membership claim is not supported by mbrs-by-ref (#1660)
+[nrtm] NRTMv4 use EC p256 key instead of ec25519 (#1645)
+[nrtm] Remove old NRTMv4 Update Notification File Links (#1652)
+[nrtm] Do not send the SOURCE in NRTMv4 relative URLs (#1654)
+
 # 1.115.1
-[update] ApiKey fix parsing details
+
+[update] API Key fix parsing details
 
 # 1.115
 
-[all] Apikey authentication (#1569, #1597, #1618, #1620, #1622, #1624, #1626, #1627)
+[all] API Key Authentication (#1569, #1597, #1618, #1620, #1622, #1624, #1626, #1627)
 [nrtm] NRTMv4 client implementation (#1560, #1574, #1575, #1596, #1579, #1577, #1605, #1609, #1610, #1621)
 [nrtm] Use relative path in NRTM update notification file (#1583)
 [nrtm] Add JWS Support To Fix Race Condition in NRTMv4 (#1564, #1589)
