@@ -38,7 +38,7 @@ public class BearerTokenExtractor   {
 
     @Autowired
     public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
-                                @Value("${api.public.key.url}")  final String jwksSetUrl,
+                                @Value("${api.public.key.url:}")  final String jwksSetUrl,
                                 @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId) {
         this.enabled = enabled;
         this.whoisKeycloakId = whoisKeycloakId;
