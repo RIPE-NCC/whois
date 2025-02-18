@@ -99,7 +99,7 @@ public class BearerTokenExtractor   {
                     claimSet.getStringClaim("scope"));
 
         } catch (Exception e) {
-            LOGGER.debug("Failed to read OAuthSession from BearerToken ", e);
+            LOGGER.info("Failed to read OAuthSession from BearerToken ", e);
             return new OAuthSession(apiKeyId);
         }
     }
