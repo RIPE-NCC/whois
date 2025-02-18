@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -111,12 +112,12 @@ public class ApiKeyAuthServerDummy implements Stub {
 
                 JWSObject jwsObject = new JWSObject(
                         new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(privateKey.getKeyID()).build(),
-                        //new Payload(ApiKeyUtils.getOAuthSession(oAuthSession)));
                         new Payload( new JWTClaimsSet.Builder()
                                 .audience(oAuthSession.getAud())
                                 .claim("email", oAuthSession.getEmail())
                                 .claim("scope", oAuthSession.getScope())
                                 .claim("uuid", oAuthSession.getUuid())
+                                .expirationTime(new Date())
                                 .build().toJSONObject()));
 
                 jwsObject.sign(signer);

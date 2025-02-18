@@ -1,14 +1,12 @@
 package net.ripe.db.whois.api;
 
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.ripe.db.whois.common.Stub;
-import net.ripe.db.whois.api.apiKey.ApiPublicKeyLoader;
+import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.eclipse.jetty.server.NetworkConnector;
@@ -34,14 +32,14 @@ public class ApiPublicKeyLoaderDummy implements Stub {
     private Server server;
     private int port = 0;
 
-    private final ApiPublicKeyLoader apiPublicKeyLoader;
+    private final BearerTokenExtractor bearerTokenExtractor;
 
     @Autowired
-    public ApiPublicKeyLoaderDummy(final ApiPublicKeyLoader apiPublicKeyLoader) {
-        this.apiPublicKeyLoader = apiPublicKeyLoader;
+    public ApiPublicKeyLoaderDummy(final BearerTokenExtractor bearerTokenExtractor) {
+        this.bearerTokenExtractor = bearerTokenExtractor;
     }
 
-    private class ApiPublicKeyLoaderTestHandler extends AbstractHandler {
+    private static class ApiPublicKeyLoaderTestHandler extends AbstractHandler {
 
         @Override
         public void handle(final String target, final Request baseRequest,
@@ -75,7 +73,7 @@ public class ApiPublicKeyLoaderDummy implements Stub {
 
         final String restUrl = String.format("http://localhost:%s/realms/ripe-ncc/protocol/openid-connect/certs", getPort());
         LOGGER.info("Load API key  dummy server restUrl: {}", restUrl);
-        ReflectionTestUtils.setField(apiPublicKeyLoader, "jwksSetUrl", restUrl);
+        ReflectionTestUtils.setField(bearerTokenExtractor, "jwksSetUrl", restUrl);
     }
 
     @PreDestroy

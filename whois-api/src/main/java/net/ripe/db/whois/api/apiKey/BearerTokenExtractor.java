@@ -1,11 +1,17 @@
 package net.ripe.db.whois.api.apiKey;
 
 import com.google.common.net.HttpHeaders;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.JWTClaimNames;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
@@ -17,23 +23,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 
 @Component
 public class BearerTokenExtractor   {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BearerTokenExtractor.class);
 
-    private final ApiPublicKeyLoader apiPublicKeyLoader;
     private final boolean enabled;
     private final String whoisKeycloakId;
+    private final String jwksSetUrl;
 
     @Autowired
-    public BearerTokenExtractor(final ApiPublicKeyLoader apiPublicKeyLoader,
-                                @Value("${apikey.authenticate.enabled:false}") final boolean enabled,
+    public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
+                                @Value("${api.public.key.url}")  final String jwksSetUrl,
                                 @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId) {
-        this.apiPublicKeyLoader = apiPublicKeyLoader;
         this.enabled = enabled;
         this.whoisKeycloakId = whoisKeycloakId;
+        this.jwksSetUrl = jwksSetUrl;
     }
 
     @Nullable
@@ -58,35 +67,40 @@ public class BearerTokenExtractor   {
         }
 
         try {
-            final SignedJWT signedJWT = SignedJWT.parse(StringUtils.substringAfter(bearerToken, "Bearer "));
+            final String accessToken = StringUtils.substringAfter(bearerToken, "Bearer ");
+            final SignedJWT signedJWT = SignedJWT.parse(accessToken);
 
-            if(!verifyJWTSignature(signedJWT)) {
-              return new OAuthSession(apiKeyId);
-            }
+            final ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 
-            final JWTClaimsSet claimSet = signedJWT.getJWTClaimsSet();
+            final JWKSource<SecurityContext> keySource = JWKSourceBuilder
+                    .create(new URL(jwksSetUrl))
+                    .retrying(true)
+                    .build();
+
+            final JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(
+                    signedJWT.getHeader().getAlgorithm(),
+                    keySource);
+            jwtProcessor.setJWSKeySelector(keySelector);
+
+            jwtProcessor.setJWTClaimsSetVerifier(new DefaultJWTClaimsVerifier<>(
+                    new JWTClaimsSet.Builder().build(),
+                    new HashSet<>(Arrays.asList(
+                            JWTClaimNames.AUDIENCE,
+                            JWTClaimNames.EXPIRATION_TIME,
+                            "email",
+                            "uuid"))));
+
+            final JWTClaimsSet claimSet = jwtProcessor.process(accessToken, null);
 
             return new OAuthSession(claimSet.getAudience(),
-                                    apiKeyId,
-                                    claimSet.getStringClaim("email"),
-                                    claimSet.getStringClaim("uuid"),
-                                    claimSet.getStringClaim("scope"));
+                    apiKeyId,
+                    claimSet.getStringClaim("email"),
+                    claimSet.getStringClaim("uuid"),
+                    claimSet.getStringClaim("scope"));
+
         } catch (Exception e) {
-            LOGGER.error("Failed to read OAuthSession, this should never have happened", e);
+            LOGGER.debug("Failed to read OAuthSession from BearerToken ", e);
             return new OAuthSession(apiKeyId);
-        }
-    }
-
-    private boolean verifyJWTSignature(final SignedJWT signedJWT) {
-        try {
-            final RSAKey publicKey = apiPublicKeyLoader.loadPublicKey(signedJWT.getHeader().getKeyID());
-
-            final JWSVerifier verifier = new RSASSAVerifier(publicKey);
-
-            return signedJWT.verify(verifier);
-        } catch (Exception ex) {
-            LOGGER.error("failed to verify signature {}", ex.getMessage());
-            return false;
         }
     }
 }

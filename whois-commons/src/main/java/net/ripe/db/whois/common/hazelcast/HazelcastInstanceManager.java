@@ -92,12 +92,6 @@ public class HazelcastInstanceManager {
                     .setTimeToLiveSeconds(60));
 
             config.addMapConfig(new MapConfig()
-                    .setName("JWTpublicKeyDetails")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(600));
-
-            config.addMapConfig(new MapConfig()
                     .setName("apiKeyOAuth")
                     .setStatisticsEnabled(true)
                     .setEvictionConfig(evictionConfig)
