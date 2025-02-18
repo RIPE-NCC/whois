@@ -6315,7 +6315,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         created =~ /inetnum parent has incorrect status: ASSIGNED PA/
     }
 
-    def "create ASSIGNED PA parent above LIR-PARTITIONED PA child"() {
+    def "create ASSIGNED PA parent above ASSIGNED PA child"() {
         given:
         syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
         syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
