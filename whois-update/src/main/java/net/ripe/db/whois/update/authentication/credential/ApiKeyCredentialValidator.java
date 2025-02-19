@@ -55,6 +55,9 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
         for (final APIKeyCredential offered : offeredCredentials) {
 
             final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
+            if(oAuthSession == null || oAuthSession.getUuid() == null) {
+                continue;
+            }
 
             if(!ApiKeyUtils.validateAudience(oAuthSession, whoisKeycloakId)) {
                 updateContext.addMessage(update, UpdateMessages.invalidApiKeyAudience());
