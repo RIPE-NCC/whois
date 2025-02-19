@@ -254,7 +254,7 @@ public class NrtmClientServiceTestIntegration extends AbstractNrtmIntegrationTes
 
         assertThat(response.readEntity(String.class), is("<html><header><title>NRTM Version 4</title></header><body><a " +
                 "href='https://nrtm" +
-                ".db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
+                ".db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.jose'>TEST-NONAUTH</a><br/><body></html>"));
     }
 
     @Test
