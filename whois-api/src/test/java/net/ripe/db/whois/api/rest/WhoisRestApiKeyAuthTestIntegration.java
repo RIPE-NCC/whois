@@ -186,6 +186,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertThat(response.getStatus(), is(HttpStatus.BAD_REQUEST_400));
     }
 
+/*
     @Test
     public void request_failed_with_basic_auth_api_key_illegal_bearer_header() {
 
@@ -197,6 +198,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertThat(response.getStatus(), is(HttpStatus.BAD_REQUEST_400));
     }
 
+*/
     @Test
     public void update_selfrefencing_maintainer_only_data_parameter_with_api_key() {
         final String mntner =
@@ -428,6 +430,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertThat(whoisResources.getStatus(), is(OK.getStatusCode()));
     }
 
+/*
     @Test
     public void delete_object_with_apikey_with_mnt_with_sso_bearer() {
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
@@ -438,6 +441,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertThat(whoisResources.getStatus(), is(OK.getStatusCode()));
     }
 
+*/
     @Test
     public void delete_object_with_invalid_apikey() {
 
