@@ -79,8 +79,7 @@ public class HttpsAPIKeyAuthFilter implements Filter {
     }
 
     private static boolean isNotValidRequest(HttpServletRequest httpRequest) {
-        return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM)) ||
-                (httpRequest.getHeader(HttpHeaders.AUTHORIZATION) != null && httpRequest.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Bearer"));
+        return !StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM);
     }
 
     private boolean isAPIKeyRequest(final HttpServletRequest httpRequest) {

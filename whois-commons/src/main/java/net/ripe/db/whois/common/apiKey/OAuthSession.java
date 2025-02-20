@@ -24,6 +24,8 @@ public class OAuthSession implements Serializable {
 
     private final String email;
 
+    private final String azp;
+
     private final String keyId;
 
     private final String uuid;
@@ -36,14 +38,16 @@ public class OAuthSession implements Serializable {
         this.keyId = null;
         this.uuid = null;
         this.scope = null;
+        this.azp = null;
     }
 
-    public OAuthSession(final List<String> aud, final String keyId, final String email, final String uuid, final String scope) {
+    public OAuthSession(final List<String> aud, final String keyId, final String email, final String uuid, final String scope, final String azp) {
         this.aud = aud;
         this.email = email;
         this.uuid = uuid;
         this.scope = scope;
         this.keyId = keyId;
+        this.azp = azp;
     }
 
     public OAuthSession(final String keyId) {
@@ -52,10 +56,15 @@ public class OAuthSession implements Serializable {
         this.keyId = keyId;
         this.uuid = null;
         this.scope = null;
+        this.azp = null;
     }
 
     public List<String> getAud() {
         return aud;
+    }
+
+    public String getAzp() {
+        return azp;
     }
 
     public String getEmail() {
@@ -82,6 +91,7 @@ public class OAuthSession implements Serializable {
                 .add("email", email)
                 .add("uuid", uuid)
                 .add("scopes", scope)
+                .add("azp", azp)
                 .toString();
     }
 

@@ -429,6 +429,16 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
+    public void delete_object_with_apikey_with_mnt_with_sso_bearer() {
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer eyJraWQiOiIxMjMiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOlsiYWNjb3VudCIsIndob2lzIl0sInV1aWQiOiI5MDY2MzVjMi0wNDA1LTQyOWEtODAwYi0wNjAyYmQ3MTYxMjQiLCJlbWFpbCI6InBlcnNvbkBuZXQubmV0Iiwic2NvcGUiOiJwcm9maWxlIGVtYWlsIHdob2lzLm1udG5lcjpPV05FUi1NTlQifQ.E4uN0lhg2sZqTsMhkLRzI_G9wzwzs2kVhRrhXavndtYOw1sAiLJfeLFRHn6xucKPN4GVuUr3F5ilr4_hYTApg_QaI_lxKO1EFSaGJulMk-rbrYBDBdGoJ_37UarCOw2Ug9Oa_V3_heQegy3RBXBxgBjNkLo4ZN6SCh9dz9YibuV3qjsnXXQ8aWpwPAvYqmkP3QNXAS4HW60Vs3A7TOjCwvgazvr5Gg5mbiW80NjbJwT9nXDdkjK96-0D2osvw24-qYr8cfOp3YEDg8nvh_3bbiRdXlNKycCHKNPzOTME39JFGChJQd81_swbk99er-PfaOtf23r59fzRtMETCJC4aA")
+                .delete(Response.class);
+
+        assertThat(whoisResources.getStatus(), is(OK.getStatusCode()));
+    }
+
+    @Test
     public void delete_object_with_invalid_apikey() {
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")

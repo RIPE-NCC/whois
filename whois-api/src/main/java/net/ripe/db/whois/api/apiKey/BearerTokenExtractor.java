@@ -47,7 +47,7 @@ public class BearerTokenExtractor   {
 
     @Nullable
     public OAuthSession extractBearerToken(final HttpServletRequest request, final String apiKeyId) {
-        if(!enabled || StringUtils.isEmpty(apiKeyId)) {
+        if(!enabled) {
             return null;
         }
 
@@ -96,7 +96,9 @@ public class BearerTokenExtractor   {
                     apiKeyId,
                     claimSet.getStringClaim("email"),
                     claimSet.getStringClaim("uuid"),
-                    claimSet.getStringClaim("scope"));
+                    claimSet.getStringClaim("scope"),
+                    claimSet.getStringClaim("azp")
+                    );
 
         } catch (Exception e) {
             LOGGER.info("Failed to read OAuthSession from BearerToken ", e);
