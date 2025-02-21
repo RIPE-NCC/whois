@@ -57,7 +57,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
         final String response = getResponseFromHttpsRequest(null, MediaType.TEXT_HTML).readEntity(String.class);
 
-        assertThat(response, is("<html><header><title>NRTM Version 4</title></header><body><a href='https://nrtm.db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
+        assertThat(response, is("<html><header><title>NRTM Version 4</title></header><body><a href='https://nrtm.db.ripe.net/TEST/update-notification-file.jose'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.jose'>TEST-NONAUTH</a><br/><body></html>"));
     }
 
     @Test

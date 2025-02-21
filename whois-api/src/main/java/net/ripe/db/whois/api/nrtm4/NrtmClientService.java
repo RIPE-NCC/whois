@@ -60,7 +60,7 @@ public class NrtmClientService {
         nrtmSourceDao.getSources().forEach(sourceModel ->
                 sourceLink.append(
                         String.format("<a href='%s'>%s</a><br/>",
-                                        String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.json"),
+                                        String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.jose"),
                                         sourceModel.getName().toString()
                                     )
                 )
