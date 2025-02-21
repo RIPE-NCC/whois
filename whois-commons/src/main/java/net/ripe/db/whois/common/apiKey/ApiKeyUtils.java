@@ -13,9 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 
 public class ApiKeyUtils {
@@ -24,30 +22,12 @@ public class ApiKeyUtils {
 
     public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
 
-    public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
-        if(StringUtils.isEmpty(oAuthSession.getScope())) {
-            return true;
-        }
+    public static boolean validateMntnrScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
+        final List<String> mntnrScopes =  oAuthSession.getScopes().stream()
+                .filter( scope -> ObjectType.MNTNER.getName().equalsIgnoreCase(scope.getScopeType()))
+                .map(OAuthSession.ScopeFormatter::getScopeKey).toList();
 
-        final Optional<String> whoisScope = getWhoisScope(oAuthSession);
-        if(whoisScope.isEmpty()) {
-            return true;
-        }
-
-        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope.get());
-
-        if(StringUtils.isEmpty(scopeFormatter.getScopeKey()) || StringUtils.isEmpty(scopeFormatter.getScopeType()) || StringUtils.isEmpty(scopeFormatter.getAppName())) {
-            return true;
-        }
-
-        return "whois".equalsIgnoreCase(scopeFormatter.getAppName())
-                    && ObjectType.MNTNER.getName().equalsIgnoreCase(scopeFormatter.getScopeType())
-                    && maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
-    }
-
-    private static Optional<String> getWhoisScope(OAuthSession oAuthSession) {
-        final List<String> scopes = Arrays.asList(StringUtils.split(oAuthSession.getScope(), " "));
-        return scopes.stream().filter(scope -> scope.startsWith("whois")).findFirst();
+        return mntnrScopes.isEmpty() || maintainers.stream().map(rpslObject -> rpslObject.getKey().toString()).anyMatch(mntnrScopes::contains);
     }
 
     public static boolean hasValidApiKey(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
@@ -55,7 +35,7 @@ public class ApiKeyUtils {
             return false;
         }
 
-        if(!ApiKeyUtils.validateScope(oAuthSession, maintainers)) {
+        if(!ApiKeyUtils.validateMntnrScope(oAuthSession, maintainers)) {
             return false;
         }
 
@@ -95,14 +75,5 @@ public class ApiKeyUtils {
         final String usernameWithPassword = new String(credDecoded, StandardCharsets.ISO_8859_1);
 
         return usernameWithPassword.contains(":") ?  StringUtils.substringBefore(usernameWithPassword, ":") : null;
-    }
-
-    public static String getOAuthSession(final OAuthSession oAuthSession) {
-        try {
-            return new ObjectMapper().writeValueAsString(oAuthSession);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
-            return null;
-        }
     }
 }

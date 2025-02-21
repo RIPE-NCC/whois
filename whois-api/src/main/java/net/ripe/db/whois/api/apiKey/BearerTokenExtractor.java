@@ -24,9 +24,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.net.URI;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 @Component
 public class BearerTokenExtractor   {
@@ -97,11 +98,21 @@ public class BearerTokenExtractor   {
                     apiKeyId,
                     claimSet.getStringClaim("email"),
                     claimSet.getStringClaim("uuid"),
-                    claimSet.getStringClaim("scope"));
+                    getWhoisScopes(claimSet.getStringClaim("scope")));
 
         } catch (Exception e) {
             LOGGER.info("Failed to read OAuthSession from BearerToken ", e);
             return new OAuthSession(apiKeyId);
         }
+    }
+
+    private List<OAuthSession.ScopeFormatter> getWhoisScopes(final String scopes) {
+        if(StringUtils.isEmpty(scopes)) {
+            return new ArrayList<>();
+        }
+
+        return Arrays.stream(StringUtils.split(scopes, " "))
+                .filter(scope -> scope.startsWith("whois"))
+                .map(OAuthSession.ScopeFormatter::new).toList();
     }
 }
