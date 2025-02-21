@@ -160,6 +160,18 @@ CREATE TABLE `email_status` (
    PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+DROP TABLE IF EXISTS `email_status_archived`;
+CREATE TABLE `email_status_archived` (
+     `email` varchar(320) NOT NULL,
+     `status` varchar(120) NOT NULL,
+     `message` longblob,
+     `archived_date` datetime DEFAULT now(),
+     `reported_date` datetime NOT NULL,
+     PRIMARY KEY (`email`, `reported_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 DROP TABLE IF EXISTS `transfer_update_lock`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
