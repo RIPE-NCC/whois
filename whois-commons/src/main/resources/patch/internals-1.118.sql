@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS `email_status_archived`;
+DROP TABLE IF EXISTS `email_status_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `email_status_archived` (
+CREATE TABLE `email_status_history` (
         `email` varchar(320) NOT NULL,
         `status` varchar(120) NOT NULL,
         `message` longblob,

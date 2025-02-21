@@ -161,8 +161,8 @@ CREATE TABLE `email_status` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-DROP TABLE IF EXISTS `email_status_archived`;
-CREATE TABLE `email_status_archived` (
+DROP TABLE IF EXISTS `email_status_history`;
+CREATE TABLE `email_status_history` (
      `email` varchar(320) NOT NULL,
      `status` varchar(120) NOT NULL,
      `message` longblob,
