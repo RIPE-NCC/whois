@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -73,7 +74,7 @@ public class BearerTokenExtractor   {
             final ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 
             final JWKSource<SecurityContext> keySource = JWKSourceBuilder
-                    .create(new URL(jwksSetUrl))
+                    .create(new URI(jwksSetUrl).toURL())
                     .retrying(true)
                     .build();
 
