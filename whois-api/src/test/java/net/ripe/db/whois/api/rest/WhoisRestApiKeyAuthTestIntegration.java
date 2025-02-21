@@ -133,6 +133,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @BeforeAll
     public static void setupApiProperties() {
         System.setProperty("apikey.authenticate.enabled","true");
+        System.setProperty("api.public.key.url","localhost");
     }
 
     @AfterAll
