@@ -1,10 +1,8 @@
-package net.ripe.db.whois.api.sso;
+package net.ripe.db.whois.common.sso;
 
-import net.ripe.db.whois.api.AbstractIntegrationTest;
-import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
+import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -16,10 +14,10 @@ import java.time.LocalDateTime;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
-public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
+public class AuthServiceClientTestIntegration extends AbstractDaoIntegrationTest {
 
     private static final String UUID = "8ffe29be-89ef-41c8-ba7f-0e1553a623e5";
 

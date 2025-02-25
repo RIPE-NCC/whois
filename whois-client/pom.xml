@@ -17,10 +17,6 @@
             <artifactId>whois-rpsl</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-commons</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
         </dependency>
