@@ -5,9 +5,9 @@ CREATE TABLE `email_status_history` (
         `email` varchar(320) NOT NULL,
         `status` varchar(120) NOT NULL,
         `message` longblob,
-        `archived_date` datetime DEFAULT now(),
-        `reported_date` datetime NOT NULL,
-        PRIMARY KEY (`email`, `reported_date`)
+        `history_update` datetime DEFAULT now(),
+        `email_status_update` datetime NOT NULL,
+        PRIMARY KEY (`email`, `email_status_update`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 TRUNCATE version;
