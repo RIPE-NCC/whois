@@ -76,7 +76,7 @@ public class ApiKeyUtils {
     }
 
     public static boolean validateAudience(final OAuthSession oAuthSession, final String keycloakClientId) {
-        return oAuthSession != null && oAuthSession.getAud() != null && Arrays.stream(oAuthSession.getAud()).anyMatch(appName -> appName.equalsIgnoreCase(keycloakClientId));
+        return oAuthSession != null && oAuthSession.getAud() != null && oAuthSession.getAud().stream().anyMatch(appName -> appName.equalsIgnoreCase(keycloakClientId));
     }
 
     public static boolean isAPIKeyRequest(final String authHeader) {
