@@ -1,5 +1,7 @@
-package net.ripe.db.whois.common.sso;
+package net.ripe.db.whois.api.sso;
 
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
