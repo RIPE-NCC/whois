@@ -109,7 +109,7 @@ public class Update implements UpdateContainer {
     }
 
     public enum EffectiveCredentialType {
-        SSO, PGP, PASSWORD, X509, APIKEY
+        SSO, PGP, PASSWORD, X509, APIKEY, OAUTH
     }
 
 }

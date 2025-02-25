@@ -374,6 +374,13 @@
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>9.40</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <version>9.40</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
                 <artifactId>tink</artifactId>
