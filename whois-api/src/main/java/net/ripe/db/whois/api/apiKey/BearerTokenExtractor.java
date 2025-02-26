@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.apiKey;
 
 import com.google.common.net.HttpHeaders;
+import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionRequest;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
@@ -13,7 +14,6 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +29,8 @@ public class BearerTokenExtractor   {
     private static final Logger LOGGER = LoggerFactory.getLogger(BearerTokenExtractor.class);
 
     private final boolean enabled;
-    private final String whoisKeycloakId;
     private final URI tokenIntrospectEndpoint;
-    private final String keycloakPassword;
+    private final ClientSecretBasic keycloakClient;
 
     @Autowired
     public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
@@ -39,8 +38,7 @@ public class BearerTokenExtractor   {
                                 @Value("${keycloak.idp.password:}")  final String keycloakPassword,
                                 @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId) {
         this.enabled = enabled;
-        this.whoisKeycloakId = whoisKeycloakId;
-        this.keycloakPassword = keycloakPassword;
+        this.keycloakClient = new ClientSecretBasic(new ClientID(whoisKeycloakId), new Secret(keycloakPassword));
         this.tokenIntrospectEndpoint = getTokenIntrospectEndpoint(openIdMetadataUrl);
     }
 
@@ -55,33 +53,33 @@ public class BearerTokenExtractor   {
 
     @Nullable
     public OAuthSession extractBearerToken(final HttpServletRequest request, final String apiKeyId) {
-        final String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(!enabled || StringUtils.isEmpty(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+        final BearerAccessToken accessToken = getBearerToken(request);
+        if(!enabled || accessToken == null ) {
             return null;
         }
 
-        return getOAuthSession(bearerToken, apiKeyId);
+        return getOAuthSession(accessToken, apiKeyId);
     }
 
     @Nullable
     public OAuthSession extractAndValidateAudience(final HttpServletRequest request, final String apiKeyId) {
       final OAuthSession oAuthSession = extractBearerToken(request, apiKeyId);
-      if(oAuthSession == null || ApiKeyUtils.validateAudience(oAuthSession, whoisKeycloakId)) {
+      if(oAuthSession == null) {
           return oAuthSession;
       }
 
-      return new OAuthSession.Builder().keyId(apiKeyId).errorStatus("Failed to validate Audience").build();
+      return ApiKeyUtils.validateAudience(oAuthSession, keycloakClient.getClientID().getValue()) ? oAuthSession :
+                        new OAuthSession.Builder().keyId(apiKeyId).errorStatus("Failed to validate Audience").build();
     }
 
-    private OAuthSession getOAuthSession(final String bearerToken, final String apiKeyId) {
+    private OAuthSession getOAuthSession(final BearerAccessToken accessToken, final String apiKeyId) {
         final OAuthSession.Builder oAuthSessionBuilder = new OAuthSession.Builder().keyId(apiKeyId);
 
         try {
             final TokenIntrospectionResponse response = TokenIntrospectionResponse.parse(new TokenIntrospectionRequest(
-                    tokenIntrospectEndpoint,
-                    new ClientSecretBasic(new ClientID(whoisKeycloakId), new Secret(keycloakPassword)),
-                    BearerAccessToken.parse(bearerToken))
-                    .toHTTPRequest().send());
+                                                                tokenIntrospectEndpoint,
+                                                                keycloakClient,
+                                                                accessToken).toHTTPRequest().send());
 
             if (!response.indicatesSuccess()) {
                 oAuthSessionBuilder.errorStatus("Error: " + response.toErrorResponse().getErrorObject());
@@ -104,6 +102,15 @@ public class BearerTokenExtractor   {
             LOGGER.warn("Failed to extract OAuth session", e);
             oAuthSessionBuilder.errorStatus("Failed to read OAuthSession from BearerToken" + e.getMessage());
             return oAuthSessionBuilder.build();
+        }
+    }
+
+    private BearerAccessToken getBearerToken(final HttpServletRequest request) {
+        try {
+            return BearerAccessToken.parse(request.getHeader(HttpHeaders.AUTHORIZATION));
+        } catch (ParseException e) {
+            LOGGER.debug("Failed to parse BearerToken", e.getMessage());
+            return null;
         }
     }
 }
