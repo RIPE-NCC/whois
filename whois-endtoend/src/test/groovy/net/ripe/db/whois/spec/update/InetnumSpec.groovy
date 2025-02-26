@@ -6292,4 +6292,50 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         created =~ /Status ASSIGNED PA not allowed when more specific object
             '192.168.200.0 - 192.168.255.255' has status LIR-PARTITIONED PA/
     }
+
+    def "create ASSIGNED PA child under ASSIGNED PA parent"() {
+        given:
+        syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
+
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.200.4 - 192.168.200.7
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.200.4 - 192.168.200.7/
+        created =~ /inetnum parent has incorrect status: ASSIGNED PA/
+    }
+
+    def "create ASSIGNED PA parent above ASSIGNED PA child"() {
+        given:
+        syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
+
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.100.0 - 192.168.200.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.100.0 - 192.168.200.255/
+        created =~ /Status ASSIGNED PA not allowed when more specific object
+            '192.168.200.0 - 192.168.200.255' has status ASSIGNED PA/
+    }
+
 }
