@@ -18,6 +18,8 @@ public class OAuthSession {
 
     private final String azp;
 
+    private final String jti;
+
     OAuthSession(final Builder builder) {
         this.aud = builder.aud;
         this.email = builder.email;
@@ -25,6 +27,7 @@ public class OAuthSession {
         this.scope = builder.scope;
         this.errorStatus = builder.errorStatus;
         this.azp = builder.azp;
+        this.jti = builder.jti;
     }
 
     public List<String> getAud() {
@@ -110,6 +113,8 @@ public class OAuthSession {
 
         protected String azp;
 
+        protected String jti;
+
         protected String keyId;
 
         public Builder keyId(String keyId) {
@@ -119,6 +124,11 @@ public class OAuthSession {
 
         public Builder aud(List<String> aud) {
             this.aud = aud;
+            return this;
+        }
+
+        public Builder jti(String jti) {
+            this.jti = jti;
             return this;
         }
 

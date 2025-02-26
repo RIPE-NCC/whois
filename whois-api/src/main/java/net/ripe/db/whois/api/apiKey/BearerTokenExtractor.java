@@ -88,19 +88,19 @@ public class BearerTokenExtractor   {
 
             final TokenIntrospectionSuccessResponse tokenDetails = response.toSuccessResponse();
             if (! tokenDetails.isActive()) {
-                oAuthSessionBuilder.errorStatus("Invalid / expired access token");
+                oAuthSessionBuilder.errorStatus("Access Token is no longer active");
                 return oAuthSessionBuilder.build();
             }
 
             return oAuthSessionBuilder.azp(tokenDetails.getStringParameter("azp"))
                     .email(tokenDetails.getStringParameter("email"))
                     .aud(tokenDetails.getStringListParameter("aud"))
+                    .jti(tokenDetails.getStringParameter("jti"))
                     .uuid(tokenDetails.getStringParameter("uuid"))
                     .scope(tokenDetails.getStringParameter("scope")).build();
 
         } catch (Exception e) {
-            LOGGER.warn("Failed to extract OAuth session", e);
-            oAuthSessionBuilder.errorStatus("Failed to read OAuthSession from BearerToken" + e.getMessage());
+            LOGGER.error("Failed to extract OAuth session", e);
             return oAuthSessionBuilder.build();
         }
     }
