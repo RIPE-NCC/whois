@@ -7,10 +7,12 @@ import jakarta.annotation.PreDestroy;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -63,7 +65,7 @@ public class OAuthTokenIntrospectDummy implements Stub {
                  }
 
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/json");
+                response.setContentType(MediaType.APPLICATION_JSON);
                 response.getWriter().println(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", true));
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -84,7 +86,13 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
 
-        final URI restUrl = new URI(String.format("http://localhost:%s/realms/ripe-ncc/protocol/openid-connect/token/introspect", getPort()));
+        final URI restUrl = new URIBuilder()
+                            .setScheme("http")
+                            .setHost("localhost")
+                            .setPort(port)
+                            .setPath("realms/ripe-ncc/protocol/openid-connect/token/introspect")
+                            .build();
+
         LOGGER.info("Validate Token using  dummy server restUrl: {}", restUrl);
         ReflectionTestUtils.setField(bearerTokenExtractor, "tokenIntrospectEndpoint", restUrl);
     }

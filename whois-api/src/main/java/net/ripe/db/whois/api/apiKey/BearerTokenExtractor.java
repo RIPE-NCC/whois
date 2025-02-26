@@ -53,12 +53,11 @@ public class BearerTokenExtractor   {
 
     @Nullable
     public OAuthSession extractBearerToken(final HttpServletRequest request, final String apiKeyId) {
-        final BearerAccessToken accessToken = getBearerToken(request);
-        if(!enabled || accessToken == null ) {
-            return null;
-        }
+        if(!enabled) return null;
 
-        return getOAuthSession(accessToken, apiKeyId);
+        final BearerAccessToken accessToken = getBearerToken(request);
+
+        return accessToken != null ? getOAuthSession(accessToken, apiKeyId) : null;
     }
 
     @Nullable
@@ -105,11 +104,12 @@ public class BearerTokenExtractor   {
         }
     }
 
+    @Nullable
     private BearerAccessToken getBearerToken(final HttpServletRequest request) {
         try {
             return BearerAccessToken.parse(request.getHeader(HttpHeaders.AUTHORIZATION));
         } catch (ParseException e) {
-            LOGGER.debug("Failed to parse BearerToken", e.getMessage());
+            LOGGER.debug("Failed to parse BearerToken {}", e.getMessage());
             return null;
         }
     }

@@ -61,6 +61,7 @@
         <hamcrest.version>2.2</hamcrest.version>
         <hamcrest-json.version>0.2</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
+        <oauth2.oidc.version>11.23</oauth2.oidc.version>
 
         <jackson.version>2.17.2</jackson.version>
         <jaxb.api.version>4.0.1</jaxb.api.version>
@@ -378,7 +379,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>9.40</version>
+                <version>${oauth2.oidc.version}</version>
             </dependency>
 
             <dependency>
