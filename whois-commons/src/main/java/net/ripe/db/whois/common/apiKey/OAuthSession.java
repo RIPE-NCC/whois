@@ -1,57 +1,33 @@
 package net.ripe.db.whois.common.apiKey;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.MoreObjects;
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlRootElement;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Collections;
+import org.apache.commons.lang.StringUtils;
 import java.util.List;
 
-
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class OAuthSession implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class OAuthSession {
 
     private final List<String> aud;
 
     private final String email;
 
-    private final String keyId;
-
     private final String uuid;
 
     private final String scope;
 
-    public OAuthSession() {
-        this.aud = null;
-        this.email = null;
-        this.keyId = null;
-        this.uuid = null;
-        this.scope = null;
-    }
+    private final String errorStatus;
 
-    public OAuthSession(final List<String> aud, final String keyId, final String email, final String uuid, final String scope) {
-        this.aud = aud;
-        this.email = email;
-        this.uuid = uuid;
-        this.scope = scope;
-        this.keyId = keyId;
-    }
+    private final String azp;
 
-    public OAuthSession(final String keyId) {
-        this.aud = Collections.emptyList();
-        this.email = null;
-        this.keyId = keyId;
-        this.uuid = null;
-        this.scope = null;
+    private final String jti;
+
+    OAuthSession(final Builder builder) {
+        this.aud = builder.aud;
+        this.email = builder.email;
+        this.uuid = builder.uuid;
+        this.scope = builder.scope;
+        this.errorStatus = builder.errorStatus;
+        this.azp = builder.azp;
+        this.jti = builder.jti;
     }
 
     public List<String> getAud() {
@@ -66,26 +42,31 @@ public class OAuthSession implements Serializable {
         return uuid;
     }
 
-    public String getKeyId() {
-        return keyId;
-    }
-
     public String getScope() {
         return scope;
+    }
+
+    public String getErrorStatus() {
+        return errorStatus;
+    }
+
+    public String getAzp() {
+        return azp;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("aud", aud)
-                .add("keyId", keyId)
                 .add("email", email)
                 .add("uuid", uuid)
+                .add("azp", azp)
                 .add("scopes", scope)
+                .add("errorStatus", errorStatus)
                 .toString();
     }
 
-   public static class ScopeFormatter {
+    public static class ScopeFormatter {
 
         final String appName;
         final String scopeType;
@@ -94,7 +75,7 @@ public class OAuthSession implements Serializable {
         public ScopeFormatter(final String scope) {
             final String[] parts = scope.split(":|\\.");
 
-            if(parts.length == 0 || parts.length < 2) {
+            if (parts.length == 0 || parts.length < 2) {
                 this.appName = null;
                 this.scopeType = null;
                 this.scopeKey = null;
@@ -115,6 +96,69 @@ public class OAuthSession implements Serializable {
 
         public String getAppName() {
             return appName;
+        }
+    }
+
+    public static class Builder {
+
+        protected List<String> aud;
+
+        protected String email;
+
+        protected String uuid;
+
+        protected String scope;
+
+        protected String errorStatus;
+
+        protected String azp;
+
+        protected String jti;
+
+        protected String keyId;
+
+        public Builder keyId(String keyId) {
+            this.keyId = keyId;
+            return this;
+        }
+
+        public Builder aud(List<String> aud) {
+            this.aud = aud;
+            return this;
+        }
+
+        public Builder jti(String jti) {
+            this.jti = jti;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder uuid(String uuid) {
+            this.uuid = uuid;
+            return this;
+        }
+
+        public Builder scope(String scope) {
+            this.scope = scope;
+            return this;
+        }
+
+        public Builder errorStatus(String errorStatus) {
+            this.errorStatus = errorStatus;
+            return this;
+        }
+
+        public Builder azp(String azp) {
+            this.azp = azp;
+            return this;
+        }
+
+        public OAuthSession build() {
+            return StringUtils.isEmpty(this.keyId) ? new OAuthSession(this) : new APIKeySession(this);
         }
     }
 }

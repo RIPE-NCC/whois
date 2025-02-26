@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.authentication.credential;
 
-import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.apiKey.APIKeySession;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -69,9 +68,24 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
             }
 
             if (oAuthSession.getUuid() != null && oAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
-                log(update, String.format("Validated %s with API KEY for user: %s with apiKey: %s.", update.getFormattedKey(), oAuthSession.getEmail(), oAuthSession.getKeyId()));
 
-                update.getUpdate().setEffectiveCredential(String.format("%s (%s)", oAuthSession.getEmail(), oAuthSession.getKeyId()), Update.EffectiveCredentialType.APIKEY);
+                Update.EffectiveCredentialType effectiveCredentialType;
+                String effectiveCredential;
+                String updateMessage;
+
+                if(oAuthSession instanceof APIKeySession) {
+                    effectiveCredentialType = Update.EffectiveCredentialType.APIKEY;
+                    effectiveCredential = String.format("%s (%s)", oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
+                    updateMessage = String.format("Validated %s with API KEY for user: %s with apiKey: %s.", update.getFormattedKey(), oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
+                } else {
+                    effectiveCredentialType = Update.EffectiveCredentialType.OAUTH;
+                    effectiveCredential = oAuthSession.getEmail();
+                    updateMessage = String.format("Validated %s with OAuth Session for user: %s.", update.getFormattedKey(), oAuthSession.getEmail());
+                }
+
+                log(update, updateMessage);
+                update.getUpdate().setEffectiveCredential(effectiveCredential, effectiveCredentialType);
+
                 return true;
             }
         }
