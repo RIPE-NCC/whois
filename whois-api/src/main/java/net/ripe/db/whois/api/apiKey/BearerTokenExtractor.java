@@ -65,7 +65,7 @@ public class BearerTokenExtractor   {
     public OAuthSession extractAndValidateAudience(final HttpServletRequest request, final String apiKeyId) {
       final OAuthSession oAuthSession = extractBearerToken(request, apiKeyId);
       if(oAuthSession == null) {
-          return oAuthSession;
+          return null;
       }
 
       return ApiKeyUtils.validateAudience(oAuthSession, keycloakClient.getClientID().getValue()) ? oAuthSession :
