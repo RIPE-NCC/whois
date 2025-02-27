@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -16,7 +17,9 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
+import net.ripe.db.whois.common.apiKey.APIKeySession;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -38,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -782,7 +786,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void lookup_person_using_api_key_email_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost,  null, APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNER_MNT));
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost,  null, getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNER_MNT)));
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
@@ -807,7 +811,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                         "source:    TEST");
 
         final int queriedByIP = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
-        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT).getEmail());
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT)).getEmail());
 
         final WhoisResources whoisResources =   SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
                 .request()
@@ -822,14 +826,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
         assertThat(accountedByIp, is(queriedByIP));
 
-        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT).getEmail());
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT)).getEmail());
         assertThat(accountedBySSO, is(queriedBySSO + 1));
     }
 
     @Test
     public void lookup_person_using_sso_no_acl_for_unlimited_remoteAddr() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT));
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT)));
 
         databaseHelper.insertAclIpLimit(LOCALHOST_WITH_PREFIX, -1, true);
         ipResourceConfiguration.reload();
@@ -892,4 +896,12 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
+
+    private APIKeySession getOAuthSession(final JWTClaimsSet claimSet) throws ParseException {
+        return (APIKeySession) new OAuthSession.Builder().aud(claimSet.getAudience())
+                .keyId("123").scope(claimSet.getStringClaim("scope"))
+                        .uuid(claimSet.getStringClaim("uuid"))
+                        .email(claimSet.getStringClaim("email")).build();
+    }
+
 }

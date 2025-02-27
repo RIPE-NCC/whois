@@ -96,13 +96,4 @@ public class ApiKeyUtils {
 
         return usernameWithPassword.contains(":") ?  StringUtils.substringBefore(usernameWithPassword, ":") : null;
     }
-
-    public static String getOAuthSession(final OAuthSession oAuthSession) {
-        try {
-            return new ObjectMapper().writeValueAsString(oAuthSession);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
-            return null;
-        }
-    }
 }

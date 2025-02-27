@@ -1,14 +1,18 @@
 package net.ripe.db.whois.api;
 
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -19,16 +23,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Profile({WhoisProfile.TEST})
 @Component
-@SuppressWarnings("UnusedDeclaration")
-public class ApiPublicKeyLoaderDummy implements Stub {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiPublicKeyLoaderDummy.class);
+public class OAuthTokenIntrospectDummy implements Stub {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuthTokenIntrospectDummy.class);
 
     private Server server;
     private int port = 0;
@@ -36,7 +39,7 @@ public class ApiPublicKeyLoaderDummy implements Stub {
     private final BearerTokenExtractor bearerTokenExtractor;
 
     @Autowired
-    public ApiPublicKeyLoaderDummy(final BearerTokenExtractor bearerTokenExtractor) {
+    public OAuthTokenIntrospectDummy(final BearerTokenExtractor bearerTokenExtractor) {
         this.bearerTokenExtractor = bearerTokenExtractor;
     }
 
@@ -48,20 +51,31 @@ public class ApiPublicKeyLoaderDummy implements Stub {
             response.setContentType("text/xml;charset=utf-8");
             baseRequest.setHandled(true);
 
-            if(!request.getRequestURI().contains("realms/ripe-ncc/protocol/openid-connect/certs")) {
+            if(!request.getRequestURI().contains("ripe-ncc/protocol/openid-connect/token/introspect")) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
 
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("application/json");
-            response.getWriter().println(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_public.key").toPath())));
+            try {
+                 final SignedJWT signedJWT = SignedJWT.parse(request.getParameter("token"));
+
+                 if(signedJWT.getJWTClaimsSet().getClaim("email").equals("invalid@ripenet")) {
+                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                     return;
+                 }
+
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType(MediaType.APPLICATION_JSON);
+                response.getWriter().println(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", true));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     @PostConstruct
     @RetryFor(attempts = 5, value = Exception.class)
-    public void start() {
+    public void start() throws URISyntaxException {
         server = new Server(0);
         server.setHandler(new ApiPublicKeyLoaderTestHandler());
         try {
@@ -72,9 +86,15 @@ public class ApiPublicKeyLoaderDummy implements Stub {
 
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
 
-        final String restUrl = String.format("http://localhost:%s/realms/ripe-ncc/protocol/openid-connect/certs", getPort());
-        LOGGER.info("Load API key  dummy server restUrl: {}", restUrl);
-        ReflectionTestUtils.setField(bearerTokenExtractor, "jwksSetUrl", restUrl);
+        final URI restUrl = new URIBuilder()
+                            .setScheme("http")
+                            .setHost("localhost")
+                            .setPort(port)
+                            .setPath("realms/ripe-ncc/protocol/openid-connect/token/introspect")
+                            .build();
+
+        LOGGER.info("Validate Token using  dummy server restUrl: {}", restUrl);
+        ReflectionTestUtils.setField(bearerTokenExtractor, "tokenIntrospectEndpoint", restUrl);
     }
 
     @PreDestroy
