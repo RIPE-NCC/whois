@@ -50,7 +50,11 @@ public class ApiKeyUtils {
     }
 
     public static boolean hasValidOauthSession(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
-        if(oAuthSession == null || oAuthSession.getUuid() == null || StringUtils.isNotEmpty(oAuthSession.getErrorStatus())) {
+        if(oAuthSession == null || oAuthSession.getUuid() == null) {
+            return false;
+        }
+
+        if(StringUtils.isNotEmpty(oAuthSession.getErrorStatus())) {
             return false;
         }
 
