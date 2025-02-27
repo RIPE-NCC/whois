@@ -30,6 +30,8 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_AZP_PARAM;
 import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_EMAIL_PARAM;
+import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_JTI_PARAM;
+import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_SCOPE_PARAM;
 import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_UUID_PARAM;
 
 @Component
@@ -79,33 +81,31 @@ public class BearerTokenExtractor   {
                                                                 accessToken).toHTTPRequest().send());
 
             if (!response.indicatesSuccess()) {
-                tryToBuildOAuthSession(accessToken, oAuthSessionBuilder);
-                oAuthSessionBuilder.errorStatus("Invalid " + authType);
+                tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Invalid " + authType);
                 return oAuthSessionBuilder.build();
             }
 
             final TokenIntrospectionSuccessResponse tokenDetails = response.toSuccessResponse();
 
             if (! tokenDetails.isActive()) {
-                tryToBuildOAuthSession(accessToken, oAuthSessionBuilder);
-                oAuthSessionBuilder.errorStatus(String.format("Session associated with %s is not active", authType));
+                tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, String.format("Session associated with %s is not active", authType));
                 return oAuthSessionBuilder.build();
             }
 
             if(!validateAudience(tokenDetails.getAudience())) {
-                oAuthSessionBuilder.errorStatus(UpdateMessages.invalidApiKeyAudience().toString());
+                oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience(authType).toString());
             }
 
             return oAuthSessionBuilder.azp(tokenDetails.getStringParameter(OAUTH_CUSTOM_AZP_PARAM))
                     .email(tokenDetails.getStringParameter(OAUTH_CUSTOM_EMAIL_PARAM))
                     .aud(Audience.toStringList(tokenDetails.getAudience()))
-                    .jti(tokenDetails.getJWTID().getValue())
+                    .jti(tokenDetails.getStringParameter(OAUTH_CUSTOM_JTI_PARAM))
                     .uuid(tokenDetails.getStringParameter(OAUTH_CUSTOM_UUID_PARAM))
-                    .scope(tokenDetails.getScope().toString()).build();
+                    .scope(tokenDetails.getStringParameter(OAUTH_CUSTOM_SCOPE_PARAM)).build();
 
         } catch (Exception e) {
             LOGGER.error("Failed to extract OAuth session", e);
-            tryToBuildOAuthSession(accessToken, oAuthSessionBuilder);
+            tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Error validating " + authType);
             return oAuthSessionBuilder.build();
         }
     }
@@ -125,7 +125,10 @@ public class BearerTokenExtractor   {
     }
 
     //Try to build an oAuth session from invalid token to help us in Audit
-    public void tryToBuildOAuthSession(final BearerAccessToken accessToken, final OAuthSession.Builder oAuthSessionBuilder) {
+    public void tryToBuildOAuthSession(final BearerAccessToken accessToken, final OAuthSession.Builder oAuthSessionBuilder, final String errorMessage) {
+
+        oAuthSessionBuilder.errorStatus(errorMessage);
+
         try {
 
             final JWTClaimsSet claimSets = SignedJWT.parse(accessToken.getValue()).getJWTClaimsSet();
@@ -134,7 +137,7 @@ public class BearerTokenExtractor   {
                     .aud(claimSets.getAudience())
                     .jti(claimSets.getJWTID())
                     .uuid(claimSets.getStringClaim(OAUTH_CUSTOM_UUID_PARAM))
-                    .scope(claimSets.getStringClaim("scope"));
+                    .scope(claimSets.getStringClaim(OAUTH_CUSTOM_SCOPE_PARAM)).build();
 
         } catch (Exception e) {
             //Ignore exceptions

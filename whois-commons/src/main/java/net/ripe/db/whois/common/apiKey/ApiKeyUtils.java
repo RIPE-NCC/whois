@@ -20,6 +20,8 @@ public class ApiKeyUtils {
     public static final String OAUTH_CUSTOM_UUID_PARAM = "uuid";
     public static final String OAUTH_CUSTOM_EMAIL_PARAM = "email";
     public static final String OAUTH_CUSTOM_AZP_PARAM = "azp";
+    public static final String OAUTH_CUSTOM_SCOPE_PARAM = "scope";
+    public static final String OAUTH_CUSTOM_JTI_PARAM = "jti";
 
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
         if(StringUtils.isEmpty(oAuthSession.getScope())) {

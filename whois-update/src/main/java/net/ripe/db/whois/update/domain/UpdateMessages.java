@@ -122,8 +122,8 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "Referenced %s object %s from %s: %s is missing mandatory attribute \"%s:\"", objectType.getName(), objectName, viaType.getName(), viaName, attributeType.getName());
     }
 
-    public static Message invalidApiKeyAudience() {
-        return new Message(Type.WARNING, "The API key cannot be used because it was created for a different application or environment");
+    public static Message invalidOauthAudience(final String authType) {
+        return new Message(Type.WARNING, "The %s cannot be used because it was created for a different application or environment", authType);
     }
 
     public static Message invalidIpv4Address(final RpslAttribute attribute, final CharSequence value) {
