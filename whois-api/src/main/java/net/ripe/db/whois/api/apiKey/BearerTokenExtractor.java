@@ -14,6 +14,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
+import net.ripe.db.whois.common.aspects.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,7 @@ public class BearerTokenExtractor   {
         }
     }
 
+    @Stopwatch(thresholdMs = 100)
     @Nullable
     public OAuthSession extractBearerToken(final HttpServletRequest request, final String apiKeyId) {
         if(!enabled) return null;
@@ -60,6 +62,7 @@ public class BearerTokenExtractor   {
         return accessToken != null ? getOAuthSession(accessToken, apiKeyId) : null;
     }
 
+    @Stopwatch(thresholdMs = 100)
     @Nullable
     public OAuthSession extractAndValidateAudience(final HttpServletRequest request, final String apiKeyId) {
       final OAuthSession oAuthSession = extractBearerToken(request, apiKeyId);

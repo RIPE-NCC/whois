@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.sso;
 
+import net.ripe.db.whois.common.sso.UserSession;
 import org.junit.jupiter.api.Test;
 
 import java.time.Month;
