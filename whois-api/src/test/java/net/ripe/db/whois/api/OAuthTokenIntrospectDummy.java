@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.Stub;
-import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.http.client.utils.URIBuilder;
@@ -59,14 +59,17 @@ public class OAuthTokenIntrospectDummy implements Stub {
             try {
                  final SignedJWT signedJWT = SignedJWT.parse(request.getParameter("token"));
 
-                 if(signedJWT.getJWTClaimsSet().getClaim("email").equals("invalid@ripenet")) {
+                 final String email = signedJWT.getJWTClaimsSet().getStringClaim("email");
+                 if(email.equals("invalid@ripenet")) {
                      response.sendError(HttpServletResponse.SC_NOT_FOUND);
                      return;
                  }
 
+                 final boolean isActive = !email.equals("inactive@ripe.net");
+
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.setContentType(MediaType.APPLICATION_JSON);
-                response.getWriter().println(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", true));
+                response.getWriter().println(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", isActive));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

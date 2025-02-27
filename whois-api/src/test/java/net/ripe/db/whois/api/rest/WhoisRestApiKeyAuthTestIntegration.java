@@ -48,6 +48,7 @@ import java.util.List;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.APIKEY_TO_OAUTHSESSION;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INACTIVE_TOKEN;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
@@ -166,7 +167,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         testPersonalObjectAccounting.resetAccounting();
     }
 
-
     @Test
     public void create_failed_with_basic_auth_api_key_no_https() {
 
@@ -280,6 +280,47 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertThat(response, containsString("***Warning: The API key cannot be used because it was created for a different\n" +
                 "            application or environment"));
     }
+
+    @Test
+    public void create_mntner_only_data_parameter_with_apiKey_fails_invalid() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_API_KEY))
+                .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+        assertThat(response, containsString("***Warning: Invalid API Key"));
+    }
+
+    @Test
+    public void create_mntner_only_data_parameter_with_apiKey_fails_inactive_session() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INACTIVE_TOKEN))
+                .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+        assertThat(response, containsString("***Warning: Session associated with API Key is not active"));
+    }
+
 
     @Test
     public void lookup_correct_api_key_with_sso_and_filtered_wrong_audience() {

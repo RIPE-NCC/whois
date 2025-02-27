@@ -42,12 +42,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_EMAIL_PARAM;
+import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_UUID_PARAM;
+
 @Profile({WhoisProfile.TEST})
 @Component
 public class ApiKeyAuthServerDummy implements Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyAuthServerDummy.class);
     public static final List<String> AUD = Arrays.asList("account", "whois");
     public static final String BASIC_AUTH_TEST_NO_MNT = "eFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==";
+    public static final String BASIC_AUTH_INACTIVE_TOKEN = "TlpYSTRTRVo0SzBEVTJUQ0Y0QkUxQklEOjJtQ2syNTJ6ekR0b0dva3RPaFJ2czVNWA==";
     public static final String BASIC_AUTH_PERSON_NO_MNT = "bDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_PERSON_OWNER_MNT = "cDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_TEST_TEST_MNT = "dDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
@@ -59,6 +63,7 @@ public class ApiKeyAuthServerDummy implements Stub {
 
     {
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, getJWT(AUD,  "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INACTIVE_TOKEN, getJWT(AUD,  "inactive@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NO_MNT, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", null));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_TEST_MNT,  getJWT(AUD, "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT profile email"));
@@ -159,8 +164,8 @@ public class ApiKeyAuthServerDummy implements Stub {
     private static JWTClaimsSet getJWT(final Object AUD, final String email, final String uuid, final String scopes) {
         return new JWTClaimsSet.Builder()
                 .claim(JWTClaimNames.AUDIENCE, AUD)
-                .claim("email", email)
-                .claim( "uuid", uuid)
+                .claim(OAUTH_CUSTOM_EMAIL_PARAM, email)
+                .claim( OAUTH_CUSTOM_UUID_PARAM, uuid)
                 .claim( JWTClaimNames.EXPIRATION_TIME, new Date())
                 .claim("scope", scopes).build();
 

@@ -46,6 +46,10 @@ public class OAuthSession {
         return scope;
     }
 
+    public String getJti() {
+        return jti;
+    }
+
     public String getErrorStatus() {
         return errorStatus;
     }
@@ -62,6 +66,7 @@ public class OAuthSession {
                 .add("uuid", uuid)
                 .add("azp", azp)
                 .add("scopes", scope)
+                .add("jti", jti)
                 .add("errorStatus", errorStatus)
                 .toString();
     }
