@@ -116,6 +116,7 @@ public class BearerTokenExtractor   {
 
         } catch (Exception e) {
             LOGGER.error("Failed to extract OAuth session", e);
+            tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Error validating " + authType);
             return oAuthSessionBuilder.build();
         }
     }
