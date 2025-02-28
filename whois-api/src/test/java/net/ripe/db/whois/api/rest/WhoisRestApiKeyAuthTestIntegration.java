@@ -297,7 +297,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .get(String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Invalid API Key"));
+        assertThat(response, containsString("***Warning: Failed to validate API Key"));
     }
 
     @Test

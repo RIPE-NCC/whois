@@ -12,6 +12,7 @@ import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import jakarta.servlet.http.HttpServletRequest;
@@ -66,13 +67,22 @@ public class BearerTokenExtractor   {
     public OAuthSession extractBearerToken(final HttpServletRequest request, final String apiKeyId) {
         if(!enabled) return null;
 
-        final BearerAccessToken accessToken = getBearerToken(request);
-        return accessToken != null ? getOAuthSession(accessToken, apiKeyId) : null;
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if(StringUtils.isEmpty(authHeader) || !authHeader.startsWith(AccessTokenType.BEARER.toString())) {
+            return null;
+        }
+
+        return getOAuthSession(request, apiKeyId);
     }
 
-    private OAuthSession getOAuthSession(final BearerAccessToken accessToken, final String apiKeyId) {
+    private OAuthSession getOAuthSession(final HttpServletRequest request, final String apiKeyId) {
         final OAuthSession.Builder oAuthSessionBuilder = new OAuthSession.Builder().keyId(apiKeyId);
         final String authType = StringUtils.isEmpty(apiKeyId) ? "Access Token" : "API Key";
+
+        final BearerAccessToken accessToken = getBearerToken(request);
+        if (accessToken == null) {
+            return oAuthSessionBuilder.errorStatus("Invalid " + authType).build();
+        }
 
         try {
             final TokenIntrospectionResponse response = TokenIntrospectionResponse.parse(new TokenIntrospectionRequest(
@@ -81,7 +91,7 @@ public class BearerTokenExtractor   {
                                                                 accessToken).toHTTPRequest().send());
 
             if (!response.indicatesSuccess()) {
-                tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Invalid " + authType);
+                tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Failed to validate " + authType);
                 return oAuthSessionBuilder.build();
             }
 
@@ -113,8 +123,10 @@ public class BearerTokenExtractor   {
     @Nullable
     private BearerAccessToken getBearerToken(final HttpServletRequest request) {
         try {
-            return BearerAccessToken.parse(request.getHeader(HttpHeaders.AUTHORIZATION));
-        } catch (ParseException e) {
+              final BearerAccessToken accessToken = BearerAccessToken.parse(request.getHeader(HttpHeaders.AUTHORIZATION));
+              SignedJWT.parse(accessToken.getValue());
+              return accessToken;
+        } catch (Exception e) {
             LOGGER.debug("Failed to parse BearerToken {}", e.getMessage());
             return null;
         }

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api;
 
+import com.github.dockerjava.api.exception.UnauthorizedException;
 import com.google.common.collect.Maps;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -16,6 +17,8 @@ import jakarta.annotation.PreDestroy;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotFoundException;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.apiKey.ApiKeyAuthServiceClient;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
@@ -97,23 +100,35 @@ public class ApiKeyAuthServerDummy implements Stub {
 
             final String userKey = StringUtils.substringAfter(request.getHeader("Authorization"), "Basic").trim();
 
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("application/json");
-            response.getWriter().println(convertToJwt(userKey));
+            try {
+                final String jwt = convertToJwt(userKey);
+
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/json");
+                response.getWriter().println(jwt);
+
+            } catch (NotFoundException ex) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            } catch (NotAuthorizedException ex) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            } catch (Exception exception) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
 
         private String convertToJwt(final String userKey) {
 
             final JWTClaimsSet jwt = APIKEY_TO_OAUTHSESSION.get(userKey);
             if (jwt == null) {
-                return null;
+               throw new NotFoundException("Api Key not found");
+            }
+
+            if(userKey.equals(BASIC_AUTH_INVALID_SIGNATURE_API_KEY)) {
+                throw new NotAuthorizedException("Api Key not valid");
             }
 
             try {
-                final RSAKey privateKey = userKey.equals(BASIC_AUTH_INVALID_SIGNATURE_API_KEY) ? new RSAKeyGenerator(2048)
-                        .keyID("123")
-                        .generate() :
-                        RSAKey.parse(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_private.key").toPath())));
+                final RSAKey privateKey = RSAKey.parse(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_private.key").toPath())));
                 final JWSSigner signer = new RSASSASigner(privateKey);
 
                 JWSObject jwsObject = new JWSObject(
