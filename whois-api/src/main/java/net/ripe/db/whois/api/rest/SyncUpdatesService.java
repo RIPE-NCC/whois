@@ -20,7 +20,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.UpdatesParser;
-import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;

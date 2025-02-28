@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
-import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -314,7 +314,7 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractAndValidateAudience(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
+                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }

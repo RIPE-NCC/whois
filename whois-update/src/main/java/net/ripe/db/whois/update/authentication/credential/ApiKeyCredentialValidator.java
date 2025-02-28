@@ -1,7 +1,8 @@
 package net.ripe.db.whois.update.authentication.credential;
 
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.apiKey.APIKeySession;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.APIKeyCredential;
@@ -9,8 +10,8 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,6 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
 
     @Value("${apikey.authenticate.enabled:false}")
     private boolean enabled;
-
-    @Value("${keycloak.idp.client:whois}")
-    private String whoisKeycloakId;
 
     @Autowired
     public ApiKeyCredentialValidator(final LoggerContext loggerContext) {
@@ -54,12 +52,12 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
         for (final APIKeyCredential offered : offeredCredentials) {
 
             final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
-            if(oAuthSession == null || oAuthSession.getUuid() == null) {
+            if(oAuthSession == null) {
                 continue;
             }
 
-            if(!ApiKeyUtils.validateAudience(oAuthSession, whoisKeycloakId)) {
-                updateContext.addMessage(update, UpdateMessages.invalidApiKeyAudience());
+            if(StringUtils.isNotEmpty(oAuthSession.getErrorStatus())) {
+                updateContext.addMessage(update,  new Message(Messages.Type.WARNING, oAuthSession.getErrorStatus()));
                 return false;
             }
 
@@ -76,7 +74,7 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
                 if(oAuthSession instanceof APIKeySession) {
                     effectiveCredentialType = Update.EffectiveCredentialType.APIKEY;
                     effectiveCredential = String.format("%s (%s)", oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
-                    updateMessage = String.format("Validated %s with API KEY for user: %s with apiKey: %s.", update.getFormattedKey(), oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
+                    updateMessage = String.format("Validated %s with API KEY for user: %s with keyId: %s.", update.getFormattedKey(), oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
                 } else {
                     effectiveCredentialType = Update.EffectiveCredentialType.OAUTH;
                     effectiveCredential = oAuthSession.getEmail();

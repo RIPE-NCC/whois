@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.hasValidApiKey;
+import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.hasValidOauthSession;
 
 /*
 password and cookie parameters are used in rest api lookup ONLY, so the port43 netty worker pool is not affected by any SSO
@@ -191,6 +191,6 @@ public class FilterAuthFunction implements FilterFunction {
             maintainers.add(rpslObject);
         }
 
-        return hasValidApiKey(oAuthSession, maintainers, authAttributes);
+        return hasValidOauthSession(oAuthSession, maintainers, authAttributes);
     }
 }
