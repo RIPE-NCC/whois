@@ -1793,7 +1793,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"self\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
                 "    \"rel\" : \"copyright\",\n" +
@@ -1846,7 +1847,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"self\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
                         "    \"rel\" : \"copyright\",\n" +
@@ -2637,6 +2639,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(entity.getLinks(), hasSize(2));
         assertThat(entity.getLinks().get(0).getRel(), is("self"));
+        assertThat(entity.getLinks().get(0).getType(), is("application/rdap+json"));
         assertThat(entity.getLinks().get(1).getRel(), is("copyright"));
 
         assertThat(entity.getEvents(), hasSize(2));
@@ -3905,6 +3908,7 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(links.get(0).getHref(), is("http://www.ripe.net/data-tools/support/documentation/terms"));
 
         assertThat(links.get(1).getRel(), is("self"));
+        assertThat(links.get(1).getType(), is("application/rdap+json"));
         assertThat(links.get(1).getValue(), is(value));
         assertThat(links.get(1).getHref(), is(value));
     }
