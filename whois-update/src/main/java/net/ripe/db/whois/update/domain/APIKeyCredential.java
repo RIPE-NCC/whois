@@ -1,6 +1,5 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Splitter;
 import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.sso.UserSession;
 
