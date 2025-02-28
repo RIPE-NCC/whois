@@ -1793,7 +1793,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"self\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
                 "    \"rel\" : \"copyright\",\n" +
@@ -1846,7 +1847,8 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"self\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\"\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"http://www.ripe.net/data-tools/support/documentation/terms\",\n" +
                         "    \"rel\" : \"copyright\",\n" +
