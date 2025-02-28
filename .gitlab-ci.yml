@@ -79,7 +79,7 @@ release:
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 1073741824;"
     - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   services: &mariadb_service
-    - mariadb:10.2
+    - mariadb:11.4
 
 
 whois-endtoend:
