@@ -24,6 +24,7 @@ public class APIKeySession extends OAuthSession {
                 .add("uuid", getUuid())
                 .add("scopes", getScope())
                 .add("azp", getAzp())
+                .add("jti", getJti())
                 .add("errorStatus", getErrorStatus())
                 .toString();
     }

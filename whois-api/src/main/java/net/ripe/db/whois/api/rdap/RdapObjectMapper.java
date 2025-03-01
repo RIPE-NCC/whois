@@ -357,7 +357,7 @@ public class RdapObjectMapper {
 
     private void mapCommonLinks(final RdapObject rdapResponse, final String requestUrl) {
         if (requestUrl != null) {
-            rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null, null));
+            rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null, APPLICATION_RDAP_JSON));
         }
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
     }
