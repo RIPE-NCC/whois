@@ -60,12 +60,6 @@ public class HttpsAPIKeyAuthFilter implements Filter {
 
         LOGGER.debug("It is a api key request");
 
-        if (RestServiceHelper.isHttpProtocol(httpRequest)){
-            final HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendError(HttpStatus.UPGRADE_REQUIRED_426, "HTTPS required for Basic authorization");
-            return;
-        }
-
         try {
             final String apiKeyId = OAuthUtils.getApiKeyId(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
 
@@ -79,8 +73,7 @@ public class HttpsAPIKeyAuthFilter implements Filter {
     }
 
     private static boolean isNotValidRequest(HttpServletRequest httpRequest) {
-        return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM)) ||
-                (httpRequest.getHeader(HttpHeaders.AUTHORIZATION) != null && httpRequest.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Bearer"));
+        return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM));
     }
 
     private boolean isAPIKeyRequest(final HttpServletRequest httpRequest) {

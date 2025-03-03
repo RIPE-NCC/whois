@@ -18,8 +18,8 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.oauth.APIKeySession;
-import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -48,14 +48,12 @@ import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.APIKEY_TO_OAUTHSESSION;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INACTIVE_TOKEN;
-import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_API_KEY;
-import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_TEST_MNT;
-import static net.ripe.db.whois.api.rest.WhoisRestBasicAuthTestIntegration.getBasicAuthenticationHeader;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.convertToJwt;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -68,7 +66,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegrationTest {
+public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
@@ -142,6 +140,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @AfterAll
     public static void restApiProperties() {
         System.clearProperty("apikey.authenticate.enabled");
+        System.clearProperty("apikey.public.key.url");
     }
 
     @BeforeEach
@@ -165,11 +164,11 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void create_failed_with_basic_auth_api_key_no_https() {
+    public void create_failed_with_bearer_token_no_https() {
 
         final Response response =  RestTest.target(getPort(), "whois/test/person")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
@@ -177,18 +176,18 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void request_failed_with_basic_auth_api_key_illegal_query_param() {
+    public void request_failed_with_bearer_token_illegal_query_param() {
 
         final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.BAD_REQUEST_400));
     }
-
+    
     @Test
-    public void update_selfrefencing_maintainer_only_data_parameter_with_api_key() {
+    public void update_selfrefencing_maintainer_only_data_parameter_with_bearer_token() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -202,14 +201,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
                         "DATA=" + SyncUpdateUtils.encode(mntner + "\nremarks: updated"))
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
                 .get(String.class);
 
         assertThat(response, containsString("Modify SUCCEEDED: [mntner] SSO-MNT"));
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_apiKey() {
+    public void create_mntner_only_data_parameter_with_bearer_tokeny() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -221,14 +220,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
                 .get(String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] SSO-MNT"));
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_apiKey_fails_no_sso() {
+    public void create_mntner_only_data_parameter_with_bearer_token_fails_no_sso() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -240,14 +239,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .get(String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_apiKey_fails_wrong_audience() {
+    public void create_mntner_only_data_parameter_with_bearer_token_fails_wrong_audience() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -259,16 +258,16 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
                 .get(String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: The API Key cannot be used because it was created for a different\n" +
-                "            application or environment"));
+        assertThat(response, containsString("***Warning: The Access Token cannot be used because it was created for a\n" +
+                "            different application or environment"));
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_apiKey_fails_invalid() {
+    public void create_mntner_only_data_parameter_with_bearer_token_fails_invalid() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -280,15 +279,15 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_API_KEY))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer invalid")
                 .get(String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Invalid API Key"));
+        assertThat(response, containsString("***Warning: Invalid Access Token"));
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_apiKey_fails_inactive_session() {
+    public void create_mntner_only_data_parameter_with_bearer_token_fails_inactive_session() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -300,20 +299,20 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INACTIVE_TOKEN))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_INACTIVE_TOKEN))
                 .get(String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Session associated with API Key is not active"));
+        assertThat(response, containsString("***Warning: Session associated with Access Token is not active"));
     }
 
 
     @Test
-    public void lookup_correct_api_key_with_sso_and_filtered_wrong_audience() {
+    public void lookup_correct_bearer_token_with_sso_and_filtered_wrong_audience() {
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -323,11 +322,11 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void lookup_correct_api_key_with_sso_and_unfiltered() {
+    public void lookup_correct_bearer_token_with_sso_and_unfiltered() {
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -337,11 +336,11 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void lookup_correct_api_key_with_sso_and_wrong_audience() {
+    public void lookup_correct_bearer_token_with_sso_and_wrong_audience() {
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -352,11 +351,11 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
 
     @Test
-    public void lookup_correct_api_key_no_sso_in_mnt_by_and_filtered() {
+    public void lookup_correct_bearer_token_no_sso_in_mnt_by_and_filtered() {
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_NO_MNT))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -366,11 +365,11 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void lookup_incorrect_api_key_and_filtered() {
+    public void lookup_incorrect_bearer_token_and_filtered() {
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_API_KEY))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer invalidToken")
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -380,11 +379,11 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void lookup_correct_api_key_with_mnt_and_sso_and_unfiltered() {
+    public void lookup_correct_bearer_token_with_mnt_and_sso_and_unfiltered() {
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -394,7 +393,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void lookup_correct_api_key_with_mnt_and_no_sso_and_filtered() {
+    public void lookup_correct_bearer_token_with_mnt_and_no_sso_and_filtered() {
         databaseHelper.updateObject(RpslObject.parse("" +
                 "mntner:      OWNER-MNT\n" +
                 "descr:       Owner Maintainer\n" +
@@ -407,7 +406,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -417,11 +416,11 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void lookup_correct_api_key_with_different_mnt_and_filtered() {
+    public void lookup_correct_bearer_token_with_different_mnt_and_filtered() {
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -431,7 +430,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void lookup_correct_api_key_with_different_mnt_but_same_sso_and_filtered() {
+    public void lookup_correct_bearer_token_with_different_mnt_but_same_sso_and_filtered() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:      TEST-MNT\n" +
                 "descr:       Owner Maintainer\n" +
@@ -445,7 +444,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -455,60 +454,49 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void delete_object_with_apikey_no_mnt_with_sso() {
+    public void delete_object_with_bearer_token_no_mnt_with_sso() {
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
                 .delete(Response.class);
 
         assertThat(whoisResources.getStatus(), is(OK.getStatusCode()));
     }
 
     @Test
-    public void delete_object_with_apikey_with_mnt_with_sso() {
+    public void delete_object_with_bearer_token_with_mnt_with_sso() {
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
                 .delete(Response.class);
 
         assertThat(whoisResources.getStatus(), is(OK.getStatusCode()));
     }
 
     @Test
-    public void delete_object_with_invalid_apikey() {
+    public void delete_object_with_invalid_bearer_token() {
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_API_KEY))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer invalidToken")
                 .delete(Response.class);
 
         assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
-    public void delete_object_with_valid_apikey_invalid_jwt_signature() {
+    public void delete_object_with_bearer_token_different_mnt_fails() {
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_SIGNATURE_API_KEY))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .delete(Response.class);
 
         assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
-    public void delete_object_with_apikey_different_mnt_fails() {
-
-        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
-                .delete(Response.class);
-
-        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
-    }
-
-    @Test
-    public void delete_object_with_apikey_different_mnt_same_sso_fails() {
+    public void delete_object_with_bearer_token_different_mnt_same_sso_fails() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:      TEST-MNT\n" +
                 "descr:       Owner Maintainer\n" +
@@ -523,14 +511,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .delete(Response.class);
 
         assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
-    public void delete_object_with_apikey_same_mnt_different_sso_fails() {
+    public void delete_object_with_bearer_token_same_mnt_different_sso_fails() {
         databaseHelper.updateObject(RpslObject.parse("" +
                 "mntner:      OWNER-MNT\n" +
                 "descr:       Owner Maintainer\n" +
@@ -543,45 +531,17 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
                 .delete(Response.class);
 
         assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
-    public void create_succeeds_with_apiKey_no_mnt_with_sso() {
+    public void create_succeeds_with_bearer_token_no_mnt_with_sso() {
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person?keyId=l6lRZgvOFIphjiGwtCGuLwqw",getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-
-        assertPersonObject(whoisResources, object);
-    }
-
-    @Test
-    public void create_succeeds_with_apiKey_with_mnt_with_sso() {
-        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person?keyId=p6lRZgvOFIphjiGwtCGuLwqw",getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
-
-        assertPersonObject(whoisResources, object);
-    }
-
-    @Test
-    public void create_succeeds_with_basic_auth_and_no_api_key() {
-        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person?password=incorrect1&password=Incorrect2")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
@@ -592,7 +552,21 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void create_object_with_apikey_same_mnt_different_sso_fails() {
+    public void create_succeeds_with_bearer_token_with_mnt_with_sso() {
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertPersonObject(whoisResources, object);
+    }
+
+    @Test
+    public void create_object_with_bearer_token_same_mnt_different_sso_fails() {
         databaseHelper.updateObject(RpslObject.parse("" +
                 "mntner:      OWNER-MNT\n" +
                 "descr:       Owner Maintainer\n" +
@@ -605,31 +579,31 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response response = SecureRestTest.target(getSecurePort(), "whois/test/person")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
-    public void create_object_with_apikey_differnt_mnt_fails() {
+    public void create_object_with_bearer_token_differnt_mnt_fails() {
         final Response response = SecureRestTest.target(getSecurePort(), "whois/test/person")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
-    public void update_object_with_apikey_no_mnt_with_sso() {
+    public void update_object_with_bearer_token_no_mnt_with_sso() {
         final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
                 .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
                 .get();
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
                 .request(MediaType.APPLICATION_XML)
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
                 .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects().size(), is(1));
@@ -638,14 +612,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void update_object_with_apikey_with_mnt_with_sso() {
+    public void update_object_with_bearer_token_with_mnt_with_sso() {
         final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
                 .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
                 .get();
 
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
                 .request(MediaType.APPLICATION_XML)
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
                 .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects().size(), is(1));
@@ -653,7 +627,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void update_object_with_invalid_apikey() {
+    public void update_object_with_invalid_bearer_token() {
 
         final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
                 .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
@@ -661,7 +635,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
                 .request(MediaType.APPLICATION_XML)
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_API_KEY))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer invalid")
                 .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
@@ -670,7 +644,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void update_object_with_valid_apikey_invalid_jwt_signature() {
+    public void update_object_with_bearer_token_different_mnt_fails() {
 
         final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
                 .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
@@ -678,23 +652,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
                 .request(MediaType.APPLICATION_XML)
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_SIGNATURE_API_KEY))
-                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
-
-        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
-        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueOrNullForAttribute(AttributeType.REMARKS), is(nullValue()));
-    }
-
-    @Test
-    public void update_object_with_apikey_different_mnt_fails() {
-
-        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
-                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
-                .get();
-
-        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
-                .request(MediaType.APPLICATION_XML)
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
@@ -703,7 +661,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void update_object_with_apikey_different_mnt_same_sso_fails() {
+    public void update_object_with_bearer_token_different_mnt_same_sso_fails() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "mntner:      TEST-MNT\n" +
                 "descr:       Owner Maintainer\n" +
@@ -722,7 +680,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
                 .request(MediaType.APPLICATION_XML)
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
@@ -730,7 +688,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void update_object_with_apikey_same_mnt_different_sso_fails() {
+    public void update_object_with_bearer_token_same_mnt_different_sso_fails() {
         databaseHelper.updateObject(RpslObject.parse("" +
                 "mntner:      OWNER-MNT\n" +
                 "descr:       Owner Maintainer\n" +
@@ -747,7 +705,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
                 .request(MediaType.APPLICATION_XML)
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                 .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
@@ -755,7 +713,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void create_multiple_domain_objects_with_api_key_success() {
+    public void create_multiple_domain_objects_with_bearer_token_success() {
 
         databaseHelper.addObject("" +
                 "inet6num:      2a01:500::/22\n" +
@@ -782,7 +740,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final WhoisResources response = SecureRestTest.target(getSecurePort(), "whois/domain-objects/TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
                 .post(Entity.entity(mapRpslObjects(domains.toArray(new RpslObject[0])), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         RestTest.assertErrorCount(response, 0);
@@ -790,7 +748,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void create_multiple_domain_objects_with_api_key_no_sso_fails() {
+    public void create_multiple_domain_objects_with_bearer_token_no_sso_fails() {
         databaseHelper.addObject("" +
                 "mntner:        TEST-MNT\n" +
                 "descr:         Test Maintainer\n" +
@@ -820,13 +778,13 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response response = SecureRestTest.target(getSecurePort(), "whois/domain-objects/TEST")
                     .request()
-                    .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                    .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), Response.class);
         assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
-    public void lookup_person_using_api_key_email_acl_blocked() throws Exception {
+    public void lookup_person_using_bearer_token_email_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
         final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost,  null, getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNER_MNT)));
 
@@ -835,7 +793,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         try {
             SecureRestTest.target(getSecurePort(), "whois/test/person/TP1-TEST")
                     .request()
-                    .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT))
+                    .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT))
                     .get(String.class);
             fail();
         } catch (ClientErrorException e) {
@@ -844,7 +802,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void lookup_person_using_apiKey_acl_counted_no_ip_counted() throws Exception {
+    public void lookup_person_using_bearer_token_acl_counted_no_ip_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
         databaseHelper.addObject(
                 "person:    Test Person\n" +
@@ -857,7 +815,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final WhoisResources whoisResources =   SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_NO_MNT))
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes()
@@ -890,7 +848,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         final Response response =   SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_NO_MNT))
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_NO_MNT))
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
@@ -915,8 +873,8 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
 
-    public static String getBasicAuthHeader(final String basicAuth) {
-        return StringUtils.joinWith(" ","Basic ", basicAuth);
+    public static String getBearerToken(final String userKey) {
+        return StringUtils.joinWith(" ","Bearer", convertToJwt(userKey));
     }
 
     private static void assertPersonObject(WhoisResources whoisResources, WhoisObject object) {
