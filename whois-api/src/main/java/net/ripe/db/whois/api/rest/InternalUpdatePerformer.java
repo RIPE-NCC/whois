@@ -18,7 +18,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
-import net.ripe.db.whois.update.domain.APIKeyCredential;
+import net.ripe.db.whois.update.domain.OAuthCredential;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
@@ -218,7 +218,7 @@ public class InternalUpdatePerformer {
         }
 
         if (updateContext.getOAuthSession() != null) {
-            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
+            credentials.add(OAuthCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));

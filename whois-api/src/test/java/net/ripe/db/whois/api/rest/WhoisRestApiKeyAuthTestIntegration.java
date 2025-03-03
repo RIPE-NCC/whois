@@ -17,9 +17,9 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.apiKey.APIKeySession;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
+import net.ripe.db.whois.common.oauth.APIKeySession;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -181,7 +181,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void request_failed_with_basic_auth_api_key_illegal_query_param() {
 
-        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
+        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
@@ -192,7 +192,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void request_failed_with_basic_auth_api_key_illegal_bearer_header() {
 
-        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
+        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer eFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);

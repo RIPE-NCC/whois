@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.apiKey;
+package net.ripe.db.whois.common.oauth;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-public class ApiKeyUtils {
+public class OAuthUtils {
 
     public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
     public static final String OAUTH_CUSTOM_UUID_PARAM = "uuid";
@@ -58,7 +58,7 @@ public class ApiKeyUtils {
             return false;
         }
 
-        if(!ApiKeyUtils.validateScope(oAuthSession, maintainers)) {
+        if(!OAuthUtils.validateScope(oAuthSession, maintainers)) {
             return false;
         }
 

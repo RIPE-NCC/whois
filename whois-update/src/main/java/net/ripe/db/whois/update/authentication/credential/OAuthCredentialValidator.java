@@ -2,10 +2,10 @@ package net.ripe.db.whois.update.authentication.credential;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.apiKey.APIKeySession;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
+import net.ripe.db.whois.common.oauth.APIKeySession;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.APIKeyCredential;
+import net.ripe.db.whois.update.domain.OAuthCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
@@ -19,17 +19,17 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 
-import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.validateScope;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.validateScope;
 
 @Component
-public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCredential, SsoCredential> {
+public class OAuthCredentialValidator implements CredentialValidator<OAuthCredential, SsoCredential> {
     private final LoggerContext loggerContext;
 
     @Value("${apikey.authenticate.enabled:false}")
     private boolean enabled;
 
     @Autowired
-    public ApiKeyCredentialValidator(final LoggerContext loggerContext) {
+    public OAuthCredentialValidator(final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
     }
 
@@ -39,17 +39,17 @@ public class ApiKeyCredentialValidator implements CredentialValidator<APIKeyCred
     }
 
     @Override
-    public Class<APIKeyCredential> getSupportedOfferedCredentialType() {
-        return APIKeyCredential.class;
+    public Class<OAuthCredential> getSupportedOfferedCredentialType() {
+        return OAuthCredential.class;
     }
 
     @Override
-    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<APIKeyCredential> offeredCredentials, final SsoCredential knownCredential, final RpslObject maintainer) {
+    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<OAuthCredential> offeredCredentials, final SsoCredential knownCredential, final RpslObject maintainer) {
         if(!enabled) {
             return false;
         }
 
-        for (final APIKeyCredential offered : offeredCredentials) {
+        for (final OAuthCredential offered : offeredCredentials) {
 
             final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
             if(oAuthSession == null) {
