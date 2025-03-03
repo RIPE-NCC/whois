@@ -188,6 +188,17 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
+    public void request_failed_with_basic_auth_api_key_illegal_bearer_header() {
+
+        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer eFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==")
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+    }
+
+    @Test
     public void update_selfrefencing_maintainer_only_data_parameter_with_api_key() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
