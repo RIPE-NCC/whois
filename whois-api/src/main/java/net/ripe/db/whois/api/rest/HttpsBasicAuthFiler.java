@@ -31,14 +31,6 @@ public class HttpsBasicAuthFiler implements Filter {
             return;
         }
 
-        final HttpServletRequest httpRequest = (HttpServletRequest) request;
-
-        if (RestServiceHelper.isHttpProtocol(httpRequest)){
-            final HttpServletResponse httpResponse = (HttpServletResponse)response;
-            httpResponse.sendError(HttpStatus.UPGRADE_REQUIRED_426, "HTTPS required for Basic authorization");
-            return;
-        }
-
         chain.doFilter(new HttpBasicAuthRequestWrapper((HttpServletRequest) request), response);
     }
 

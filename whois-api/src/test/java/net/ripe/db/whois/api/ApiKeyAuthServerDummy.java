@@ -111,33 +111,33 @@ public class ApiKeyAuthServerDummy implements Stub {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         }
+    }
 
-        private String convertToJwt(final String userKey) {
+    public static String convertToJwt(final String userKey) {
 
-            final JWTClaimsSet jwt = APIKEY_TO_OAUTHSESSION.get(userKey);
-            if (jwt == null) {
-               throw new NotFoundException("Api Key not found");
-            }
+        final JWTClaimsSet jwt = APIKEY_TO_OAUTHSESSION.get(userKey);
+        if (jwt == null) {
+            throw new NotFoundException("Api Key not found");
+        }
 
-            if(userKey.equals(BASIC_AUTH_INVALID_SIGNATURE_API_KEY)) {
-                throw new NotAuthorizedException("Api Key not valid");
-            }
+        if(userKey.equals(BASIC_AUTH_INVALID_SIGNATURE_API_KEY)) {
+            throw new NotAuthorizedException("Api Key not valid");
+        }
 
-            try {
-                final RSAKey privateKey = RSAKey.parse(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_private.key").toPath())));
-                final JWSSigner signer = new RSASSASigner(privateKey);
+        try {
+            final RSAKey privateKey = RSAKey.parse(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_private.key").toPath())));
+            final JWSSigner signer = new RSASSASigner(privateKey);
 
-                JWSObject jwsObject = new JWSObject(
-                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(privateKey.getKeyID()).build(),
-                        new Payload(jwt.toJSONObject()));
+            JWSObject jwsObject = new JWSObject(
+                    new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(privateKey.getKeyID()).build(),
+                    new Payload(jwt.toJSONObject()));
 
-                jwsObject.sign(signer);
+            jwsObject.sign(signer);
 
-                return jwsObject.serialize();
+            return jwsObject.serialize();
 
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
