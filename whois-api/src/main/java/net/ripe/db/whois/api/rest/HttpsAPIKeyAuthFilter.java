@@ -10,8 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.UriBuilder;
-import net.ripe.db.whois.common.apiKey.ApiKeyAuthServiceClient;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.oauth.ApiKeyAuthServiceClient;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -67,7 +67,7 @@ public class HttpsAPIKeyAuthFilter implements Filter {
         }
 
         try {
-            final String apiKeyId = ApiKeyUtils.getApiKeyId(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
+            final String apiKeyId = OAuthUtils.getApiKeyId(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
 
             final String bearerToken = apiKeyAuthServiceClient.validateApiKey(httpRequest.getHeader(HttpHeaders.AUTHORIZATION), apiKeyId);
             chain.doFilter(new HttpApiAuthRequestWrapper((HttpServletRequest) request, apiKeyId, bearerToken), response);
@@ -79,7 +79,7 @@ public class HttpsAPIKeyAuthFilter implements Filter {
     }
 
     private static boolean isNotValidRequest(HttpServletRequest httpRequest) {
-        return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM)) ||
+        return (!StringUtils.isEmpty(httpRequest.getQueryString()) && httpRequest.getQueryString().contains(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM)) ||
                 (httpRequest.getHeader(HttpHeaders.AUTHORIZATION) != null && httpRequest.getHeader(HttpHeaders.AUTHORIZATION).startsWith("Bearer"));
     }
 
@@ -89,7 +89,7 @@ public class HttpsAPIKeyAuthFilter implements Filter {
         }
 
        //TODO: Remove this logic when basic auth support is deprecated
-       return ApiKeyUtils.isAPIKeyRequest(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
+       return OAuthUtils.isAPIKeyRequest(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class HttpsAPIKeyAuthFilter implements Filter {
         public String getQueryString() {
             final UriBuilder builder = UriBuilder.newInstance();
             builder.replaceQuery(super.getQueryString());
-            builder.queryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM, apiKeyId);
+            builder.queryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM, apiKeyId);
             return builder.build().getQuery();
         }
 

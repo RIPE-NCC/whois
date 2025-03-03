@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
