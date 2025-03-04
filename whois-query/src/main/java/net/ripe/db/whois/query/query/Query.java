@@ -7,7 +7,7 @@ import joptsimple.OptionException;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;

@@ -9,7 +9,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -31,14 +31,6 @@ public class HttpsBasicAuthFiler implements Filter {
             return;
         }
 
-        final HttpServletRequest httpRequest = (HttpServletRequest) request;
-
-        if (RestServiceHelper.isHttpProtocol(httpRequest)){
-            final HttpServletResponse httpResponse = (HttpServletResponse)response;
-            httpResponse.sendError(HttpStatus.UPGRADE_REQUIRED_426, "HTTPS required for Basic authorization");
-            return;
-        }
-
         chain.doFilter(new HttpBasicAuthRequestWrapper((HttpServletRequest) request), response);
     }
 
@@ -48,7 +40,7 @@ public class HttpsBasicAuthFiler implements Filter {
        }
 
         return RestServiceHelper.isBasicAuth(httpRequest)
-               && !ApiKeyUtils.isAPIKeyRequest(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
+               && !OAuthUtils.isAPIKeyRequest(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
     }
 
     @Override

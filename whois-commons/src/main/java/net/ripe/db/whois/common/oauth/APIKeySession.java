@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.apiKey;
+package net.ripe.db.whois.common.oauth;
 
 import com.google.common.base.MoreObjects;
 

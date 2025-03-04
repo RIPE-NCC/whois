@@ -15,7 +15,7 @@ import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import jakarta.servlet.http.HttpServletRequest;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.lang3.StringUtils;
 import net.ripe.db.whois.common.aspects.Stopwatch;
@@ -29,11 +29,11 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.List;
 
-import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_AZP_PARAM;
-import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_EMAIL_PARAM;
-import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_JTI_PARAM;
-import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_SCOPE_PARAM;
-import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.OAUTH_CUSTOM_UUID_PARAM;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_AZP_PARAM;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_EMAIL_PARAM;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_JTI_PARAM;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_SCOPE_PARAM;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_UUID_PARAM;
 
 @Component
 public class BearerTokenExtractor   {
