@@ -3346,6 +3346,19 @@ public class RdapServiceTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/24");
     }
 
+    @Test
+    public void get_wrong_key_parameter_then_400(){
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("ips/rirSearch1/up/192.0.2")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorDescription(badRequestException, "'192.0.2' is not an IP string literal.");
+    }
+
 
     @Test
     public void get_ipv6_up_then_parent(){

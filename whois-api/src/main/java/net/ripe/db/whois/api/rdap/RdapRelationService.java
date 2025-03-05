@@ -87,9 +87,7 @@ public class RdapRelationService {
         final List<RpslObject> rpslObjects;
         final boolean shouldReturnLookup = relationType.equals(RelationType.UP) || relationType.equals(RelationType.TOP);
         switch (requestType) {
-            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
             case DOMAINS -> {
-                rdapRequestValidator.validateDomain(key);
                 final List<IpEntry> domainEntries = getDomainsEntriesByRelationType(key, relationType);
 
                 if (shouldReturnLookup){
@@ -111,7 +109,6 @@ public class RdapRelationService {
 
             }
             case IPS -> {
-                rdapRequestValidator.validateIp(request.getRequestURI(), key);
                 final List<String> relatedPkeys = getInetnumRelationPkeys(key, relationType);
 
                 if (shouldReturnLookup){
