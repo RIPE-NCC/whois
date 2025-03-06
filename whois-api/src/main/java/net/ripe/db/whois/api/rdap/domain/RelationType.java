@@ -7,9 +7,7 @@ public enum RelationType {
     UP("up"),
     TOP("top"),
     DOWN("down"),
-    BOTTOM("bottom"),
-    UP_ACTIVE("up-active"),
-    TOP_ACTIVE("top-active");
+    BOTTOM("bottom");
 
     private final String value;
 
