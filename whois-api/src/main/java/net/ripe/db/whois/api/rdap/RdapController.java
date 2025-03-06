@@ -249,7 +249,7 @@ public class RdapController {
             throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
-        isValidKey(request, requestType, key);
+        validateKey(request, requestType, key);
 
         final Set<ObjectType> objectTypes = requestType.getWhoisObjectTypes(key);
         if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
@@ -266,7 +266,7 @@ public class RdapController {
     }
 
 
-    private void isValidKey(final HttpServletRequest request, final RdapRequestType requestType, final String key){
+    private void validateKey(final HttpServletRequest request, final RdapRequestType requestType, final String key){
         switch (requestType) {
             case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
             case IPS -> rdapRequestValidator.validateIp(request.getRequestURI(), key);
