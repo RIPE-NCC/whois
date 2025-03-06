@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 public class OAuthUtils {
 
     public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
-    public static final String OAUTH_CUSTOM_UUID_PARAM = "uuid";
+    public static final String OAUTH_CUSTOM_UUID_PARAM = "ripe_user_id";
     public static final String OAUTH_CUSTOM_EMAIL_PARAM = "email";
     public static final String OAUTH_CUSTOM_AZP_PARAM = "azp";
     public static final String OAUTH_CUSTOM_SCOPE_PARAM = "scope";
