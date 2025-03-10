@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -45,10 +45,10 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
-@Component
+@Controller
 @Path("/")
-public class RdapService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RdapService.class);
+public class RdapController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapController.class);
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private final RdapLookupService rdapService;
     private final RdapRequestValidator rdapRequestValidator;
@@ -73,14 +73,14 @@ public class RdapService {
      * @param maxResultSize: If the response is bigger than maxResultSize, we truncate the response and we add a notification
      */
     @Autowired
-    public RdapService(final RdapLookupService rdapService,
-                       final RdapRequestValidator rdapRequestValidator,
-                       final DelegatedStatsService delegatedStatsService,
-                       final RdapObjectMapper rdapObjectMapper,
-                       final RdapFullTextSearch rdapFullTextSearch,
-                       @Value("${rdap.public.baseUrl:}") final String baseUrl,
-                       @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                       final SourceContext sourceContext, RdapRelationService rdapRelationService) {
+    public RdapController(final RdapLookupService rdapService,
+                          final RdapRequestValidator rdapRequestValidator,
+                          final DelegatedStatsService delegatedStatsService,
+                          final RdapObjectMapper rdapObjectMapper,
+                          final RdapFullTextSearch rdapFullTextSearch,
+                          @Value("${rdap.public.baseUrl:}") final String baseUrl,
+                          @Value("${rdap.search.max.results:100}") final int maxResultSize,
+                          final SourceContext sourceContext, RdapRelationService rdapRelationService) {
         this.rdapService = rdapService;
         this.rdapRequestValidator = rdapRequestValidator;
         this.delegatedStatsService = delegatedStatsService;
@@ -249,6 +249,8 @@ public class RdapService {
             throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
+        validateKey(request, requestType, key);
+
         final Set<ObjectType> objectTypes = requestType.getWhoisObjectTypes(key);
         if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
             return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
@@ -263,6 +265,14 @@ public class RdapService {
                 .build();
     }
 
+
+    private void validateKey(final HttpServletRequest request, final RdapRequestType requestType, final String key){
+        switch (requestType) {
+            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
+            case IPS -> rdapRequestValidator.validateIp(request.getRequestURI(), key);
+            case DOMAIN -> rdapRequestValidator.validateDomain(key);
+        }
+    }
 
     private Response handleLookupWithRedirections(HttpServletRequest request, RdapRequestType requestType, String key,
                                                   Set<ObjectType> whoisObjectTypes) {
