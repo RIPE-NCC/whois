@@ -199,7 +199,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     }
 
     @Test
-    public void should_get_delta_file_after_delete_object() throws JSONException, JsonProcessingException {
+    public void should_get_correct_objectClass_in_delta_file() throws JSONException, JsonProcessingException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
 
