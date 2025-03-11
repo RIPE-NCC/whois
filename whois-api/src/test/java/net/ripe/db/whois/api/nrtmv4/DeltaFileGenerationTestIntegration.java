@@ -194,8 +194,41 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         assertThat(deltaFileRecords.get(0).getObject().toString(), is(dummifierNrtmV4.dummify(updatedObject).toString()));
 
         assertThat(deltaFileRecords.get(1).getAction().toLowerCaseName(), is("delete"));
-        assertThat(deltaFileRecords.get(1).getObjectType().toString(), is("INET6NUM"));
+        assertThat(deltaFileRecords.get(1).getObjectClass(), is("inet6num"));
         assertThat(deltaFileRecords.get(1).getPrimaryKey(), is("::/0"));
+    }
+
+    @Test
+    public void should_get_delta_file_after_delete_object() throws JSONException, JsonProcessingException {
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+
+        final RpslObject deleteObject = RpslObject.parse("" +
+                "aut-num:       AS102\n" +
+                "as-name:       AS-TEST\n" +
+                "descr:         A single ASN\n" +
+                "admin-c:       TP1-TEST\n" +
+                "tech-c:        TP1-TEST\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "created:       2011-07-28T00:35:42Z\n" +
+                "last-modified:   2019-02-28T10:14:46Z\n" +
+                "source:        TEST");
+        databaseHelper.deleteObject(deleteObject);
+
+        deltaFileGenerator.createDeltas();
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+
+        final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
+
+        final List<DeltaFileRecord> deltaFileRecords = getDeltaChanges(testDelta);
+
+        assertThat(deltaFileRecords.size(), is(1));
+        assertNrtmFileInfo(testDelta[0], "delta", 2, "TEST");
+
+        assertThat(deltaFileRecords.get(0).getAction().toLowerCaseName(), is("delete"));
+        assertThat(deltaFileRecords.get(0).getObjectClass(), is("aut-num"));
+        assertThat(deltaFileRecords.get(0).getPrimaryKey(), is("AS102"));
     }
 
     @Test

@@ -92,7 +92,7 @@ public class DeltaFileGenerator {
 
     private DeltaFileRecord getDeltaChange(final SerialEntry serialEntry) {
         return serialEntry.getOperation() == Operation.DELETE ?
-                DeltaFileRecord.delete(serialEntry.getRpslObject().getType(), serialEntry.getPrimaryKey())
+                DeltaFileRecord.delete(serialEntry.getRpslObject().getType().getName(), serialEntry.getPrimaryKey())
                 : DeltaFileRecord.addModify(dummifierNrtmV4.dummify(serialEntry.getRpslObject()));
     }
 
