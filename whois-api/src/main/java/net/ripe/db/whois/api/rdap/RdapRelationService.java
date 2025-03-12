@@ -272,12 +272,12 @@ public class RdapRelationService {
         return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).toList());
     }
 
-    private IpInterval transformToIpInterval(final Interval ipTree) {
-        return  ipTree instanceof Ipv4Resource ? (Ipv4Resource)ipTree : (Ipv6Resource)ipTree;
+    private IpInterval transformToIpInterval(final Interval interval) {
+        return  interval instanceof Ipv4Resource ? (Ipv4Resource)interval : (Ipv6Resource)interval;
     }
 
-    private String transformToIpRangeString(final Interval ipTree) {
-        return  ipTree instanceof Ipv4Resource ? ((Ipv4Resource) ipTree).toRangeString() : ipTree.toString();
+    private String transformToIpRangeString(final Interval interval) {
+        return  interval instanceof Ipv4Resource ? ((Ipv4Resource) interval).toRangeString() : interval.toString();
     }
 
 }
