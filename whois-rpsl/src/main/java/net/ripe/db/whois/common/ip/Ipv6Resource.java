@@ -8,6 +8,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -383,6 +384,7 @@ public final class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comp
         return compareTo(other) == 0;
     }
 
+    @Nullable
     public static Ipv6Resource parseIPv6Resource(final String resource) {
         try {
             return Ipv6Resource.parse(resource.trim());
@@ -391,4 +393,5 @@ public final class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comp
         }
         return null;
     }
+
 }

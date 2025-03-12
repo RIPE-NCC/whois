@@ -22,6 +22,7 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import org.apache.commons.lang.StringUtils;
 
+import javax.annotation.Nullable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
@@ -361,6 +362,7 @@ public class Query {
         return suppliedObjectTypes;
     }
 
+    @Nullable
     public IpInterval<?> getIpKeyOrNull() {
         final IpInterval<?> ipKey = searchKey.getIpKeyOrNull();
         if (ipKey != null) {
@@ -374,6 +376,7 @@ public class Query {
         return null;
     }
 
+    @Nullable
     public IpInterval<?> getIpKeyOrNullReverse() {
         final IpInterval<?> ipKey = searchKey.getIpKeyOrNullReverse();
         if (ipKey != null) {
@@ -437,6 +440,7 @@ public class Query {
         return true;
     }
 
+    @Nullable
     public String getProxyIp() {
         if (!hasProxy()) {
             return null;
@@ -582,6 +586,7 @@ public class Query {
         return Collections.unmodifiableSet(ret);
     }
 
+    @Nullable
     private MatchOperation parseMatchOperations() {
         MatchOperation result = null;
 

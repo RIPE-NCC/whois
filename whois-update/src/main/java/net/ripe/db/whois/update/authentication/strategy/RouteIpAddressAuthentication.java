@@ -119,15 +119,11 @@ public class RouteIpAddressAuthentication extends RouteAuthentication {
 
 
     private List<RpslObject> getIpObjects(final IpInterval<?> addressPrefix) {
-        if (addressPrefix instanceof Ipv4Resource) {
-            return getIpObjects(ipv4RouteTree, ipv4Tree, addressPrefix);
-        }
-
-        if (addressPrefix instanceof Ipv6Resource) {
-            return getIpObjects(ipv6RouteTree, ipv6Tree, addressPrefix);
-        }
-
-        throw new IllegalStateException("Unexpected address prefix: " + addressPrefix);
+        return switch (addressPrefix) {
+            case Ipv4Resource ipv4Resource -> getIpObjects(ipv4RouteTree, ipv4Tree, ipv4Resource);
+            case Ipv6Resource ipv6Resource -> getIpObjects(ipv6RouteTree, ipv6Tree, ipv6Resource);
+            case null -> throw new IllegalStateException("Unexpected address prefix: " + addressPrefix);
+        };
     }
 
     private List<RpslObject> getIpObjects(final IpTree routeTree, final IpTree ipTree, final IpInterval addressPrefix) {
