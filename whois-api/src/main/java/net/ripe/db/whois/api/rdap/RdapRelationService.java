@@ -172,9 +172,7 @@ public class RdapRelationService {
 
         mostSpecificFillingOverlaps.add(mostSpecificResource);
 
-        final Interval mostSpecificInterval = mostSpecificResource.getKey();
-        final IpInterval mostSpecificIpInterval = mostSpecificInterval instanceof Ipv4Resource ?
-                (Ipv4Resource)mostSpecificInterval : (Ipv6Resource)mostSpecificInterval;
+        final IpInterval mostSpecificIpInterval = intervalToIpInterval(mostSpecificResource.getKey());
 
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificIpInterval);
 
@@ -202,8 +200,7 @@ public class RdapRelationService {
     }
 
     private List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final List<IpEntry> parent) {
-        final Interval parentInterval = parent.getFirst().getKey();
-        return ipTree.findFirstMoreSpecific(parentInterval instanceof Ipv4Resource ? (Ipv4Resource)parentInterval : (Ipv6Resource)parentInterval);
+        return ipTree.findFirstMoreSpecific(intervalToIpInterval(parent.getFirst().getKey()));
     }
 
     private IpEntry searchUpResource(final IpTree ipTree, final IpInterval searchIp){
@@ -241,15 +238,15 @@ public class RdapRelationService {
     private boolean isAdministrativeResource(final RpslObject child, final RpslObject rpslObject) {
         final CIString childStatus = child.getValueForAttribute(AttributeType.STATUS);
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
-        return (rpslObject.getType() == ObjectType.INETNUM && InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED)
-                || (rpslObject.getType() == ObjectType.INET6NUM) &&
+        return (rpslObject.getType() == INETNUM && InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED)
+                || (rpslObject.getType() == INET6NUM) &&
                 Inet6numStatus.getStatusFor(childStatus) == ALLOCATED_BY_RIR && Inet6numStatus.getStatusFor(statusAttributeValue) == ALLOCATED_BY_RIR;
     }
 
 
     @Nullable
     private RpslObject getResourceByKey(final IpInterval keyInterval){
-        return rpslObjectDao.getByKeyOrNull(keyInterval instanceof Ipv4Resource ? ObjectType.INETNUM : ObjectType.INET6NUM, keyInterval.toString());
+        return rpslObjectDao.getByKeyOrNull(keyInterval instanceof Ipv4Resource ? INETNUM : INET6NUM, keyInterval.toString());
     }
 
     private IpTree getIpTree(final IpInterval searchIp) {
@@ -274,6 +271,13 @@ public class RdapRelationService {
 
     private String objectTypesToString(final Collection<ObjectType> objectTypes) {
         return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).toList());
+    }
+
+    private IpInterval intervalToIpInterval(final Interval interval) {
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Resource;
+            case Ipv6Resource ipv6Resource -> ipv6Resource;
+        };
     }
 
     private String transformToIpRangeString(final Interval interval) {
