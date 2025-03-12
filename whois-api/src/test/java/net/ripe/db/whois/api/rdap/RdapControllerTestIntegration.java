@@ -3702,19 +3702,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                         "source:         TEST");
 
         databaseHelper.addObject(
-                "inetnum:       37.210.0.1 - 37.210.31.254\n" +
-                        "netname:        test" +
-                        "descr:          issue causing IP\n" +
-                        "country:        EU\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "created:       2011-07-28T00:35:42Z\n" +
-                        "last-modified: 2019-02-28T10:14:46Z\n" +
-                        "source:         TEST");
-
-        databaseHelper.addObject(
                 "inetnum:       37.210.31.255 - 37.210.32.0\n" +
                         "netname:        test" +
                         "descr:          issue causing IP\n" +
@@ -3727,73 +3714,9 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                         "last-modified: 2019-02-28T10:14:46Z\n" +
                         "source:         TEST");
 
-        databaseHelper.addObject(
-                "inetnum:       37.210.32.1 - 37.210.63.254\n" +
-                        "netname:        test" +
-                        "descr:          issue causing IP\n" +
-                        "country:        EU\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "created:       2011-07-28T00:35:42Z\n" +
-                        "last-modified: 2019-02-28T10:14:46Z\n" +
-                        "source:         TEST");
 
         databaseHelper.addObject(
                 "inetnum:       37.210.63.255 - 37.210.64.0\n" +
-                        "netname:        test" +
-                        "descr:          issue causing IP\n" +
-                        "country:        EU\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "created:       2011-07-28T00:35:42Z\n" +
-                        "last-modified: 2019-02-28T10:14:46Z\n" +
-                        "source:         TEST");
-
-        databaseHelper.addObject(
-                "inetnum:       37.210.64.1 - 37.210.95.254\n" +
-                        "netname:        test" +
-                        "descr:          issue causing IP\n" +
-                        "country:        EU\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "created:       2011-07-28T00:35:42Z\n" +
-                        "last-modified: 2019-02-28T10:14:46Z\n" +
-                        "source:         TEST");
-
-        databaseHelper.addObject(
-                "inetnum:       37.210.96.1 - 37.210.99.254\n" +
-                        "netname:        test" +
-                        "descr:          issue causing IP\n" +
-                        "country:        EU\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "created:       2011-07-28T00:35:42Z\n" +
-                        "last-modified: 2019-02-28T10:14:46Z\n" +
-                        "source:         TEST");
-
-        databaseHelper.addObject(
-                "inetnum:       37.210.128.1 - 37.210.255.254\n" +
-                        "netname:        test" +
-                        "descr:          issue causing IP\n" +
-                        "country:        EU\n" +
-                        "tech-c:         TP1-TEST\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "status:         ASSIGNED PA\n" +
-                        "mnt-by:         OWNER-MNT\n" +
-                        "created:       2011-07-28T00:35:42Z\n" +
-                        "last-modified: 2019-02-28T10:14:46Z\n" +
-                        "source:         TEST");
-
-        databaseHelper.addObject(
-                "inetnum:       37.211.0.1 - 37.211.63.254\n" +
                         "netname:        test" +
                         "descr:          issue causing IP\n" +
                         "country:        EU\n" +
@@ -3812,7 +3735,9 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
 
         final List<Ip> ipResults = searchResult.getIpSearchResults();
-        assertThat(ipResults.size(), is(8));
+        assertThat(ipResults.size(), is(2));
+        assertThat(ipResults.getFirst().getHandle(), is("37.210.63.255 - 37.210.64.0"));
+        assertThat(ipResults.getLast().getHandle(), is("37.210.31.255 - 37.210.32.0"));
     }
 
     @Test
