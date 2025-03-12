@@ -1,3 +1,3 @@
 {"nrtm_version":4,"type":"delta","source":"RIPE-NONAUTH","session_id":"6328095e-7d46-415b-9333-8f2ae274b7c8","version":2}
-{"action":"delete","object_class":"ROUTE6","primary_key":"2001:490:c000::/35AS18666"}
+{"action":"delete","object_class":"route6","primary_key":"2001:490:c000::/35AS18666"}
 {"action":"add_modify","object":"route6:         2001:490:f000::/36\ndescr:          TEST SECOND Dummified\norigin:         AS1248\nmnt-by:         NOKIA-NOC\ncreated:        2009-05-17T08:14:28Z\nlast-modified:  2018-09-04T19:40:50Z\nsource:         RIPE-NONAUTH\nremarks:        ****************************\nremarks:        * THIS OBJECT IS MODIFIED\nremarks:        * Please note that all data that is generally regarded as personal\nremarks:        * data has been removed from this object.\nremarks:        * To view the original object, please query the RIPE Database at:\nremarks:        * http://www.ripe.net/whois\nremarks:        ****************************\n"}
