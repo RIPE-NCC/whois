@@ -36,7 +36,6 @@ public abstract class IpInterval<K extends Interval<K>> implements Interval<K>, 
 
     public static IpInterval<?> parse(final String prefix) {
         if (prefix.indexOf(':') == -1) {
-            // It could fail when prefix is taken from IpInterval.getKey().toString() for X.X.X.255 - X.X.X.0
             return Ipv4Resource.parse(prefix);
         }
 
