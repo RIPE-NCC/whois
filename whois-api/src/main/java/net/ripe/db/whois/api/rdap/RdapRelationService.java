@@ -7,8 +7,10 @@ import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
@@ -142,7 +144,7 @@ public class RdapRelationService {
         final List<IpEntry> ipEntries = getEntries(getIpTree(ip), relationType, ip);
         return ipEntries
                 .stream()
-                .map(ipEntry -> ipEntry.getKey().toString())
+                .map(ipEntry -> transformToIpRangeString(ipEntry.getKey()))
                 .toList();
     }
 
@@ -170,7 +172,7 @@ public class RdapRelationService {
 
         mostSpecificFillingOverlaps.add(mostSpecificResource);
 
-        final IpInterval mostSpecificInterval = IpInterval.parse(mostSpecificResource.getKey().toString());
+        final IpInterval mostSpecificInterval = transformToIpInterval(mostSpecificResource.getKey());
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificInterval);
 
         if (parentList.isEmpty()){
@@ -197,7 +199,7 @@ public class RdapRelationService {
     }
 
     private List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final List<IpEntry> parent) {
-        return ipTree.findFirstMoreSpecific(IpInterval.parse(parent.getFirst().getKey().toString()));
+        return ipTree.findFirstMoreSpecific(transformToIpInterval(parent.getFirst().getKey()));
     }
 
     private IpEntry searchUpResource(final IpTree ipTree, final IpInterval searchIp){
@@ -268,6 +270,14 @@ public class RdapRelationService {
 
     private String objectTypesToString(final Collection<ObjectType> objectTypes) {
         return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).toList());
+    }
+
+    private IpInterval transformToIpInterval(final Interval ipTree) {
+        return  ipTree instanceof Ipv4Resource ? (Ipv4Resource)ipTree : (Ipv6Resource)ipTree;
+    }
+
+    private String transformToIpRangeString(final Interval ipTree) {
+        return  ipTree instanceof Ipv4Resource ? ((Ipv4Resource) ipTree).toRangeString() : ipTree.toString();
     }
 
 }
