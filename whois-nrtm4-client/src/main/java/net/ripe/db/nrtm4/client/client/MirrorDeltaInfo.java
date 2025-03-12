@@ -40,7 +40,7 @@ public class MirrorDeltaInfo extends MirrorObjectInfo {
                            final String primaryKey) {
         super(object);
         this.action = Action.valueOf(action.toUpperCase());
-        this.objectType = objectType != null ? ObjectType.valueOf(objectType) : null;
+        this.objectType = objectType != null ? ObjectType.getByName(objectType) : null;
         this.primaryKey = primaryKey;
     }
 
