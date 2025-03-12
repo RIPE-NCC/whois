@@ -172,8 +172,11 @@ public class RdapRelationService {
 
         mostSpecificFillingOverlaps.add(mostSpecificResource);
 
-        final IpInterval mostSpecificInterval = transformToIpInterval(mostSpecificResource.getKey());
-        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificInterval);
+        final Interval mostSpecificInterval = mostSpecificResource.getKey();
+        final IpInterval mostSpecificIpInterval = mostSpecificInterval instanceof Ipv4Resource ?
+                (Ipv4Resource)mostSpecificInterval : (Ipv6Resource)mostSpecificInterval;
+
+        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificIpInterval);
 
         if (parentList.isEmpty()){
             return;
@@ -199,7 +202,8 @@ public class RdapRelationService {
     }
 
     private List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final List<IpEntry> parent) {
-        return ipTree.findFirstMoreSpecific(transformToIpInterval(parent.getFirst().getKey()));
+        final Interval parentInterval = parent.getFirst().getKey();
+        return ipTree.findFirstMoreSpecific(parentInterval instanceof Ipv4Resource ? (Ipv4Resource)parentInterval : (Ipv6Resource)parentInterval);
     }
 
     private IpEntry searchUpResource(final IpTree ipTree, final IpInterval searchIp){
@@ -270,10 +274,6 @@ public class RdapRelationService {
 
     private String objectTypesToString(final Collection<ObjectType> objectTypes) {
         return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).toList());
-    }
-
-    private IpInterval transformToIpInterval(final Interval interval) {
-        return  interval instanceof Ipv4Resource ? (Ipv4Resource)interval : (Ipv6Resource)interval;
     }
 
     private String transformToIpRangeString(final Interval interval) {
