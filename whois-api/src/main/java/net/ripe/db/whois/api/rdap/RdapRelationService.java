@@ -7,8 +7,10 @@ import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
@@ -142,7 +144,7 @@ public class RdapRelationService {
         final List<IpEntry> ipEntries = getEntries(getIpTree(ip), relationType, ip);
         return ipEntries
                 .stream()
-                .map(ipEntry -> ipEntry.getKey().toString())
+                .map(ipEntry -> transformToIpRangeString(ipEntry.getKey()))
                 .toList();
     }
 
@@ -170,8 +172,9 @@ public class RdapRelationService {
 
         mostSpecificFillingOverlaps.add(mostSpecificResource);
 
-        final IpInterval mostSpecificInterval = IpInterval.parse(mostSpecificResource.getKey().toString());
-        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificInterval);
+        final IpInterval mostSpecificIpInterval = intervalToIpInterval(mostSpecificResource.getKey());
+
+        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificIpInterval);
 
         if (parentList.isEmpty()){
             return;
@@ -197,7 +200,7 @@ public class RdapRelationService {
     }
 
     private List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final List<IpEntry> parent) {
-        return ipTree.findFirstMoreSpecific(IpInterval.parse(parent.getFirst().getKey().toString()));
+        return ipTree.findFirstMoreSpecific(intervalToIpInterval(parent.getFirst().getKey()));
     }
 
     private IpEntry searchUpResource(final IpTree ipTree, final IpInterval searchIp){
@@ -235,15 +238,15 @@ public class RdapRelationService {
     private boolean isAdministrativeResource(final RpslObject child, final RpslObject rpslObject) {
         final CIString childStatus = child.getValueForAttribute(AttributeType.STATUS);
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
-        return (rpslObject.getType() == ObjectType.INETNUM && InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED)
-                || (rpslObject.getType() == ObjectType.INET6NUM) &&
+        return (rpslObject.getType() == INETNUM && InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED)
+                || (rpslObject.getType() == INET6NUM) &&
                 Inet6numStatus.getStatusFor(childStatus) == ALLOCATED_BY_RIR && Inet6numStatus.getStatusFor(statusAttributeValue) == ALLOCATED_BY_RIR;
     }
 
 
     @Nullable
     private RpslObject getResourceByKey(final IpInterval keyInterval){
-        return rpslObjectDao.getByKeyOrNull(keyInterval instanceof Ipv4Resource ? ObjectType.INETNUM : ObjectType.INET6NUM, keyInterval.toString());
+        return rpslObjectDao.getByKeyOrNull(keyInterval instanceof Ipv4Resource ? INETNUM : INET6NUM, keyInterval.toString());
     }
 
     private IpTree getIpTree(final IpInterval searchIp) {
@@ -268,6 +271,20 @@ public class RdapRelationService {
 
     private String objectTypesToString(final Collection<ObjectType> objectTypes) {
         return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).toList());
+    }
+
+    private IpInterval intervalToIpInterval(final Interval interval) {
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Resource;
+            case Ipv6Resource ipv6Resource -> ipv6Resource;
+        };
+    }
+
+    private String transformToIpRangeString(final Interval interval) {
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Resource.toRangeString();
+            case Ipv6Resource ipv6Resource -> ipv6Resource.toString();
+        };
     }
 
 }
