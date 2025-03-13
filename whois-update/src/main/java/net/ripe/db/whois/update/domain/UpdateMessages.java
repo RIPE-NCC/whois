@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -334,11 +335,10 @@ public final class UpdateMessages {
     }
 
     private static CharSequence intervalToString(final Interval<?> interval) {
-        if (interval instanceof Ipv4Resource) {
-            return ((Ipv4Resource) interval).toRangeString();
-        }
-
-        return interval.toString();
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Resource.toRangeString();
+            case Ipv6Resource ipv6Resource -> ipv6Resource.toString();
+        };
     }
 
     public static Message createFirstPersonMntnerForOrganisation() {

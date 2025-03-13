@@ -245,14 +245,11 @@ class ArinGrsSource extends GrsSource {
                 }
             }
 
-            final IpInterval<?> ipInterval = IpInterval.parse(value);
-            if (ipInterval instanceof Ipv4Resource) {
-                return new RpslAttribute(AttributeType.INETNUM, input.getValue());
-            } else if (ipInterval instanceof Ipv6Resource) {
-                return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
-            } else {
-                throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
-            }
+            return switch (IpInterval.parse(value)) {
+                case Ipv4Resource ipv4Resource -> new RpslAttribute(AttributeType.INETNUM, input.getValue());
+                case Ipv6Resource ipv6Resource -> new RpslAttribute(AttributeType.INET6NUM, input.getValue());
+                case null -> throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
+            };
         }, "NetRange");
     }
 }

@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 
-public abstract class IpInterval<K extends Interval<K>> implements Interval<K>, Serializable {
+public abstract sealed class IpInterval<K extends Interval<K>> implements Interval<K>, Serializable permits Ipv4Resource, Ipv6Resource {
 
     @Serial
     private static final long serialVersionUID = 2309955325901882655L;

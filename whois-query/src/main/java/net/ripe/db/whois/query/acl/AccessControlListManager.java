@@ -236,7 +236,7 @@ public class AccessControlListManager {
 
         @Override
         public void blockTemporary(final int limit) {
-            IpInterval<?> maskedAddressInterval;
+            final IpInterval<?> maskedAddressInterval;
             if (maskedAddress instanceof Inet6Address) {
                 maskedAddressInterval = Ipv6Resource.parse(mask(maskedAddress, IPV6_NETMASK).getHostAddress() + "/" + IPV6_NETMASK);
             } else {

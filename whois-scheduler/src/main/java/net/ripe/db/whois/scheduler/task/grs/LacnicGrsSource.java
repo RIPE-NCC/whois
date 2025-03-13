@@ -173,13 +173,11 @@ class LacnicGrsSource extends GrsSource {
 
         addTransformFunction(input -> {
             final IpInterval<?> ipInterval = IpInterval.parse(input.getCleanValue());
-            if (ipInterval instanceof Ipv4Resource) {
-                return new RpslAttribute(AttributeType.INETNUM, input.getValue());
-            } else if (ipInterval instanceof Ipv6Resource) {
-                return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
-            } else {
-                throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
-            }
+            return switch (ipInterval) {
+                case Ipv4Resource ipv4Resource -> new RpslAttribute(AttributeType.INETNUM, input.getValue());
+                case Ipv6Resource ipv6Resource -> new RpslAttribute(AttributeType.INET6NUM, input.getValue());
+                case null -> throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
+            };
         }, "inetnum");
 
         addTransformFunction(input -> new RpslAttribute(AttributeType.DESCR, input.getValue()), "owner");
