@@ -60,13 +60,11 @@ public class DomainAuthentication extends AuthenticationStrategyBase {
         }
 
         final IpInterval<?> reverseIp = domain.getReverseIp();
-        if (reverseIp instanceof Ipv4Resource) {
-            return authenticate(update, updateContext, reverseIp, ipv4Tree);
-        } else if (reverseIp instanceof Ipv6Resource) {
-            return authenticate(update, updateContext, reverseIp, ipv6Tree);
-        }
-
-        throw new IllegalArgumentException("Unexpected reverse ip: " + reverseIp);
+        return switch (reverseIp) {
+            case Ipv4Resource ipv4Resource -> authenticate(update, updateContext, reverseIp, ipv4Tree);
+            case Ipv6Resource ipv6Resource -> authenticate(update, updateContext, reverseIp, ipv6Tree);
+            case null -> throw new IllegalArgumentException("Unexpected reverse ip: " + reverseIp);
+        };
     }
 
     @SuppressWarnings("unchecked")

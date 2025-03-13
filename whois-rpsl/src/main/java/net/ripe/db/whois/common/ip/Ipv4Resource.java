@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -114,6 +115,7 @@ public final class Ipv4Resource extends IpInterval<Ipv4Resource> implements Comp
         return new Ipv4Resource(InetAddresses.forString(resource));
     }
 
+    @Nullable
     public static Ipv4Resource parseIPv4Resource(final String resource) {
         try {
             return parse(resource.trim());
