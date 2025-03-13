@@ -281,7 +281,10 @@ public class RdapRelationService {
     }
 
     private String transformToIpRangeString(final Interval interval) {
-        return  interval instanceof Ipv4Resource ? ((Ipv4Resource) interval).toRangeString() : interval.toString();
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Resource.toRangeString();
+            case Ipv6Resource ipv6Resource -> ipv6Resource.toString();
+        };
     }
 
 }
