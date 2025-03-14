@@ -16,6 +16,7 @@ import net.ripe.db.whois.smtp.commands.MailCommand;
 import net.ripe.db.whois.smtp.commands.NoopCommand;
 import net.ripe.db.whois.smtp.commands.QuitCommand;
 import net.ripe.db.whois.smtp.commands.RecipientCommand;
+import net.ripe.db.whois.smtp.commands.ResetCommand;
 import net.ripe.db.whois.smtp.commands.SmtpCommand;
 import net.ripe.db.whois.smtp.commands.SmtpCommandBuilder;
 import org.slf4j.Logger;
@@ -50,20 +51,40 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         try {
+            // TODO: log all connections even if DATA is not sent
             final SmtpCommand smtpCommand = SmtpCommandBuilder.build(msg.toString().trim());
             switch (smtpCommand) {
-                case HelloCommand helloCommand -> writeMessage(ctx.channel(), SmtpMessages.hello(helloCommand.getValue()));
-                case ExtendedHelloCommand extendedHelloCommand -> writeMessage(ctx.channel(), SmtpMessages.extendedHello(extendedHelloCommand.getValue()));
+                case HelloCommand helloCommand -> {
+                    // TODO: log remote name and address
+                    writeMessage(ctx.channel(), SmtpMessages.hello(helloCommand.getValue()));
+                }
+                case ExtendedHelloCommand extendedHelloCommand -> {
+                    // TODO: log remote name and address
+                    writeMessage(ctx.channel(), SmtpMessages.extendedHello(extendedHelloCommand.getValue()));
+                }
                 case MailCommand mailCommand -> {
+                    // TODO: log mail from
                     LOGGER.info("Mail From: {} {}", ctx.channel().id(), mailCommand.getValue());
                     ctx.channel().attr(MAIL_FROM).set(mailCommand.getValue());
                     writeMessage(ctx.channel(), SmtpMessages.ok());
                 }
-                case RecipientCommand recipientCommand -> writeMessage(ctx.channel(), SmtpMessages.accepted());
-                case DataCommand dataCommand -> writeMessage(ctx.channel(), SmtpMessages.enterMessage());
+                case RecipientCommand recipientCommand -> {
+                    // TODO: log recipient
+                    writeMessage(ctx.channel(), SmtpMessages.accepted());
+                }
+                case DataCommand dataCommand -> {
+                    // TODO: process DATA
+                    writeMessage(ctx.channel(), SmtpMessages.enterMessage());
+                }
                 case NoopCommand noopCommand -> writeMessage(ctx.channel(), SmtpMessages.ok());
                 case HelpCommand helpCommand -> writeMessage(ctx.channel(), SmtpMessages.help());
+                case ResetCommand resetCommand -> {
+                    // TODO: discard all accepted data
+                    writeMessage(ctx.channel(), SmtpMessages.ok());
+                }
                 case QuitCommand quitCommand -> {
+                    // TODO: log remote address, addresses, message size etc to mail log
+                    // TODO: log data message to separate raw log
                     LOGGER.info("Quit: {} {}", ctx.channel().id(), ctx.channel().attr(MAIL_FROM).get());
                     writeMessageAndClose(ctx.channel(), SmtpMessages.goodbye());
                 }

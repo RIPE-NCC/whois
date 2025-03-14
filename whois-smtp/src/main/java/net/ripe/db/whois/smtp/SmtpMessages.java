@@ -23,13 +23,8 @@ public class SmtpMessages {
     public static Message extendedHello(final String value) {
         return new Message(Messages.Type.INFO,
             "250-%s Hello %s\n" +
-//                "250-SIZE 52428800\n" +
-//                "250-LIMITS MAILMAX=1000 RCPTMAX=50000\n" +
-//                "250-8BITMIME\n" +
-//                "250-PIPELINING\n" +
-//                "250-PIPECONNECT\n" +
-//                "250-CHUNKING\n" +
-//                "250-STARTTLS\n" +
+//                "250-SIZE 52428800\n" +       // TODO
+//                "250-8BITMIME\n" +            // TODO
                 "250 HELP", Hosts.getInstanceName(), value);
     }
 
@@ -40,7 +35,7 @@ public class SmtpMessages {
     public static Message help() {
         return new Message(Messages.Type.INFO,
             "214-Commands supported:\n" +
-                "214 HELO EHLO MAIL RCPT DATA NOOP HELP QUIT");
+                "214 HELO EHLO MAIL RCPT DATA NOOP HELP RSET QUIT");
     }
 
     public static Message goodbye() {
