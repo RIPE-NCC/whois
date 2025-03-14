@@ -1,33 +1,27 @@
 package net.ripe.db.whois.smtp;
 
+import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.dao.SerialDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SmtpServerHandlerFactory {
 
-    private final SerialDao serialDao;
-    private final TaskScheduler clientSynchronisationScheduler;
+    private final MailMessageDao mailMessageDao;
     final ApplicationVersion applicationVersion;
 
     @Autowired
     public SmtpServerHandlerFactory(
-            @Qualifier("jdbcSlaveSerialDao") final SerialDao serialDao,
-            @Qualifier("clientSynchronisationScheduler") final TaskScheduler clientSynchronisationScheduler,
+            final MailMessageDao mailMessageDao,
             final ApplicationVersion applicationVersion) {
-        this.serialDao = serialDao;
-        this.clientSynchronisationScheduler = clientSynchronisationScheduler;
+        this.mailMessageDao = mailMessageDao;
         this.applicationVersion = applicationVersion;
     }
 
     public SmtpServerHandler getInstance() {
         return new SmtpServerHandler(
-            serialDao,
-            clientSynchronisationScheduler,
+            mailMessageDao,
             applicationVersion);
     }
 

@@ -11,16 +11,12 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
 @Component
 public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SmtpServerChannelInitializer.class);
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
     private static final int DELIMITER_MAX_FRAME_LENGTH = 128;
