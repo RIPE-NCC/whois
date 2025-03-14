@@ -8,6 +8,9 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
@@ -29,14 +32,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 @Component
 @ChannelHandler.Sharable
 public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpCommandHandler.class);
+
+    private static final Session SESSION = Session.getInstance(new Properties());
 
     private static final AttributeKey<String> MAIL_FROM = AttributeKey.newInstance("mail_from");
     private static final AttributeKey<String> RCPT_TO = AttributeKey.newInstance("rcpt_to");
@@ -106,7 +113,8 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
                     writeMessage(ctx.channel(), SmtpMessages.ok());
                 }
                 case QuitCommand quitCommand -> {
-                    // TODO: write data to database
+                    // TODO: when should we write the message to the database?
+                    writeMessageToDatabase(ctx.channel());
                     LOGGER.info("Channel {} Quit", ctx.channel().id());
                     writeMessageAndClose(ctx.channel(), SmtpMessages.goodbye());
                 }
@@ -139,6 +147,22 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
         }
 
         channel.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private void writeMessageToDatabase(final Channel channel) {
+        final byte[] bytes = smtpDataHandler.getData(channel);
+        if (bytes != null && bytes.length > 0) {
+            LOGGER.info("Writing message to database");
+            mailMessageDao.addMessage(parseMessage(bytes));
+        }
+    }
+
+    private MimeMessage parseMessage(final byte[] bytes) {
+        try {
+            return new MimeMessage(SESSION, new ByteArrayInputStream(bytes));
+        } catch (MessagingException e) {
+            throw new IllegalStateException("Unable to parse message", e);
+        }
     }
 
     private String getMailFrom(final Channel channel) {
