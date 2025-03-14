@@ -47,15 +47,12 @@ public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
-
         pipeline.addLast("U-maintenanceHandler", maintenanceHandler);
         pipeline.addLast("U-channels", smtpServerChannelsRegistry);
         pipeline.addLast("U-delimiter", new DelimiterBasedFrameDecoder(DELIMITER_MAX_FRAME_LENGTH, STRIP_DELIMITER, LINE_DELIMITER));
         pipeline.addLast("U-string-decoder", stringDecoder);
         pipeline.addLast("D-string-encoder", stringEncoder);
-
         pipeline.addLast(executorGroup, "U-command-handler", smtpServerHandlerFactory.getInstance());
-
         pipeline.addLast("U-exception-handler", exceptionHandler);
     }
 }

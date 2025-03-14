@@ -8,6 +8,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.smtp.commands.DataCommand;
 import net.ripe.db.whois.smtp.commands.ExtendedHelloCommand;
 import net.ripe.db.whois.smtp.commands.HelloCommand;
@@ -22,6 +23,7 @@ import net.ripe.db.whois.smtp.commands.SmtpCommandBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.util.concurrent.ScheduledFuture;
 
 public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
@@ -29,15 +31,19 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpServerHandler.class);
 
     private static final AttributeKey<String> MAIL_FROM = AttributeKey.newInstance("mail_from");
+    private static final AttributeKey<String> DOMAIN = AttributeKey.newInstance("domain");
 
     private final MailMessageDao mailMessageDao;
+    private final SmtpLog smtpLog;
     private final ApplicationVersion applicationVersion;
     private volatile ScheduledFuture<?> scheduledFuture;
 
     public SmtpServerHandler(
             final MailMessageDao mailMessageDao,
+            final SmtpLog smtpLog,
             final ApplicationVersion applicationVersion) {
         this.mailMessageDao = mailMessageDao;
+        this.smtpLog = smtpLog;
         this.applicationVersion = applicationVersion;
     }
 
@@ -51,15 +57,14 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         try {
-            // TODO: log all connections even if DATA is not sent
             final SmtpCommand smtpCommand = SmtpCommandBuilder.build(msg.toString().trim());
             switch (smtpCommand) {
                 case HelloCommand helloCommand -> {
-                    // TODO: log remote name and address
+                    ctx.channel().attr(DOMAIN).set(helloCommand.getValue());
                     writeMessage(ctx.channel(), SmtpMessages.hello(helloCommand.getValue()));
                 }
                 case ExtendedHelloCommand extendedHelloCommand -> {
-                    // TODO: log remote name and address
+                    ctx.channel().attr(DOMAIN).set(extendedHelloCommand.getValue());
                     writeMessage(ctx.channel(), SmtpMessages.extendedHello(extendedHelloCommand.getValue()));
                 }
                 case MailCommand mailCommand -> {
@@ -100,6 +105,10 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
+
+        final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(ctx.channel());
+        final String domain = ctx.channel().attr(DOMAIN).get();
+        smtpLog.log(remoteAddress, domain);
 
         ctx.fireChannelInactive();
     }
