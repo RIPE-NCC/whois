@@ -1,0 +1,54 @@
+
+SEND MESSAGE
+======================================================================================================================
+
+$ telnet mailserver 25
+Trying 1.2.3.4...
+Connected to mailserver.ripe.net.
+Escape character is '^]'.
+220 mailserver.ripe.net ESMTP Exim 4.98 Thu, 13 Mar 2025 12:07:40 +0000
+HELO test.ripe.net
+250 mailserver.ripe.net Hello test.ripe.net [2001:67c:2e8:9::c100:14e6]
+MAIL FROM <eshryane@ripe.net>
+500 unrecognized command
+MAIL FROM: <eshryane@ripe.net>
+250 OK
+RCPT TO: <eshryane@ripe.net>
+250 Accepted
+DATA
+354 Enter message, ending with "." on a line by itself
+Subject: Test
+
+
+Test
+
+.
+250 OK id=1tshMU-00000007BkX-2pW7
+HELP
+214-Commands supported:
+214 HELO EHLO MAIL RCPT DATA NOOP QUIT HELP  <----------------- NOT AUTH STARTTLS BDAT RSET
+QUIT
+221 mailserver.ripe.net closing connection
+Connection closed by foreign host.
+
+HELO or EHLO required
+======================================================================================================================
+
+220 mail-out-1.ripe.net ESMTP Exim 4.98 Thu, 13 Mar 2025 13:41:12 +0000
+MAIL FROM: <eshryane@ripe.net>
+503 HELO or EHLO required
+
+
+EHLO response
+======================================================================================================================
+EHLO test
+250-mail-out-1.ripe.net Hello test [2001:67c:2e8:9::c100:14e6]
+250-SIZE 52428800
+250-LIMITS MAILMAX=1000 RCPTMAX=50000
+250-8BITMIME
+250-PIPELINING
+250-PIPECONNECT
+250-CHUNKING
+250-STARTTLS
+250 HELP
+
