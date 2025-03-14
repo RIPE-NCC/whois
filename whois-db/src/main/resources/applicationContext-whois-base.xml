@@ -19,4 +19,6 @@
 
     <bean class="net.ripe.db.whois.scheduler.SchedulerConfig" />
 
+    <bean class="net.ripe.db.whois.smtp.SmtpConfig" />
+
 </beans>

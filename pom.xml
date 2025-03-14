@@ -272,6 +272,11 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-smtp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>net.ripe.commons</groupId>
                 <artifactId>commons-ip-math</artifactId>
                 <version>${commons-ip-math.version}</version>
