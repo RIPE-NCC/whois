@@ -1,6 +1,5 @@
 package net.ripe.db.whois.smtp;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFutureListener;
@@ -42,13 +41,16 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         LOGGER.info("channelRead {}", ctx.channel().id());
         final String queryString = msg.toString().trim();
         LOGGER.info("\tReceived message: _{}_", queryString);
 
-        final Channel channel = ctx.channel();
-        channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
+        if (queryString.equals("QUIT")) {
+            writeMessageAndClose(ctx.channel(), SmtpMessages.goodbye());
+        } else {
+            writeMessage(ctx.channel(), "OK");
+        }
     }
 
     @Override
@@ -63,7 +65,7 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
+    public void channelInactive(final ChannelHandlerContext ctx) {
         LOGGER.info("channelInactive {}", ctx.channel().id());
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
@@ -80,6 +82,17 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
 
         PendingWrites.increment(channel);
         channel.writeAndFlush(message + "\n").addListener(LISTENER);
+    }
+
+    private void writeMessageAndClose(final Channel channel, final Object message) {
+        if (!channel.isOpen()) {
+            throw new ChannelException();
+        }
+
+        PendingWrites.increment(channel);
+        channel.writeAndFlush(message + "\n")
+            .addListener(LISTENER)
+            .addListener(ChannelFutureListener.CLOSE);
     }
 
 

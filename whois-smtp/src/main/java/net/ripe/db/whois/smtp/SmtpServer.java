@@ -67,7 +67,6 @@ public class SmtpServer implements ApplicationService {
                 .option(ChannelOption.SO_BACKLOG, 200)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
-
         try {
             final ChannelFuture channelFuture = bootstrap.bind(new InetSocketAddress(smtpPort)).sync();
             return channelFuture.channel();

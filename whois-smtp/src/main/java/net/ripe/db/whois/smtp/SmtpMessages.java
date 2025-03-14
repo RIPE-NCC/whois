@@ -18,6 +18,10 @@ public class SmtpMessages {
         return new Message(Messages.Type.INFO, "220 %s SMTP Whois %s %s", Hosts.getInstanceName(), applicationVersion, LocalDateTime.now());
     }
 
+    public static Message goodbye() {
+        return new Message(Messages.Type.INFO, "221 %s closing connection", Hosts.getInstanceName());
+    }
+
     public static Message internalError() {
         return new Message(Messages.Type.ERROR, "internal error occurred.");
     }
