@@ -46,6 +46,10 @@ public class SmtpMessages {
         return new Message(Messages.Type.INFO, "250 OK");
     }
 
+    public static Message okId(final String value) {
+        return new Message(Messages.Type.INFO, "250 OK id=%s", value);
+    }
+
     public static Message accepted() {
         return new Message(Messages.Type.INFO, "250 Accepted");
     }
