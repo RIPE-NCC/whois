@@ -42,7 +42,7 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void handleException(final Channel channel, final String message) {
-        channel.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE);
+        channel.writeAndFlush(message + "\n").addListener(ChannelFutureListener.CLOSE);
     }
 
     private void handleException(final Channel channel, final Message message) {

@@ -54,7 +54,7 @@ public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("U-string-decoder", stringDecoder);
         pipeline.addLast("D-string-encoder", stringEncoder);
 
-        pipeline.addLast(executorGroup, "U-query-handler", smtpServerHandlerFactory.getInstance());
+        pipeline.addLast(executorGroup, "U-command-handler", smtpServerHandlerFactory.getInstance());
 
         pipeline.addLast("U-exception-handler", exceptionHandler);
     }

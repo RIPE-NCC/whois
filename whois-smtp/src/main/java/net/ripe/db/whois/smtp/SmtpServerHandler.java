@@ -8,18 +8,26 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.smtp.commands.DataCommand;
+import net.ripe.db.whois.smtp.commands.ExtendedHelloCommand;
+import net.ripe.db.whois.smtp.commands.HelloCommand;
+import net.ripe.db.whois.smtp.commands.HelpCommand;
+import net.ripe.db.whois.smtp.commands.MailCommand;
+import net.ripe.db.whois.smtp.commands.NoopCommand;
+import net.ripe.db.whois.smtp.commands.QuitCommand;
+import net.ripe.db.whois.smtp.commands.RecipientCommand;
+import net.ripe.db.whois.smtp.commands.SmtpCommand;
+import net.ripe.db.whois.smtp.commands.SmtpCommandBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpServerHandler.class);
 
-    private static final AttributeKey<Boolean> BANNER = AttributeKey.newInstance("banner");
-    private static final ChannelFutureListener LISTENER = future -> PendingWrites.decrement(future.channel());
+    private static final AttributeKey<String> MAIL_FROM = AttributeKey.newInstance("mail_from");
 
     private final MailMessageDao mailMessageDao;
     private final ApplicationVersion applicationVersion;
@@ -34,7 +42,6 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRegistered(final ChannelHandlerContext ctx) {
-        LOGGER.info("channelRegistered {}", ctx.channel().id());
         if (ctx.channel().isActive()) {
             writeMessage(ctx.channel(),  SmtpMessages.banner(applicationVersion.getVersion()));
         }
@@ -42,36 +49,37 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-        LOGGER.info("channelRead {}", ctx.channel().id());
-        final String queryString = msg.toString().trim();
-        LOGGER.info("\tReceived message: _{}_", queryString);
-
-        if (queryString.equals("QUIT")) {
-            writeMessageAndClose(ctx.channel(), SmtpMessages.goodbye());
-        } else {
-            writeMessage(ctx.channel(), "OK");
+        try {
+            final SmtpCommand smtpCommand = SmtpCommandBuilder.build(msg.toString().trim());
+            switch (smtpCommand) {
+                case HelloCommand helloCommand -> writeMessage(ctx.channel(), SmtpMessages.hello(helloCommand.getValue()));
+                case ExtendedHelloCommand extendedHelloCommand -> writeMessage(ctx.channel(), SmtpMessages.extendedHello(extendedHelloCommand.getValue()));
+                case MailCommand mailCommand -> {
+                    LOGGER.info("Mail From: {} {}", ctx.channel().id(), mailCommand.getValue());
+                    ctx.channel().attr(MAIL_FROM).set(mailCommand.getValue());
+                    writeMessage(ctx.channel(), SmtpMessages.ok());
+                }
+                case RecipientCommand recipientCommand -> writeMessage(ctx.channel(), SmtpMessages.accepted());
+                case DataCommand dataCommand -> writeMessage(ctx.channel(), SmtpMessages.enterMessage());
+                case NoopCommand noopCommand -> writeMessage(ctx.channel(), SmtpMessages.ok());
+                case HelpCommand helpCommand -> writeMessage(ctx.channel(), SmtpMessages.help());
+                case QuitCommand quitCommand -> {
+                    LOGGER.info("Quit: {} {}", ctx.channel().id(), ctx.channel().attr(MAIL_FROM).get());
+                    writeMessageAndClose(ctx.channel(), SmtpMessages.goodbye());
+                }
+                default -> writeMessage(ctx.channel(), SmtpMessages.unrecognisedCommand());
+            }
+        } catch (IllegalArgumentException e) {
+            writeMessage(ctx.channel(), SmtpMessages.unrecognisedCommand());
         }
-    }
-
-    @Override
-    public void channelActive(final ChannelHandlerContext ctx) {
-        LOGGER.info("channelActive {}", ctx.channel().id());
-//        if (!ctx.channel().hasAttr(BANNER)) {
-//            PendingWrites.add(ctx.channel());
-//            writeMessage(ctx.channel(),  SmtpMessages.banner(applicationVersion.getVersion()));
-//            ctx.channel().attr(BANNER).set(true);
-//            ctx.fireChannelActive();
-//        }
     }
 
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) {
-        LOGGER.info("channelInactive {}", ctx.channel().id());
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
 
-        PendingWrites.remove(ctx.channel());
         ctx.fireChannelInactive();
     }
 
@@ -80,8 +88,7 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
             throw new ChannelException();
         }
 
-        PendingWrites.increment(channel);
-        channel.writeAndFlush(message + "\n").addListener(LISTENER);
+        channel.writeAndFlush(message + "\n");
     }
 
     private void writeMessageAndClose(final Channel channel, final Object message) {
@@ -89,49 +96,7 @@ public class SmtpServerHandler extends ChannelInboundHandlerAdapter {
             throw new ChannelException();
         }
 
-        PendingWrites.increment(channel);
-        channel.writeAndFlush(message + "\n")
-            .addListener(LISTENER)
-            .addListener(ChannelFutureListener.CLOSE);
-    }
-
-
-    static final class PendingWrites {
-
-        private static final AttributeKey<AtomicInteger> PENDING_WRITE_KEY = AttributeKey.newInstance("pending_write_key");
-
-        private static final int MAX_PENDING_WRITES = 16;
-
-        static void add(final Channel channel) {
-            channel.attr(PENDING_WRITE_KEY).set(new AtomicInteger());
-        }
-
-        static void remove(final Channel channel) {
-            channel.attr(PENDING_WRITE_KEY).set(null);
-        }
-
-
-        static void increment(final Channel channel) {
-            final AtomicInteger pending = channel.attr(PENDING_WRITE_KEY).get();
-            if (pending != null) {
-                pending.incrementAndGet();
-            }
-        }
-
-        static void decrement(final Channel channel) {
-            final AtomicInteger pending = channel.attr(PENDING_WRITE_KEY).get();
-            if (pending != null) {
-                pending.decrementAndGet();
-            }
-        }
-
-        static boolean isPending(final Channel channel) {
-            final AtomicInteger pending = channel.attr(PENDING_WRITE_KEY).get();
-            if (pending == null) {
-                throw new ChannelException("channel removed");
-            }
-
-            return (pending.get() > MAX_PENDING_WRITES);
-        }
+        channel.writeAndFlush(message + "\n").addListener(ChannelFutureListener.CLOSE);
     }
 }
+

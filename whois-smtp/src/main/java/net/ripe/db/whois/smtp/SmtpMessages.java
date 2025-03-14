@@ -13,16 +13,65 @@ public class SmtpMessages {
     }
 
     public static Message banner(final String applicationVersion) {
-        // 220 mail.ripe.net ESMTP Exim 4.98 Thu, 13 Mar 2025 13:41:12 +0000
-        // 220 ESHRYANE-PRO SMTP Whois 0.1-TEST 2025-03-13T23:22:13.021523
         return new Message(Messages.Type.INFO, "220 %s SMTP Whois %s %s", Hosts.getInstanceName(), applicationVersion, LocalDateTime.now());
+    }
+
+    public static Message hello(final String value) {
+        return new Message(Messages.Type.INFO, "250 %s Hello %s", Hosts.getInstanceName(), value);
+    }
+
+    public static Message extendedHello(final String value) {
+        return new Message(Messages.Type.INFO,
+            "250-%s Hello %s\n" +
+//                "250-SIZE 52428800\n" +
+//                "250-LIMITS MAILMAX=1000 RCPTMAX=50000\n" +
+//                "250-8BITMIME\n" +
+//                "250-PIPELINING\n" +
+//                "250-PIPECONNECT\n" +
+//                "250-CHUNKING\n" +
+//                "250-STARTTLS\n" +
+                "250 HELP", Hosts.getInstanceName(), value);
+    }
+
+    public static Message invalidHello(final String value) {
+        return new Message(Messages.Type.ERROR, "501 Syntactically invalid %s argument(s)", value);
+    }
+
+    public static Message help() {
+        return new Message(Messages.Type.INFO,
+            "214-Commands supported:\n" +
+                "214 HELO EHLO MAIL RCPT DATA NOOP HELP QUIT");
     }
 
     public static Message goodbye() {
         return new Message(Messages.Type.INFO, "221 %s closing connection", Hosts.getInstanceName());
     }
 
+    public static Message ok() {
+        return new Message(Messages.Type.INFO, "250 OK");
+    }
+
+    public static Message accepted() {
+        return new Message(Messages.Type.INFO, "250 Accepted");
+    }
+
+    public static Message enterMessage() {
+        return new Message(Messages.Type.INFO, "354 Enter message, ending with \".\" on a line by itself");
+    }
+
+    public static Message rcptBeforeData() {
+        return new Message(Messages.Type.ERROR, "503 valid RCPT command must precede DATA");
+    }
+
+    public static Message senderAddressDomain(final String value) {
+        return new Message(Messages.Type.ERROR, "501 %s: sender address must contain a domain", value);
+    }
+
+    public static Message unrecognisedCommand() {
+        return new Message(Messages.Type.ERROR, "500 Unrecognised command");
+    }
+
     public static Message internalError() {
-        return new Message(Messages.Type.ERROR, "internal error occurred.");
+        return new Message(Messages.Type.ERROR, "500 internal error occurred.");
     }
 }
