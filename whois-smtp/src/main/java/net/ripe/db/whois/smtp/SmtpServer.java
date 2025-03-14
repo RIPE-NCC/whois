@@ -37,7 +37,7 @@ public class SmtpServer implements ApplicationService {
             final SmtpServerChannelsRegistry smtpServerChannelsRegistry,
             final SmtpServerChannelInitializer smtpServerChannelInitializer,
             final MaintenanceMode maintenanceMode,
-            @Value("${smtp.enabled:true}") final boolean smtpEnabled,
+            @Value("${smtp.enabled:false}") final boolean smtpEnabled,
             @Value("${smtp.port:0}") final int smtpPort) {
         this.smtpServerChannelsRegistry = smtpServerChannelsRegistry;
         this.smtpServerChannelInitializer = smtpServerChannelInitializer;
