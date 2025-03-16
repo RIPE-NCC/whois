@@ -3,13 +3,19 @@ package net.ripe.db.whois.smtp;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.EventExecutorGroup;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
@@ -18,6 +24,7 @@ public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
     private static final int DELIMITER_MAX_FRAME_LENGTH = 128;
     private static final boolean STRIP_DELIMITER = true;
     private static final int POOL_SIZE = 32;
+    private static final int TIMEOUT = 60;
 
     private final EventExecutorGroup executorGroup;
     private final SmtpServerChannelsRegistry channelsRegistry;
@@ -43,11 +50,19 @@ public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
-        pipeline.addLast("U-maintenanceHandler", maintenanceHandler);
-        pipeline.addLast("U-channels", channelsRegistry);
-        pipeline.addLast("U-delimiter", new DelimiterBasedFrameDecoder(DELIMITER_MAX_FRAME_LENGTH, STRIP_DELIMITER, LINE_DELIMITER));
-        pipeline.addLast("D-message-encoder", messageEncoder);
-        pipeline.addLast(executorGroup, "U-command-handler", commandHandler);
-        pipeline.addLast("U-exception-handler", exceptionHandler);
+        pipeline.addLast("maintenanceHandler", maintenanceHandler);
+        pipeline.addLast("channels", channelsRegistry);
+        pipeline.addLast("read-timeout", new ReadTimeoutHandler(TIMEOUT, TimeUnit.SECONDS) {
+            @Override
+            protected void readTimedOut(ChannelHandlerContext ctx) {
+                // keep connection open on read timeout so we can write a message to the client
+                ctx.fireExceptionCaught(ReadTimeoutException.INSTANCE);
+            }
+        });
+        pipeline.addLast("write-timeout", new WriteTimeoutHandler(TIMEOUT, TimeUnit.SECONDS));
+        pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(DELIMITER_MAX_FRAME_LENGTH, STRIP_DELIMITER, LINE_DELIMITER));
+        pipeline.addLast("message-encoder", messageEncoder);
+        pipeline.addLast(executorGroup, "command-handler", commandHandler);
+        pipeline.addLast("exception-handler", exceptionHandler);
     }
 }

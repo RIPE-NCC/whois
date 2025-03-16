@@ -73,4 +73,8 @@ public class SmtpMessages {
     public static Message internalError() {
         return new Message(Messages.Type.ERROR, "500 internal error occurred.");
     }
+
+    public static Message timeout() {
+        return new Message(Messages.Type.ERROR, "421 %s: SMTP command timeout - closing connection", Hosts.getInstanceName());
+    }
 }

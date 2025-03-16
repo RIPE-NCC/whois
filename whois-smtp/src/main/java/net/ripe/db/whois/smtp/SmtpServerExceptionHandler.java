@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.ReadTimeoutException;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import org.slf4j.Logger;
@@ -28,7 +29,11 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
 
         switch (exception) {
             case SmtpException smtpException : {
-                handleException(channel, smtpException.getMessage() + "\n\n");
+                handleException(channel, smtpException.message());
+                break;
+            }
+            case ReadTimeoutException readTimeoutException: {
+                handleException(channel, SmtpMessages.timeout());
                 break;
             }
             default: {
@@ -41,12 +46,8 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void handleException(final Channel channel, final String message) {
-        channel.writeAndFlush(message + "\n").addListener(ChannelFutureListener.CLOSE);
-    }
-
     private void handleException(final Channel channel, final Message message) {
-        handleException(channel, message.toString());
+        channel.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE);
     }
 
 }
