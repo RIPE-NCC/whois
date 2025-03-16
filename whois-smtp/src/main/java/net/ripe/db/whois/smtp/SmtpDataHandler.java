@@ -8,6 +8,10 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
+import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +20,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Properties;
 
 @Component
 @ChannelHandler.Sharable
@@ -24,13 +30,18 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpDataHandler.class);
 
+    private static final Session SESSION = Session.getInstance(new Properties());
+
     private static final AttributeKey<ByteArrayOutputStream> DATA = AttributeKey.newInstance("data");
 
+    private final MailMessageDao mailMessageDao;
     private final SmtpCommandHandler commandHandler;
 
     @Autowired
     public SmtpDataHandler(
+            final MailMessageDao mailMessageDao,
             @Lazy final SmtpCommandHandler commandHandler) {
+        this.mailMessageDao = mailMessageDao;
         this.commandHandler = commandHandler;
     }
 
@@ -40,6 +51,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
 	    log(ctx, bytes);
         if (isEnd(bytes)) {
             log(ctx, "End of Data");
+            writeMessageToDatabase(ctx.channel());
             writeMessage(ctx.channel(), SmtpMessages.okId(ctx.channel().id().asShortText()));
             ctx.pipeline().replace("U-data-handler", "U-command-handler", commandHandler);
         } else {
@@ -50,6 +62,22 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
     private boolean isEnd(final byte[] bytes) {
         return (bytes.length >= 2) &&
             ((bytes[0] == '.') && (bytes[1] == '\r' || bytes[1] == '\n'));
+    }
+
+    private void writeMessageToDatabase(final Channel channel) {
+        final byte[] bytes = getData(channel);
+        if (bytes != null && bytes.length > 0) {
+            LOGGER.info("Writing message to database");
+            mailMessageDao.addMessage(parseMessage(bytes));
+        }
+    }
+
+    private MimeMessage parseMessage(final byte[] bytes) {
+        try {
+            return new MimeMessage(SESSION, new ByteArrayInputStream(bytes));
+        } catch (MessagingException e) {
+            throw new IllegalStateException("Unable to parse message", e);
+        }
     }
 
     private byte[] getBytes(final ByteBuf msg) {

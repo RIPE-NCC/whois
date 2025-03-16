@@ -15,11 +15,14 @@ public class SmtpLog {
     public void log(final ChannelHandlerContext ctx, final InetAddress remoteAddress, final String domainName) {
         LOGGER.info(
                 "{} {} {}",
-                ctx.channel().id().asShortText(),
+                ctx.channel().id(),
                 remoteAddress.getHostAddress(),
                 domainName != null ? domainName : "NONE"
         );
     }
 
+    public void log(final String format, Object ... args) {
+        LOGGER.info(format, args);
+    }
 
 }

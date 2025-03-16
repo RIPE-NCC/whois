@@ -8,10 +8,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
-import jakarta.mail.MessagingException;
-import jakarta.mail.Session;
-import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
@@ -32,10 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.Properties;
 
 @Component
 @ChannelHandler.Sharable
@@ -43,13 +37,10 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpCommandHandler.class);
 
-    private static final Session SESSION = Session.getInstance(new Properties());
-
     private static final AttributeKey<String> MAIL_FROM = AttributeKey.newInstance("mail_from");
     private static final AttributeKey<String> RCPT_TO = AttributeKey.newInstance("rcpt_to");
     private static final AttributeKey<String> DOMAIN = AttributeKey.newInstance("domain");
 
-    private final MailMessageDao mailMessageDao;
     private final SmtpLog smtpLog;
     private final ApplicationVersion applicationVersion;
     private final SmtpDataHandler smtpDataHandler;
@@ -57,10 +48,8 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
     @Autowired
     public SmtpCommandHandler(
             @Lazy final SmtpDataHandler smtpDataHandler,
-            final MailMessageDao mailMessageDao,
             final SmtpLog smtpLog,
             final ApplicationVersion applicationVersion) {
-        this.mailMessageDao = mailMessageDao;
         this.smtpLog = smtpLog;
         this.applicationVersion = applicationVersion;
         this.smtpDataHandler = smtpDataHandler;
@@ -75,31 +64,28 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
+        final String command = ((ByteBuf) msg).toString(StandardCharsets.US_ASCII).trim();
+        smtpLog.log("Channel {}: {}", ctx.channel().id(), command);
         try {
-            final SmtpCommand smtpCommand = SmtpCommandBuilder.build(((ByteBuf)msg).toString(StandardCharsets.US_ASCII).trim());
+            final SmtpCommand smtpCommand = SmtpCommandBuilder.build(command);
             switch (smtpCommand) {
                 case HelloCommand helloCommand -> {
-                    LOGGER.info("Channel {} Hello: {}", ctx.channel().id(), helloCommand.getValue());
                     setDomain(ctx.channel(), helloCommand.getValue());
                     writeMessage(ctx.channel(), SmtpMessages.hello(helloCommand.getValue()));
                 }
                 case ExtendedHelloCommand extendedHelloCommand -> {
-                    LOGGER.info("Channel {} Extended Hello: {}", ctx.channel().id(), extendedHelloCommand.getValue());
                     setDomain(ctx.channel(), extendedHelloCommand.getValue());
                     writeMessage(ctx.channel(), SmtpMessages.extendedHello(extendedHelloCommand.getValue()));
                 }
                 case MailCommand mailCommand -> {
-                    LOGGER.info("Channel {} Mail From: {}", ctx.channel().id(), mailCommand.getValue());
                     setMailFrom(ctx.channel(), mailCommand.getValue());
                     writeMessage(ctx.channel(), SmtpMessages.ok());
                 }
                 case RecipientCommand recipientCommand -> {
-                    LOGGER.info("Channel {} Recipient To: {}", ctx.channel().id(), recipientCommand.getValue());
                     setRecipient(ctx.channel(), recipientCommand.getValue());
                     writeMessage(ctx.channel(), SmtpMessages.accepted());
                 }
                 case DataCommand dataCommand -> {
-                    LOGGER.info("Channel {} Data", ctx.channel().id());
                     writeMessage(ctx.channel(), SmtpMessages.enterMessage());
                     ctx.pipeline().replace("U-command-handler", "U-data-handler", smtpDataHandler);
                 }
@@ -113,9 +99,6 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
                     writeMessage(ctx.channel(), SmtpMessages.ok());
                 }
                 case QuitCommand quitCommand -> {
-                    // TODO: when should we write the message to the database?
-                    writeMessageToDatabase(ctx.channel());
-                    LOGGER.info("Channel {} Quit", ctx.channel().id());
                     writeMessageAndClose(ctx.channel(), SmtpMessages.goodbye());
                 }
                 default -> writeMessage(ctx.channel(), SmtpMessages.unrecognisedCommand());
@@ -149,21 +132,6 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
         channel.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE);
     }
 
-    private void writeMessageToDatabase(final Channel channel) {
-        final byte[] bytes = smtpDataHandler.getData(channel);
-        if (bytes != null && bytes.length > 0) {
-            LOGGER.info("Writing message to database");
-            mailMessageDao.addMessage(parseMessage(bytes));
-        }
-    }
-
-    private MimeMessage parseMessage(final byte[] bytes) {
-        try {
-            return new MimeMessage(SESSION, new ByteArrayInputStream(bytes));
-        } catch (MessagingException e) {
-            throw new IllegalStateException("Unable to parse message", e);
-        }
-    }
 
     private String getMailFrom(final Channel channel) {
         return channel.attr(MAIL_FROM).get();
