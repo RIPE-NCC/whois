@@ -87,7 +87,7 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
                 }
                 case DataCommand dataCommand -> {
                     writeMessage(ctx.channel(), SmtpMessages.enterMessage());
-                    ctx.pipeline().replace("U-command-handler", "U-data-handler", smtpDataHandler);
+                    ctx.pipeline().replace("command-handler", "data-handler", smtpDataHandler);
                 }
                 case NoopCommand noopCommand -> writeMessage(ctx.channel(), SmtpMessages.ok());
                 case HelpCommand helpCommand -> writeMessage(ctx.channel(), SmtpMessages.help());

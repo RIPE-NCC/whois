@@ -53,7 +53,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
             log(ctx, "End of Data");
             writeMessageToDatabase(ctx.channel());
             writeMessage(ctx.channel(), SmtpMessages.okId(ctx.channel().id().asShortText()));
-            ctx.pipeline().replace("U-data-handler", "U-command-handler", commandHandler);
+            ctx.pipeline().replace("data-handler", "command-handler", commandHandler);
         } else {
             appendData(ctx, bytes);
         }
