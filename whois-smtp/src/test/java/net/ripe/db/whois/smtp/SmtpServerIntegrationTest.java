@@ -1,5 +1,6 @@
 package net.ripe.db.whois.smtp;
 
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -58,7 +59,9 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
         smtpClient.writeLine("QUIT");
         assertThat(smtpClient.readLine(), startsWith("221 "));
 
-        // TODO: test mailupdate is accepted and processed
+        final String messageId = mailMessageDao.claimMessage();
+        final MimeMessage result = mailMessageDao.getMessage(messageId);
+        assertThat(result.getSubject(), is("Update"));
     }
 
 }
