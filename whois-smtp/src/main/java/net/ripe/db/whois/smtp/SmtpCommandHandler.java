@@ -10,7 +10,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.smtp.commands.DataCommand;
 import net.ripe.db.whois.smtp.commands.ExtendedHelloCommand;
 import net.ripe.db.whois.smtp.commands.HelloCommand;
@@ -22,20 +21,15 @@ import net.ripe.db.whois.smtp.commands.RecipientCommand;
 import net.ripe.db.whois.smtp.commands.ResetCommand;
 import net.ripe.db.whois.smtp.commands.SmtpCommand;
 import net.ripe.db.whois.smtp.commands.SmtpCommandBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 
 @Component
 @ChannelHandler.Sharable
 public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SmtpCommandHandler.class);
 
     private static final AttributeKey<String> MAIL_FROM = AttributeKey.newInstance("mail_from");
     private static final AttributeKey<String> RCPT_TO = AttributeKey.newInstance("rcpt_to");
@@ -65,7 +59,7 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         final String command = ((ByteBuf) msg).toString(StandardCharsets.US_ASCII).trim();
-        smtpLog.log("Channel {}: {}", ctx.channel().id(), command);
+        smtpLog.log(ctx.channel(), command);
         try {
             final SmtpCommand smtpCommand = SmtpCommandBuilder.build(command);
             switch (smtpCommand) {
@@ -110,9 +104,7 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) {
-        final String domain = getDomain(ctx.channel());
-        final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(ctx.channel());
-        smtpLog.log(ctx, remoteAddress, domain);
+        smtpLog.log(ctx.channel(), "(INACTIVE)");
         ctx.fireChannelInactive();
     }
 

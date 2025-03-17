@@ -13,8 +13,6 @@ import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import net.ripe.db.whois.common.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -28,33 +26,33 @@ import java.util.Properties;
 @ChannelHandler.Sharable
 public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SmtpDataHandler.class);
-
     private static final Session SESSION = Session.getInstance(new Properties());
 
     private static final AttributeKey<ByteArrayOutputStream> DATA = AttributeKey.newInstance("data");
 
     private final MailMessageDao mailMessageDao;
     private final SmtpCommandHandler commandHandler;
+    private final SmtpLog smtpLog;
 
     @Autowired
     public SmtpDataHandler(
             final MailMessageDao mailMessageDao,
-            @Lazy final SmtpCommandHandler commandHandler) {
+            @Lazy final SmtpCommandHandler commandHandler,
+            final SmtpLog smtpLog) {
         this.mailMessageDao = mailMessageDao;
         this.commandHandler = commandHandler;
+        this.smtpLog = smtpLog;
     }
 
     @Override
 	public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         if (isEnd((ByteBuf) msg)) {
-            log(ctx, "End of Data");
+            smtpLog.log(ctx.channel(), "(END DATA)");
             writeMessageToDatabase(ctx.channel());
             writeMessage(ctx.channel(), SmtpMessages.okId(ctx.channel().id().asShortText()));
             ctx.pipeline().replace("data-handler", "command-handler", commandHandler);
         } else {
     	    final byte[] bytes = getBytes((ByteBuf) msg);
-    	    log(ctx, bytes);
             appendData(ctx, bytes);
         }
     }
@@ -69,7 +67,6 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
     private void writeMessageToDatabase(final Channel channel) {
         final byte[] bytes = getData(channel);
         if (bytes != null && bytes.length > 0) {
-            LOGGER.info("Writing message to database");
             mailMessageDao.addMessage(parseMessage(bytes));
         }
     }
@@ -121,26 +118,6 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
         } else {
             builder.writeBytes(bytes);
         }
-    }
-
-    private void log(final ChannelHandlerContext ctx, final byte[] bytes) {
-        LOGGER.info("Channel {} Read {} bytes: {}", ctx.channel().id(), bytes.length, byteArrayToHexString(bytes));
-    }
-
-    private void log(final ChannelHandlerContext ctx, final String msg) {
-        LOGGER.info("Channel {} {}", ctx.channel().id(), msg);
-    }
-
-    private static String byteArrayToHexString(final byte[] bytes) {
-        final StringBuilder hexString = new StringBuilder(2 * bytes.length);
-        for (final byte b : bytes) {
-            final String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
     }
 
     private void writeMessage(final Channel channel, final Message message) {

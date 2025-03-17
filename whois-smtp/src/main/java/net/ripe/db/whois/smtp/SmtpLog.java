@@ -1,28 +1,23 @@
 package net.ripe.db.whois.smtp;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
+import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.net.InetAddress;
 
 @Component
 public class SmtpLog {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpLog.class);
 
-    public void log(final ChannelHandlerContext ctx, final InetAddress remoteAddress, final String domainName) {
+    public void log(final Channel channel, final String command) {
         LOGGER.info(
                 "{} {} {}",
-                ctx.channel().id(),
-                remoteAddress.getHostAddress(),
-                domainName != null ? domainName : "NONE"
+                channel.id(),
+                ChannelUtil.getRemoteAddress(channel),
+                command
         );
-    }
-
-    public void log(final String format, Object ... args) {
-        LOGGER.info(format, args);
     }
 
 }

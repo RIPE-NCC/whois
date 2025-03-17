@@ -23,7 +23,6 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
         final Channel channel = ctx.channel();
 
         if (!channel.isOpen()) {
-            LOGGER.info("Channel closed", exception);
             return;
         }
 
@@ -37,10 +36,10 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
                 break;
             }
             default: {
-                LOGGER.info("Caught exception on channel id = {}, from = {}",
-                        channel.id().hashCode(),
-                        ChannelUtil.getRemoteAddress(channel),
-                        exception);
+                LOGGER.error("Caught unexpected exception on channel {}, from {}",
+                        channel.id(),
+                        ChannelUtil.getRemoteAddress(channel));
+                LOGGER.error(exception.getClass().getName(), exception);
                 handleException(channel, SmtpMessages.internalError());
             }
         }
