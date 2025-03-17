@@ -79,16 +79,18 @@ public class InetnumAuthentication extends AuthenticationStrategyBase {
     }
 
     private IpEntry getParentEntry(final IpInterval ipInterval) {
-        if (ipInterval instanceof Ipv4Resource) {
-            final List<Ipv4Entry> parent = ipv4Tree.findFirstLessSpecific((Ipv4Resource) ipInterval);
-            Validate.isTrue(parent.size() == 1, "Must have exactly one parent: ", ipInterval);
-            return parent.get(0);
-        } else if (ipInterval instanceof Ipv6Resource) {
-            final List<Ipv6Entry> parent = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
-            Validate.isTrue(parent.size() == 1, "Must have exactly one parent: ", ipInterval);
-            return parent.get(0);
+        switch (ipInterval) {
+            case Ipv4Resource ipv4Resource -> {
+                final List<Ipv4Entry> parent = ipv4Tree.findFirstLessSpecific(ipv4Resource);
+                Validate.isTrue(parent.size() == 1, "Must have exactly one parent: ", ipInterval);
+                return parent.get(0);
+            }
+            case Ipv6Resource ipv6Resource -> {
+                final List<Ipv6Entry> parent = ipv6Tree.findFirstLessSpecific(ipv6Resource);
+                Validate.isTrue(parent.size() == 1, "Must have exactly one parent: ", ipInterval);
+                return parent.get(0);
+            }
+            case null -> throw new IllegalArgumentException("Unexpected interval: " + ipInterval);
         }
-
-        throw new IllegalArgumentException("Unexpected interval: " + ipInterval);
     }
 }

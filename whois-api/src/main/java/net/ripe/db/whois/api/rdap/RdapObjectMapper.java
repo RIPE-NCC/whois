@@ -479,20 +479,22 @@ public class RdapObjectMapper {
     }
 
     private IpEntry lookupParentIpEntry(final IpInterval ipInterval) {
-        if (ipInterval instanceof Ipv4Resource) {
-            final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific((Ipv4Resource) ipInterval);
-            if (firstLessSpecific.isEmpty()) {
-                throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
-            }
-            return firstLessSpecific.get(0);
-        } else {
-            if (ipInterval instanceof Ipv6Resource) {
-                final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
+        switch (ipInterval) {
+            case Ipv4Resource ipv4Resource : {
+                final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific(ipv4Resource);
                 if (firstLessSpecific.isEmpty()) {
                     throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
                 }
                 return firstLessSpecific.get(0);
-            } else {
+            }
+            case Ipv6Resource ipv6Resource : {
+                final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific(ipv6Resource);
+                if (firstLessSpecific.isEmpty()) {
+                    throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
+                }
+                return firstLessSpecific.get(0);
+            }
+            case null : {
                 throw new RdapException("500 Internal Error", "Unknown interval type " + ipInterval.getClass().getName(), HttpStatus.INTERNAL_SERVER_ERROR_500);
             }
         }
@@ -650,10 +652,15 @@ public class RdapObjectMapper {
             if (!ipIntervals.isEmpty()) {
                 final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
                 for (IpInterval ipInterval : ipIntervals) {
-                    if (ipInterval instanceof Ipv4Resource) {
-                        ipAddresses.getIpv4().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
-                    } else if (ipInterval instanceof Ipv6Resource) {
-                        ipAddresses.getIpv6().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
+                    switch (ipInterval) {
+                        case Ipv4Resource ipv4Resource : {
+                            ipAddresses.getIpv4().add(IpInterval.asIpInterval(ipv4Resource.beginAsInetAddress()).toString());
+                            break;
+                        }
+                        case Ipv6Resource ipv6Resource : {
+                            ipAddresses.getIpv6().add(IpInterval.asIpInterval(ipv6Resource.beginAsInetAddress()).toString());
+                            break;
+                        }
                     }
                 }
                 nameserver.setIpAddresses(ipAddresses);
