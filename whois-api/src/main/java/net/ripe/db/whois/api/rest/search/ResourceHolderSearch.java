@@ -128,12 +128,10 @@ public class ResourceHolderSearch {
     }
 
     private List<? extends IpEntry> findParentsInTree(final IpInterval interval) {
-        if (interval instanceof Ipv4Resource) {
-            return ipv4Tree.findAllLessSpecific((Ipv4Resource)interval);
-        } else if (interval instanceof Ipv6Resource) {
-            return ipv6Tree.findAllLessSpecific((Ipv6Resource)interval);
-        } else {
-            throw new IllegalStateException();
-        }
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Tree.findAllLessSpecific(ipv4Resource);
+            case Ipv6Resource ipv6Resource -> ipv6Tree.findAllLessSpecific(ipv6Resource);
+            case null -> throw new IllegalStateException();
+        };
     }
 }
