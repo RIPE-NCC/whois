@@ -47,21 +47,23 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
 
     @Override
 	public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-	    final byte[] bytes = getBytes((ByteBuf) msg);
-	    log(ctx, bytes);
-        if (isEnd(bytes)) {
+        if (isEnd((ByteBuf) msg)) {
             log(ctx, "End of Data");
             writeMessageToDatabase(ctx.channel());
             writeMessage(ctx.channel(), SmtpMessages.okId(ctx.channel().id().asShortText()));
             ctx.pipeline().replace("data-handler", "command-handler", commandHandler);
         } else {
+    	    final byte[] bytes = getBytes((ByteBuf) msg);
+    	    log(ctx, bytes);
             appendData(ctx, bytes);
         }
     }
 
-    private boolean isEnd(final byte[] bytes) {
-        return (bytes.length >= 2) &&
-            ((bytes[0] == '.') && (bytes[1] == '\r' || bytes[1] == '\n'));
+    private boolean isEnd(final ByteBuf msg) {
+        return ((msg.readableBytes() >= 2) &&
+                (msg.getByte(msg.readerIndex()) == '.') &&
+                ((msg.getByte(msg.readerIndex() + 1) == '\r') ||
+                 (msg.getByte(msg.readerIndex() + 1) == '\n')));
     }
 
     private void writeMessageToDatabase(final Channel channel) {
@@ -81,6 +83,11 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
     }
 
     private byte[] getBytes(final ByteBuf msg) {
+        if ((msg.readableBytes() > 1) &&
+                (msg.getByte(msg.readerIndex()) == '.')) {
+            // remove extra period used for encoding
+            msg.readByte();
+        }
         if (msg.hasArray()) {
             return msg.array();
         } else {

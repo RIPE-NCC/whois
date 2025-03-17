@@ -37,8 +37,9 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
         smtpServer.stop(true);
     }
 
+    // Send a complete mail message over SMTP
     @Test
-    public void testSmtpServer() throws Exception {
+    public void sendMessage() throws Exception {
         final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
         assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
         smtpClient.writeLine("HELO testserver");
@@ -62,6 +63,30 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
         final String messageId = mailMessageDao.claimMessage();
         final MimeMessage result = mailMessageDao.getMessage(messageId);
         assertThat(result.getSubject(), is("Update"));
+    }
+
+    // RFC821 Section 4.5.2 "Transparency"
+    // If the first character is a period and there are other characters on the line, the first character is deleted.
+    @Test
+    public void encodedPeriod() throws Exception {
+        final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
+        assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
+        smtpClient.writeLine("DATA");
+        assertThat(smtpClient.readLine(), is("354 Enter message, ending with \".\" on a line by itself"));
+        smtpClient.writeLines(
+            "Subject: Update\n" +
+            "\n" +
+            "RPSL object\n" +
+            "..\n" +    // encoded single period
+            ".\n");
+        assertThat(smtpClient.readLine(), startsWith("250 OK"));
+        smtpClient.writeLine("QUIT");
+        assertThat(smtpClient.readLine(), startsWith("221 "));
+
+        final String messageId = mailMessageDao.claimMessage();
+        final MimeMessage result = mailMessageDao.getMessage(messageId);
+
+        assertThat(result.getContent(), is("RPSL object\n.\n"));    // decoded single period
     }
 
 }
