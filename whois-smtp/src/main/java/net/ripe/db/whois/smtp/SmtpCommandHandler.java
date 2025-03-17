@@ -7,9 +7,9 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.smtp.SmtpResponse;
 import io.netty.util.AttributeKey;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.smtp.commands.DataCommand;
 import net.ripe.db.whois.smtp.commands.ExtendedHelloCommand;
 import net.ripe.db.whois.smtp.commands.HelloCommand;
@@ -52,7 +52,7 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRegistered(final ChannelHandlerContext ctx) {
         if (ctx.channel().isActive()) {
-            writeMessage(ctx.channel(),  SmtpMessages.banner(applicationVersion.getVersion()));
+            writeResponse(ctx.channel(),  SmtpResponses.banner(applicationVersion.getVersion()));
         }
     }
 
@@ -65,40 +65,40 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
             switch (smtpCommand) {
                 case HelloCommand helloCommand -> {
                     setDomain(ctx.channel(), helloCommand.getValue());
-                    writeMessage(ctx.channel(), SmtpMessages.hello(helloCommand.getValue()));
+                    writeResponse(ctx.channel(), SmtpResponses.hello(helloCommand.getValue()));
                 }
                 case ExtendedHelloCommand extendedHelloCommand -> {
                     setDomain(ctx.channel(), extendedHelloCommand.getValue());
-                    writeMessage(ctx.channel(), SmtpMessages.extendedHello(extendedHelloCommand.getValue()));
+                    writeResponse(ctx.channel(), SmtpResponses.extendedHello(extendedHelloCommand.getValue()));
                 }
                 case MailCommand mailCommand -> {
                     setMailFrom(ctx.channel(), mailCommand.getValue());
-                    writeMessage(ctx.channel(), SmtpMessages.ok());
+                    writeResponse(ctx.channel(), SmtpResponses.ok());
                 }
                 case RecipientCommand recipientCommand -> {
                     setRecipient(ctx.channel(), recipientCommand.getValue());
-                    writeMessage(ctx.channel(), SmtpMessages.accepted());
+                    writeResponse(ctx.channel(), SmtpResponses.accepted());
                 }
                 case DataCommand dataCommand -> {
-                    writeMessage(ctx.channel(), SmtpMessages.enterMessage());
+                    writeResponse(ctx.channel(), SmtpResponses.enterMessage());
                     ctx.pipeline().replace("command-handler", "data-handler", smtpDataHandler);
                 }
-                case NoopCommand noopCommand -> writeMessage(ctx.channel(), SmtpMessages.ok());
-                case HelpCommand helpCommand -> writeMessage(ctx.channel(), SmtpMessages.help());
+                case NoopCommand noopCommand -> writeResponse(ctx.channel(), SmtpResponses.ok());
+                case HelpCommand helpCommand -> writeResponse(ctx.channel(), SmtpResponses.help());
                 case ResetCommand resetCommand -> {
                     clearMailFrom(ctx.channel());
                     clearRecipient(ctx.channel());
                     clearDomain(ctx.channel());
                     clearData(ctx.channel());
-                    writeMessage(ctx.channel(), SmtpMessages.ok());
+                    writeResponse(ctx.channel(), SmtpResponses.ok());
                 }
                 case QuitCommand quitCommand -> {
-                    writeMessageAndClose(ctx.channel(), SmtpMessages.goodbye());
+                    writeResponseAndClose(ctx.channel(), SmtpResponses.goodbye());
                 }
-                default -> writeMessage(ctx.channel(), SmtpMessages.unrecognisedCommand());
+                default -> writeResponse(ctx.channel(), SmtpResponses.unrecognisedCommand());
             }
         } catch (IllegalArgumentException e) {
-            writeMessage(ctx.channel(), SmtpMessages.unrecognisedCommand());
+            writeResponse(ctx.channel(), SmtpResponses.unrecognisedCommand());
         }
     }
 
@@ -108,20 +108,20 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
         ctx.fireChannelInactive();
     }
 
-    private void writeMessage(final Channel channel, final Message message) {
+    private void writeResponse(final Channel channel, final SmtpResponse smtpResponse) {
         if (!channel.isOpen()) {
             throw new ChannelException();
         }
 
-        channel.writeAndFlush(message);
+        channel.writeAndFlush(smtpResponse);
     }
 
-    private void writeMessageAndClose(final Channel channel, final Message message) {
+    private void writeResponseAndClose(final Channel channel, final SmtpResponse smtpResponse) {
         if (!channel.isOpen()) {
             throw new ChannelException();
         }
 
-        channel.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE);
+        channel.writeAndFlush(smtpResponse).addListener(ChannelFutureListener.CLOSE);
     }
 
 

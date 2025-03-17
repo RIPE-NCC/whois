@@ -7,12 +7,12 @@ import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.smtp.SmtpResponse;
 import io.netty.util.AttributeKey;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
-import net.ripe.db.whois.common.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
         if (isEnd((ByteBuf) msg)) {
             smtpLog.log(ctx.channel(), "(END DATA)");
             writeMessageToDatabase(ctx.channel());
-            writeMessage(ctx.channel(), SmtpMessages.okId(ctx.channel().id().asShortText()));
+            writeResponse(ctx.channel(), SmtpResponses.okId(ctx.channel().id().asShortText()));
             ctx.pipeline().replace("data-handler", "command-handler", commandHandler);
         } else {
     	    final byte[] bytes = getBytes((ByteBuf) msg);
@@ -120,11 +120,11 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void writeMessage(final Channel channel, final Message message) {
+    private void writeResponse(final Channel channel, final SmtpResponse smtpResponse) {
         if (!channel.isOpen()) {
             throw new ChannelException();
         }
 
-        channel.writeAndFlush(message);
+        channel.writeAndFlush(smtpResponse);
     }
 }

@@ -31,20 +31,20 @@ public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
     private final SmtpServerExceptionHandler exceptionHandler;
     private final MaintenanceHandler maintenanceHandler;
     private final SmtpCommandHandler commandHandler;
-    private final SmtpMessageEncoder messageEncoder;
+    private final SmtpResponseEncoder responseEncoder;
 
     protected SmtpServerChannelInitializer(
                                            final SmtpServerChannelsRegistry channelsRegistry,
                                            final SmtpServerExceptionHandler exceptionHandler,
                                            final MaintenanceHandler maintenanceHandler,
                                            final SmtpCommandHandler commandHandler,
-                                           final SmtpMessageEncoder messageEncoder) {
+                                           final SmtpResponseEncoder responseEncoder) {
         this.executorGroup = new DefaultEventExecutorGroup(POOL_SIZE);
         this.channelsRegistry = channelsRegistry;
         this.exceptionHandler = exceptionHandler;
         this.maintenanceHandler = maintenanceHandler;
         this.commandHandler = commandHandler;
-        this.messageEncoder = messageEncoder;
+        this.responseEncoder = responseEncoder;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
         });
         pipeline.addLast("write-timeout", new WriteTimeoutHandler(TIMEOUT, TimeUnit.SECONDS));
         pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(DELIMITER_MAX_FRAME_LENGTH, STRIP_DELIMITER, LINE_DELIMITER));
-        pipeline.addLast("message-encoder", messageEncoder);
+        pipeline.addLast("response-encoder", responseEncoder);
         pipeline.addLast(executorGroup, "command-handler", commandHandler);
         pipeline.addLast("exception-handler", exceptionHandler);
     }

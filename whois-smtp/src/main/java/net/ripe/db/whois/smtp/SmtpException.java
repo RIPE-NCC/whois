@@ -1,22 +1,26 @@
 package net.ripe.db.whois.smtp;
 
-import net.ripe.db.whois.common.Message;
+import io.netty.handler.codec.smtp.SmtpResponse;
 
 public class SmtpException extends RuntimeException {
 
-    private final Message message;
+    private final SmtpResponse response;
 
-    public SmtpException(final Message message) {
-        this.message = message;
+    public SmtpException(final SmtpResponse response) {
+        this.response = response;
     }
 
-    public Message message() {
-        return message;
+    public SmtpResponse getResponse() {
+        return response;
     }
 
     @Override
     public String getMessage() {
-        return message.toString();
+        final StringBuilder builder = new StringBuilder();
+        for (CharSequence detail : response.details()) {
+            builder.append(response.code()).append(" ").append(detail).append("\n");
+        }
+        return builder.toString();
     }
 
 
