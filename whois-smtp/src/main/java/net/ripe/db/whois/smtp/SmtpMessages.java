@@ -23,7 +23,6 @@ public class SmtpMessages {
     public static Message extendedHello(final String value) {
         return new Message(Messages.Type.INFO,
             "250-%s Hello %s\n" +
-//                "250-SIZE 52428800\n" +       // TODO
                 "250-8BITMIME\n" +
                 "250 HELP", Hosts.getInstanceName(), value);
     }
