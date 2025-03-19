@@ -71,7 +71,7 @@ public class SmtpResponses {
     }
 
     public static SmtpResponse unrecognisedCommand() {
-        return new DefaultSmtpResponse(500, "Unrecognised command");
+        return new DefaultSmtpResponse(500, "unrecognised command");
     }
 
     public static SmtpResponse internalError() {

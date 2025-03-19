@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 class SmtpRequestBuilderTest {
@@ -16,7 +17,7 @@ class SmtpRequestBuilderTest {
         final SmtpRequest subject = new SmtpRequestBuilder("DATA").build();
 
         assertThat(subject.command(), is(SmtpCommand.DATA));
-        assertThat(subject.parameters(), contains(""));
+        assertThat(subject.parameters(), is(empty()));
     }
 
     @Test
@@ -24,7 +25,7 @@ class SmtpRequestBuilderTest {
         final SmtpRequest subject = new SmtpRequestBuilder("DATA \t  ").build();
 
         assertThat(subject.command(), is(SmtpCommand.DATA));
-        assertThat(subject.parameters(), contains(""));
+        assertThat(subject.parameters(), is(empty()));
     }
 
     @Test

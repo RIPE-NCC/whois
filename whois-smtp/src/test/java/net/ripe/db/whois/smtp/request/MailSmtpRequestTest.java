@@ -17,7 +17,7 @@ public class MailSmtpRequestTest {
             new MailSmtpRequest("MAIL");
         });
         assertThat(e.getResponse().code(), is(500));
-        assertThat(e.getResponse().details(), contains("unrecognized command"));
+        assertThat(e.getResponse().details(), contains("unrecognised command"));
     }
 
     @Test
