@@ -1,12 +1,13 @@
 package net.ripe.db.nrtm4.client.processor;
 
 import net.ripe.db.nrtm4.client.AbstractNrtmClientIntegrationTest;
+import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -126,6 +127,32 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(updatedroute, is(not(nullValue())));
         assertThat(route, is(not(updatedroute)));
         assertThat(updatedroute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
+    }
+
+    @Test
+    public void apply_just_valid_deltas_then_just_valid_deltas_updated() {
+        updateNotificationFileProcessor.processFile();
+        final RpslObject route = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final RpslObject createdInet6num = getMirrorRpslObjectByPkey("2a00:2381:c3be::/48");
+        final RpslObject nonCreatedMntner = getMirrorRpslObjectByPkey("MHM-MNT");
+
+        assertThat(createdInet6num, is(not(nullValue())));
+        assertThat(nonCreatedMntner, is(nullValue()));
+        assertThat(route, is(not(nullValue())));
+        assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
+
+        nrtmServerDummy.setWrongDeltasMocks();
+        updateNotificationFileProcessor.processFile();
+        final RpslObject updatedroute = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final RpslObject nonUpdateWrongObject = getMirrorRpslObjectByPkey("176.240.51.0/24AS47524");
+        final RpslObject nonDeletedObject = getMirrorRpslObjectByPkey("2a00:2381:c3be::/48");
+        final RpslObject createdMntner = getMirrorRpslObjectByPkey("MHM-MNT");
+
+        assertThat(updatedroute, is(not(nullValue())));
+        assertThat(updatedroute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
+        assertThat(nonDeletedObject, is(not(nullValue())));
+        assertThat(createdMntner, is(nullValue()));
+        assertThat(nonUpdateWrongObject, is(nullValue()));
     }
 
 

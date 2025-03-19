@@ -72,7 +72,12 @@ public class NrtmServerDummy implements Stub {
     private final static Map<String, String> RIPE_DELTA_HASH = ImmutableMap.of(
             "1", "cb51f37f31f6132b674ff32f3734c42e3658383f1ad345bbe2f7989b01283ef0",
             "2", "e9b8e2c6a4d6f10f390010ad0852a015fca01d27b60fc52ece359e99c19c4ff1",
+            "2-wrong-delta", "839502d943784d4f8b8c972456a62c7a9a3447d019ea19e971cd4fd13f9ff3c8",
             "fake", "fake_hash"
+    );
+
+    private final static Map<String, String> RIPE_WRONG_DELTA_HASH = ImmutableMap.of(
+            "2", "839502d943784d4f8b8c972456a62c7a9a3447d019ea19e971cd4fd13f9ff3c8"
     );
 
 
@@ -198,6 +203,15 @@ public class NrtmServerDummy implements Stub {
     public void resetDefaultMocks(){
         mocks.clear();
         initialiseMocks();
+    }
+
+    public void setWrongDeltasMocks() {
+        mocks.clear();
+        mocks.add(new NrtmResponseMock("/nrtmv4", "nrtm-sources.html", "application/html"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE/update-notification-file.jose", getUpdateNotificationWrongDeltaFileRIPE("2", RIPE_SNAP_HASH, "2"), "application/jose+json"));
+        mocks.add(new NrtmSignedResponseMock("/nrtmv4/RIPE-NONAUTH/update-notification-file.jose", getUpdateNotificationFileRIPENonAuth("2", RIPE_NONAUTH_SNAP_HASH, "2"), "application/jose+json"));
+        mocks.add(new NrtmDeltaResponseMock("/nrtmv4/RIPE-NONAUTH/nrtm-delta.2.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json", "nrtm-delta.2.RIPE-NONAUTH.json", "application/json"));
+        mocks.add(new NrtmDeltaResponseMock("/nrtmv4/RIPE/nrtm-delta.2.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json", "nrtm-wrong-delta.2.RIPE.json", "application/json"));
     }
 
     public void setSecondDeltasMocks() {
@@ -370,6 +384,10 @@ public class NrtmServerDummy implements Stub {
             LOGGER.error("failed to sign payload {}", ex.getMessage());
             throw new IllegalStateException("failed to sign contents of file");
         }
+    }
+
+    private static String getUpdateNotificationWrongDeltaFileRIPE(final String unfVersion, final String snapHast, final String deltaVersion){
+        return String.format(UNF_RIPE_TEMPLATE, unfVersion, snapHast, deltaVersion, deltaVersion, RIPE_WRONG_DELTA_HASH.get(deltaVersion));
     }
 
     private static String getUpdateNotificationFileRIPE(final String unfVersion, final String snapHast, final String deltaVersion){

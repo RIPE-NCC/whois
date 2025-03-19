@@ -50,22 +50,26 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
             return;
         }
 
-        freshDeltas.forEach(delta -> {
-            final byte[] deltaFilePayload = nrtmRestClient.getDeltaFile(source, delta.getUrl());
+        try {
+            freshDeltas.forEach(delta -> {
+                final byte[] deltaFilePayload = nrtmRestClient.getDeltaFile(source, delta.getUrl());
 
-            if (deltaFilePayload == null || deltaFilePayload.length == 0){
-                LOGGER.error("This cannot happen. UNF has a non-existing delta");
-                return;
-            }
+                if (deltaFilePayload == null || deltaFilePayload.length == 0) {
+                    LOGGER.error("This cannot happen. UNF has a non-existing delta");
+                    return;
+                }
 
-            final String payloadHash = calculateSha256(deltaFilePayload);
-            if (!delta.getHash().equals(payloadHash)){
-                LOGGER.error("Delta hash {} doesn't match the payload {}, skipping import", delta.getHash(), payloadHash);
-                return;
-            }
+                final String payloadHash = calculateSha256(deltaFilePayload);
+                if (!delta.getHash().equals(payloadHash)) {
+                    LOGGER.error("Delta hash {} doesn't match the payload {}, skipping import", delta.getHash(), payloadHash);
+                    return;
+                }
 
-            processPayload(deltaFilePayload, sessionId, source);
-        });
+                processPayload(deltaFilePayload, sessionId, source);
+            });
+        } catch (Exception e) {
+            LOGGER.warn("Unable to process a delta record from {} source. Skipping remaining deltas", source, e);
+        }
     }
 
     private void processPayload(final byte[] deltaFilePayload, final String sessionId, final String source) {
@@ -87,6 +91,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
                     isFirstRecord = false;
                     continue;
                 }
+
                 processDeltaRecord(record);
             }
 
@@ -162,9 +167,9 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
                 RpslObject.parse(deltaUpdatedObject) : null;
 
         applyDeltaRecord(new MirrorDeltaInfo(rpslObject,
-                        deltaAction,
-                        deltaObjectType,
-                        deltaPrimaryKey));
+                deltaAction,
+                deltaObjectType,
+                deltaPrimaryKey));
     }
 
     private Metadata extractMetadata(final String firstRecord){
