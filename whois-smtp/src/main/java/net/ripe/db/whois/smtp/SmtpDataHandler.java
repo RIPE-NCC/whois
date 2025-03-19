@@ -13,6 +13,8 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.dao.MailMessageDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,8 @@ import java.util.Properties;
 @Component
 @ChannelHandler.Sharable
 public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmtpDataHandler.class);
 
     private static final Session SESSION = Session.getInstance(new Properties());
 
@@ -75,7 +79,8 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
         try {
             return new MimeMessage(SESSION, new ByteArrayInputStream(bytes));
         } catch (MessagingException e) {
-            throw new IllegalStateException("Unable to parse message", e);
+            LOGGER.error(e.getClass().getName(), e);
+            throw new SmtpException(SmtpResponses.internalError());
         }
     }
 

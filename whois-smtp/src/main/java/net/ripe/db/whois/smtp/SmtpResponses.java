@@ -12,15 +12,15 @@ public class SmtpResponses {
         // do not instantiate
     }
 
-    public static SmtpResponse banner(final String applicationVersion) {
+    public static SmtpResponse banner(final CharSequence applicationVersion) {
         return new DefaultSmtpResponse(220, String.format("%s SMTP Whois %s %s", Hosts.getInstanceName(), applicationVersion, LocalDateTime.now()));
     }
 
-    public static SmtpResponse hello(final String value) {
+    public static SmtpResponse hello(final CharSequence value) {
         return new DefaultSmtpResponse(250, String.format("%s Hello %s", Hosts.getInstanceName(), value));
     }
 
-    public static SmtpResponse extendedHello(final String value) {
+    public static SmtpResponse extendedHello(final CharSequence value) {
         return new DefaultSmtpResponse(
                 250,
                     String.format("%s Hello %s", Hosts.getInstanceName(), value),
@@ -28,8 +28,12 @@ public class SmtpResponses {
                     "HELP");
     }
 
-    public static SmtpResponse invalidHello(final String value) {
-        return new DefaultSmtpResponse(501, String.format("Syntactically invalid %s argument(s)", value));
+    public static SmtpResponse invalidHello() {
+        return new DefaultSmtpResponse(501, "Syntactically invalid HELO argument(s)");
+    }
+
+    public static SmtpResponse invalidEhlo() {
+        return new DefaultSmtpResponse(501, "Syntactically invalid EHLO argument(s)");
     }
 
     public static SmtpResponse help() {

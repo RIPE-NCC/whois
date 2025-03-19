@@ -7,20 +7,20 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.smtp.SmtpRequest;
 import io.netty.handler.codec.smtp.SmtpResponse;
 import io.netty.util.AttributeKey;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.smtp.commands.DataCommand;
-import net.ripe.db.whois.smtp.commands.ExtendedHelloCommand;
-import net.ripe.db.whois.smtp.commands.HelloCommand;
-import net.ripe.db.whois.smtp.commands.HelpCommand;
-import net.ripe.db.whois.smtp.commands.MailCommand;
-import net.ripe.db.whois.smtp.commands.NoopCommand;
-import net.ripe.db.whois.smtp.commands.QuitCommand;
-import net.ripe.db.whois.smtp.commands.RecipientCommand;
-import net.ripe.db.whois.smtp.commands.ResetCommand;
-import net.ripe.db.whois.smtp.commands.SmtpCommand;
-import net.ripe.db.whois.smtp.commands.SmtpCommandBuilder;
+import net.ripe.db.whois.smtp.request.DataSmtpRequest;
+import net.ripe.db.whois.smtp.request.ExtendedHelloSmtpRequest;
+import net.ripe.db.whois.smtp.request.HelloSmtpRequest;
+import net.ripe.db.whois.smtp.request.HelpSmtpRequest;
+import net.ripe.db.whois.smtp.request.MailSmtpRequest;
+import net.ripe.db.whois.smtp.request.NoopSmtpRequest;
+import net.ripe.db.whois.smtp.request.QuitSmtpRequest;
+import net.ripe.db.whois.smtp.request.RecipientSmtpRequest;
+import net.ripe.db.whois.smtp.request.ResetSmtpRequest;
+import net.ripe.db.whois.smtp.request.SmtpRequestBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -31,9 +31,9 @@ import java.nio.charset.StandardCharsets;
 @ChannelHandler.Sharable
 public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
 
-    private static final AttributeKey<String> MAIL_FROM = AttributeKey.newInstance("mail_from");
-    private static final AttributeKey<String> RCPT_TO = AttributeKey.newInstance("rcpt_to");
-    private static final AttributeKey<String> DOMAIN = AttributeKey.newInstance("domain");
+    private static final AttributeKey<CharSequence> MAIL_FROM = AttributeKey.newInstance("mail_from");
+    private static final AttributeKey<CharSequence> RCPT_TO = AttributeKey.newInstance("rcpt_to");
+    private static final AttributeKey<CharSequence> DOMAIN = AttributeKey.newInstance("domain");
 
     private final SmtpLog smtpLog;
     private final ApplicationVersion applicationVersion;
@@ -60,45 +60,39 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         final String command = ((ByteBuf) msg).toString(StandardCharsets.US_ASCII).trim();
         smtpLog.log(ctx.channel(), command);
-        try {
-            final SmtpCommand smtpCommand = SmtpCommandBuilder.build(command);
-            switch (smtpCommand) {
-                case HelloCommand helloCommand -> {
-                    setDomain(ctx.channel(), helloCommand.getValue());
-                    writeResponse(ctx.channel(), SmtpResponses.hello(helloCommand.getValue()));
-                }
-                case ExtendedHelloCommand extendedHelloCommand -> {
-                    setDomain(ctx.channel(), extendedHelloCommand.getValue());
-                    writeResponse(ctx.channel(), SmtpResponses.extendedHello(extendedHelloCommand.getValue()));
-                }
-                case MailCommand mailCommand -> {
-                    setMailFrom(ctx.channel(), mailCommand.getValue());
-                    writeResponse(ctx.channel(), SmtpResponses.ok());
-                }
-                case RecipientCommand recipientCommand -> {
-                    setRecipient(ctx.channel(), recipientCommand.getValue());
-                    writeResponse(ctx.channel(), SmtpResponses.accepted());
-                }
-                case DataCommand dataCommand -> {
-                    writeResponse(ctx.channel(), SmtpResponses.enterMessage());
-                    ctx.pipeline().replace("command-handler", "data-handler", smtpDataHandler);
-                }
-                case NoopCommand noopCommand -> writeResponse(ctx.channel(), SmtpResponses.ok());
-                case HelpCommand helpCommand -> writeResponse(ctx.channel(), SmtpResponses.help());
-                case ResetCommand resetCommand -> {
-                    clearMailFrom(ctx.channel());
-                    clearRecipient(ctx.channel());
-                    clearDomain(ctx.channel());
-                    clearData(ctx.channel());
-                    writeResponse(ctx.channel(), SmtpResponses.ok());
-                }
-                case QuitCommand quitCommand -> {
-                    writeResponseAndClose(ctx.channel(), SmtpResponses.goodbye());
-                }
-                default -> writeResponse(ctx.channel(), SmtpResponses.unrecognisedCommand());
+        final SmtpRequest smtpRequest = new SmtpRequestBuilder(command).build();
+        switch (smtpRequest) {
+            case HelloSmtpRequest hello -> {
+                setDomain(ctx.channel(), hello.parameters().get(0));
+                writeResponse(ctx.channel(), SmtpResponses.hello(hello.parameters().get(0)));
             }
-        } catch (IllegalArgumentException e) {
-            writeResponse(ctx.channel(), SmtpResponses.unrecognisedCommand());
+            case ExtendedHelloSmtpRequest extendedHello -> {
+                setDomain(ctx.channel(), extendedHello.parameters().get(0));
+                writeResponse(ctx.channel(), SmtpResponses.extendedHello(extendedHello.parameters().get(0)));
+            }
+            case MailSmtpRequest mail -> {
+                setMailFrom(ctx.channel(), mail.parameters().get(0));
+                writeResponse(ctx.channel(), SmtpResponses.ok());
+            }
+            case RecipientSmtpRequest recipient -> {
+                setRecipient(ctx.channel(), recipient.parameters().get(0));
+                writeResponse(ctx.channel(), SmtpResponses.accepted());
+            }
+            case DataSmtpRequest data -> {
+                writeResponse(ctx.channel(), SmtpResponses.enterMessage());
+                ctx.pipeline().replace("command-handler", "data-handler", smtpDataHandler);
+            }
+            case NoopSmtpRequest noop -> writeResponse(ctx.channel(), SmtpResponses.ok());
+            case HelpSmtpRequest help -> writeResponse(ctx.channel(), SmtpResponses.help());
+            case ResetSmtpRequest reset -> {
+                clearMailFrom(ctx.channel());
+                clearRecipient(ctx.channel());
+                clearDomain(ctx.channel());
+                clearData(ctx.channel());
+                writeResponse(ctx.channel(), SmtpResponses.ok());
+            }
+            case QuitSmtpRequest quit -> writeResponseAndClose(ctx.channel(), SmtpResponses.goodbye());
+            default -> writeResponse(ctx.channel(), SmtpResponses.unrecognisedCommand());
         }
     }
 
@@ -125,11 +119,11 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
     }
 
 
-    private String getMailFrom(final Channel channel) {
+    private CharSequence getMailFrom(final Channel channel) {
         return channel.attr(MAIL_FROM).get();
     }
 
-    private void setMailFrom(final Channel channel, final String mailFrom) {
+    private void setMailFrom(final Channel channel, final CharSequence mailFrom) {
         channel.attr(MAIL_FROM).set(mailFrom);
     }
 
@@ -137,11 +131,11 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
         channel.attr(MAIL_FROM).set(null);
     }
 
-    private String getRecipient(final Channel channel) {
+    private CharSequence getRecipient(final Channel channel) {
         return channel.attr(RCPT_TO).get();
     }
 
-    private void setRecipient(final Channel channel, final String recipient) {
+    private void setRecipient(final Channel channel, final CharSequence recipient) {
         channel.attr(RCPT_TO).set(recipient);
     }
 
@@ -149,20 +143,16 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
         channel.attr(RCPT_TO).set(null);
     }
 
-    private String getDomain(final Channel channel) {
+    private CharSequence getDomain(final Channel channel) {
         return channel.attr(DOMAIN).get();
     }
 
-    private void setDomain(final Channel channel, final String domain) {
+    private void setDomain(final Channel channel, final CharSequence domain) {
         channel.attr(DOMAIN).set(domain);
     }
 
     private void clearDomain(final Channel channel) {
         channel.attr(DOMAIN).set(null);
-    }
-
-    private byte[] getData(final Channel channel) {
-        return smtpDataHandler.getData(channel);
     }
 
     private void clearData(final Channel channel) {
