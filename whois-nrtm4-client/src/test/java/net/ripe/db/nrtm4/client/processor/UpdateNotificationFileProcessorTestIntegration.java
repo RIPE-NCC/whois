@@ -1,12 +1,13 @@
 package net.ripe.db.nrtm4.client.processor;
 
 import net.ripe.db.nrtm4.client.AbstractNrtmClientIntegrationTest;
+import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,17 +40,19 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     }
 
     @Test
-    public void process_UNF_but_DB_ahead_then_reInitialize(){
+    public void process_UNF_but_DB_ahead_then_skipped(){
         nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE-NONAUTH", 2, "6328095e-7d46-415b-9333-8f2ae274b7c8", "localhost");
         nrtm4ClientInfoRepository.saveUpdateNotificationFileVersion("RIPE", 2, "4521174b-548f-4e51-98fc-dfd720011a0c", "localhost");
 
         final List<NrtmClientVersionInfo> versionBeforeCleanUp = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
+        assertThat(versionBeforeCleanUp.size(), is(2));
         assertThat(versionBeforeCleanUp.getFirst().version(), is(2L));
 
-        updateNotificationFileProcessor.processFile();
+        updateNotificationFileProcessor.processFile(); // Getting v1, should not be applied
 
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
-        assertThat(versionInfosPerSource.isEmpty(), is(true));
+        assertThat(versionInfosPerSource.size(), is(2));
+        assertThat(versionInfosPerSource.getFirst().version(), is(2L));
     }
 
     @Test
