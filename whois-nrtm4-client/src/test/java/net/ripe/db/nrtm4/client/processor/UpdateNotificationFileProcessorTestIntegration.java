@@ -1,12 +1,13 @@
 package net.ripe.db.nrtm4.client.processor;
 
 import net.ripe.db.nrtm4.client.AbstractNrtmClientIntegrationTest;
+import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.client.processor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
@@ -32,6 +33,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Conditional(Nrtm4ClientCondition.class)
@@ -128,6 +130,7 @@ public class UpdateNotificationFileProcessor {
                 }
 
                 final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
+
                 deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
                 persistUpdateFileVersion(source, updateNotificationFile, hostname);
             } catch (Exception ex){
@@ -153,9 +156,20 @@ public class UpdateNotificationFileProcessor {
 
     private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltasFromNotificationFile(final String source,
                                                                                                final UpdateNotificationFileResponse updateNotificationFile) {
+
+        if (!areContinuous(updateNotificationFile.getDeltas())){
+            LOGGER.warn("No continuous deltas, skipping deltas");
+            return Lists.newArrayList();
+        }
+
         final NrtmClientVersionInfo nrtmClientVersionInfo = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForDeltasPerSource(source);
 
         if (nrtmClientVersionInfo == null){
+            return updateNotificationFile.getDeltas();
+        }
+
+        if (!(updateNotificationFile.getDeltas().getFirst().getVersion() == nrtmClientVersionInfo.version() + 1)){
+            deltaImporter.truncateDeltas(); //Reinitialise from snapshot, all deltas will be applied again
             return updateNotificationFile.getDeltas();
         }
 
@@ -163,6 +177,11 @@ public class UpdateNotificationFileProcessor {
                 .stream()
                 .filter(delta -> delta.getVersion() > nrtmClientVersionInfo.version())
                 .toList();
+    }
+
+    private boolean areContinuous(final List<UpdateNotificationFileResponse.NrtmFileLink> deltas){
+        return IntStream.range(0, deltas.size() - 1)
+                .allMatch(deltaCount -> deltas.get(deltaCount).getVersion() + 1 == deltas.get(deltaCount+1).getVersion());
     }
 
     @Nullable
