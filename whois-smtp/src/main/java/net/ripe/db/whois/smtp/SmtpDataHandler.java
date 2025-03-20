@@ -50,18 +50,18 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
 
     @Override
 	public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-        if (isEnd((ByteBuf) msg)) {
+        if (isEndMessage((ByteBuf) msg)) {
             smtpLog.log(ctx.channel(), "(END DATA)");
             writeMessageToDatabase(ctx.channel());
             writeResponse(ctx.channel(), SmtpResponses.okId(ctx.channel().id().asShortText()));
             ctx.pipeline().replace("data-handler", "command-handler", commandHandler);
         } else {
-    	    final byte[] bytes = getBytes((ByteBuf) msg);
-            appendData(ctx, bytes);
+    	    final byte[] bytes = readMessageFromChannel((ByteBuf) msg);
+            appendToMessage(ctx, bytes);
         }
     }
 
-    private boolean isEnd(final ByteBuf msg) {
+    private boolean isEndMessage(final ByteBuf msg) {
         return ((msg.readableBytes() >= 2) &&
                 (msg.getByte(msg.readerIndex()) == '.') &&
                 ((msg.getByte(msg.readerIndex() + 1) == '\r') ||
@@ -69,7 +69,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void writeMessageToDatabase(final Channel channel) {
-        final byte[] bytes = getData(channel);
+        final byte[] bytes = getMessage(channel);
         if (bytes != null && bytes.length > 0) {
             mailMessageDao.addMessage(parseMessage(bytes));
         }
@@ -84,7 +84,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private byte[] getBytes(final ByteBuf msg) {
+    private byte[] readMessageFromChannel(final ByteBuf msg) {
         if ((msg.readableBytes() > 1) &&
                 (msg.getByte(msg.readerIndex()) == '.')) {
             // remove extra period used for encoding
@@ -101,7 +101,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Nullable
-    public byte[] getData(final Channel channel) {
+    public byte[] getMessage(final Channel channel) {
         final ByteArrayOutputStream builder = channel.attr(DATA).get();
         if (builder == null || builder.size() == 0) {
             return null;
@@ -110,11 +110,11 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public void clearData(final Channel channel) {
+    public void clearMessage(final Channel channel) {
         channel.attr(DATA).set(null);
     }
 
-    private void appendData(final ChannelHandlerContext ctx, final byte[] bytes) {
+    private void appendToMessage(final ChannelHandlerContext ctx, final byte[] bytes) {
         final ByteArrayOutputStream builder = ctx.channel().attr(DATA).get();
         if (builder == null) {
             final ByteArrayOutputStream newBuilder = new ByteArrayOutputStream();

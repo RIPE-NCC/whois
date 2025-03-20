@@ -156,7 +156,7 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void clearData(final Channel channel) {
-        smtpDataHandler.clearData(channel);
+        smtpDataHandler.clearMessage(channel);
     }
 }
 
