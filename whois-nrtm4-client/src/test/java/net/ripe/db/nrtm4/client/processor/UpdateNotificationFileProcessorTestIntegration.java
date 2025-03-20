@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.client.processor;
 
 import net.ripe.db.nrtm4.client.AbstractNrtmClientIntegrationTest;
 import net.ripe.db.nrtm4.client.client.MirrorRpslObject;
+import net.ripe.db.nrtm4.client.dao.NrtmClientDocumentType;
 import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -74,7 +75,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(versionInfosPerSource.size(), is(2));
 
         final List<MirrorRpslObject> mirroredRpslObjects = getMirrorRpslObject();
-        final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastSnapshotVersion();
+        final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastFileVersion(NrtmClientDocumentType.SNAPSHOT);
         assertThat(mirroredRpslObjects.isEmpty(), is(false));
         assertThat(snapshotVersionPerSource.size(), is(2));
 
@@ -86,7 +87,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     public void second_UNF_then_no_new_snapshot(){
         updateNotificationFileProcessor.processFile();
 
-        final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastSnapshotVersion();
+        final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastFileVersion(NrtmClientDocumentType.SNAPSHOT);
         assertSnapshotFirstVersion(snapshotVersionPerSource.getFirst(), "RIPE");
         assertSnapshotFirstVersion(snapshotVersionPerSource.get(1), "RIPE-NONAUTH");
 
@@ -100,7 +101,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         nrtmServerDummy.setFakeHashMocks();
         updateNotificationFileProcessor.processFile();
 
-        final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastSnapshotVersion();
+        final List<NrtmClientVersionInfo> snapshotVersionPerSource = getNrtmLastFileVersion(NrtmClientDocumentType.SNAPSHOT);
         assertThat(snapshotVersionPerSource, is(empty()));
     }
 
@@ -127,6 +128,52 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(updatedroute, is(not(nullValue())));
         assertThat(route, is(not(updatedroute)));
         assertThat(updatedroute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
+    }
+
+    @Test
+    public void apply_unf_with_multiple_deltas_then_updated() {
+        updateNotificationFileProcessor.processFile();
+        final RpslObject route = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final RpslObject route6 = getMirrorRpslObjectByPkey("2001:490:c000::/35AS18666");
+        final RpslObject mntner = getMirrorRpslObjectByPkey("MHM-MNT");
+
+        assertThat(route6, is(not(nullValue())));
+        assertThat(route, is(not(nullValue())));
+        assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
+        assertThat(mntner, is(nullValue()));
+
+        nrtmServerDummy.setTwoAndThreeVersionDeltasMocks();
+        updateNotificationFileProcessor.processFile();
+        final RpslObject autnum = getMirrorRpslObjectByPkey("AS211871");
+        final RpslObject deletedRoute6 = getMirrorRpslObjectByPkey("2001:490:f000::/36AS1248");
+        final RpslObject createdMntner = getMirrorRpslObjectByPkey("MHM-MNT");
+
+        assertThat(createdMntner, is(nullValue()));
+        assertThat(deletedRoute6, is(nullValue()));
+        assertThat(autnum, is(not(nullValue())));
+
+        final List<NrtmClientVersionInfo> versions = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
+        assertThat(versions.getFirst().version(), is(3L));
+    }
+
+    @Test
+    public void apply_unf_with_discontinuous_deltas_then_discarded() {
+        updateNotificationFileProcessor.processFile();
+        final RpslObject route = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final RpslObject route6 = getMirrorRpslObjectByPkey("2001:490:c000::/35AS18666");
+        final RpslObject mntner = getMirrorRpslObjectByPkey("MHM-MNT");
+
+        assertThat(route6, is(not(nullValue())));
+        assertThat(route, is(not(nullValue())));
+        assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
+        assertThat(mntner, is(nullValue()));
+
+        nrtmServerDummy.setTwoAndFourVersionDeltasMocks();
+        updateNotificationFileProcessor.processFile();
+
+        final List<NrtmClientVersionInfo> versions = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
+
+        assertThat(versions.getFirst().version(), is(1L));
     }
 
 

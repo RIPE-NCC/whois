@@ -66,16 +66,16 @@ public class NrtmServerDummy implements Stub {
     private final static Map<String, String> RIPE_NONAUTH_DELTA_HASH = ImmutableMap.of(
             "1", "5a889b779c018c9e62d82958e176f133d1d5f31fc64eed10a54a486ba4c29e03",
             "2", "632bc8d9a7a6d9587a05265786a58173d76df2ad4b7ceaa39a08fe261e197508",
-            "3", "x",
-            "4", "y",
+            "3", "d16742be57b6c8c12be9e56696be363a0e78e68e91f703f52512180fbcfa9d49",
+            "4", "19ea1a2dc2d97ead8abdad12149b7bfb7dd394d2618f48d71ce9f41f7689b47e",
             "fake", "fake_hash"
     );
 
     private final static Map<String, String> RIPE_DELTA_HASH = ImmutableMap.of(
             "1", "cb51f37f31f6132b674ff32f3734c42e3658383f1ad345bbe2f7989b01283ef0",
             "2", "e9b8e2c6a4d6f10f390010ad0852a015fca01d27b60fc52ece359e99c19c4ff1",
-            "3", "x",
-            "4", "y",
+            "3", "ece98b808f42d55c7aa625dcc26ab7ec5b2967f3bd9ee3436330b6c65462a2c2",
+            "4", "248f9778f222d167d5aad8f16e7687583a2126147cb05fb28a18bf75425c5faa",
             "fake", "fake_hash"
     );
 
