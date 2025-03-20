@@ -3839,7 +3839,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/193.0.0.0/20")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-bottom/193.0.0.0/20")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
