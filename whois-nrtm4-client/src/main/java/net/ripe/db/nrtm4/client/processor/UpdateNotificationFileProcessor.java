@@ -76,68 +76,71 @@ public class UpdateNotificationFileProcessor {
         final List<NrtmClientVersionInfo> nrtmLastVersionInfoPerSource = nrtm4ClientMirrorDao.getNrtmLastVersionInfoForUpdateNotificationFile();
 
         final String hostname = Hosts.getInstanceName();
+        try {
+            notificationFilePerSource.forEach((source, updateNotificationSignature) -> {
+                final NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
+                        .stream()
+                        .filter(nrtmVersionInfo -> nrtmVersionInfo.source() != null && nrtmVersionInfo.source().equals(source))
+                        .findFirst()
+                        .orElse(null);
 
-        notificationFilePerSource.forEach((source, updateNotificationSignature) -> {
-            final NrtmClientVersionInfo nrtmClientLastVersionInfo = nrtmLastVersionInfoPerSource
-                    .stream()
-                    .filter(nrtmVersionInfo -> nrtmVersionInfo.source() != null && nrtmVersionInfo.source().equals(source))
-                    .findFirst()
-                    .orElse(null);
-
-            if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.hostname().equals(hostname)) {
-                LOGGER.error("Different host");
-                return;
-            }
-
-            final JWSObject jwsObjectParsed;
-            try {
-                jwsObjectParsed = JWSObject.parse(updateNotificationSignature);
-            } catch (ParseException e) {
-                return;
-            }
-
-            if (!isCorrectSignature(jwsObjectParsed)) {
-                LOGGER.error("Update Notification File not corrected signed for {} source", source);
-                return;
-            }
-
-            final UpdateNotificationFileResponse updateNotificationFile = getUpdateNotificationFileResponse(jwsObjectParsed);
-
-            if (updateNotificationFile == null) {
-                return;
-            }
-
-            if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())) {
-                LOGGER.info("Different session");
-                snapshotImporter.truncateTables();
-                return;
-            }
-
-            if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()) {
-                LOGGER.info("The local version cannot be higher than the update notification version {}", source);
-                snapshotImporter.truncateTables();
-                return;
-            }
-
-            if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())) {
-                LOGGER.info("There is no new version associated with the source {}", source);
-                return;
-            }
-
-            try {
-                if (nrtmClientLastVersionInfo == null) {
-                    snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
+                if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.hostname().equals(hostname)) {
+                    LOGGER.error("Different host");
+                    return;
                 }
 
-                final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
+                final JWSObject jwsObjectParsed;
+                try {
+                    jwsObjectParsed = JWSObject.parse(updateNotificationSignature);
+                } catch (ParseException e) {
+                    return;
+                }
 
-                deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
-                persistUpdateFileVersion(source, updateNotificationFile, hostname);
-            } catch (Exception ex){
-                LOGGER.error("Failed to mirror database, cleaning up the tables", ex);
-                cleanUpTablesSafely();
-            }
-        });
+                if (!isCorrectSignature(jwsObjectParsed)) {
+                    LOGGER.error("Update Notification File not corrected signed for {} source", source);
+                    return;
+                }
+
+                final UpdateNotificationFileResponse updateNotificationFile = getUpdateNotificationFileResponse(jwsObjectParsed);
+
+                if (updateNotificationFile == null) {
+                    return;
+                }
+
+                if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())) {
+                    LOGGER.info("Different session");
+                    snapshotImporter.truncateTables();
+                    return;
+                }
+
+                if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()) {
+                    LOGGER.info("The local version cannot be higher than the update notification version {}", source);
+                    snapshotImporter.truncateTables();
+                    return;
+                }
+
+                if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())) {
+                    LOGGER.info("There is no new version associated with the source {}", source);
+                    return;
+                }
+
+                try {
+                    if (nrtmClientLastVersionInfo == null) {
+                        snapshotImporter.doImport(source, updateNotificationFile.getSessionID(), updateNotificationFile.getSnapshot());
+                    }
+
+                    final List<UpdateNotificationFileResponse.NrtmFileLink> newDeltas = getNewDeltasFromNotificationFile(source, updateNotificationFile);
+                    deltaImporter.doImport(source, updateNotificationFile.getSessionID(), newDeltas);
+                    persistUpdateFileVersion(source, updateNotificationFile, hostname);
+                } catch (Exception ex) {
+                    LOGGER.error("Failed to mirror {} database, cleaning up the tables", source, ex);
+                    throw ex;
+                }
+            });
+        } catch (Exception ex) {
+            //In case any issue we reinitialise to avid inconsistency statuses
+            cleanUpTablesSafely();
+        }
     }
 
     private void cleanUpTablesSafely(){
@@ -168,9 +171,10 @@ public class UpdateNotificationFileProcessor {
             return updateNotificationFile.getDeltas();
         }
 
-        if (!isExpectedDeltaVersionContained(updateNotificationFile.getDeltas(), nrtmClientVersionInfo.version() + 1)){
-            deltaImporter.truncateDeltas(source); //Reinitialise from snapshot, all deltas will be applied again
-            return updateNotificationFile.getDeltas();
+        final long expectedDeltaVersion = nrtmClientVersionInfo.version() + 1;
+        if (!isExpectedDeltaVersionContained(updateNotificationFile.getDeltas(), expectedDeltaVersion)){
+            LOGGER.warn("NRTMv4 Mirror is in a wrong state, expected delta version {} is not in the unf", expectedDeltaVersion);
+            throw new IllegalStateException(String.format("NRTMv4 Mirror is in a wrong state, expected delta version %s is not in unf", expectedDeltaVersion));
         }
 
         return updateNotificationFile.getDeltas()

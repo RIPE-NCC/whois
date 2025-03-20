@@ -177,7 +177,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
     }
 
     @Test
-    public void apply_unf_with_ahead_deltas_then_reinitialise_from_snap_and_reapply() {
+    public void apply_unf_with_ahead_deltas_then_reinitialise_and_reapply() {
         updateNotificationFileProcessor.processFile();
         final RpslObject route = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
         final RpslObject route6 = getMirrorRpslObjectByPkey("2001:490:c000::/35AS18666");
@@ -189,10 +189,17 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(mntner, is(nullValue()));
 
         //Put the database deltas ahead
-        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE-NONAUTH", 5, "6328095e-7d46-415b-9333-8f2ae274b7c8");
-        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE", 5, "4521174b-548f-4e51-98fc-dfd720011a0c");
+        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE-NONAUTH", 4, "6328095e-7d46-415b-9333-8f2ae274b7c8");
+        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE", 4, "4521174b-548f-4e51-98fc-dfd720011a0c");
 
-        nrtmServerDummy.setAllDeltas();
+        nrtmServerDummy.setAll();
+        updateNotificationFileProcessor.processFile();
+
+        //clean up to catch up the correct status
+        final List<NrtmClientVersionInfo> versionAfterCleanUp = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
+        assertThat(versionAfterCleanUp, is(empty()));
+
+        nrtmServerDummy.setAll();
         updateNotificationFileProcessor.processFile();
 
         final List<NrtmClientVersionInfo> versions = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
