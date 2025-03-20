@@ -155,7 +155,6 @@ public class RdapRelationService {
             case TOP -> List.of(searchTopLevelResource(ipTree, searchIp));
             case DOWN -> ipTree.findFirstMoreSpecific(searchIp);
             case BOTTOM -> searchBottomResources(ipTree, searchIp);
-            default -> throw new RdapException("400 Bad Request", "Unsupported Relation Type", HttpStatus.BAD_REQUEST_400);
         };
     }
 
@@ -188,7 +187,7 @@ public class RdapRelationService {
         final IpEntry parent = parentList.getFirst();
         final IpInterval parentInterval = (IpInterval) parent.getKey();
 
-        if (!parentInterval.equals(searchIp) && // If the parent is already the search ip we stop
+        if (!parentInterval.contains(searchIp) && // If the parent is already (containing) the search ip we stop
                 !childrenCoverParentRange(firstSibling, lastSibling, parentInterval)){
             extractBottomMatches(ipTree, searchIp, parent, mostSpecificFillingOverlaps);
         }
