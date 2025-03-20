@@ -157,7 +157,7 @@ public class UpdateNotificationFileProcessor {
     private List<UpdateNotificationFileResponse.NrtmFileLink> getNewDeltasFromNotificationFile(final String source,
                                                                                                final UpdateNotificationFileResponse updateNotificationFile) {
 
-        if (!areContinuous(updateNotificationFile.getDeltas())){
+        if (!areContinuousDeltas(updateNotificationFile.getDeltas())){
             LOGGER.warn("No continuous deltas, skipping deltas");
             return Lists.newArrayList();
         }
@@ -168,8 +168,8 @@ public class UpdateNotificationFileProcessor {
             return updateNotificationFile.getDeltas();
         }
 
-        if (!(updateNotificationFile.getDeltas().getFirst().getVersion() == nrtmClientVersionInfo.version() + 1)){
-            deltaImporter.truncateDeltas(); //Reinitialise from snapshot, all deltas will be applied again
+        if (!isExpectedDeltaVersionContained(updateNotificationFile.getDeltas(), nrtmClientVersionInfo.version() + 1)){
+            deltaImporter.truncateDeltas(source); //Reinitialise from snapshot, all deltas will be applied again
             return updateNotificationFile.getDeltas();
         }
 
@@ -179,9 +179,15 @@ public class UpdateNotificationFileProcessor {
                 .toList();
     }
 
-    private boolean areContinuous(final List<UpdateNotificationFileResponse.NrtmFileLink> deltas){
+    private boolean areContinuousDeltas(final List<UpdateNotificationFileResponse.NrtmFileLink> deltas){
         return IntStream.range(0, deltas.size() - 1)
                 .allMatch(deltaCount -> deltas.get(deltaCount).getVersion() + 1 == deltas.get(deltaCount+1).getVersion());
+    }
+
+    private boolean isExpectedDeltaVersionContained(final List<UpdateNotificationFileResponse.NrtmFileLink> deltas,
+                                                    final long expectedVersion){
+        return deltas.getFirst().getVersion() <= expectedVersion &&
+                expectedVersion <= deltas.getLast().getVersion();
     }
 
     @Nullable

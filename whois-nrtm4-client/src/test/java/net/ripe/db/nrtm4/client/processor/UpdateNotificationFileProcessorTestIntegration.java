@@ -119,15 +119,15 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
 
         nrtmServerDummy.setSecondDeltasMocks();
         updateNotificationFileProcessor.processFile();
-        final RpslObject updatedroute = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final RpslObject updatedRoute = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
         final RpslObject deletedRoute6 = getMirrorRpslObjectByPkey("2001:490:c000::/35AS18666");
         final RpslObject createdMntner = getMirrorRpslObjectByPkey("MHM-MNT");
 
         assertThat(createdMntner, is(not(nullValue())));
         assertThat(deletedRoute6, is(nullValue()));
-        assertThat(updatedroute, is(not(nullValue())));
-        assertThat(route, is(not(updatedroute)));
-        assertThat(updatedroute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
+        assertThat(updatedRoute, is(not(nullValue())));
+        assertThat(route, is(not(updatedRoute)));
+        assertThat(updatedRoute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
     }
 
     @Test
@@ -174,6 +174,56 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         final List<NrtmClientVersionInfo> versions = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
 
         assertThat(versions.getFirst().version(), is(1L));
+    }
+
+    @Test
+    public void apply_unf_with_ahead_deltas_then_reinitialise_from_snap_and_reapply() {
+        updateNotificationFileProcessor.processFile();
+        final RpslObject route = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final RpslObject route6 = getMirrorRpslObjectByPkey("2001:490:c000::/35AS18666");
+        final RpslObject mntner = getMirrorRpslObjectByPkey("MHM-MNT");
+
+        assertThat(route6, is(not(nullValue())));
+        assertThat(route, is(not(nullValue())));
+        assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
+        assertThat(mntner, is(nullValue()));
+
+        //Put the database deltas ahead
+        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE-NONAUTH", 5, "6328095e-7d46-415b-9333-8f2ae274b7c8");
+        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE", 5, "4521174b-548f-4e51-98fc-dfd720011a0c");
+
+        nrtmServerDummy.setAllDeltas();
+        updateNotificationFileProcessor.processFile();
+
+        final List<NrtmClientVersionInfo> versions = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
+
+        assertThat(versions.getFirst().version(), is(4L));
+
+        final RpslObject deleteDomain = getMirrorRpslObjectByPkey("7.4.1.8.0.1.a.2.ip6.arpa");
+        final RpslObject createdMntner = getMirrorRpslObjectByPkey("MHM3-MNT");
+        final RpslObject createdInet6num = getMirrorRpslObjectByPkey("2a00:2381:c3be::/48");
+        final RpslObject updatedRoute = getMirrorRpslObjectByPkey("176.240.50.0/24AS47524");
+        final RpslObject createdAutnum = getMirrorRpslObjectByPkey("AS211871");
+        final RpslObject createdMntnerMHM = getMirrorRpslObjectByPkey("MHM-MNT");
+
+        final RpslObject deleteRoute = getMirrorRpslObjectByPkey("205.203.119.0/24AS15951");
+        final RpslObject createdNokiaMntner = getMirrorRpslObjectByPkey("NOKIA-NOC");
+        final RpslObject deletedRoute6= getMirrorRpslObjectByPkey("2001:490:c000::/35AS18666");
+        final RpslObject createdRoute6= getMirrorRpslObjectByPkey("2001:490:f000::/36AS1248");
+
+
+        assertThat(deleteDomain, is(nullValue()));
+        assertThat(createdMntner, is(not(nullValue())));
+        assertThat(createdInet6num, is(not(nullValue())));
+        assertThat(updatedRoute, is(not(nullValue())));
+        assertThat(updatedRoute.findAttribute(AttributeType.DESCR).getCleanValue(), is("SECOND DELTA DUMMY"));
+        assertThat(createdAutnum, is(not(nullValue())));
+        assertThat(createdMntnerMHM, is(not(nullValue())));
+
+        assertThat(deleteRoute, is(nullValue()));
+        assertThat(createdNokiaMntner, is(not(nullValue())));
+        assertThat(deletedRoute6, is(nullValue()));
+        assertThat(createdRoute6, is(not(nullValue())));
     }
 
 

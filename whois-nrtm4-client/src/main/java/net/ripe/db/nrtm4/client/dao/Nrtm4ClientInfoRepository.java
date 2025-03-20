@@ -85,8 +85,8 @@ public class Nrtm4ClientInfoRepository {
         jdbcMasterTemplate.update("DELETE FROM version_info");
     }
 
-    public void truncateDeltas(){
-        jdbcMasterTemplate.update("DELETE FROM version_info WHERE type = ?", NrtmClientDocumentType.DELTA.getFileNamePrefix());
+    public void truncateDeltas(final String source){
+        jdbcMasterTemplate.update("DELETE FROM version_info WHERE type = ? AND source = ?", NrtmClientDocumentType.DELTA.getFileNamePrefix(), source);
     }
 
     private void saveVersionInfo(

@@ -68,8 +68,8 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         });
     }
 
-    public void truncateDeltas(){
-        nrtm4ClientInfoRepository.truncateDeltas();
+    public void truncateDeltas(final String source){
+        nrtm4ClientInfoRepository.truncateDeltas(source);
     }
 
     private void processPayload(final byte[] deltaFilePayload, final String sessionId, final String source) {
