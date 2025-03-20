@@ -55,7 +55,6 @@ public class RdapRelationService {
     private final Ipv4DomainTree ipv4DomainTree;
     private final Ipv6DomainTree ipv6DomainTree;
     private final RpslObjectDao rpslObjectDao;
-    private final RdapRequestValidator rdapRequestValidator;
     private final RdapQueryHandler rdapQueryHandler;
     private final RdapObjectMapper rdapObjectMapper;
     private final RdapLookupService rdapLookupService;
@@ -66,7 +65,6 @@ public class RdapRelationService {
                                final Ipv4DomainTree ipv4DomainTree,
                                final Ipv6DomainTree ipv6DomainTree,
                                final RpslObjectDao rpslObjectDao,
-                               final RdapRequestValidator rdapRequestValidator,
                                final RdapQueryHandler rdapQueryHandler,
                                final RdapObjectMapper rdapObjectMapper,
                                final RdapLookupService rdapLookupService) {
@@ -75,7 +73,6 @@ public class RdapRelationService {
         this.ipv4DomainTree = ipv4DomainTree;
         this.ipv6DomainTree = ipv6DomainTree;
         this.rpslObjectDao = rpslObjectDao;
-        this.rdapRequestValidator = rdapRequestValidator;
         this.rdapQueryHandler = rdapQueryHandler;
         this.rdapObjectMapper = rdapObjectMapper;
         this.rdapLookupService = rdapLookupService;
@@ -155,7 +152,6 @@ public class RdapRelationService {
             case TOP -> List.of(searchTopLevelResource(ipTree, searchIp));
             case DOWN -> ipTree.findFirstMoreSpecific(searchIp);
             case BOTTOM -> searchBottomResources(ipTree, searchIp);
-            default -> throw new RdapException("400 Bad Request", "Unsupported Relation Type", HttpStatus.BAD_REQUEST_400);
         };
     }
 
