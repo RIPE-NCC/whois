@@ -187,7 +187,7 @@ public class RdapRelationService {
         final IpEntry parent = parentList.getFirst();
         final IpInterval parentInterval = (IpInterval) parent.getKey();
 
-        if (!parentInterval.contains(searchIp) && // If the parent is already the search ip we stop
+        if (!parentInterval.contains(searchIp) && // If the parent is already (containing) the search ip we stop
                 !childrenCoverParentRange(firstSibling, lastSibling, parentInterval)){
             extractBottomMatches(ipTree, searchIp, parent, mostSpecificFillingOverlaps);
         }
