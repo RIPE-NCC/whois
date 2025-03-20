@@ -17,7 +17,7 @@ public enum LinkRelationType {
         return value;
     }
 
-    public static String getActiveLinkRelation(final LinkRelationType type) {
+    public static String concatActiveLinkRelation(final LinkRelationType type) {
         return type.value.concat(" ").concat(ACTIVE.getValue());
     }
 

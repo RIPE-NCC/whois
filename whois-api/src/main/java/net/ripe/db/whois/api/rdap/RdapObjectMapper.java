@@ -816,7 +816,7 @@ public class RdapObjectMapper {
         rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.UP.getValue(),
                 buildRirSearchUri(objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.getActiveLinkRelation(LinkRelationType.UP),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.concatActiveLinkRelation(LinkRelationType.UP),
                 buildRirSearchUri(objectType, RelationType.UP.getValue(), handle).concat("?status=active"),
                 APPLICATION_RDAP_JSON, null, null));
 
@@ -827,7 +827,7 @@ public class RdapObjectMapper {
                 buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
         rdapResponse.getLinks().add(new Link(requestUrl,
-                LinkRelationType.getActiveLinkRelation(LinkRelationType.TOP),
+                LinkRelationType.concatActiveLinkRelation(LinkRelationType.TOP),
                 buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle).concat("?status=active"), APPLICATION_RDAP_JSON, null,
                 null));
 

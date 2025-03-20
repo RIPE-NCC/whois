@@ -3883,7 +3883,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
 
         //TOP active
-        final Ip topActiveIp = createResource(relationCalls.get(LinkRelationType.getActiveLinkRelation(LinkRelationType.TOP)))
+        final Ip topActiveIp = createResource(relationCalls.get(LinkRelationType.concatActiveLinkRelation(LinkRelationType.TOP)))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3917,7 +3917,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(upIp.getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
 
         //UP active
-        final Ip upActiveIp = createResource(relationCalls.get(LinkRelationType.getActiveLinkRelation(LinkRelationType.UP)))
+        final Ip upActiveIp = createResource(relationCalls.get(LinkRelationType.concatActiveLinkRelation(LinkRelationType.UP)))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
