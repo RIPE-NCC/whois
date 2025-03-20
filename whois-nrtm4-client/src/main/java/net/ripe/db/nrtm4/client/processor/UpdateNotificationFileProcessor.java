@@ -136,7 +136,7 @@ public class UpdateNotificationFileProcessor {
                 }
             });
         } catch (Exception ex) {
-            //In case any issue we reinitialise to avid inconsistency statuses
+            //In case any issue we reinitialise to avoid inconsistency statuses
             cleanUpTablesSafely();
         }
     }
