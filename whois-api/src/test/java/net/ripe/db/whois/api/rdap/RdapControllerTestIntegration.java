@@ -3743,6 +3743,117 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void just_inetnum_within_range_should_be_included(){
+        databaseHelper.addObject(
+                "inetnum:       193.0.0.0 - 193.0.23.255\n" +
+                        "netname:        test" +
+                        "descr:          issue causing IP\n" +
+                        "country:        EU\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "status:         ALLOCATED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "created:       2011-07-28T00:35:42Z\n" +
+                        "last-modified: 2019-02-28T10:14:46Z\n" +
+                        "source:         TEST");
+
+        databaseHelper.addObject(
+                "inetnum:       193.0.0.0 - 193.0.7.255\n" +
+                        "netname:        test" +
+                        "descr:          issue causing IP\n" +
+                        "country:        EU\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "created:       2011-07-28T00:35:42Z\n" +
+                        "last-modified: 2019-02-28T10:14:46Z\n" +
+                        "source:         TEST");
+
+
+        databaseHelper.addObject(
+                "inetnum:       193.0.8.0 - 193.0.8.255\n" +
+                        "netname:        test" +
+                        "descr:          issue causing IP\n" +
+                        "country:        EU\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "created:       2011-07-28T00:35:42Z\n" +
+                        "last-modified: 2019-02-28T10:14:46Z\n" +
+                        "source:         TEST");
+
+        databaseHelper.addObject(
+                "inetnum:       193.0.9.0 - 193.0.9.255\n" +
+                        "netname:        test" +
+                        "descr:          issue causing IP\n" +
+                        "country:        EU\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "created:       2011-07-28T00:35:42Z\n" +
+                        "last-modified: 2019-02-28T10:14:46Z\n" +
+                        "source:         TEST");
+
+        databaseHelper.addObject(
+                "inetnum:       193.0.10.0 - 193.0.11.255\n" +
+                        "netname:        test" +
+                        "descr:          issue causing IP\n" +
+                        "country:        EU\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "created:       2011-07-28T00:35:42Z\n" +
+                        "last-modified: 2019-02-28T10:14:46Z\n" +
+                        "source:         TEST");
+
+        databaseHelper.addObject(
+                "inetnum:       193.0.12.0 - 193.0.13.255\n" +
+                        "netname:        test" +
+                        "descr:          issue causing IP\n" +
+                        "country:        EU\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "created:       2011-07-28T00:35:42Z\n" +
+                        "last-modified: 2019-02-28T10:14:46Z\n" +
+                        "source:         TEST");
+
+        databaseHelper.addObject(
+                "inetnum:       193.0.14.0 - 193.0.15.255\n" +
+                        "netname:        test" +
+                        "descr:          issue causing IP\n" +
+                        "country:        EU\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "status:         ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "created:       2011-07-28T00:35:42Z\n" +
+                        "last-modified: 2019-02-28T10:14:46Z\n" +
+                        "source:         TEST");
+
+        ipTreeUpdater.rebuild();
+
+        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/193.0.0.0/20")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        final List<Ip> ipResults = searchResult.getIpSearchResults();
+        assertThat(ipResults.size(), is(6));
+        assertThat(ipResults.getFirst().getHandle(), is("193.0.8.0 - 193.0.8.255"));
+        assertThat(ipResults.get(1).getHandle(), is("193.0.9.0 - 193.0.9.255"));
+        assertThat(ipResults.get(2).getHandle(), is("193.0.10.0 - 193.0.11.255"));
+        assertThat(ipResults.get(3).getHandle(), is("193.0.12.0 - 193.0.13.255"));
+        assertThat(ipResults.get(4).getHandle(), is("193.0.0.0 - 193.0.7.255"));
+        assertThat(ipResults.getLast().getHandle(), is("193.0.14.0 - 193.0.15.255"));
+    }
+
+    @Test
     public void bottom_with_status_then_501(){
 
         final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
