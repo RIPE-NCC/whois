@@ -19,6 +19,7 @@ import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rdap.domain.Event;
 import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.Link;
+import net.ripe.db.whois.api.rdap.domain.LinkRelationType;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
@@ -1762,33 +1763,33 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity, containsString("\"handle\" : \"AS102\""));
         assertThat(entity, containsString("\"links\" : [ {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                "    \"rel\" : \"up\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102\",\n" +
+                "    \"rel\" : \"rdap-up\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102\",\n" +
                 "    \"title\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                "    \"rel\" : \"up-active\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102?status=active\",\n" +
+                "    \"rel\" : \"rdap-up rdap-active\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102?status=active\",\n" +
                 "    \"title\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                "    \"rel\" : \"down\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/down/AS102\",\n" +
+                "    \"rel\" : \"rdap-down\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-down/AS102\",\n" +
                 "    \"title\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                "    \"rel\" : \"top\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/top/AS102\",\n" +
+                "    \"rel\" : \"rdap-top\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102\",\n" +
                 "    \"title\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                "    \"rel\" : \"top-active\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/top/AS102?status=active\",\n" +
+                "    \"rel\" : \"rdap-top rdap-active\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102?status=active\",\n" +
                 "    \"title\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                "    \"rel\" : \"bottom\",\n" +
-                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/bottom/AS102\",\n" +
+                "    \"rel\" : \"rdap-bottom\",\n" +
+                "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-bottom/AS102\",\n" +
                 "    \"title\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
@@ -1816,33 +1817,34 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity,
                 containsString("\"links\" : [ {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                        "    \"rel\" : \"up\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102\",\n" +
+                        "    \"rel\" : \"rdap-up\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102\",\n" +
                         "    \"title\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                        "    \"rel\" : \"up-active\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/up/AS102?status=active\",\n" +
+                        "    \"rel\" : \"rdap-up rdap-active\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102?status=active\",\n" +
                         "    \"title\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                        "    \"rel\" : \"down\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/down/AS102\",\n" +
+                        "    \"rel\" : \"rdap-down\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-down/AS102\",\n" +
                         "    \"title\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                        "    \"rel\" : \"top\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/top/AS102\",\n" +
+                        "    \"rel\" : \"rdap-top\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102\",\n" +
                         "    \"title\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                        "    \"rel\" : \"top-active\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/top/AS102?status=active\",\n" +
+                        "    \"rel\" : \"rdap-top rdap-active\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102?status=active\"," +
+                        "\n" +
                         "    \"title\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
-                        "    \"rel\" : \"bottom\",\n" +
-                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/bottom/AS102\",\n" +
+                        "    \"rel\" : \"rdap-bottom\",\n" +
+                        "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-bottom/AS102\",\n" +
                         "    \"title\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
@@ -3293,7 +3295,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void get_up_autnum_then_501(){
         final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
-            createResource("autnums/rirSearch1/up/AS123")
+            createResource("autnums/rirSearch1/rdap-up/AS123")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3307,7 +3309,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_up_then_parent(){
         loadIpv4RelationTreeExample();
 
-        final Ip ip = createResource("ips/rirSearch1/up/192.0.2.0/28")
+        final Ip ip = createResource("ips/rirSearch1/rdap-up/192.0.2.0/28")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3321,7 +3323,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_up_active_status_then_parent(){
         loadIpv4RelationTreeExample();
 
-        final Ip ip = createResource("ips/rirSearch1/up/192.0.2.0/28?status=active")
+        final Ip ip = createResource("ips/rirSearch1/rdap-up/192.0.2.0/28?status=active")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3336,7 +3338,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("ips/rirSearch1/up/192.0.2.0/24")
+            createResource("ips/rirSearch1/rdap-up/192.0.2.0/24")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3349,7 +3351,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void get_wrong_key_parameter_then_400(){
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("ips/rirSearch1/up/192.0.2")
+            createResource("ips/rirSearch1/rdap-up/192.0.2")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3364,7 +3366,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_ipv6_up_then_parent(){
         loadIpv6RelationTreeExample();
 
-        final Ip ip = createResource("ips/rirSearch1/up/2001:db8::/32")
+        final Ip ip = createResource("ips/rirSearch1/rdap-up/2001:db8::/32")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3380,7 +3382,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
 
-        final Domain domain = createResource("domains/rirSearch1/up/1.2.0.192.in-addr.arpa")
+        final Domain domain = createResource("domains/rirSearch1/rdap-up/1.2.0.192.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
@@ -3396,7 +3398,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationDomainExample();
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("domains/rirSearch1/up/0.192.in-addr.arpa")
+            createResource("domains/rirSearch1/rdap-up/0.192.in-addr.arpa")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3425,11 +3427,11 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Ip topIp = createResource("ips/rirSearch1/top/193.0.6.15")
+        final Ip topIp = createResource("ips/rirSearch1/rdap-top/193.0.6.15")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        final Ip upIp = createResource("ips/rirSearch1/up/193.0.6.15")
+        final Ip upIp = createResource("ips/rirSearch1/rdap-up/193.0.6.15")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3458,11 +3460,11 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         );
         ipTreeUpdater.rebuild();
 
-        final Ip topIp = createResource("ips/rirSearch1/top/2001:2002:2003::")
+        final Ip topIp = createResource("ips/rirSearch1/rdap-top/2001:2002:2003::")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        final Ip upIp = createResource("ips/rirSearch1/up/2001:2002:2003::")
+        final Ip upIp = createResource("ips/rirSearch1/rdap-up/2001:2002:2003::")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3479,7 +3481,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_top_then_less_specific_allocated_assigned_first_parent(){
         loadIpv4RelationTreeExample();
 
-        final Ip ip = createResource("ips/rirSearch1/top/192.0.2.0/28")
+        final Ip ip = createResource("ips/rirSearch1/rdap-top/192.0.2.0/28")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3505,7 +3507,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
 
-        final Ip ip = createResource("ips/rirSearch1/top/2001:db8::/32")
+        final Ip ip = createResource("ips/rirSearch1/rdap-top/2001:db8::/32")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3519,7 +3521,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
 
-        final Domain domain = createResource("domains/rirSearch1/top/1.2.0.192.in-addr.arpa")
+        final Domain domain = createResource("domains/rirSearch1/rdap-top/1.2.0.192.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
@@ -3534,7 +3536,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationDomainExample();
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("domains/rirSearch1/top/0.192.in-addr.arpa")
+            createResource("domains/rirSearch1/rdap-top/0.192.in-addr.arpa")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3563,7 +3565,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "source:         TEST");
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("ips/rirSearch1/top/2000::/3")
+            createResource("ips/rirSearch1/rdap-top/2000::/3")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3592,7 +3594,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Ip ip = createResource("ips/rirSearch1/top/2000::/3")
+        final Ip ip = createResource("ips/rirSearch1/rdap-top/2000::/3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3605,7 +3607,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
 
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("ips/rirSearch1/top/192.0.2.0/24")
+            createResource("ips/rirSearch1/rdap-top/192.0.2.0/24")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3621,7 +3623,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_bottom_then_bottom(){
         loadIpv4RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/192.0.2.0/24")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-bottom/192.0.2.0/24")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3640,7 +3642,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_bottom_ipv6_then_bottom(){
         loadIpv6RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/2000::/3")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-bottom/2000::/3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3660,7 +3662,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_bottom_ipv6_cover_parent_then_bottom(){
         loadIpv6RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/FC00::/7")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-bottom/FC00::/7")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3676,7 +3678,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_bottom_from_root_parent_then_bottom(){
         loadIpv6RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/::/0")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-bottom/::/0")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3700,7 +3702,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
 
-        final SearchResult searchResult = createResource("domains/rirSearch1/bottom/0.192.in-addr.arpa")
+        final SearchResult searchResult = createResource("domains/rirSearch1/rdap-bottom/0.192.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3716,7 +3718,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
 
-        final SearchResult searchResult = createResource("domains/rirSearch1/bottom/1.2.0.192.in-addr.arpa")
+        final SearchResult searchResult = createResource("domains/rirSearch1/rdap-bottom/1.2.0.192.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3729,7 +3731,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_non_existing_bottom_then_empty_response(){
         loadIpv4RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/192.0.2.0/32")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-bottom/192.0.2.0/32")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3743,7 +3745,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_bottom_wrong_type_then_400(){
 
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("ip/rirSearch1/bottom/192.0.2.0/24")
+            createResource("ip/rirSearch1/rdap-bottom/192.0.2.0/24")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
         });
@@ -3797,7 +3799,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/37.210.0.0%20-%2037.211.255.255")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-bottom/37.210.0.0%20-%2037.211.255.255")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
 
@@ -3904,7 +3906,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/bottom/193.0.0.0/20")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-bottom/193.0.0.0/20")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3922,7 +3924,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void bottom_with_status_then_501(){
 
         final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
-            createResource("ip/rirSearch1/bottom/192.0.2.0/24?status=active")
+            createResource("ip/rirSearch1/rdap-bottom/192.0.2.0/24?status=active")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -3936,7 +3938,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_down_then_immediate_child(){
         loadIpv4RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/down/192.0.2.0/24")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-down/192.0.2.0/24")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3952,7 +3954,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_down_ipv6_then_immediate_child(){
         loadIpv6RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/down/2000::/3")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-down/2000::/3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3971,7 +3973,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
 
-        final SearchResult searchResult = createResource("domains/rirSearch1/down/0.192.in-addr.arpa")
+        final SearchResult searchResult = createResource("domains/rirSearch1/rdap-down/0.192.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3986,7 +3988,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
         loadIpv4RelationDomainExample();
 
-        final SearchResult searchResult = createResource("domains/rirSearch1/down/1.2.0.192.in-addr.arpa")
+        final SearchResult searchResult = createResource("domains/rirSearch1/rdap-down/1.2.0.192.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -3999,7 +4001,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void get_down_when_no_child_then_empty_response(){
         loadIpv4RelationTreeExample();
 
-        final SearchResult searchResult = createResource("ips/rirSearch1/down/192.0.2.0/32")
+        final SearchResult searchResult = createResource("ips/rirSearch1/rdap-down/192.0.2.0/32")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -4013,7 +4015,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     public void down_with_status_then_501(){
 
         final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
-            createResource("ip/rirSearch1/down/192.0.2.0/24?status=inactive")
+            createResource("ip/rirSearch1/rdap-down/192.0.2.0/24?status=inactive")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
@@ -4051,7 +4053,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(relationCalls.size(), is(6));
 
         //TOP (By default active)
-        final Ip topIp = createResource(relationCalls.get(RelationType.TOP.name()))
+        final Ip topIp = createResource(relationCalls.get(RelationType.TOP.getValue()))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -4059,7 +4061,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
 
         //TOP active
-        final Ip topActiveIp = createResource(relationCalls.get("TOP-ACTIVE"))
+        final Ip topActiveIp = createResource(relationCalls.get(LinkRelationType.concat(LinkRelationType.TOP, LinkRelationType.ACTIVE)))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -4067,7 +4069,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
 
         //BOTTOM
-        final SearchResult bottomSearchResult = createResource(relationCalls.get(RelationType.BOTTOM.name()))
+        final SearchResult bottomSearchResult = createResource(relationCalls.get(RelationType.BOTTOM.getValue()))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -4077,7 +4079,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(bottomIpResults.get(1).getHandle(), is("192.0.2.0 - 192.0.2.15")); //28
 
         //DOWN
-        final SearchResult downSearchResult = createResource(relationCalls.get(RelationType.DOWN.name()))
+        final SearchResult downSearchResult = createResource(relationCalls.get(RelationType.DOWN.getValue()))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
@@ -4086,14 +4088,14 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(bottomIpResults.getFirst().getHandle(), is("192.0.2.0 - 192.0.2.0")); //32
 
         //UP (by default active)
-        final Ip upIp = createResource(relationCalls.get(RelationType.UP.name()))
+        final Ip upIp = createResource(relationCalls.get(RelationType.UP.getValue()))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
         assertThat(upIp.getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
 
         //UP active
-        final Ip upActiveIp = createResource(relationCalls.get("UP-ACTIVE"))
+        final Ip upActiveIp = createResource(relationCalls.get(LinkRelationType.concat(LinkRelationType.UP, LinkRelationType.ACTIVE)))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
