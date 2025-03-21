@@ -46,6 +46,10 @@
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-scheduler</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-smtp</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
