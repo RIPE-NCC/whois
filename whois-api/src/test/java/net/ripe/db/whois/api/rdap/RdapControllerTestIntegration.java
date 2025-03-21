@@ -3289,7 +3289,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
 
-    //up
+    // up
     @Test
     public void get_up_autnum_then_501(){
         final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
@@ -3404,6 +3404,41 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorTitle(notFoundException, "404 Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
         assertErrorDescription(notFoundException, "No up level object has been found for 192.0.0.0/16");
+    }
+
+    @Test
+    public void if_top_then_up(){
+        loadIpv4RelationTreeExample();
+
+        databaseHelper.addObject("" +
+                "inetnum:      193.0.0.0 - 193.0.23.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "language:     en\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       ALLOCATED PA\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        
+
+        ipTreeUpdater.rebuild();
+
+        final Ip topIp = createResource("ips/rirSearch1/top/193.0.6.15")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        final Ip upIp = createResource("ips/rirSearch1/up/193.0.6.15")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(topIp.getHandle(), is(upIp.getHandle()));
+        assertThat(topIp.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults", "geofeed1",
+                "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
+
     }
 
 
