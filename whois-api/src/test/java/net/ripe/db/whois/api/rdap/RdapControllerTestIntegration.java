@@ -3475,6 +3475,19 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
     }
 
+    @Test
+    public void get_up_with_non_active_status_then_501(){
+        final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
+            createResource("ips/rirSearch1/rdap-up/192.0.2.0/28?status=administrative")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        });
+
+        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
+        assertErrorDescription(notImplementedException, "administrative status is not implemented");
+    }
+
 
     // Top
     @Test
@@ -3482,6 +3495,19 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         loadIpv4RelationTreeExample();
 
         final Ip ip = createResource("ips/rirSearch1/rdap-top/192.0.2.0/28")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255")); // /24
+        assertThat(ip.getRdapConformance(), containsInAnyOrder("ips", "ipSearchResults", "rirSearch1", "geofeed1",
+                "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
+
+    @Test
+    public void get_top_active_status_then_less_specific_allocated_assigned_first_parent(){
+        loadIpv4RelationTreeExample();
+
+        final Ip ip = createResource("ips/rirSearch1/rdap-top/192.0.2.0/28?status=active")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3617,6 +3643,18 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(notFoundException, "No top-level object has been found for 192.0.2.0/24");
     }
 
+    @Test
+    public void get_top_with_non_active_status_then_501(){
+        final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
+            createResource("ips/rirSearch1/rdap-top/192.0.2.0/28?status=administrative")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        });
+
+        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
+        assertErrorDescription(notImplementedException, "administrative status is not implemented");
+    }
 
     // Bottom
     @Test
@@ -4021,7 +4059,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         });
         assertErrorTitle(notImplementedException, "501 Not Implemented");
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
-        assertErrorDescription(notImplementedException, "Inactive status is not implemented");
+        assertErrorDescription(notImplementedException, "Status is not implement in down and bottom relation");
     }
     // Links
 
