@@ -3427,11 +3427,11 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Ip topIp = createResource("ips/rirSearch1/top/193.0.6.15")
+        final Ip topIp = createResource("ips/rirSearch1/rdap-top/193.0.6.15")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        final Ip upIp = createResource("ips/rirSearch1/up/193.0.6.15")
+        final Ip upIp = createResource("ips/rirSearch1/rdap-up/193.0.6.15")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -3460,11 +3460,11 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         );
         ipTreeUpdater.rebuild();
 
-        final Ip topIp = createResource("ips/rirSearch1/top/2001:2002:2003::")
+        final Ip topIp = createResource("ips/rirSearch1/rdap-top/2001:2002:2003::")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
-        final Ip upIp = createResource("ips/rirSearch1/up/2001:2002:2003::")
+        final Ip upIp = createResource("ips/rirSearch1/rdap-up/2001:2002:2003::")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -4061,7 +4061,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
 
         //TOP active
-        final Ip topActiveIp = createResource(relationCalls.get(LinkRelationType.concatActiveLinkRelation(LinkRelationType.TOP)))
+        final Ip topActiveIp = createResource(relationCalls.get(LinkRelationType.concat(LinkRelationType.TOP, LinkRelationType.ACTIVE)))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 
@@ -4095,7 +4095,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(upIp.getHandle(), is("192.0.2.0 - 192.0.2.255")); //24
 
         //UP active
-        final Ip upActiveIp = createResource(relationCalls.get(LinkRelationType.concatActiveLinkRelation(LinkRelationType.UP)))
+        final Ip upActiveIp = createResource(relationCalls.get(LinkRelationType.concat(LinkRelationType.UP, LinkRelationType.ACTIVE)))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 

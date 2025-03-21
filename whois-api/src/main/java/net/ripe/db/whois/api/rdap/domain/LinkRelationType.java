@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.rdap.domain;
 
+import java.util.Arrays;
+
 public enum LinkRelationType {
     UP("rdap-up"),
     TOP("rdap-top"),
@@ -17,8 +19,8 @@ public enum LinkRelationType {
         return value;
     }
 
-    public static String concatActiveLinkRelation(final LinkRelationType type) {
-        return type.value.concat(" ").concat(ACTIVE.getValue());
+    public static String concat(final LinkRelationType ... types) {
+        return String.join(" ", Arrays.stream(types).map(LinkRelationType::getValue).toList());
     }
 
     public static boolean containsValidValue(final String value) {
