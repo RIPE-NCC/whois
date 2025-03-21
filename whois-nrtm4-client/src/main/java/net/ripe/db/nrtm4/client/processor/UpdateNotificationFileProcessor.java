@@ -106,14 +106,13 @@ public class UpdateNotificationFileProcessor {
             }
 
             if (nrtmClientLastVersionInfo != null && !nrtmClientLastVersionInfo.sessionID().equals(updateNotificationFile.getSessionID())) {
-                LOGGER.info("Different session");
+                LOGGER.error("Different session");
                 snapshotImporter.truncateTables();
                 return;
             }
 
             if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()) {
-                LOGGER.info("The local version cannot be higher than the update notification version {}", source);
-                snapshotImporter.truncateTables();
+                LOGGER.error("The local version cannot be higher than the update notification version {}", source);
                 return;
             }
 
