@@ -208,23 +208,32 @@ public class RdapRelationService {
     }
 
     private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
-        final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp);;
+        final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp); //Exact only if exists
 
-        for (int countLessSpecific = 0; countLessSpecific < lessAndExact.size() - 1; countLessSpecific++){
-            final IpEntry ipEntry = lessAndExact.get(countLessSpecific);
-
-            final IpInterval childIpInterval = (IpInterval)lessAndExact.get(countLessSpecific+1).getKey();
-            if (existAndNoAdministrative(childIpInterval, ipEntry)){
-                return ipEntry;
+        for (int countLessSpecific = 0; countLessSpecific < lessAndExact.size(); countLessSpecific++){
+            final IpEntry lessSpecific = lessAndExact.get(countLessSpecific);
+            if (searchIp.contains(lessSpecific.getKey())){
+                break;
+            }
+            final IpInterval childIpInterval = getChildInterval(lessAndExact, countLessSpecific);
+            if (existAndNoAdministrative(childIpInterval, lessSpecific)){
+                return lessSpecific;
             }
         }
         throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
     }
 
+    @Nullable
+    private IpInterval getChildInterval(final List<IpEntry> lessAndExact, final int countLessSpecific) {
+        return lessAndExact.size() > countLessSpecific +1 ?
+                intervalToIpInterval(lessAndExact.get(countLessSpecific +1).getKey()) :
+                null;
+    }
+
     private boolean existAndNoAdministrative(final IpInterval searchIp, final IpEntry firstLessSpecific){
-        final RpslObject child = getResourceByKey(searchIp);
-        final RpslObject rpslObject = getResourceByKey((IpInterval) firstLessSpecific.getKey());
-        if (child == null || rpslObject == null) {
+        final RpslObject child = searchIp == null ? null : getResourceByKey(searchIp); // This could happen if the searchIp inet(6)num doesn't exist
+        final RpslObject rpslObject = getResourceByKey(intervalToIpInterval(firstLessSpecific.getKey()));
+        if (rpslObject == null) {
             LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
@@ -232,11 +241,14 @@ public class RdapRelationService {
     }
 
     private boolean isAdministrativeResource(final RpslObject child, final RpslObject rpslObject) {
-        final CIString childStatus = child.getValueForAttribute(AttributeType.STATUS);
+        final CIString childStatus = child == null ? null : child.getValueForAttribute(AttributeType.STATUS);
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
-        return (rpslObject.getType() == INETNUM && InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED)
-                || (rpslObject.getType() == INET6NUM) &&
-                Inet6numStatus.getStatusFor(childStatus) == ALLOCATED_BY_RIR && Inet6numStatus.getStatusFor(statusAttributeValue) == ALLOCATED_BY_RIR;
+        return switch (rpslObject.getType()) {
+            case INETNUM ->  InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED;
+            case INET6NUM ->  (childStatus != null && Inet6numStatus.getStatusFor(childStatus) == ALLOCATED_BY_RIR)
+                    && Inet6numStatus.getStatusFor(statusAttributeValue) == ALLOCATED_BY_RIR;
+            default -> throw new IllegalStateException("Unexpected value: " + rpslObject.getType());
+        };
     }
 
 
