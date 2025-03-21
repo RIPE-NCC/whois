@@ -1,0 +1,2 @@
+{"nrtm_version":4,"type":"delta","source":"RIPE-NONAUTH","session_id":"6328095e-7d46-415b-9333-8f2ae274b7c8","version":3}
+{"action":"delete","object_class":"route6","primary_key":"2001:490:f000::/36AS1248"}

@@ -111,7 +111,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
         }
     }
 
-    protected List<NrtmClientVersionInfo> getNrtmLastSnapshotVersion(){
+    protected List<NrtmClientVersionInfo> getNrtmLastFileVersion(final NrtmClientDocumentType nrtmClientDocumentType){
         final String sql = """
             SELECT id, source, MAX(version), session_id, type, hostname, created
             FROM version_info
@@ -127,7 +127,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
                     NrtmClientDocumentType.fromValue(rs.getString(5)),
                     rs.getString(6),
                     rs.getLong(7)
-            ), NrtmClientDocumentType.SNAPSHOT.getFileNamePrefix());
+            ), nrtmClientDocumentType.getFileNamePrefix());
     }
 
 }
