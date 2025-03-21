@@ -3407,8 +3407,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void if_top_then_up(){
-        loadIpv4RelationTreeExample();
+    public void if_inetnum_top_then_up(){
 
         databaseHelper.addObject("" +
                 "inetnum:      193.0.0.0 - 193.0.23.255\n" +
@@ -3422,7 +3421,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:       TEST");
-        
+
 
         ipTreeUpdater.rebuild();
 
@@ -3431,6 +3430,39 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Ip.class);
 
         final Ip upIp = createResource("ips/rirSearch1/up/193.0.6.15")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(topIp.getHandle(), is(upIp.getHandle()));
+        assertThat(topIp.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults", "geofeed1",
+                "cidr0", "rdap_level_0",
+                "nro_rdap_profile_0", "redacted"));
+
+    }
+
+    @Test
+    public void if_inet6num_top_then_up(){
+
+        databaseHelper.addObject(
+                "inet6num:       2001:2002:2003::/48\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ALLOCATED-BY-RIR\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
+                        "source:         TEST"
+        );
+        ipTreeUpdater.rebuild();
+
+        final Ip topIp = createResource("ips/rirSearch1/top/2001:2002:2003::")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        final Ip upIp = createResource("ips/rirSearch1/up/2001:2002:2003::")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Ip.class);
 

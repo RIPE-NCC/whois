@@ -214,13 +214,13 @@ public class RdapRelationService {
         final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp); //Exact only if exists
 
         for (int countLessSpecific = 0; countLessSpecific < lessAndExact.size(); countLessSpecific++){
-            final IpEntry ipEntry = lessAndExact.get(countLessSpecific);
-            if (searchIp.contains(ipEntry.getKey())){
+            final IpEntry lessSpecific = lessAndExact.get(countLessSpecific);
+            if (searchIp.contains(lessSpecific.getKey())){
                 break;
             }
             final IpInterval childIpInterval = getChildInterval(lessAndExact, countLessSpecific);
-            if (existAndNoAdministrative(childIpInterval, ipEntry)){
-                return ipEntry;
+            if (existAndNoAdministrative(childIpInterval, lessSpecific)){
+                return lessSpecific;
             }
         }
         throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
