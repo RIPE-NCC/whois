@@ -4019,7 +4019,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         });
         assertErrorTitle(notImplementedException, "501 Not Implemented");
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
-        assertErrorDescription(notImplementedException, "Inactive status is not implemented");
+        assertErrorDescription(notImplementedException, "Status is not implement in down and bottom relation");
     }
     // Links
 

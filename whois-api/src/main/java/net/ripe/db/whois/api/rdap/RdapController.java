@@ -238,17 +238,8 @@ public class RdapController {
             @QueryParam("status") String status) {
 
         final RelationType relation = RelationType.fromValue(relationType);
-        //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
-        // given or status is inactive...include administrative resources in the output. However, if status is active
-        // return just non administrative resources, as we are doing now.
-        if ("inactive".equalsIgnoreCase(status)) {
-            throw new RdapException("501 Not Implemented", "Inactive status is not implemented", HttpStatus.NOT_IMPLEMENTED_501);
-        }
 
-        if (!StringUtil.isNullOrEmpty(status) && (relation.equals(RelationType.DOWN) || relation.equals(RelationType.BOTTOM))){
-            throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
-        }
-
+        validateStatus(status, relation);
         validateKey(request, requestType, key);
 
         final Set<ObjectType> objectTypes = requestType.getWhoisObjectTypes(key);
@@ -265,6 +256,23 @@ public class RdapController {
                 .build();
     }
 
+
+    private void validateStatus(final String status, final RelationType relation){
+        //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
+        // given or status is inactive...include administrative resources in the output. However, if status is active
+        // return just non administrative resources, as we are doing now.
+        if (StringUtil.isNullOrEmpty(status)){
+            return;
+        }
+
+        if (relation.equals(RelationType.DOWN) || relation.equals(RelationType.BOTTOM)){
+            throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
+        }
+
+        if (!("active".equalsIgnoreCase(status))) {
+            throw new RdapException("501 Not Implemented", String.format("%s status is not implemented", status), HttpStatus.NOT_IMPLEMENTED_501);
+        }
+    }
 
     private void validateKey(final HttpServletRequest request, final RdapRequestType requestType, final String key){
         switch (requestType) {
