@@ -20,6 +20,7 @@ import net.ripe.db.whois.api.rdap.domain.Event;
 import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.IpCidr0;
 import net.ripe.db.whois.api.rdap.domain.Link;
+import net.ripe.db.whois.api.rdap.domain.LinkRelationType;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
@@ -812,23 +813,25 @@ public class RdapObjectMapper {
     }
 
     private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.UP.getValue(),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.UP.getValue(),
                 buildRirSearchUri(objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, "up-active",
-                buildRirSearchUri(objectType, RelationType.UP.getValue(), handle).concat("?status=active"), APPLICATION_RDAP_JSON, null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.concat(LinkRelationType.UP, LinkRelationType.ACTIVE),
+                buildRirSearchUri(objectType, RelationType.UP.getValue(), handle).concat("?status=active"),
+                APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.DOWN.getValue(),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.DOWN.getValue(),
                 buildRirSearchUri(objectType, RelationType.DOWN.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.TOP.getValue(),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.TOP.getValue(),
                 buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, "top-active",
+        rdapResponse.getLinks().add(new Link(requestUrl,
+                LinkRelationType.concat(LinkRelationType.TOP, LinkRelationType.ACTIVE),
                 buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle).concat("?status=active"), APPLICATION_RDAP_JSON, null,
                 null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.BOTTOM.getValue(),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.BOTTOM.getValue(),
                 buildRirSearchUri(objectType, RelationType.BOTTOM.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
     }
 

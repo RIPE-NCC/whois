@@ -5011,7 +5011,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       SUB-ALLOCATED PA
+                status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
@@ -5023,7 +5023,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
+                status:       SUB-ALLOCATED PA
                 mnt-by:       END-USER-MNT
                 source:       TEST
                 override: denis,override1
@@ -5049,7 +5049,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.255.255") == [
                 "status value cannot be changed, you must delete and re-create the object",
-                "Status SUB-ALLOCATED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status LEGACY"]
+                "Status LIR-PARTITIONED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status LEGACY"]
         ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.255.255") == [
                 "Authorisation override used"]
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
@@ -5057,8 +5057,8 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 "Authorisation override used"]
 
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ALLOCATED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "SUB-ALLOCATED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "LIR-PARTITIONED PA")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "SUB-ALLOCATED PA")
     }
 
     def "delete and re-create 3 objects, change status"() {
