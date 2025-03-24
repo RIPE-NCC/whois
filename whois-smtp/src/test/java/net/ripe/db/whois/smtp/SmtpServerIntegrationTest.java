@@ -89,4 +89,16 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
         assertThat(result.getContent(), is("RPSL object\n.\n"));    // decoded single period
     }
 
+    @Test
+    public void invalidCommand() throws Exception {
+        final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
+        assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
+
+        smtpClient.writeLine("HELO");
+
+        assertThat(smtpClient.readLine(), is("501 Syntactically invalid HELO argument(s)"));
+        smtpClient.writeLine("QUIT");
+        assertThat(smtpClient.readLine(), startsWith("221 "));
+    }
+
 }

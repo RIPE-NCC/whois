@@ -1,7 +1,6 @@
 package net.ripe.db.whois.smtp;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -46,7 +45,7 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void handleException(final Channel channel, final SmtpResponse smtpResponse) {
-        channel.writeAndFlush(smtpResponse).addListener(ChannelFutureListener.CLOSE);
+        channel.writeAndFlush(smtpResponse);
     }
 
 }
