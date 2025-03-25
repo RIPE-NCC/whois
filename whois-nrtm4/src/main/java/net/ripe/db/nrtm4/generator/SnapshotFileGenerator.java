@@ -4,9 +4,9 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.nrtm4.GzipOutStreamWriter;
-import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
-import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
+import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
+import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
@@ -86,6 +86,10 @@ public class SnapshotFileGenerator {
                 .map( source -> getNewVersion(source, sourceVersions, snapshotState.serialId()))
                 .collect(Collectors.toList());
 
+        if (sourceToNewVersion.isEmpty()){
+            return;
+        }
+
         final Map<CIString, byte[]> sourceToOutputBytes = writeToGzipStream(snapshotState, sourceToNewVersion);
 
         saveToDatabase(sourceToNewVersion, sourceToOutputBytes);
@@ -137,7 +141,9 @@ public class SnapshotFileGenerator {
             sourceResources.values().forEach(GzipOutStreamWriter::close);
         }
 
-        return  sourceResources.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().getOutputstream().toByteArray()));
+        return sourceResources.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().getOutputstream().toByteArray()));
     }
 
     private boolean canProceed(final List<NrtmVersionInfo> sourceVersions, final NrtmSource source) {
