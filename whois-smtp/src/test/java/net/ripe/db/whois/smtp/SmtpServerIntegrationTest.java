@@ -19,14 +19,14 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
 
     @BeforeAll
     public static void setupStmpServer() {
-        System.setProperty("smtp.enabled", "true");
-        System.setProperty("smtp.maximum.size", "100");
+        System.setProperty("mail.smtp.server.enabled", "true");
+        System.setProperty("mail.smtp.server.maximum.size", "100");
     }
 
     @AfterAll
     public static void teardownStmpServer() {
-        System.clearProperty("smtp.enabled");
-        System.clearProperty("smtp.maximum.size");
+        System.clearProperty("mail.smtp.server.enabled");
+        System.clearProperty("mail.smtp.server.maximum.size");
     }
 
     @BeforeEach

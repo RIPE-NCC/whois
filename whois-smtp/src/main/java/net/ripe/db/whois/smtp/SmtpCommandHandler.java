@@ -46,7 +46,7 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
             @Lazy final SmtpDataHandler smtpDataHandler,
             final SmtpLog smtpLog,
             final ApplicationVersion applicationVersion,
-            @Value("${smtp.maximum.size:0}") final int maximumSize) {
+            @Value("${mail.smtp.server.maximum.size:0}") final int maximumSize) {
         this.smtpLog = smtpLog;
         this.applicationVersion = applicationVersion;
         this.smtpDataHandler = smtpDataHandler;

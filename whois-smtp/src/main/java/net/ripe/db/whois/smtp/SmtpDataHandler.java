@@ -44,7 +44,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
     public SmtpDataHandler(
             final MailMessageDao mailMessageDao,
             @Lazy final SmtpCommandHandler commandHandler,
-            @Value("${smtp.maximum.size:0}") final int maximumSize,
+            @Value("${mail.smtp.server.maximum.size:0}") final int maximumSize,
             final SmtpLog smtpLog) {
         this.mailMessageDao = mailMessageDao;
         this.commandHandler = commandHandler;
