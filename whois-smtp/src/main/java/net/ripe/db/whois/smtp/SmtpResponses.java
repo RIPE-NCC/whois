@@ -20,12 +20,21 @@ public class SmtpResponses {
         return new DefaultSmtpResponse(250, String.format("%s Hello %s", Hosts.getInstanceName(), value));
     }
 
-    public static SmtpResponse extendedHello(final CharSequence value) {
-        return new DefaultSmtpResponse(
-                250,
-                    String.format("%s Hello %s", Hosts.getInstanceName(), value),
-                    "8BITMIME",
-                    "HELP");
+    public static SmtpResponse extendedHello(final CharSequence domain, final Integer maximumSize) {
+        if (maximumSize > 0) {
+            return new DefaultSmtpResponse(
+                    250,
+                        String.format("%s Hello %s", Hosts.getInstanceName(), domain),
+                        String.format("SIZE %d", maximumSize),
+                        "8BITMIME",
+                        "HELP");
+        } else {
+            return new DefaultSmtpResponse(
+                    250,
+                        String.format("%s Hello %s", Hosts.getInstanceName(), domain),
+                        "8BITMIME",
+                        "HELP");
+        }
     }
 
     public static SmtpResponse invalidHello() {
@@ -80,5 +89,10 @@ public class SmtpResponses {
 
     public static SmtpResponse timeout() {
         return new DefaultSmtpResponse(421, String.format("%s: SMTP command timeout - closing connection", Hosts.getInstanceName()));
+    }
+
+    public static SmtpResponse sizeExceeded() {
+        return new DefaultSmtpResponse(523, "the total message size exceeds the server limit");
+
     }
 }

@@ -22,6 +22,7 @@ import net.ripe.db.whois.smtp.request.RecipientSmtpRequest;
 import net.ripe.db.whois.smtp.request.ResetSmtpRequest;
 import net.ripe.db.whois.smtp.request.SmtpRequestBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -38,15 +39,18 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
     private final SmtpLog smtpLog;
     private final ApplicationVersion applicationVersion;
     private final SmtpDataHandler smtpDataHandler;
+    private final int maximumSize;
 
     @Autowired
     public SmtpCommandHandler(
             @Lazy final SmtpDataHandler smtpDataHandler,
             final SmtpLog smtpLog,
-            final ApplicationVersion applicationVersion) {
+            final ApplicationVersion applicationVersion,
+            @Value("${smtp.maximum.size:0}") final int maximumSize) {
         this.smtpLog = smtpLog;
         this.applicationVersion = applicationVersion;
         this.smtpDataHandler = smtpDataHandler;
+        this.maximumSize = maximumSize;
     }
 
     @Override
@@ -68,9 +72,16 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
             }
             case ExtendedHelloSmtpRequest extendedHello -> {
                 setDomain(ctx.channel(), extendedHello.parameters().get(0));
-                writeResponse(ctx.channel(), SmtpResponses.extendedHello(extendedHello.parameters().get(0)));
+                writeResponse(ctx.channel(), SmtpResponses.extendedHello(extendedHello.parameters().get(0), maximumSize));
             }
             case MailSmtpRequest mail -> {
+                if (maximumSize > 0) {
+                    final Integer size = mail.getSize();
+                    if ((size != null) && (size > maximumSize)) {
+                        writeResponse(ctx.channel(), SmtpResponses.sizeExceeded());
+                        break;
+                    }
+                }
                 setMailFrom(ctx.channel(), mail.parameters().get(0));
                 writeResponse(ctx.channel(), SmtpResponses.ok());
             }

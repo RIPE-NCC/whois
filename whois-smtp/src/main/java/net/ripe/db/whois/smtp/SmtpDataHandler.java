@@ -16,6 +16,7 @@ import net.ripe.db.whois.api.mail.dao.MailMessageDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -37,24 +38,33 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
     private final MailMessageDao mailMessageDao;
     private final SmtpCommandHandler commandHandler;
     private final SmtpLog smtpLog;
+    private final int maximumSize;
 
     @Autowired
     public SmtpDataHandler(
             final MailMessageDao mailMessageDao,
             @Lazy final SmtpCommandHandler commandHandler,
+            @Value("${smtp.maximum.size:0}") final int maximumSize,
             final SmtpLog smtpLog) {
         this.mailMessageDao = mailMessageDao;
         this.commandHandler = commandHandler;
         this.smtpLog = smtpLog;
+        this.maximumSize = maximumSize;
     }
 
     @Override
 	public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         if (isEndMessage((ByteBuf) msg)) {
-            smtpLog.log(ctx.channel(), "(END DATA)");
-            writeMessageToDatabase(ctx.channel());
-            writeResponse(ctx.channel(), SmtpResponses.okId(ctx.channel().id().asShortText()));
-            ctx.pipeline().replace("data-handler", "command-handler", commandHandler);
+            if ((maximumSize > 0) && (getMessageLength(ctx.channel()) > maximumSize)) {
+                smtpLog.log(ctx.channel(), "(END DATA: TOO LONG)");
+                writeResponse(ctx.channel(), SmtpResponses.sizeExceeded());
+            } else {
+                smtpLog.log(ctx.channel(), "(END DATA)");
+                writeMessageToDatabase(ctx.channel());
+                writeResponse(ctx.channel(), SmtpResponses.okId(ctx.channel().id().asShortText()));
+            }
+            clearMessage(ctx.channel());
+            switchToCommandHandler(ctx);
         } else {
     	    final byte[] bytes = readMessageFromChannel((ByteBuf) msg);
             appendToMessage(ctx, bytes);
@@ -110,6 +120,11 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    private int getMessageLength(final Channel channel) {
+        final ByteArrayOutputStream builder = channel.attr(DATA).get();
+        return (builder == null) ? 0 : builder.size();
+    }
+
     public void clearMessage(final Channel channel) {
         channel.attr(DATA).set(null);
     }
@@ -131,5 +146,9 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter {
         }
 
         channel.writeAndFlush(smtpResponse);
+    }
+
+    private void switchToCommandHandler(final ChannelHandlerContext ctx) {
+        ctx.pipeline().replace("data-handler", "command-handler", commandHandler);
     }
 }

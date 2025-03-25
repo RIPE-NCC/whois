@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MailSmtpRequestTest {
@@ -26,30 +27,57 @@ public class MailSmtpRequestTest {
 
         assertThat(mailSmtpRequest.command(), is(SmtpCommand.MAIL));
         assertThat(mailSmtpRequest.parameters(), contains("user@example.com", null));
+        assertThat(mailSmtpRequest.getFrom(), is("user@example.com"));
+        assertThat(mailSmtpRequest.getSize(), is(nullValue()));
     }
 
     @Test
-    public void mail_from_space() {
+    public void mail_from_with_space() {
         final MailSmtpRequest mailSmtpRequest = new MailSmtpRequest("MAIL FROM: <user@example.com>");
 
         assertThat(mailSmtpRequest.command(), is(SmtpCommand.MAIL));
         assertThat(mailSmtpRequest.parameters(), contains("user@example.com", null));
+        assertThat(mailSmtpRequest.getFrom(), is("user@example.com"));
+        assertThat(mailSmtpRequest.getSize(), is(nullValue()));
     }
 
     @Test
-    public void mail_from_name() {
+    public void mail_from_with_name() {
         final MailSmtpRequest mailSmtpRequest = new MailSmtpRequest("MAIL FROM: User Example <user@example.com>");
 
         assertThat(mailSmtpRequest.command(), is(SmtpCommand.MAIL));
         assertThat(mailSmtpRequest.parameters(), contains("user@example.com", null));
+        assertThat(mailSmtpRequest.getFrom(), is("user@example.com"));
+        assertThat(mailSmtpRequest.getSize(), is(nullValue()));
     }
 
     @Test
-    public void mail_from_size() {
+    public void mail_from_with_size() {
         final MailSmtpRequest mailSmtpRequest = new MailSmtpRequest("MAIL FROM:<user@example.com> SIZE=1023");
 
         assertThat(mailSmtpRequest.command(), is(SmtpCommand.MAIL));
         assertThat(mailSmtpRequest.parameters(), contains("user@example.com", "1023"));
+        assertThat(mailSmtpRequest.getFrom(), is("user@example.com"));
+        assertThat(mailSmtpRequest.getSize(), is(1023));
     }
 
+    @Test
+    public void mail_from_with_size_extra_spaces() {
+        final MailSmtpRequest mailSmtpRequest = new MailSmtpRequest("MAIL FROM:<user@example.com>    size=1023   ");
+
+        assertThat(mailSmtpRequest.command(), is(SmtpCommand.MAIL));
+        assertThat(mailSmtpRequest.parameters(), contains("user@example.com", "1023"));
+        assertThat(mailSmtpRequest.getFrom(), is("user@example.com"));
+        assertThat(mailSmtpRequest.getSize(), is(1023));
+    }
+
+    @Test
+    public void mail_from_with_invalid_size() {
+        final MailSmtpRequest mailSmtpRequest = new MailSmtpRequest("MAIL FROM:<user@example.com> SIZE=nnn");
+
+        assertThat(mailSmtpRequest.command(), is(SmtpCommand.MAIL));
+        assertThat(mailSmtpRequest.parameters(), contains("user@example.com", null));
+        assertThat(mailSmtpRequest.getFrom(), is("user@example.com"));
+        assertThat(mailSmtpRequest.getSize(), is(nullValue()));
+    }
 }
