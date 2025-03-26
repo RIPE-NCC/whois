@@ -1051,7 +1051,6 @@
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
                     <runOrder>random</runOrder>
-                    <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
                 <executions>
                     <execution>
