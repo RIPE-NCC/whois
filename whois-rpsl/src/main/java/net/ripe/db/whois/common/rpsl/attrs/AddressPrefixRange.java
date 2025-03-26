@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 
+import javax.annotation.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,6 +63,7 @@ public final class AddressPrefixRange {
         return BoundaryCheckResult.SUCCESS;
     }
 
+    @Nullable
     private BoundaryCheckResult checkType(final IpInterval other) {
         if (ipInterval instanceof Ipv4Resource && !(other instanceof Ipv4Resource)) {
             return BoundaryCheckResult.IPV4_EXPECTED;

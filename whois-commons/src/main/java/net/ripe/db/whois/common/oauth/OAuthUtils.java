@@ -1,7 +1,5 @@
-package net.ripe.db.whois.common.apiKey;
+package net.ripe.db.whois.common.oauth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -9,25 +7,33 @@ import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
-public class ApiKeyUtils {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyUtils.class);
+public class OAuthUtils {
 
     public static final String APIKEY_KEY_ID_QUERY_PARAM = "keyId";
+    public static final String OAUTH_CUSTOM_UUID_PARAM = "ripe_user_id";
+    public static final String OAUTH_CUSTOM_EMAIL_PARAM = "email";
+    public static final String OAUTH_CUSTOM_AZP_PARAM = "azp";
+    public static final String OAUTH_CUSTOM_SCOPE_PARAM = "scope";
+    public static final String OAUTH_CUSTOM_JTI_PARAM = "jti";
+
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
         if(StringUtils.isEmpty(oAuthSession.getScope())) {
             return true;
         }
 
-        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(oAuthSession.getScope());
+        final Optional<String> whoisScope = getWhoisScope(oAuthSession);
+        if(whoisScope.isEmpty()) {
+            return true;
+        }
+
+        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope.get());
 
         if(StringUtils.isEmpty(scopeFormatter.getScopeKey()) || StringUtils.isEmpty(scopeFormatter.getScopeType()) || StringUtils.isEmpty(scopeFormatter.getAppName())) {
             return true;
@@ -38,16 +44,21 @@ public class ApiKeyUtils {
                     && maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
     }
 
-    public static boolean hasValidApiKey(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
+    private static Optional<String> getWhoisScope(OAuthSession oAuthSession) {
+        final List<String> scopes = Arrays.asList(StringUtils.split(oAuthSession.getScope(), " "));
+        return scopes.stream().filter(scope -> scope.startsWith("whois")).findFirst();
+    }
+
+    public static boolean hasValidOauthSession(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
         if(oAuthSession == null || oAuthSession.getUuid() == null) {
             return false;
         }
 
-        if(Arrays.stream(oAuthSession.getAud()).noneMatch(appName -> appName.equalsIgnoreCase("whois"))) {
+        if(StringUtils.isNotEmpty(oAuthSession.getErrorStatus())) {
             return false;
         }
 
-        if(!ApiKeyUtils.validateScope(oAuthSession, maintainers)) {
+        if(!OAuthUtils.validateScope(oAuthSession, maintainers)) {
             return false;
         }
 
@@ -83,14 +94,5 @@ public class ApiKeyUtils {
         final String usernameWithPassword = new String(credDecoded, StandardCharsets.ISO_8859_1);
 
         return usernameWithPassword.contains(":") ?  StringUtils.substringBefore(usernameWithPassword, ":") : null;
-    }
-
-    public static String getOAuthSession(final OAuthSession oAuthSession) {
-        try {
-            return new ObjectMapper().writeValueAsString(oAuthSession);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to serialize OAuthSession, this should never have happened", e);
-            return null;
-        }
     }
 }

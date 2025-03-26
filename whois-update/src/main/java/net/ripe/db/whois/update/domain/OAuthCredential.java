@@ -1,19 +1,17 @@
 package net.ripe.db.whois.update.domain;
 
-import com.google.common.base.Splitter;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
-import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 
-public class APIKeyCredential implements Credential {
+public class OAuthCredential implements Credential {
 
     private final OAuthSession offeredOAuthSession;
 
-    private APIKeyCredential(final OAuthSession offeredOAuthSession) {
+    private OAuthCredential(final OAuthSession offeredOAuthSession) {
         this.offeredOAuthSession = offeredOAuthSession;
     }
 
     public static Credential createOfferedCredential(final OAuthSession offeredOAuthSession) {
-        return new APIKeyCredential(offeredOAuthSession);
+        return new OAuthCredential(offeredOAuthSession);
     }
 
     public OAuthSession getOfferedOAuthSession() {

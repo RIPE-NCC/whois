@@ -141,12 +141,6 @@ CREATE TABLE `non_auth_route_unregistered_space` (
     PRIMARY KEY (`object_pkey`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `environment`;
-CREATE TABLE `environment` (
-   `name` varchar(8) NOT NULL,
-   PRIMARY KEY (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 DROP TABLE IF EXISTS `outgoing_message`;
 CREATE TABLE `outgoing_message` (
    `message_id` varchar(80) NOT NULL,
@@ -165,6 +159,18 @@ CREATE TABLE `email_status` (
    `last_update` datetime DEFAULT now(),
    PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+DROP TABLE IF EXISTS `email_status_history`;
+CREATE TABLE `email_status_history` (
+    `email` varchar(320) NOT NULL,
+    `status` varchar(120) NOT NULL,
+    `message` longblob,
+    `history_update` datetime DEFAULT now(),
+    `email_status_update` datetime NOT NULL,
+    PRIMARY KEY (`email`, `email_status_update`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 DROP TABLE IF EXISTS `transfer_update_lock`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

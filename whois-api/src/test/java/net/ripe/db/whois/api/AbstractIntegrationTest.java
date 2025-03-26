@@ -2,6 +2,8 @@ package net.ripe.db.whois.api;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
+import net.ripe.db.whois.api.rdap.domain.Link;
+import net.ripe.db.whois.api.rdap.domain.LinkRelationType;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.apache.logging.log4j.Level;
@@ -15,6 +17,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.StringWriter;
@@ -22,7 +25,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest {
@@ -30,6 +35,9 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
     @Autowired protected List<ApplicationService> applicationServices;
 
     protected final StringWriter stringWriter = new StringWriter();
+
+    @Value("${rdap.public.baseUrl:}")
+    private String rdapBaseUrl;
 
     @BeforeEach
     public void startServer() {
@@ -95,5 +103,14 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
 
     protected String getRequestLog() {
         return stringWriter.toString();
+    }
+
+    protected Map<String, String> getRelationCallsFromLinks(final List<Link> links){
+        return links.stream()
+                .filter(link -> LinkRelationType.containsValidValue(link.getRel()))
+                .collect(Collectors.toMap(
+                        Link::getRel,
+                        link -> link.getHref().replace(rdapBaseUrl + "/", "")
+                ));
     }
 }

@@ -7,8 +7,10 @@ import net.ripe.db.whois.api.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.api.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.iptree.IpEntry;
 import net.ripe.db.whois.common.iptree.IpTree;
 import net.ripe.db.whois.common.iptree.Ipv4DomainTree;
@@ -35,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static net.ripe.db.whois.api.rdap.RdapService.COMMA_JOINER;
+import static net.ripe.db.whois.api.rdap.RdapController.COMMA_JOINER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
@@ -53,7 +55,6 @@ public class RdapRelationService {
     private final Ipv4DomainTree ipv4DomainTree;
     private final Ipv6DomainTree ipv6DomainTree;
     private final RpslObjectDao rpslObjectDao;
-    private final RdapRequestValidator rdapRequestValidator;
     private final RdapQueryHandler rdapQueryHandler;
     private final RdapObjectMapper rdapObjectMapper;
     private final RdapLookupService rdapLookupService;
@@ -64,7 +65,6 @@ public class RdapRelationService {
                                final Ipv4DomainTree ipv4DomainTree,
                                final Ipv6DomainTree ipv6DomainTree,
                                final RpslObjectDao rpslObjectDao,
-                               final RdapRequestValidator rdapRequestValidator,
                                final RdapQueryHandler rdapQueryHandler,
                                final RdapObjectMapper rdapObjectMapper,
                                final RdapLookupService rdapLookupService) {
@@ -73,7 +73,6 @@ public class RdapRelationService {
         this.ipv4DomainTree = ipv4DomainTree;
         this.ipv6DomainTree = ipv6DomainTree;
         this.rpslObjectDao = rpslObjectDao;
-        this.rdapRequestValidator = rdapRequestValidator;
         this.rdapQueryHandler = rdapQueryHandler;
         this.rdapObjectMapper = rdapObjectMapper;
         this.rdapLookupService = rdapLookupService;
@@ -87,9 +86,7 @@ public class RdapRelationService {
         final List<RpslObject> rpslObjects;
         final boolean shouldReturnLookup = relationType.equals(RelationType.UP) || relationType.equals(RelationType.TOP);
         switch (requestType) {
-            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
             case DOMAINS -> {
-                rdapRequestValidator.validateDomain(key);
                 final List<IpEntry> domainEntries = getDomainsEntriesByRelationType(key, relationType);
 
                 if (shouldReturnLookup){
@@ -111,7 +108,6 @@ public class RdapRelationService {
 
             }
             case IPS -> {
-                rdapRequestValidator.validateIp(request.getRequestURI(), key);
                 final List<String> relatedPkeys = getInetnumRelationPkeys(key, relationType);
 
                 if (shouldReturnLookup){
@@ -129,6 +125,7 @@ public class RdapRelationService {
 
         return rdapObjectMapper.mapSearch(
                 requestUrl,
+                requestType,
                 rpslObjects,
                 maxResultSize);
     }
@@ -144,7 +141,7 @@ public class RdapRelationService {
         final List<IpEntry> ipEntries = getEntries(getIpTree(ip), relationType, ip);
         return ipEntries
                 .stream()
-                .map(ipEntry -> ipEntry.getKey().toString())
+                .map(ipEntry -> transformToIpRangeString(ipEntry.getKey()))
                 .toList();
     }
 
@@ -171,8 +168,9 @@ public class RdapRelationService {
 
         mostSpecificFillingOverlaps.add(mostSpecificResource);
 
-        final IpInterval mostSpecificInterval = IpInterval.parse(mostSpecificResource.getKey().toString());
-        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificInterval);
+        final IpInterval mostSpecificIpInterval = intervalToIpInterval(mostSpecificResource.getKey());
+
+        final List<IpEntry> parentList = ipTree.findFirstLessSpecific(mostSpecificIpInterval);
 
         if (parentList.isEmpty()){
             return;
@@ -186,7 +184,7 @@ public class RdapRelationService {
         final IpEntry parent = parentList.getFirst();
         final IpInterval parentInterval = (IpInterval) parent.getKey();
 
-        if (!parentInterval.equals(searchIp) && // If the parent is already the search ip we stop
+        if (!parentInterval.contains(searchIp) && // If the parent is already (containing) the search ip we stop
                 !childrenCoverParentRange(firstSibling, lastSibling, parentInterval)){
             extractBottomMatches(ipTree, searchIp, parent, mostSpecificFillingOverlaps);
         }
@@ -198,7 +196,7 @@ public class RdapRelationService {
     }
 
     private List<IpEntry> findSiblingsAndExact(final IpTree ipTree, final List<IpEntry> parent) {
-        return ipTree.findFirstMoreSpecific(IpInterval.parse(parent.getFirst().getKey().toString()));
+        return ipTree.findFirstMoreSpecific(intervalToIpInterval(parent.getFirst().getKey()));
     }
 
     private IpEntry searchUpResource(final IpTree ipTree, final IpInterval searchIp){
@@ -210,23 +208,32 @@ public class RdapRelationService {
     }
 
     private IpEntry searchTopLevelResource(final IpTree ipTree, final IpInterval searchIp){
-        final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp);;
+        final List<IpEntry> lessAndExact = ipTree.findExactAndAllLessSpecific(searchIp); //Exact only if exists
 
-        for (int countLessSpecific = 0; countLessSpecific < lessAndExact.size() - 1; countLessSpecific++){
-            final IpEntry ipEntry = lessAndExact.get(countLessSpecific);
-
-            final IpInterval childIpInterval = (IpInterval)lessAndExact.get(countLessSpecific+1).getKey();
-            if (existAndNoAdministrative(childIpInterval, ipEntry)){
-                return ipEntry;
+        for (int countLessSpecific = 0; countLessSpecific < lessAndExact.size(); countLessSpecific++){
+            final IpEntry lessSpecific = lessAndExact.get(countLessSpecific);
+            if (searchIp.contains(lessSpecific.getKey())){
+                break;
+            }
+            final IpInterval childIpInterval = getChildInterval(lessAndExact, countLessSpecific);
+            if (existAndNoAdministrative(childIpInterval, lessSpecific)){
+                return lessSpecific;
             }
         }
         throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
     }
 
+    @Nullable
+    private IpInterval getChildInterval(final List<IpEntry> lessAndExact, final int countLessSpecific) {
+        return lessAndExact.size() > countLessSpecific +1 ?
+                intervalToIpInterval(lessAndExact.get(countLessSpecific +1).getKey()) :
+                null;
+    }
+
     private boolean existAndNoAdministrative(final IpInterval searchIp, final IpEntry firstLessSpecific){
-        final RpslObject child = getResourceByKey(searchIp);
-        final RpslObject rpslObject = getResourceByKey((IpInterval) firstLessSpecific.getKey());
-        if (child == null || rpslObject == null) {
+        final RpslObject child = searchIp == null ? null : getResourceByKey(searchIp); // This could happen if the searchIp inet(6)num doesn't exist
+        final RpslObject rpslObject = getResourceByKey(intervalToIpInterval(firstLessSpecific.getKey()));
+        if (rpslObject == null) {
             LOGGER.debug("INET(6)NUM {} does not exist in RIPE Database ", firstLessSpecific.getKey().toString());
             return false;
         }
@@ -234,17 +241,20 @@ public class RdapRelationService {
     }
 
     private boolean isAdministrativeResource(final RpslObject child, final RpslObject rpslObject) {
-        final CIString childStatus = child.getValueForAttribute(AttributeType.STATUS);
+        final CIString childStatus = child == null ? null : child.getValueForAttribute(AttributeType.STATUS);
         final CIString statusAttributeValue = rpslObject.getValueForAttribute(AttributeType.STATUS);
-        return (rpslObject.getType() == ObjectType.INETNUM && InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED)
-                || (rpslObject.getType() == ObjectType.INET6NUM) &&
-                Inet6numStatus.getStatusFor(childStatus) == ALLOCATED_BY_RIR && Inet6numStatus.getStatusFor(statusAttributeValue) == ALLOCATED_BY_RIR;
+        return switch (rpslObject.getType()) {
+            case INETNUM ->  InetnumStatus.getStatusFor(statusAttributeValue) == ALLOCATED_UNSPECIFIED;
+            case INET6NUM ->  (childStatus != null && Inet6numStatus.getStatusFor(childStatus) == ALLOCATED_BY_RIR)
+                    && Inet6numStatus.getStatusFor(statusAttributeValue) == ALLOCATED_BY_RIR;
+            default -> throw new IllegalStateException("Unexpected value: " + rpslObject.getType());
+        };
     }
 
 
     @Nullable
     private RpslObject getResourceByKey(final IpInterval keyInterval){
-        return rpslObjectDao.getByKeyOrNull(keyInterval instanceof Ipv4Resource ? ObjectType.INETNUM : ObjectType.INET6NUM, keyInterval.toString());
+        return rpslObjectDao.getByKeyOrNull(keyInterval instanceof Ipv4Resource ? INETNUM : INET6NUM, keyInterval.toString());
     }
 
     private IpTree getIpTree(final IpInterval searchIp) {
@@ -269,6 +279,20 @@ public class RdapRelationService {
 
     private String objectTypesToString(final Collection<ObjectType> objectTypes) {
         return COMMA_JOINER.join(objectTypes.stream().map(ObjectType::getName).toList());
+    }
+
+    private IpInterval intervalToIpInterval(final Interval interval) {
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Resource;
+            case Ipv6Resource ipv6Resource -> ipv6Resource;
+        };
+    }
+
+    private String transformToIpRangeString(final Interval interval) {
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Resource.toRangeString();
+            case Ipv6Resource ipv6Resource -> ipv6Resource.toString();
+        };
     }
 
 }

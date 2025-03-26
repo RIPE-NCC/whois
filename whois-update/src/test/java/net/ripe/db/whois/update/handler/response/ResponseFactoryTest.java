@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.handler.response;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -478,7 +477,7 @@ public class ResponseFactoryTest {
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
                 "Changed by PGP-KEY-123. You can find contact details for this key here:\n" +
-                "https://apps.db.ripe.net/search/lookup.html?source=ripe&key=PGP-KEY-123&type=key-cert\n"+
+                "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=PGP-KEY-123&types=key-cert\n"+
                 "\n" ));
 
     }
@@ -505,7 +504,7 @@ public class ResponseFactoryTest {
                 "\n" +
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
-                "Changed by SSO account using API Key: test@ripe.net (f60ee0fc)\n"+
+                "Changed by SSO account using API Key id: test@ripe.net (f60ee0fc)\n"+
                 "\n" ));
 
     }
@@ -557,7 +556,7 @@ public class ResponseFactoryTest {
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
                 "Changed by X509-1. You can find contact details for this key here:\n" +
-                "https://apps.db.ripe.net/search/lookup.html?source=ripe&key=X509-1&type=key-cert\n" +
+                "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=X509-1&types=key-cert\n"+
                 "\n" ));
     }
 

@@ -19,7 +19,7 @@ import java.util.List;
         "autnumSearchResults"
 })
 @XmlRootElement
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SearchResult extends RdapObject implements Serializable {
 
     @XmlElement(name = "entitySearchResults")
@@ -33,6 +33,7 @@ public class SearchResult extends RdapObject implements Serializable {
 
     @XmlElement(name = "autnumSearchResults")
     protected List<Autnum> autnumResults;
+
 
     public List<Entity> getEntitySearchResults() {
         return entityResults;
@@ -76,5 +77,21 @@ public class SearchResult extends RdapObject implements Serializable {
             autnumResults = Lists.newArrayList();
         }
         autnumResults.add(autnum);
+    }
+
+    public void setEntityResults(List<Entity> entityResults) {
+        this.entityResults = entityResults;
+    }
+
+    public void setDomainResults(List<Domain> domainResults) {
+        this.domainResults = domainResults;
+    }
+
+    public void setIpResults(List<Ip> ipResults) {
+        this.ipResults = ipResults;
+    }
+
+    public void setAutnumResults(List<Autnum> autnumResults) {
+        this.autnumResults = autnumResults;
     }
 }

@@ -61,6 +61,7 @@
         <hamcrest.version>3.0</hamcrest.version>
         <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
+        <oauth2.oidc.version>11.23</oauth2.oidc.version>
 
         <jackson.version>2.18.2</jackson.version>
         <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
@@ -381,6 +382,13 @@
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>9.40</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <version>${oauth2.oidc.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
                 <artifactId>tink</artifactId>

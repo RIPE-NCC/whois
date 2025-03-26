@@ -108,34 +108,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-domains:  LIR2-MNT
                 source:       TEST
                 """,
-            "ALLOC-PI": """\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PI
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                mnt-lower:    LIR2-MNT
-                source:       TEST
-                """,
-            "ERX-ALLOC-PI": """\
-                inetnum:      192.0.0.0 - 192.255.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PI
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                mnt-lower:    LIR2-MNT
-                source:       TEST
-                """,
             "PART-PA": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      TEST-NET-NAME

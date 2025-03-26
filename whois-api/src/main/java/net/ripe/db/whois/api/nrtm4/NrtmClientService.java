@@ -23,8 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
-
-import static net.ripe.db.nrtm4.util.Ed25519Util.signWithEd25519;
 import static net.ripe.db.nrtm4.util.JWSUtil.signWithJWS;
 
 @Component
@@ -62,7 +60,7 @@ public class NrtmClientService {
         nrtmSourceDao.getSources().forEach(sourceModel ->
                 sourceLink.append(
                         String.format("<a href='%s'>%s</a><br/>",
-                                        String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.json"),
+                                        String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.jose"),
                                         sourceModel.getName().toString()
                                     )
                 )
@@ -82,13 +80,7 @@ public class NrtmClientService {
             final String payload = updateNotificationFileSourceAwareDao.findLastNotification(getSource(source))
                     .orElseThrow(() -> new NotFoundException("update-notification-file does not exists for source " + source));
 
-            if(fileName.endsWith(".jose")) {
-               return getResponseForJWS(signWithJWS(payload, nrtmKeyConfigDao.getActivePrivateKey()));
-            }
-
-            //TODO: remove once client is also shifted to JWS
-            return fileName.endsWith(".sig") ?  getResponse(signWithEd25519(payload.getBytes(), nrtmKeyConfigDao.getActivePrivateKey()))
-                    : getResponse(payload);
+            return getResponseForJWS(signWithJWS(payload, nrtmKeyConfigDao.getActivePrivateKey()));
         }
 
         validateSource(source, fileName);
@@ -130,19 +122,12 @@ public class NrtmClientService {
                 .build();
     }
 
-    private Response getResponse(final String payload) {
-        return Response.ok(payload)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .build();
-    }
-
     private Response getResponseForJWS(final String payload) {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .build();
     }
-
-
+    
     private Response getResponseForDelta(final String payload) {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")
@@ -155,13 +140,8 @@ public class NrtmClientService {
             return false;
         }
 
-        //ExtensionOverridesAcceptHeaderFilter removes .json
-        if(fileName.equals(NrtmDocumentType.NOTIFICATION.getFileNamePrefix())) {
-            return true;
-        }
-
         final String fileExtension = StringUtils.substringAfter(fileName, NrtmDocumentType.NOTIFICATION.getFileNamePrefix());
-        if(!fileExtension.equals(".json.sig") && !fileExtension.equals(".jose") )  {
+        if(!fileExtension.equals(".jose") )  {
             throw new NotFoundException("Notification file does not exists");
         }
 

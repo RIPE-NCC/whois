@@ -79,9 +79,12 @@ Changed by SSO account: $update.preparedUpdate.update.effectiveCredential
 #end
 
 #if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'APIKEY')
-Changed by SSO account using API Key: $update.preparedUpdate.update.effectiveCredential
+Changed by SSO account using API Key id: $update.preparedUpdate.update.effectiveCredential
 #end
 
+#if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'OAUTH')
+Changed by SSO account using OAUTH: $update.preparedUpdate.update.effectiveCredential
+#end
 
 #if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'PASSWORD')
 Changed by password.
@@ -89,12 +92,12 @@ Changed by password.
 
 #if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'PGP')
 Changed by $update.preparedUpdate.update.effectiveCredential. You can find contact details for this key here:
-https://apps.db.ripe.net/search/lookup.html?source=ripe&key=$update.preparedUpdate.update.effectiveCredential&type=key-cert
+https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=$update.preparedUpdate.update.effectiveCredential&types=key-cert
 #end
 
 #if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'X509')
 Changed by $update.preparedUpdate.update.effectiveCredential. You can find contact details for this key here:
-https://apps.db.ripe.net/search/lookup.html?source=ripe&key=$update.preparedUpdate.update.effectiveCredential&type=key-cert
+https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=$update.preparedUpdate.update.effectiveCredential&types=key-cert
 #end
 
 #end

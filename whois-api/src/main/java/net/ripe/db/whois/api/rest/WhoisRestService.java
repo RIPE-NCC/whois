@@ -2,11 +2,11 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.api.QueryBuilder;
-import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -106,7 +106,7 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
@@ -166,7 +166,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -222,7 +222,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -290,7 +290,7 @@ public class WhoisRestService {
             @QueryParam("unformatted") final String unformatted,
             @QueryParam("unfiltered") final String unfiltered,
             @QueryParam("managed-attributes") final String managedAttributes,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact) {
 

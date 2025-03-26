@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.apiKey;
+package net.ripe.db.whois.common.oauth;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,13 +10,13 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
-import com.google.common.collect.Lists;
-import com.nimbusds.jose.util.JSONObjectUtils;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import com.nimbusds.jose.jwk.RSAKey;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import org.apache.commons.lang.StringUtils;
+import net.ripe.db.whois.common.aspects.Stopwatch;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,15 +26,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.text.ParseException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @Component
-public class ApiPublicKeyLoader {
+public class ApiKeyAuthServiceClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiPublicKeyLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyAuthServiceClient.class);
+
+    private static final String VALIDATE_PATH = "/api/v1/api-keys/authenticate";
 
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
     private static final int CLIENT_READ_TIMEOUT = 60_000;
@@ -43,8 +41,8 @@ public class ApiPublicKeyLoader {
     private final String restUrl;
 
     @Autowired
-    public ApiPublicKeyLoader(
-            @Value("${api.public.key.url:}")  final String restUrl) {
+    public ApiKeyAuthServiceClient(
+            @Value("${apiKey.key.registry:}")  final String restUrl) {
         this.restUrl = restUrl;
 
         final ObjectMapper objectMapper = JsonMapper.builder()
@@ -66,38 +64,23 @@ public class ApiPublicKeyLoader {
                 .build();
     }
 
-    @Cacheable(cacheNames = "JWTpublicKeyDetails")
-    public List<RSAKey> loadPublicKey() throws ParseException {
-        if(StringUtils.isEmpty(restUrl)) {
-            LOGGER.warn("Skipping JWT verification as url is null");
-            return Collections.emptyList();
-        }
-
-        LOGGER.debug("Loading public key from {}", restUrl);
+    @Stopwatch(thresholdMs = 100L)
+    @Cacheable(cacheNames="apiKeyOAuth")
+    @Nullable
+    public String validateApiKey(final String basicHeader,  final String apiKeyId) {
         try {
-            return  getListOfKeys(client.target(restUrl)
+            return  client.target(restUrl)
+                    .path(VALIDATE_PATH)
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(String.class));
+                    .header(HttpHeaders.AUTHORIZATION, basicHeader)
+                    .get(String.class);
 
+        } catch (NotFoundException | NotAuthorizedException e) {
+            LOGGER.debug("Failed to validate api key {} due to {}:{}\n\tResponse: {}", apiKeyId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            return null;
         } catch (Exception e) {
-            LOGGER.error("Failed to load RSA public key  apikey due to {}:{}", e.getClass().getName(), e.getMessage());
-            throw e;
-        }
-    }
-
-    protected List<RSAKey> getListOfKeys(final String publicKeys) throws ParseException {
-        try {
-            final Map<String, Object> content = JSONObjectUtils.parse(publicKeys);
-            final List<RSAKey> rsaKeys = Lists.newArrayList();
-
-            for (final Map<String, Object> key : JSONObjectUtils.getJSONObjectArray(content, "keys")) {
-                rsaKeys.add(RSAKey.parse(key));
-            }
-
-            return rsaKeys;
-        } catch ( Exception e ) {
-            LOGGER.error("Failed to parse public key", e);
-            throw e;
+            LOGGER.error("Failed to validate api key {} due to {}:{}", apiKeyId, e.getClass().getName(), e.getMessage());
+            return null;
         }
     }
 }

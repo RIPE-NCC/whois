@@ -104,6 +104,8 @@ public class WhoisServer {
     public void stop() {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
+        markServiceAsDown(applicationContext);
+
         for (final ApplicationService applicationService : applicationServices) {
             stopService(applicationService, false);
         }
@@ -118,14 +120,7 @@ public class WhoisServer {
 
         LOGGER.info("Whois server stopped in {}", stopwatch.stop());
     }
-    @EventListener
-    public void handleContextStopped(final ContextStoppedEvent event) {
-        markServiceAsDown(event.getApplicationContext());
-    }
-    @EventListener
-    public void handleContextClosed(final ContextClosedEvent event) {
-        markServiceAsDown(event.getApplicationContext());
-    }
+
     private void markServiceAsDown(final ApplicationContext context) {
         context.getBean(ReadinessHealthCheck.class).down();
 

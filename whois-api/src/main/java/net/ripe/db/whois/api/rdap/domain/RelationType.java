@@ -4,10 +4,10 @@ import net.ripe.db.whois.api.rdap.RdapException;
 import org.eclipse.jetty.http.HttpStatus;
 
 public enum RelationType {
-    UP("up"),
-    TOP("top"),
-    DOWN("down"),
-    BOTTOM("bottom");
+    UP("rdap-up"),
+    TOP("rdap-top"),
+    DOWN("rdap-down"),
+    BOTTOM("rdap-bottom");
 
     private final String value;
 
@@ -19,9 +19,9 @@ public enum RelationType {
         return value;
     }
 
-    public static RelationType fromString(final String value) {
+    public static RelationType fromValue(final String value) {
         for (RelationType type : RelationType.values()) {
-            if (type.name().equalsIgnoreCase(value)) {
+            if (type.getValue().equalsIgnoreCase(value)) {
                 return type;
             }
         }

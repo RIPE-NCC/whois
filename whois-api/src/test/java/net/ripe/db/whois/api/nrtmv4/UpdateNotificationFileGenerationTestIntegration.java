@@ -1,16 +1,11 @@
 package net.ripe.db.whois.api.nrtmv4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.ws.rs.NotAllowedException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.xml.bind.DatatypeConverter;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
-import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
-import net.ripe.db.nrtm4.util.ByteArrayUtil;
 import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
-import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
@@ -23,8 +18,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Base64;
 import java.util.UUID;
 
 import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
@@ -34,7 +27,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)

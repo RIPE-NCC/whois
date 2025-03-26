@@ -17,9 +17,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.util.ResourceUtils;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-client-test.xml"})
@@ -62,8 +64,9 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     }
 
     @BeforeAll
-    public static void setUp(){
+    public static void setUp() throws FileNotFoundException {
         System.setProperty("nrtm4.client.enabled", "true");
+        System.setProperty("nrtm4.public.key", ResourceUtils.getFile("classpath:public.key").toString());
     }
 
     @AfterAll

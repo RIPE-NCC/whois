@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -45,10 +45,10 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 
-@Component
+@Controller
 @Path("/")
-public class RdapService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RdapService.class);
+public class RdapController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapController.class);
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private final RdapLookupService rdapService;
     private final RdapRequestValidator rdapRequestValidator;
@@ -73,14 +73,14 @@ public class RdapService {
      * @param maxResultSize: If the response is bigger than maxResultSize, we truncate the response and we add a notification
      */
     @Autowired
-    public RdapService(final RdapLookupService rdapService,
-                       final RdapRequestValidator rdapRequestValidator,
-                       final DelegatedStatsService delegatedStatsService,
-                       final RdapObjectMapper rdapObjectMapper,
-                       final RdapFullTextSearch rdapFullTextSearch,
-                       @Value("${rdap.public.baseUrl:}") final String baseUrl,
-                       @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                       final SourceContext sourceContext, RdapRelationService rdapRelationService) {
+    public RdapController(final RdapLookupService rdapService,
+                          final RdapRequestValidator rdapRequestValidator,
+                          final DelegatedStatsService delegatedStatsService,
+                          final RdapObjectMapper rdapObjectMapper,
+                          final RdapFullTextSearch rdapFullTextSearch,
+                          @Value("${rdap.public.baseUrl:}") final String baseUrl,
+                          @Value("${rdap.search.max.results:100}") final int maxResultSize,
+                          final SourceContext sourceContext, RdapRelationService rdapRelationService) {
         this.rdapService = rdapService;
         this.rdapRequestValidator = rdapRequestValidator;
         this.delegatedStatsService = delegatedStatsService;
@@ -121,11 +121,11 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = handleSearch(new String[]{"person", "role", "org-name"}, name, request);
+            object = handleSearch(RdapRequestType.ENTITY, new String[]{"person", "role", "org-name"}, name, request);
         }
 
         if (name == null && handle != null) {
-            object = handleSearch(new String[]{"organisation", "nic-hdl", "mntner"}, handle, request);
+            object = handleSearch(RdapRequestType.ENTITY, new String[]{"organisation", "nic-hdl", "mntner"}, handle, request);
         }
 
         if (object == null){
@@ -149,12 +149,12 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = handleSearch(new String[]{"netname"}, name, request);
+            object = handleSearch(RdapRequestType.IPS, new String[]{"netname"}, name, request);
         }
 
         if (name == null && handle != null) {
             final Ipv4Resource ipv4Resource = Ipv4Resource.parseIPv4Resource(handle);
-            object = handleSearch(new String[]{"inetnum", "inet6num"}, ipv4Resource != null ? ipv4Resource.toRangeString() : handle, request);
+            object = handleSearch(RdapRequestType.IPS, new String[]{"inetnum", "inet6num"}, ipv4Resource != null ? ipv4Resource.toRangeString() : handle, request);
         }
 
         if (object == null) {
@@ -178,11 +178,11 @@ public class RdapService {
 
         Object object = null;
         if (name != null && handle == null) {
-            object = handleSearch(new String[]{"as-name"}, name, request);
+            object = handleSearch(RdapRequestType.AUTNUMS, new String[]{"as-name"}, name, request);
         }
 
         if (name == null && handle != null) {
-            object = handleSearch(new String[]{"aut-num"}, handle, request);
+            object = handleSearch(RdapRequestType.AUTNUMS, new String[]{"aut-num"}, handle, request);
         }
 
         if (object == null){
@@ -213,7 +213,7 @@ public class RdapService {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
-        return Response.ok(handleSearch(new String[]{"domain"}, name, request))
+        return Response.ok(handleSearch(RdapRequestType.DOMAINS, new String[]{"domain"}, name, request))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }
@@ -237,17 +237,10 @@ public class RdapService {
             @PathParam("key") final String key,
             @QueryParam("status") String status) {
 
-        final RelationType relation = RelationType.fromString(relationType);
-        //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
-        // given or status is inactive...include administrative resources in the output. However, if status is active
-        // return just non administrative resources, as we are doing now.
-        if ("inactive".equalsIgnoreCase(status)) {
-            throw new RdapException("501 Not Implemented", "Inactive status is not implemented", HttpStatus.NOT_IMPLEMENTED_501);
-        }
+        final RelationType relation = RelationType.fromValue(relationType);
 
-        if (!StringUtil.isNullOrEmpty(status) && (relation.equals(RelationType.DOWN) || relation.equals(RelationType.BOTTOM))){
-            throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
-        }
+        validateStatus(status, relation);
+        validateKey(request, requestType, key);
 
         final Set<ObjectType> objectTypes = requestType.getWhoisObjectTypes(key);
         if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
@@ -263,6 +256,31 @@ public class RdapService {
                 .build();
     }
 
+
+    private void validateStatus(final String status, final RelationType relation){
+        //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
+        // given or status is inactive...include administrative resources in the output. However, if status is active
+        // return just non administrative resources, as we are doing now.
+        if (StringUtil.isNullOrEmpty(status)){
+            return;
+        }
+
+        if (relation.equals(RelationType.DOWN) || relation.equals(RelationType.BOTTOM)){
+            throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
+        }
+
+        if (!("active".equalsIgnoreCase(status))) {
+            throw new RdapException("501 Not Implemented", String.format("%s status is not implemented", status), HttpStatus.NOT_IMPLEMENTED_501);
+        }
+    }
+
+    private void validateKey(final HttpServletRequest request, final RdapRequestType requestType, final String key){
+        switch (requestType) {
+            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
+            case IPS -> rdapRequestValidator.validateIp(request.getRequestURI(), key);
+            case DOMAIN -> rdapRequestValidator.validateDomain(key);
+        }
+    }
 
     private Response handleLookupWithRedirections(HttpServletRequest request, RdapRequestType requestType, String key,
                                                   Set<ObjectType> whoisObjectTypes) {
@@ -402,7 +420,8 @@ public class RdapService {
     }
 
 
-    private Object handleSearch(final String[] fields, final String term, final HttpServletRequest request) {
+    private Object handleSearch(final RdapRequestType requestType, final String[] fields, final String term,
+                                final HttpServletRequest request) {
         LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
@@ -414,6 +433,7 @@ public class RdapService {
 
             return rdapObjectMapper.mapSearch(
                     getRequestUrl(request),
+                    requestType,
                     objects,
                     maxResultSize);
         }

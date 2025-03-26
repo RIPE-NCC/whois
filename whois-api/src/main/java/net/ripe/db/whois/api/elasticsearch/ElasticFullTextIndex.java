@@ -50,7 +50,7 @@ public class ElasticFullTextIndex {
     }
 
     @Scheduled(fixedDelayString = "${fulltext.index.update.interval.msecs:60000}")
-    @SchedulerLock(name = TASK_NAME)
+    @SchedulerLock(name = TASK_NAME, lockAtMostFor = "PT30M")
     public void scheduledUpdate() {
         if (!elasticIndexService.isEnabled()) {
             LOGGER.error("Elasticsearch is not enabled");

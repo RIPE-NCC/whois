@@ -8,8 +8,8 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.Ed25519Signer;
-import com.nimbusds.jose.jwk.OctetKeyPair;
+import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.jwk.ECKey;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletResponse;
@@ -60,21 +60,20 @@ public class NrtmServerDummy implements Stub {
 
     private final List<Mock> mocks;
 
-    private final static String PRIVATE_KEY = "{\"kty\":\"OKP\",\"d\":\"xzyMhzxbCpv-A1UDYMlGXdheAHDQuB-n5hV0I-J8PgQ\",\"crv\":\"Ed25519\",\"kid\":\"a9ddf4a5-0ca0-47b1-a80d-3c63fd5c19c5\",\"x\":\"ry9yLgcy1eUNX1lDs852mmUXRoy4qZW1HSOu54qBCHI\"}";
-
+    private final static String PRIVATE_KEY = "{\"kty\":\"EC\",\"d\":\"s5oYmEj_z_PaY2CO5sSQjuj6YaPwkFlAQGg064LlJVQ\",\"crv\":\"P-256\",\"kid\":\"cbc61f4e-7b78-4b7d-b934-bb1f4174a75e\",\"x\":\"lNjob69Ki9GH0NJ6gbQnXO0n-aMiZrpq8aAC2U-IWAY\",\"y\":\"NAg9cxYj5qyyD7c7yoJpHpFGjHVWUVMGJQKYYKjukY8\"}";
     private final static String RIPE_NONAUTH_SNAP_HASH = "148c3c411b8f044f5fc0ab201f6dd03e80c862e27ad1a63488aee337dc7eb4a2";
 
     private final static String RIPE_SNAP_HASH = "7c9d1a1ebc73dc719e11c1046fae6598c35ae507a391d142beebe33865f077a0";
 
     private final static Map<String, String> RIPE_NONAUTH_DELTA_HASH = ImmutableMap.of(
-            "1", "d671895977aa9dd8ca2b7ba74cd96cd28a786b0e19b3db709c9c5a02a52466ef",
-            "2", "c0916fbf16da2972de2a9e78a79fe5390b9139d570ca24f5e17d280ca96078e4",
+            "1", "5a889b779c018c9e62d82958e176f133d1d5f31fc64eed10a54a486ba4c29e03",
+            "2", "632bc8d9a7a6d9587a05265786a58173d76df2ad4b7ceaa39a08fe261e197508",
             "fake", "fake_hash"
     );
 
     private final static Map<String, String> RIPE_DELTA_HASH = ImmutableMap.of(
-            "1", "e9c948811a949935aafbb55fbf180421bdf23f9527f2342e58d69013475d1709",
-            "2", "60eaced7492f74e0e0b2009fd8354e0ddf66162276c22d56ea092f14fb5eddf6",
+            "1", "cb51f37f31f6132b674ff32f3734c42e3658383f1ad345bbe2f7989b01283ef0",
+            "2", "e9b8e2c6a4d6f10f390010ad0852a015fca01d27b60fc52ece359e99c19c4ff1",
             "fake", "fake_hash"
     );
 
@@ -89,13 +88,13 @@ public class NrtmServerDummy implements Stub {
                   "version": %s,
                   "snapshot": {
                     "version": 1,
-                    "url": "RIPE/nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
+                    "url": "nrtm-snapshot.1.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.82542bd048e111fe57db404d08b6433e.json.gz",
                     "hash": "%s"
                   },
                   "deltas": [
                     {
                       "version": %s,
-                      "url": "RIPE/nrtm-delta.%s.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
+                      "url": "nrtm-delta.%s.RIPE.4521174b-548f-4e51-98fc-dfd720011a0c.e3be41ff312010046b67d099faa58f44.json",
                       "hash": "%s"
                     }
                   ]
@@ -112,13 +111,13 @@ public class NrtmServerDummy implements Stub {
                   "version": %s,
                   "snapshot": {
                     "version": 1,
-                    "url": "RIPE-NONAUTH/nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz",
+                    "url": "nrtm-snapshot.1.RIPE-NONAUTH.6328095e-7d46-415b-9333-8f2ae274b7c8.f1195bb8a666fe7b97fa74009a70cefa.json.gz",
                     "hash": "%s"
                   },
                   "deltas": [
                     {
                       "version": %s,
-                      "url": "RIPE-NONAUTH/nrtm-delta.%s.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json",
+                      "url": "nrtm-delta.%s.RIPE-NONAUTH.4f3ff2a7-1877-4cab-82f4-1dd6425c4e7d.94b5a6cc54f258062c25d9bee224b5c.json",
                       "hash": "%s"
                     }
                   ]
@@ -352,11 +351,11 @@ public class NrtmServerDummy implements Stub {
     private static String signWithJWS(final String payload)  {
 
         try {
-            final OctetKeyPair jwk = OctetKeyPair.parse(new String(PRIVATE_KEY.getBytes()));
-            final JWSSigner signer = new Ed25519Signer(jwk);
+            final ECKey jwk = ECKey.parse(new String(PRIVATE_KEY.getBytes()));
+            final JWSSigner signer = new ECDSASigner(jwk);
 
             final JWSObject jwsObject = new JWSObject(
-                    new JWSHeader.Builder(JWSAlgorithm.Ed25519).keyID(jwk.getKeyID()).build(),
+                    new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(jwk.getKeyID()).build(),
                     new Payload(payload));
 
             jwsObject.sign(signer);

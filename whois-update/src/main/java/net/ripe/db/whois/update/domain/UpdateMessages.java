@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
+import net.ripe.db.whois.common.ip.Ipv6Resource;
 import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -120,6 +121,10 @@ public final class UpdateMessages {
 
     public static Message referencedObjectMissingAttribute(final ObjectType objectType, final CharSequence objectName, final ObjectType viaType, final CharSequence viaName, final AttributeType attributeType) {
         return new Message(Type.WARNING, "Referenced %s object %s from %s: %s is missing mandatory attribute \"%s:\"", objectType.getName(), objectName, viaType.getName(), viaName, attributeType.getName());
+    }
+
+    public static Message invalidOauthAudience(final String authType) {
+        return new Message(Type.WARNING, "The %s cannot be used because it was created for a different application or environment", authType);
     }
 
     public static Message invalidIpv4Address(final RpslAttribute attribute, final CharSequence value) {
@@ -330,11 +335,10 @@ public final class UpdateMessages {
     }
 
     private static CharSequence intervalToString(final Interval<?> interval) {
-        if (interval instanceof Ipv4Resource) {
-            return ((Ipv4Resource) interval).toRangeString();
-        }
-
-        return interval.toString();
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Resource.toRangeString();
+            case Ipv6Resource ipv6Resource -> ipv6Resource.toString();
+        };
     }
 
     public static Message createFirstPersonMntnerForOrganisation() {
@@ -391,6 +395,10 @@ public final class UpdateMessages {
 
     public static Message membersNotSupportedInReferencedSet(final CharSequence asName) {
         return new Message(Type.ERROR, "Membership claim is not supported by mbrs-by-ref: attribute of the referenced set %s", asName);
+    }
+
+    public static Message membersByRefChangedInSet(final Set<String> asName) {
+        return new Message(Type.WARNING, "Changing mbrs-by-ref:  may cause updates to %s to fail, because the member-of: reference in %s is no longer protected", asName, asName);
     }
 
     public static Message dnsCheckTimeout() {

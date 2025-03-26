@@ -69,28 +69,6 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
     }
 
     @Test
-    public void should_not_add_next_signing_key_if_no_pem_format()  {
-        setTime(LocalDateTime.now().minusDays(1));
-
-        snapshotFileGenerator.createSnapshot();
-
-        setTime(LocalDateTime.now().plusYears(1).minusDays(7));
-
-        nrtmKeyPairService.generateOrRotateNextKey();
-        updateNotificationFileGenerator.generateFile();
-
-        final UpdateNotificationFile testIteration = getNotificationFileBySource("TEST");
-        final UpdateNotificationFile testNonAuthIteration = getNotificationFileBySource("TEST-NONAUTH");
-
-        assertThat(nrtmKeyPairService.getNextkeyPair().pemFormat(), is(nullValue()));
-        assertThat(testIteration.getSource().getName(), is("TEST"));
-        assertThat(testIteration.getNextSigningKey(), is(nullValue()));
-
-        assertThat(testNonAuthIteration.getSource().getName(), is("TEST-NONAUTH"));
-        assertThat(testNonAuthIteration.getNextSigningKey(), is(nullValue()));
-    }
-
-    @Test
     public void should_rotate_next_key_as_new_key()  {
 
         //No new signing next key till expiry is greater than 7 days
@@ -106,14 +84,14 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
 
         nrtmKeyPairService.generateOrRotateNextKey();
 
-        final String nextKey = JWSUtil.getPublicKey(nrtmKeyPairService.getNextkeyPair().publicKey());
+        final String nextKey = nrtmKeyPairService.getNextkeyPair().pemFormat();
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(not(nullValue())));
 
         //New signing next key will be the active key now and no next signing key
         setTime(LocalDateTime.now().plusYears(1));
         nrtmKeyPairService.generateOrRotateNextKey();
 
-        final String newCurrentKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
+        final String newCurrentKey = nrtmKeyConfigDao.getActiveKeyPair().pemFormat();
         assertThat(nextKey, is(newCurrentKey));
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(nullValue()));
     }
@@ -136,11 +114,11 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
 
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(not(nullValue())));
 
-        final String currentActiveKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
+        final String currentActiveKey = nrtmKeyConfigDao.getActiveKeyPair().pemFormat();
 
         nrtmKeyPairService.deleteAndGenerateNewActiveKey();
 
-        final String newActiveKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
+        final String newActiveKey = nrtmKeyConfigDao.getActiveKeyPair().pemFormat();
 
         assertThat(newActiveKey , is(not(currentActiveKey)));
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(nullValue()));
@@ -165,12 +143,12 @@ public class NrtmKeyRotationTestIntegration extends AbstractNrtmIntegrationTest 
 
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(not(nullValue())));
 
-        final String currentActiveKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
-        final String nextKey = JWSUtil.getPublicKey(nrtmKeyPairService.getNextkeyPair().publicKey());
+        final String currentActiveKey = nrtmKeyConfigDao.getActiveKeyPair().pemFormat();
+        final String nextKey = nrtmKeyPairService.getNextkeyPair().pemFormat();
 
         nrtmKeyPairService.forceRotateKey();
 
-        final String newActiveKey = JWSUtil.getPublicKey(nrtmKeyConfigDao.getActivePublicKey());
+        final String newActiveKey = nrtmKeyConfigDao.getActiveKeyPair().pemFormat();
 
         assertThat(newActiveKey , is(nextKey));
         assertThat(nrtmKeyPairService.getNextkeyPair(), is(nullValue()));

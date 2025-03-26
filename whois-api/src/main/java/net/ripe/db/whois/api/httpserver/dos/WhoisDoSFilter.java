@@ -64,7 +64,6 @@ public abstract class WhoisDoSFilter extends DoSFilter {
                 }
                 yield false;
             }
-            default -> false;
         };
 
     }

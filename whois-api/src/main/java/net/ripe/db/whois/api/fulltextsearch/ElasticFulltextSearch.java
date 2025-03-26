@@ -244,7 +244,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
 
         hit.getHighlightFields().values().stream().collect(getHighlightsCollector()).forEach((attribute, highlightField) -> {
-            if("lookup-key".equals(attribute)){
+            if("lookup-key".equals(attribute) || attribute.contains("lowercase")){
                 return;
             }
 

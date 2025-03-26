@@ -1,7 +1,7 @@
 package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -236,7 +236,7 @@ public class AccessControlListManager {
 
         @Override
         public void blockTemporary(final int limit) {
-            IpInterval<?> maskedAddressInterval;
+            final IpInterval<?> maskedAddressInterval;
             if (maskedAddress instanceof Inet6Address) {
                 maskedAddressInterval = Ipv6Resource.parse(mask(maskedAddress, IPV6_NETMASK).getHostAddress() + "/" + IPV6_NETMASK);
             } else {
