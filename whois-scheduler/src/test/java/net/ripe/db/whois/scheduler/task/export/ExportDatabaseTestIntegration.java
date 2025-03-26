@@ -279,9 +279,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         final boolean isDumpFile = name.endsWith(".gz");
 
         if (isDumpFile) {
-            reader = new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), StandardCharsets.ISO_8859_1);
+            reader = new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), StandardCharsets.UTF_8);
         } else {
-            reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.ISO_8859_1);
+            reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.UTF_8);
         }
 
         final String contents = FileCopyUtils.copyToString(reader);

@@ -23,7 +23,7 @@ public class TelnetWhoisClient {
 
     public static final int DEFAULT_PORT = 43;
     public static final String DEFAULT_HOST = "localhost";
-    public static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
+    public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static final int DEFAULT_TIMEOUT = (int)TimeUnit.MINUTES.toMillis(5);
     private final String host;
     private final int port;

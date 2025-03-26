@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.rpsl;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
@@ -36,6 +37,17 @@ public final class RpslAttribute implements Serializable {
 
     private int hash;
     private Set<CIString> cleanValues;
+
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
+        // Constructor is only used by RpslObject, which behaves, so no need to copy arrays
+    RpslAttribute(final byte[] key, final byte[] value) {
+        Validate.notNull(key);
+        Validate.notNull(value);
+
+        this.key = new String(key, Charsets.UTF_8).toLowerCase();
+        this.value = new String(value, Charsets.UTF_8);
+        this.type = AttributeType.getByNameOrNull(this.key);
+    }
 
     public RpslAttribute(final AttributeType attributeType, final CIString value) {
         this(attributeType, value.toString());

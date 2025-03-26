@@ -55,7 +55,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature) {
-        return parse(signedContent, signature, StandardCharsets.ISO_8859_1);
+        return parse(signedContent, signature, StandardCharsets.UTF_8);
     }
 
     public static PgpSignedMessage parse(final String signedContent, final String signature, final Charset charset) {
@@ -80,7 +80,7 @@ public final class PgpSignedMessage {
     }
 
     public static PgpSignedMessage parse(final String clearText) {
-        return parse(clearText, StandardCharsets.ISO_8859_1);
+        return parse(clearText, StandardCharsets.UTF_8);
     }
 
     public static PgpSignedMessage parse(final String clearText, final Charset charset) {
