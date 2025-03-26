@@ -113,12 +113,12 @@ public class UpdateNotificationFileProcessor {
                 }
 
                 if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version() > updateNotificationFile.getVersion()) {
-                    LOGGER.warn("The local version cannot be higher than the update notification version {}", source);
+                    LOGGER.error("The local version cannot be higher than the update notification version {}", source);
                     throw new IllegalStateException(String.format("The local version cannot be higher than the update notification version %s", source));
                 }
 
                 if (nrtmClientLastVersionInfo != null && nrtmClientLastVersionInfo.version().equals(updateNotificationFile.getVersion())) {
-                    LOGGER.info("There is no new version associated with the source {}", source);
+                    LOGGER.debug("There is no new version associated with the source {}", source);
                     return;
                 }
 
@@ -136,7 +136,7 @@ public class UpdateNotificationFileProcessor {
                 }
             });
         } catch (Exception ex) {
-            //In case any issue we reinitialise to avoid inconsistency statuses
+            LOGGER.error("re-initialising local database from scratch");
             cleanUpTablesSafely();
         }
     }
@@ -159,7 +159,7 @@ public class UpdateNotificationFileProcessor {
                                                                                                final UpdateNotificationFileResponse updateNotificationFile) {
 
         if (!areContinuousDeltas(updateNotificationFile.getDeltas())){
-            LOGGER.warn("No continuous deltas, skipping deltas");
+            LOGGER.error("No continuous deltas, skipping deltas");
             return Lists.newArrayList();
         }
 
@@ -171,7 +171,7 @@ public class UpdateNotificationFileProcessor {
 
         final long expectedDeltaVersion = nrtmClientVersionInfo.version() + 1;
         if (!isExpectedDeltaVersionContained(updateNotificationFile.getDeltas(), expectedDeltaVersion)){
-            LOGGER.warn("NRTMv4 Mirror is in a wrong state, expected delta version {} is not in the unf", expectedDeltaVersion);
+            LOGGER.error("NRTMv4 Mirror is in a wrong state, expected delta version {} is not in the unf", expectedDeltaVersion);
             throw new IllegalStateException(String.format("NRTMv4 Mirror is in a wrong state, expected delta version %s is not in unf", expectedDeltaVersion));
         }
 
