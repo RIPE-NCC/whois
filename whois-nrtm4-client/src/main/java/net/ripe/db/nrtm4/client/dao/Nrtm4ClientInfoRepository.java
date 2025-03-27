@@ -73,6 +73,7 @@ public class Nrtm4ClientInfoRepository {
                     FROM version_info
                     WHERE type = ?
                     AND source = ?
+                    HAVING MAX(version) >= 0
                     """,
                     nrtmClientVersionRowMapper(),
                     NrtmClientDocumentType.DELTA.getFileNamePrefix(), source);
