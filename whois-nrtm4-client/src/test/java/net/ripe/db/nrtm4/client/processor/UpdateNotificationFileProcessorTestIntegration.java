@@ -37,7 +37,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         updateNotificationFileProcessor.processFile();
 
         final List<NrtmClientVersionInfo> versionInfosPerSource = nrtm4ClientInfoRepository.getNrtmLastVersionInfoForUpdateNotificationFile();
-        assertThat(versionInfosPerSource.getFirst().version(), is(1L));
+        assertThat(versionInfosPerSource.getFirst().version(), is(2L));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
         assertThat(mntner, is(nullValue()));
 
-        nrtmServerDummy.setTwoAndThreeVersionDeltasMocks();
+        nrtmServerDummy.setThreeAndFourVersionDeltasMocks();
         updateNotificationFileProcessor.processFile();
         final RpslObject autnum = getMirrorRpslObjectByPkey("AS211871");
         final RpslObject deletedRoute6 = getMirrorRpslObjectByPkey("2001:490:f000::/36AS1248");
@@ -155,7 +155,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(autnum, is(not(nullValue())));
 
         final List<NrtmClientVersionInfo> versions = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
-        assertThat(versions.getFirst().version(), is(3L));
+        assertThat(versions.getFirst().version(), is(4L));
     }
 
     @Test
@@ -170,12 +170,12 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(route.findAttribute(AttributeType.DESCR).getCleanValue(), is("Dummified"));
         assertThat(mntner, is(nullValue()));
 
-        nrtmServerDummy.setTwoAndFourVersionDeltasMocks();
+        nrtmServerDummy.setThreeAndFiveVersionDeltasMocks();
         updateNotificationFileProcessor.processFile();
 
         final List<NrtmClientVersionInfo> versions = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
 
-        assertThat(versions.getFirst().version(), is(1L));
+        assertThat(versions.getFirst().version(), is(2L));
     }
 
     @Test
@@ -191,8 +191,8 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
         assertThat(mntner, is(nullValue()));
 
         //Put the database deltas ahead
-        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE-NONAUTH", 4, "6328095e-7d46-415b-9333-8f2ae274b7c8");
-        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE", 4, "4521174b-548f-4e51-98fc-dfd720011a0c");
+        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE-NONAUTH", 5, "6328095e-7d46-415b-9333-8f2ae274b7c8");
+        nrtm4ClientInfoRepository.saveDeltaFileVersion("RIPE", 5, "4521174b-548f-4e51-98fc-dfd720011a0c");
 
         nrtmServerDummy.setAll();
         updateNotificationFileProcessor.processFile();
@@ -206,7 +206,7 @@ public class UpdateNotificationFileProcessorTestIntegration extends AbstractNrtm
 
         final List<NrtmClientVersionInfo> versions = getNrtmLastFileVersion(NrtmClientDocumentType.DELTA);
 
-        assertThat(versions.getFirst().version(), is(4L));
+        assertThat(versions.getFirst().version(), is(5L));
 
         final RpslObject deleteDomain = getMirrorRpslObjectByPkey("7.4.1.8.0.1.a.2.ip6.arpa");
         final RpslObject createdMntner = getMirrorRpslObjectByPkey("MHM3-MNT");
