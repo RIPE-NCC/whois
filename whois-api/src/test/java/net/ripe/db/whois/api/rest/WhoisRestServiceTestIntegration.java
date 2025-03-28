@@ -357,6 +357,42 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_cross_origin_from_db_ripe() {
+
+        final Response response = RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48")
+                .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                .get(Response.class);
+
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+    }
+
+    @Test
+    public void lookup_cross_origin_from_not_db_ripe() {
+
+        final Response response = RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48")
+                .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stat.ripe.net")
+                .get(Response.class);
+
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+    }
+
+    @Test
+    public void lookup_cross_origin_from_external_site() {
+
+        final Response response = RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48")
+                .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://example.com")
+                .get(Response.class);
+
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+    }
+
+    @Test
     public void lookup_person_filtered() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
