@@ -53,6 +53,11 @@ public class ZonemasterDnsGateway implements DnsGateway {
 
     @Override
     public Map<DnsCheckRequest, DnsCheckResponse> performDnsChecks(final Set<DnsCheckRequest> dnsCheckRequests) {
+        LOGGER.info("performDnsChecks: size={}", dnsCheckRequests.size());
+        dnsCheckRequests.forEach(dnsCheckRequest -> {
+            LOGGER.info("\tdomain={}, glue={}", dnsCheckRequest.getDomain(), dnsCheckRequest.getGlue());
+        });
+
         return dnsCheckRequests
             .parallelStream()
             .collect(Collectors.toMap(
@@ -89,18 +94,27 @@ public class ZonemasterDnsGateway implements DnsGateway {
          * @return check instance id
          */
         private String makeRequest(final DnsCheckRequest dnsCheckRequest) {
+            LOGGER.info("makeRequest START");
+
             final StartDomainTestRequest request = new StartDomainTestRequest(dnsCheckRequest);
             request.setClientVersion(applicationVersion.getVersion());
 
-            final StartDomainTestResponse response = zonemasterRestClient
-                .sendRequest(request)
-                .readEntity(StartDomainTestResponse.class);
+            try {
+                final StartDomainTestResponse response = zonemasterRestClient
+                    .sendRequest(request)
+                    .readEntity(StartDomainTestResponse.class);
 
-            if (response.getError() != null) {
-                throw new ZonemasterException(response.getError().getMessage());
+                if (response.getError() != null) {
+                    LOGGER.error("Caught non-null Error = {}", response.getError());
+                    throw new ZonemasterException(response.getError().getMessage());
+                }
+
+                LOGGER.info("makeRequest END id={}", response.getResult());
+                return response.getResult();
+            } catch (Exception e) {
+                LOGGER.error(e.getClass().getName(), e);
+                throw e;
             }
-
-            return response.getResult();
         }
 
         private void testProgressUntilComplete(final String id) {
@@ -118,15 +132,24 @@ public class ZonemasterDnsGateway implements DnsGateway {
          * @return percentage complete
          */
         private String testProgress(final String id) {
-            final TestProgressResponse response = zonemasterRestClient
-                .sendRequest(new TestProgressRequest(id))
-                .readEntity(TestProgressResponse.class);
+            LOGGER.info("testProgress: START id={}", id);
+            try {
+                final TestProgressResponse response = zonemasterRestClient
+                    .sendRequest(new TestProgressRequest(id))
+                    .readEntity(TestProgressResponse.class);
 
-            if (response.getError() != null) {
-                throw new ZonemasterException(response.getError().getMessage());
+                if (response.getError() != null) {
+                    LOGGER.error("Caught non-null Error = {}", response.getError());
+                    throw new ZonemasterException(response.getError().getMessage());
+                }
+
+                LOGGER.info("testProgress: END id={} result={}", id, response.getResult());
+
+                return response.getResult();
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+                throw e;
             }
-
-            return response.getResult();
         }
 
         /**
@@ -135,15 +158,24 @@ public class ZonemasterDnsGateway implements DnsGateway {
          * @return API response
          */
         private GetTestResultsResponse getResults(final String id) {
-            final GetTestResultsResponse response = zonemasterRestClient
-                .sendRequest(new GetTestResultsRequest(id))
-                .readEntity(GetTestResultsResponse.class);
+            LOGGER.info("getResults: START id={}", id);
+            try {
+                final GetTestResultsResponse response = zonemasterRestClient
+                    .sendRequest(new GetTestResultsRequest(id))
+                    .readEntity(GetTestResultsResponse.class);
 
-            if (response.getError() != null) {
-                throw new ZonemasterException(response.getError().getMessage());
+                if (response.getError() != null) {
+                    LOGGER.error("Caught non-null Error = {}", response.getError());
+                    throw new ZonemasterException(response.getError().getMessage());
+                }
+
+                LOGGER.info("getResults: END id={} results={}", id, response.getResult());
+
+                return response;
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+                throw e;
             }
-
-            return response;
         }
 
         private List<Message> getErrorsFromResults(final GetTestResultsResponse testResults) {
