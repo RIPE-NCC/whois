@@ -2,14 +2,12 @@ package net.ripe.db.whois.smtp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelException;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.smtp.SmtpRequest;
-import io.netty.handler.codec.smtp.SmtpResponse;
 import io.netty.util.AttributeKey;
+import jakarta.mail.internet.InternetAddress;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.smtp.request.DataSmtpRequest;
 import net.ripe.db.whois.smtp.request.ExtendedHelloSmtpRequest;
@@ -30,7 +28,7 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 @ChannelHandler.Sharable
-public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
+public class SmtpCommandHandler extends ChannelInboundHandlerAdapter implements SmtpHandler {
 
     private static final AttributeKey<CharSequence> MAIL_FROM = AttributeKey.newInstance("mail_from");
     private static final AttributeKey<CharSequence> RCPT_TO = AttributeKey.newInstance("rcpt_to");
@@ -40,17 +38,20 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
     private final ApplicationVersion applicationVersion;
     private final SmtpDataHandler smtpDataHandler;
     private final int maximumSize;
+    private final InternetAddress smtpFrom;
 
     @Autowired
     public SmtpCommandHandler(
             @Lazy final SmtpDataHandler smtpDataHandler,
             final SmtpLog smtpLog,
             final ApplicationVersion applicationVersion,
-            @Value("${mail.smtp.server.maximum.size:0}") final int maximumSize) {
+            @Value("${mail.smtp.server.maximum.size:0}") final int maximumSize,
+            @Value("${mail.smtp.from:}") final String smtpFrom) {
         this.smtpLog = smtpLog;
         this.applicationVersion = applicationVersion;
         this.smtpDataHandler = smtpDataHandler;
         this.maximumSize = maximumSize;
+        this.smtpFrom = MimeUtility.parseAddress(smtpFrom);
     }
 
     @Override
@@ -75,6 +76,16 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
                 writeResponse(ctx.channel(), SmtpResponses.extendedHello(extendedHello.parameters().get(0), maximumSize));
             }
             case MailSmtpRequest mail -> {
+                final InternetAddress fromAddress = MimeUtility.parseAddress(mail.getFrom());
+                if (fromAddress == null) {
+                    writeResponse(ctx.channel(), SmtpResponses.invalidAddress());
+                    break;
+                } else {
+                    if ((smtpFrom != null) && (smtpFrom.equals(fromAddress))) {
+                        writeResponse(ctx.channel(), SmtpResponses.refusingMessageFrom(smtpFrom.getAddress()));
+                        break;
+                    }
+                }
                 if (maximumSize > 0) {
                     final Integer size = mail.getSize();
                     if ((size != null) && (size > maximumSize)) {
@@ -112,23 +123,6 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter {
         smtpLog.log(ctx.channel(), "(INACTIVE)");
         ctx.fireChannelInactive();
     }
-
-    private void writeResponse(final Channel channel, final SmtpResponse smtpResponse) {
-        if (!channel.isOpen()) {
-            throw new ChannelException();
-        }
-
-        channel.writeAndFlush(smtpResponse);
-    }
-
-    private void writeResponseAndClose(final Channel channel, final SmtpResponse smtpResponse) {
-        if (!channel.isOpen()) {
-            throw new ChannelException();
-        }
-
-        channel.writeAndFlush(smtpResponse).addListener(ChannelFutureListener.CLOSE);
-    }
-
 
     private CharSequence getMailFrom(final Channel channel) {
         return channel.attr(MAIL_FROM).get();

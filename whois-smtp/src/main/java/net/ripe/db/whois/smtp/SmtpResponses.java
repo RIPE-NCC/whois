@@ -75,8 +75,8 @@ public class SmtpResponses {
         return new DefaultSmtpResponse(503, "valid RCPT command must precede DATA");
     }
 
-    public static SmtpResponse senderAddressDomain(final String value) {
-        return new DefaultSmtpResponse(501, String.format("%s: sender address must contain a domain", value));
+    public static SmtpResponse invalidAddress() {
+        return new DefaultSmtpResponse(501, "invalid address");
     }
 
     public static SmtpResponse unrecognisedCommand() {
@@ -87,12 +87,15 @@ public class SmtpResponses {
         return new DefaultSmtpResponse(500, "internal error occurred.");
     }
 
+    public static SmtpResponse refusingMessageFrom(final String value) {
+        return new DefaultSmtpResponse(500, String.format("refusing to accept message from %s", value));
+    }
+
     public static SmtpResponse timeout() {
         return new DefaultSmtpResponse(421, String.format("%s: SMTP command timeout - closing connection", Hosts.getInstanceName()));
     }
 
     public static SmtpResponse sizeExceeded() {
         return new DefaultSmtpResponse(523, "the total message size exceeds the server limit");
-
     }
 }
