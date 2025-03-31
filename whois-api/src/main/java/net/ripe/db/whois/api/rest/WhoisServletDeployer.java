@@ -150,7 +150,7 @@ public class WhoisServletDeployer implements ServletDeployer {
 
         // only allow cross-origin requests from ripe.net
         final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
-        crossOriginFilterHolder.setInitParameter(org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.ripe.net");
+        crossOriginFilterHolder.setInitParameter(org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.db.ripe.net");
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }
