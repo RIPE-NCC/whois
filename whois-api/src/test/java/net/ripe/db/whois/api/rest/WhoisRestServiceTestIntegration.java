@@ -2046,8 +2046,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
-                    containsString("Remarks added by RIPE NCC can only be added/removed by the RIPE NCC.\n" +
-                            "Please contact \"ncc@ripe.net\" to remove this remark."));
+                    containsString("Remarks starting with RIPE NCC can only be added/removed by the RIPE NCC.\n" +
+                            "Please contact \"ncc@ripe.net\" to add/remove this remark."));
         }
     }
 
@@ -2072,8 +2072,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
-                    containsString("Remarks added by RIPE NCC can only be added/removed by the RIPE NCC.\n" +
-                            "Please contact \"ncc@ripe.net\" to remove this remark."));
+                    containsString("Remarks starting with RIPE NCC can only be added/removed by the RIPE NCC.\n" +
+                            "Please contact \"ncc@ripe.net\" to add/remove this remark."));
         }
     }
 
@@ -2174,8 +2174,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
            fail();
        } catch (BadRequestException e) {
            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
-                   containsString("Remarks added by RIPE NCC can only be added/removed by the RIPE NCC.\n" +
-                           "Please contact \"ncc@ripe.net\" to remove this remark"));
+                   containsString("Remarks starting with RIPE NCC can only be added/removed by the RIPE NCC.\n" +
+                           "Please contact \"ncc@ripe.net\" to add/remove this remark"));
        }
     }
 
