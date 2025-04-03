@@ -28,7 +28,7 @@ CREATE TABLE `mailupdates` (
   `claim_host` varchar(80) DEFAULT NULL,
   `claim_uuid` varchar(80) DEFAULT NULL,
   `status` varchar(80) DEFAULT NULL,
-  `changed` int(10) unsigned DEFAULT NULL,
+  `changed` int(10) unsigned DEFAULT (UNIX_TIMESTAMP()),
   PRIMARY KEY (`id`),
   UNIQUE KEY `mailupdates_uuid_idx` (`claim_uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=467880 DEFAULT CHARSET=utf8mb4;
