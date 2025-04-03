@@ -220,6 +220,10 @@ public final class UpdateMessages {
                 "Please contact \"ncc@ripe.net\" to remove this reference.");
     }
 
+    public static Message cantAddorRemoveRipeNccRemarks() {
+        return new Message(Type.ERROR, "The \"remarks\" attribute can only be added or removed by the RIPE NCC");
+    }
+
     public static Message cantCreateShortFormatAsName() {
         return new Message(Type.ERROR, "Cannot create AS-SET object with a short format name. Only hierarchical " +
                 "AS-SET creation is allowed, i.e. at least one ASN must be referenced");

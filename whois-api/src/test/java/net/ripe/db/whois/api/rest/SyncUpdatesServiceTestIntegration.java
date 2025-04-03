@@ -172,6 +172,40 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void help_cross_origin_db_ripe() {
+        Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&DATA=data")
+                .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                .get(Response.class);
+
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+    }
+
+    @Test
+    public void help_cross_origin_from_not_db_ripe() {
+        Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&DATA=data")
+                .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stat.ripe.net")
+                .get(Response.class);
+
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+    }
+
+    @Test
+    public void help_cross_origin_from_external_site() {
+        Response response = RestTest.target(getPort(), "whois/syncupdates/test?HELP=yes&DATA=data")
+                .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://example.com")
+                .get(Response.class);
+
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+    }
+
+
+    @Test
     public void diff_parameter_only() {
         try {
             RestTest.target(getPort(), "whois/syncupdates/test?DIFF=yes")
