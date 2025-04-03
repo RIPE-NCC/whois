@@ -1,5 +1,23 @@
 # next
 
+# 1.117
+
+[update] Parent status for LIR-PARTITIONED PA cannot be ASSIGNED PA (#1669) 
+[update] ASSIGNED PA Cannot have less/more specific ASSIGNED PA (#1672) 
+[update] Aggregation by LIR Parent should not be allowed for Aggregation by LIR (#1673)
+[update] Do not allow LIR-PARTITIONED PA under SUB-ALLOCATED PA in (#1702)
+[update] Support OAuth 2.0 (#1688) 
+[rdap] Self Links Must Have the Type Set (#1685) 
+[rdap] Validate Correct Key Before Redirect (#1689) 
+[rdap] Fix Relation For Cross-Prefix Inetnum Range (#1693) 
+[rdap] Bottom should check Parent does not CONTAINS search term (#1701) 
+[rdap] Non Existing Search IP Terms in TOP and UP (#1703) 
+[rdap] Add "-rdap" prefix to Relations And Change links (#1700) 
+[rdap] Minimum status for Relations (#1705) 
+[nrtm] Correct aut-num object class name in delta file (#1692) 
+[nrtm] Client Reject Deltas When Discontinuous and reinitialise (#1699)
+[nrtm] Client Reject update in case client is ahead instead of reinitialise (#1698)
+
 # 1.116
 
 [rdap] RDAP Relation Searches Endpoint (#1603)
