@@ -221,8 +221,7 @@ public final class UpdateMessages {
     }
 
     public static Message cantAddorRemoveRipeNccRemarks() {
-        return new Message(Type.ERROR, "Remarks starting with RIPE NCC can only be added/removed by the RIPE NCC.\n" +
-                "Please contact \"ncc@ripe.net\" to add/remove this remark.");
+        return new Message(Type.ERROR, "The \"remarks\" attribute can only be added or removed by the RIPE NCC");
     }
 
     public static Message cantCreateShortFormatAsName() {

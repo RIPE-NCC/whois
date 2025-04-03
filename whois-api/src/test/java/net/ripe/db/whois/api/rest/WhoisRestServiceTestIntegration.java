@@ -2046,8 +2046,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
-                    containsString("Remarks starting with RIPE NCC can only be added/removed by the RIPE NCC.\n" +
-                            "Please contact \"ncc@ripe.net\" to add/remove this remark."));
+                    containsString("The \"remarks\" attribute can only be added or removed by the RIPE NCC"));
         }
     }
 
@@ -2072,8 +2071,32 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
-                    containsString("Remarks starting with RIPE NCC can only be added/removed by the RIPE NCC.\n" +
-                            "Please contact \"ncc@ripe.net\" to add/remove this remark."));
+                    containsString("The \"remarks\" attribute can only be added or removed by the RIPE NCC"));
+        }
+    }
+
+    @Test
+    public void update_person_edit_ripe_ncc_remarks_fails() {
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        databaseHelper.updateObject(update);
+
+        try {
+
+            final RpslObject updatedRemovedRemarks = new RpslObjectBuilder(TEST_PERSON)
+                    .removeAttribute(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: 123 Test 123"))
+                    .get();
+
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                    .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedRemovedRemarks), MediaType.APPLICATION_XML),
+                            WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                    containsString("The \"remarks\" attribute can only be added or removed by the RIPE NCC"));
         }
     }
 
@@ -2174,8 +2197,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
            fail();
        } catch (BadRequestException e) {
            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
-                   containsString("Remarks starting with RIPE NCC can only be added/removed by the RIPE NCC.\n" +
-                           "Please contact \"ncc@ripe.net\" to add/remove this remark"));
+                   containsString("The \"remarks\" attribute can only be added or removed by the RIPE NCC"));
        }
     }
 
