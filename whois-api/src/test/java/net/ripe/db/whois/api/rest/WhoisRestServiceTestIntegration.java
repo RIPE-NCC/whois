@@ -2033,6 +2033,153 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_person_add_ripe_ncc_remarks_fails() {
+        try {
+            final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                    .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                    .get();
+
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                    .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
+                                    WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                    containsString("Remarks added by RIPE NCC can only be added/removed by the RIPE NCC.\n" +
+                            "Please contact \"ncc@ripe.net\" to remove this remark."));
+        }
+    }
+
+    @Test
+    public void update_person_remove_ripe_ncc_remarks_fails() {
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        databaseHelper.updateObject(update);
+
+        try {
+
+            final RpslObject updatedRemovedRemarks = new RpslObjectBuilder(TEST_PERSON)
+                    .removeAttribute(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                    .get();
+
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                    .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedRemovedRemarks), MediaType.APPLICATION_XML),
+                                    WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                    containsString("Remarks added by RIPE NCC can only be added/removed by the RIPE NCC.\n" +
+                            "Please contact \"ncc@ripe.net\" to remove this remark."));
+        }
+    }
+
+    @Test
+    public void update_person_add_ripe_ncc_remarks_override_success() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                    .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                    .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                .queryParam("override", "agoston,zoh,reason")
+                .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
+                            Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST").getValueForAttribute(AttributeType.REMARKS).toString(), is("Remark added by the RIPE NCC: Test"));
+    }
+
+    @Test
+    public void update_person_remove_ripe_ncc_remarks_override_sucess() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        databaseHelper.updateObject(update);
+
+        final RpslObject updatedRemovedRemarks = new RpslObjectBuilder(TEST_PERSON)
+                    .removeAttribute(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                    .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                    .queryParam("override", "agoston,zoh,reason")
+                    .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedRemovedRemarks), MediaType.APPLICATION_XML),
+                            Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
+    public void update_person_remove_ripe_ncc_remarks_rs_sucess() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                "auth:        MD5-PW $1$mV2gSZtj$1oVwjZr0ecFZQHsNbw2Ss.  #hm\n" +
+                        "source:   TEST");
+
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.MNT_BY, "RIPE-NCC-HM-MNT"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        databaseHelper.updateObject(update);
+
+        final RpslObject updatedRemovedRemarks = new RpslObjectBuilder(TEST_PERSON)
+                .removeAttribute(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=hm")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedRemovedRemarks), MediaType.APPLICATION_XML),
+                        Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
+    public void create_object_add_ripe_ncc_remarks_override_success() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        final RpslObject update = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        final Response whoisResources = RestTest.target(getPort(), "whois/test/person")
+                .queryParam("override", "agoston,zoh,reason")
+                .request()
+                .post(Entity.entity(map(update), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(whoisResources.getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
+    public void create_object_add_ripe_ncc_remarks_fails() {
+
+        final RpslObject update = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+       try {
+           RestTest.target(getPort(), "whois/test/person?password=test")
+                   .request()
+                   .post(Entity.entity(map(update), MediaType.APPLICATION_XML), WhoisResources.class);
+           fail();
+       } catch (BadRequestException e) {
+           assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                   containsString("Remarks added by RIPE NCC can only be added/removed by the RIPE NCC.\n" +
+                           "Please contact \"ncc@ripe.net\" to remove this remark"));
+       }
+    }
+
+    @Test
     public void create_asSet_non_existing_aut_num_bad_request() {
         try {
             final RpslObject TEST_AS_SET = RpslObject.parse("""
