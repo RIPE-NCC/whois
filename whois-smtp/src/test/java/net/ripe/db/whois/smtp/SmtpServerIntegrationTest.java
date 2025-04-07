@@ -150,6 +150,19 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
     }
 
     @Test
+    public void sendExtendedHelloMultipleLines() throws Exception {
+        final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
+        assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
+        smtpClient.writeLine("EHLO testserver");
+        assertThat(smtpClient.readLine(), matchesPattern("250-.* Hello testserver"));
+        assertThat(smtpClient.readLine(), is("250-SIZE 1024"));
+        assertThat(smtpClient.readLine(), is("250-8BITMIME"));
+        assertThat(smtpClient.readLine(), is("250 HELP"));
+        smtpClient.writeLine("QUIT");
+        assertThat(smtpClient.readLine(), startsWith("221 "));
+    }
+
+    @Test
     public void sendMessageMailFromSizeLargerThanMaximum() throws Exception {
         final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
         assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
