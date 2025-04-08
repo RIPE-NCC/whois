@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
-    private static final int DELIMITER_MAX_FRAME_LENGTH = 128;
+    private static final int DELIMITER_MAX_FRAME_LENGTH = 1024;
     private static final boolean STRIP_DELIMITER = false;
     private static final int POOL_SIZE = 32;
     private static final int TIMEOUT = 60;
