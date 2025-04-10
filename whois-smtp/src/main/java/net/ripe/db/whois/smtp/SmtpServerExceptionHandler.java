@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.smtp.SmtpResponse;
 import io.netty.handler.timeout.ReadTimeoutException;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
@@ -28,6 +29,11 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
         switch (exception) {
             case SmtpException smtpException : {
                 handleException(channel, smtpException.getResponse());
+                break;
+            }
+            case TooLongFrameException tooLongFrameException : {
+                LOGGER.warn("Discarded line too long");
+                handleException(channel, SmtpResponses.lineTooLong());
                 break;
             }
             case ReadTimeoutException readTimeoutException: {

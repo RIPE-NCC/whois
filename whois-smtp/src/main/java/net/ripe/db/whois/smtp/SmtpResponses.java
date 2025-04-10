@@ -87,6 +87,10 @@ public class SmtpResponses {
         return new DefaultSmtpResponse(500, "internal error occurred.");
     }
 
+    public static SmtpResponse lineTooLong() {
+        return new DefaultSmtpResponse(501, "line too long");
+    }
+
     public static SmtpResponse refusingMessageFrom(final String value) {
         return new DefaultSmtpResponse(500, String.format("refusing to accept message from %s", value));
     }
