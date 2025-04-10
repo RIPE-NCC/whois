@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -109,6 +110,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
         nrtm4ClientInfoRepository.saveDeltaFileVersion(source, version, sessionId);
     }
 
+    @Nullable
     private MirrorDeltaInfo mapDeltaRecordOrNull(final String record){
         try {
             final JSONObject jsonObject = new JSONObject(record);
@@ -124,7 +126,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
                     deltaObjectType,
                     deltaPrimaryKey);
         } catch (Exception ex){
-            LOGGER.error("Unable to parse delta record");
+            LOGGER.warn("Unable to parse delta record, skipping");
             return null;
         }
     }
