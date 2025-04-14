@@ -57,8 +57,8 @@ class ExportFileWriterFactory {
         initDirs(fullDir, splitDir, internalDir);
 
         try {
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDir, String.format("%s.%s", source, CURRENTSERIAL_SUFFIX)));
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDir, String.format("%s.%s", nonAuthSource, CURRENTSERIAL_SUFFIX)));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.UTF_8), new File(fullDir, String.format("%s.%s", source, CURRENTSERIAL_SUFFIX)));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.UTF_8), new File(fullDir, String.format("%s.%s", nonAuthSource, CURRENTSERIAL_SUFFIX)));
         } catch (IOException e) {
             throw new RuntimeException("Writing current serial", e);
         }
