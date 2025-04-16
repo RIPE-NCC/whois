@@ -3864,6 +3864,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 remarks:      early comment
                 mnt-lower:    RIPE-NCC-HM-MNT, owner-mnt
                 geoloc:      10.568 158.552
+                geofeed:     https://example.com/geofeed.csv
                 mnt-irt:      irt-test
                 tech-c:       TP1-TEST
                 org:          ORG-OTO1-TEST
@@ -3882,7 +3883,11 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 tech-c:       TP3-TEST
                 admin-c:      TP2-TEST
+                abuse-c:      AH200-TEST
                 remarks:      late comment
+
+                # optional "sponsoring-org:" attribute not allowed with "ASSIGNED PA" status
+                # optional "assignment-size:" only allowed with AGGREGATED-BY-LIR status
 
                 password: hm
                 password: end
@@ -4859,6 +4864,41 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.0.128", "inetnum", "192.168.0.0 - 192.168.0.128")
     }
 
+    def "modify 1 object, change status"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-8") + "country: NL\nmnt-by: LIR-MNT\noverride: denis,override1")
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                status:       SUB-ALLOCATED PA
+                country:      NL
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "status value cannot be changed, you must delete and re-create the object"]
+        ack.warningMessagesFor("Modify", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
+
+        query_object_matches("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255", "ALLOCATED PA")
+    }
+
     def "modify 3 objects, change status"() {
       given:
         syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
@@ -4867,9 +4907,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255")
         syncUpdate(getTransient("ASS-END") + "password: lir\npassword: end")
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 62.59.192.2 - 92.59.192.30", "inetnum", "62.59.192.2 - 92.59.192.30")
 
       when:
         def message = syncUpdate("""\
@@ -4974,7 +5011,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       SUB-ALLOCATED PA
+                status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
@@ -4986,7 +5023,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
+                status:       SUB-ALLOCATED PA
                 mnt-by:       END-USER-MNT
                 source:       TEST
                 override: denis,override1
@@ -5012,7 +5049,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.255.255") == [
                 "status value cannot be changed, you must delete and re-create the object",
-                "Status SUB-ALLOCATED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status LEGACY"]
+                "Status LIR-PARTITIONED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status LEGACY"]
         ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.255.255") == [
                 "Authorisation override used"]
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
@@ -5020,8 +5057,8 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 "Authorisation override used"]
 
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ALLOCATED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "SUB-ALLOCATED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "LIR-PARTITIONED PA")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "SUB-ALLOCATED PA")
     }
 
     def "delete and re-create 3 objects, change status"() {
@@ -5571,7 +5608,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
     }
 
-    def "Remove mnt-routes, inverse lookup"() {
+    def "Remove mnt-routes by hostmaster, inverse lookup"() {
       when:
         def message = syncUpdate("""\
                 inetnum:      192.168.128.0 - 192.168.255.255
@@ -5614,9 +5651,61 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
+                """.stripIndent(true))
+      then:
+        def updateAck = new AckResponse("", update)
+        updateAck.summary.nrFound == 1
+        updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
+        updateAck.summary.assertErrors(0, 0, 0, 0)
+
+        queryObjectNotFound("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
+    }
+
+   def "Remove mnt-routes by user maintainer, inverse lookup"() {
+      when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR2-MNT
+                mnt-routes:   LIR2-MNT ANY
+                source:       TEST
+
+                password: hm
                 password: lir
                 password: end
                 password: owner3
+                """.stripIndent(true))
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        queryObject("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
+
+      when:
+        def update = syncUpdate("""\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR2-MNT
+                source:       TEST
+
+                password: lir2
                 """.stripIndent(true))
       then:
         def updateAck = new AckResponse("", update)
@@ -6159,4 +6248,94 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         then:
         created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
     }
+
+    def "create LIR-PARTITIONED PA child under ASSIGNED PA parent"() {
+        given:
+        syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
+
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.200.4 - 192.168.200.7
+                    netname:    RIPE-NCC
+                    status:     LIR-PARTITIONED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.200.4 - 192.168.200.7/
+        created =~ /inetnum parent has incorrect status: ASSIGNED PA/
+    }
+
+    def "create ASSIGNED PA parent above LIR-PARTITIONED PA child"() {
+        given:
+        syncUpdate(getTransient("EARLY") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("PART-PA") + "password: lir")
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.100.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.100.0 - 192.168.255.255/
+        created =~ /Status ASSIGNED PA not allowed when more specific object
+            '192.168.200.0 - 192.168.255.255' has status LIR-PARTITIONED PA/
+    }
+
+    def "create ASSIGNED PA child under ASSIGNED PA parent"() {
+        given:
+        syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
+
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.200.4 - 192.168.200.7
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.200.4 - 192.168.200.7/
+        created =~ /inetnum parent has incorrect status: ASSIGNED PA/
+    }
+
+    def "create ASSIGNED PA parent above ASSIGNED PA child"() {
+        given:
+        syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
+
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.100.0 - 192.168.200.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.100.0 - 192.168.200.255/
+        created =~ /Status ASSIGNED PA not allowed when more specific object
+            '192.168.200.0 - 192.168.200.255' has status ASSIGNED PA/
+    }
+
 }

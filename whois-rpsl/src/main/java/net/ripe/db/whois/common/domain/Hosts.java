@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.domain;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

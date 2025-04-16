@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.api.UpdateCreator;
-import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -18,7 +18,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
-import net.ripe.db.whois.update.domain.APIKeyCredential;
+import net.ripe.db.whois.update.domain.OAuthCredential;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.Credential;
@@ -40,7 +40,7 @@ import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -218,7 +218,7 @@ public class InternalUpdatePerformer {
         }
 
         if (updateContext.getOAuthSession() != null) {
-            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
+            credentials.add(OAuthCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         return new Paragraph(rpslObject.toString(), new Credentials(credentials));

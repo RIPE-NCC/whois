@@ -22,14 +22,11 @@ import java.util.List;
 public class Nrtm4ClientInfoRepository {
 
     private final JdbcTemplate jdbcMasterTemplate;
-    private final JdbcTemplate jdbcSlaveTemplate;
     private final DateTimeProvider dateTimeProvider;
 
     public Nrtm4ClientInfoRepository(@Qualifier("nrtmClientMasterInfoSource") final DataSource masterInfoSource,
-                                     @Qualifier("nrtmClientSlaveInfoSource") final DataSource slaveInfoSource,
                                      final DateTimeProvider dateTimeProvider) {
         this.jdbcMasterTemplate = new JdbcTemplate(masterInfoSource);
-        this.jdbcSlaveTemplate = new JdbcTemplate(slaveInfoSource);
         this.dateTimeProvider = dateTimeProvider;
     }
 
@@ -60,7 +57,7 @@ public class Nrtm4ClientInfoRepository {
             GROUP BY source
             """;
 
-        return jdbcSlaveTemplate.query(sql,
+        return jdbcMasterTemplate.query(sql,
                 nrtmClientVersionRowMapper(),
                 NrtmClientDocumentType.NOTIFICATION.getFileNamePrefix());
     }
@@ -103,14 +100,19 @@ public class Nrtm4ClientInfoRepository {
     }
 
     private static RowMapper<NrtmClientVersionInfo> nrtmClientVersionRowMapper() {
-        return  (rs, rn) -> new NrtmClientVersionInfo(
-                rs.getLong(1),
-                rs.getString(2),
-                rs.getLong(3),
-                rs.getString(4),
-                NrtmClientDocumentType.fromValue(rs.getString(5)),
-                rs.getString(6),
-                rs.getLong(7)
-        );
+        return  (rs, rn) -> {
+            final Long version = rs.getLong("MAX(version)");
+            if (rs.wasNull()){
+                return null;
+            }
+            return new NrtmClientVersionInfo(
+                rs.getLong("id"),
+                rs.getString("source"),
+                version,
+                rs.getString("session_id"),
+                NrtmClientDocumentType.fromValue(rs.getString("type")),
+                rs.getString("hostname"),
+                rs.getLong("created"));
+        };
     }
 }

@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Latin1Conversion;
-import net.ripe.db.whois.update.domain.APIKeyCredential;
+import net.ripe.db.whois.update.domain.OAuthCredential;
 import net.ripe.db.whois.update.domain.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Credential;
@@ -20,7 +20,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -65,7 +65,7 @@ public class UpdatesParser {
         }
 
         if (updateContext.getOAuthSession() != null) {
-            baseCredentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
+            baseCredentials.add(OAuthCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         if (updateContext.getClientCertificates() != null) {

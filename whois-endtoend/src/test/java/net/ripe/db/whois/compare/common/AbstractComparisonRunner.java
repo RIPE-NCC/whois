@@ -4,7 +4,7 @@ import difflib.Delta;
 import difflib.DiffUtils;
 import difflib.Patch;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.File;

@@ -17,7 +17,7 @@ import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -61,7 +61,7 @@ public class NrtmService {
         nrtmSourceDao.getSources().forEach(sourceModel ->
                 sourceLink.append(
                         String.format("<a href='%s'>%s</a><br/>",
-                                        String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.json"),
+                                        String.join("/", nrtmUrl, sourceModel.getName().toString(), "update-notification-file.jose"),
                                         sourceModel.getName().toString()
                                     )
                 )

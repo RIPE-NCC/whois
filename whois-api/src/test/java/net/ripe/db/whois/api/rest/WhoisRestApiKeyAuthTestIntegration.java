@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -16,7 +17,9 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.oauth.APIKeySession;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -26,7 +29,6 @@ import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
@@ -38,12 +40,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.APIKEY_TO_OAUTHSESSION;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INACTIVE_TOKEN;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
@@ -138,7 +142,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @AfterAll
     public static void restApiProperties() {
         System.clearProperty("apikey.authenticate.enabled");
-        System.clearProperty("apikey.public.key.url");
     }
 
     @BeforeEach
@@ -161,7 +164,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         testPersonalObjectAccounting.resetAccounting();
     }
 
-
     @Test
     public void create_failed_with_basic_auth_api_key_no_https() {
 
@@ -171,13 +173,13 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
-        assertThat(response.readEntity(String.class), containsString("HTTPS required for Basic authorization"));
+        assertThat(response.readEntity(String.class), containsString("HTTPS required for Authorization Header"));
     }
 
     @Test
     public void request_failed_with_basic_auth_api_key_illegal_query_param() {
 
-        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
+        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_NO_MNT))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
@@ -188,7 +190,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void request_failed_with_basic_auth_api_key_illegal_bearer_header() {
 
-        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
+        final Response response =  SecureRestTest.target(getSecurePort(), "whois/test/person?" + OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM + "=test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer eFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
@@ -272,9 +274,50 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .get(String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: The API key cannot be used because it was created for a different\n" +
+        assertThat(response, containsString("***Warning: The API Key cannot be used because it was created for a different\n" +
                 "            application or environment"));
     }
+
+    @Test
+    public void create_mntner_only_data_parameter_with_apiKey_fails_invalid() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_API_KEY))
+                .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+        assertThat(response, containsString("***Warning: Invalid API Key"));
+    }
+
+    @Test
+    public void create_mntner_only_data_parameter_with_apiKey_fails_inactive_session() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INACTIVE_TOKEN))
+                .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+        assertThat(response, containsString("***Warning: Session associated with API Key is not active"));
+    }
+
 
     @Test
     public void lookup_correct_api_key_with_sso_and_filtered_wrong_audience() {
@@ -303,6 +346,21 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertIrt(whoisObject, false);
     }
+
+    @Test
+    public void lookup_correct_api_key_with_sso_and_wrong_audience() {
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test?unfiltered")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertIrt(whoisObject, true);
+    }
+
 
     @Test
     public void lookup_correct_api_key_no_sso_in_mnt_by_and_filtered() {
@@ -781,7 +839,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void lookup_person_using_api_key_email_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost,  null, APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNER_MNT));
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost,  null, getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNER_MNT)));
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
@@ -806,7 +864,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                         "source:    TEST");
 
         final int queriedByIP = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
-        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT).getEmail());
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT)).getEmail());
 
         final WhoisResources whoisResources =   SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
                 .request()
@@ -821,14 +879,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
         assertThat(accountedByIp, is(queriedByIP));
 
-        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT).getEmail());
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT)).getEmail());
         assertThat(accountedBySSO, is(queriedBySSO + 1));
     }
 
     @Test
     public void lookup_person_using_sso_no_acl_for_unlimited_remoteAddr() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT));
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT)));
 
         databaseHelper.insertAclIpLimit(LOCALHOST_WITH_PREFIX, -1, true);
         ipResourceConfiguration.reload();
@@ -891,4 +949,12 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
+
+    private APIKeySession getOAuthSession(final JWTClaimsSet claimSet) throws ParseException {
+        return (APIKeySession) new OAuthSession.Builder().aud(claimSet.getAudience())
+                .keyId("123").scope(claimSet.getStringClaim("scope"))
+                        .uuid(claimSet.getStringClaim("uuid"))
+                        .email(claimSet.getStringClaim("email")).build();
+    }
+
 }

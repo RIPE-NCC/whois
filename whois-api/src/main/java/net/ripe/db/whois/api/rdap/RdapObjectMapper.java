@@ -20,6 +20,7 @@ import net.ripe.db.whois.api.rdap.domain.Event;
 import net.ripe.db.whois.api.rdap.domain.Ip;
 import net.ripe.db.whois.api.rdap.domain.IpCidr0;
 import net.ripe.db.whois.api.rdap.domain.Link;
+import net.ripe.db.whois.api.rdap.domain.LinkRelationType;
 import net.ripe.db.whois.api.rdap.domain.Nameserver;
 import net.ripe.db.whois.api.rdap.domain.Notice;
 import net.ripe.db.whois.api.rdap.domain.RdapObject;
@@ -52,7 +53,7 @@ import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.update.domain.ReservedResources;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,6 +228,7 @@ public class RdapObjectMapper {
                                         final List<RpslObjectInfo> autnumResult,
                                         final List<RpslObjectInfo> inetnumResult,
                                         final List<RpslObjectInfo> inet6numResult,
+                                        final AbuseContact abuseContact,
                                         final int maxResultSize) {
 
         final List<Autnum> autnums = mapAutnums(requestUrl, autnumResult);
@@ -234,7 +236,7 @@ public class RdapObjectMapper {
         final List<RpslObjectInfo> topLevelInetnums = new TopLevelFilter<Ipv4Resource>(inetnumResult).getTopLevelValues();
         final List<RpslObjectInfo> topLevelInet6nums = new TopLevelFilter<Ipv4Resource>(inet6numResult).getTopLevelValues();
 
-        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, null);
+        final RdapObject organisation = getRdapObject(requestUrl, organisationObject, abuseContact);
         final List<Ip> networks = mapNetworks(requestUrl, topLevelInetnums, topLevelInet6nums, maxResultSize);
 
         if ((topLevelInetnums.size() + topLevelInet6nums.size()) > maxResultSize) {
@@ -356,7 +358,7 @@ public class RdapObjectMapper {
 
     private void mapCommonLinks(final RdapObject rdapResponse, final String requestUrl) {
         if (requestUrl != null) {
-            rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null, null));
+            rdapResponse.getLinks().add(new Link(requestUrl, "self", requestUrl, null, null, APPLICATION_RDAP_JSON));
         }
         rdapResponse.getLinks().add(COPYRIGHT_LINK);
     }
@@ -478,20 +480,22 @@ public class RdapObjectMapper {
     }
 
     private IpEntry lookupParentIpEntry(final IpInterval ipInterval) {
-        if (ipInterval instanceof Ipv4Resource) {
-            final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific((Ipv4Resource) ipInterval);
-            if (firstLessSpecific.isEmpty()) {
-                throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
-            }
-            return firstLessSpecific.get(0);
-        } else {
-            if (ipInterval instanceof Ipv6Resource) {
-                final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific((Ipv6Resource) ipInterval);
+        switch (ipInterval) {
+            case Ipv4Resource ipv4Resource : {
+                final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific(ipv4Resource);
                 if (firstLessSpecific.isEmpty()) {
                     throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
                 }
                 return firstLessSpecific.get(0);
-            } else {
+            }
+            case Ipv6Resource ipv6Resource : {
+                final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific(ipv6Resource);
+                if (firstLessSpecific.isEmpty()) {
+                    throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
+                }
+                return firstLessSpecific.get(0);
+            }
+            case null : {
                 throw new RdapException("500 Internal Error", "Unknown interval type " + ipInterval.getClass().getName(), HttpStatus.INTERNAL_SERVER_ERROR_500);
             }
         }
@@ -649,10 +653,15 @@ public class RdapObjectMapper {
             if (!ipIntervals.isEmpty()) {
                 final Nameserver.IpAddresses ipAddresses = new Nameserver.IpAddresses();
                 for (IpInterval ipInterval : ipIntervals) {
-                    if (ipInterval instanceof Ipv4Resource) {
-                        ipAddresses.getIpv4().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
-                    } else if (ipInterval instanceof Ipv6Resource) {
-                        ipAddresses.getIpv6().add(IpInterval.asIpInterval(ipInterval.beginAsInetAddress()).toString());
+                    switch (ipInterval) {
+                        case Ipv4Resource ipv4Resource : {
+                            ipAddresses.getIpv4().add(IpInterval.asIpInterval(ipv4Resource.beginAsInetAddress()).toString());
+                            break;
+                        }
+                        case Ipv6Resource ipv6Resource : {
+                            ipAddresses.getIpv6().add(IpInterval.asIpInterval(ipv6Resource.beginAsInetAddress()).toString());
+                            break;
+                        }
                     }
                 }
                 nameserver.setIpAddresses(ipAddresses);
@@ -804,23 +813,25 @@ public class RdapObjectMapper {
     }
 
     private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.UP.getValue(),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.UP.getValue(),
                 buildRirSearchUri(objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, "up-active",
-                buildRirSearchUri(objectType, RelationType.UP.getValue(), handle).concat("?status=active"), APPLICATION_RDAP_JSON, null, null));
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.concat(LinkRelationType.UP, LinkRelationType.ACTIVE),
+                buildRirSearchUri(objectType, RelationType.UP.getValue(), handle).concat("?status=active"),
+                APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.DOWN.getValue(),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.DOWN.getValue(),
                 buildRirSearchUri(objectType, RelationType.DOWN.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.TOP.getValue(),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.TOP.getValue(),
                 buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, "top-active",
+        rdapResponse.getLinks().add(new Link(requestUrl,
+                LinkRelationType.concat(LinkRelationType.TOP, LinkRelationType.ACTIVE),
                 buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle).concat("?status=active"), APPLICATION_RDAP_JSON, null,
                 null));
 
-        rdapResponse.getLinks().add(new Link(requestUrl, RelationType.BOTTOM.getValue(),
+        rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.BOTTOM.getValue(),
                 buildRirSearchUri(objectType, RelationType.BOTTOM.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
     }
 

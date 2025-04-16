@@ -2,7 +2,7 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -21,7 +21,7 @@ import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.query.Query;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;

@@ -10,14 +10,14 @@ import net.ripe.db.nrtm4.dao.NrtmVersionInfoDao;
 import net.ripe.db.nrtm4.domain.DeltaFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
-import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmVersionRecord;
+import net.ripe.db.nrtm4.domain.SnapshotFileRecord;
+import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
 
         final String response = getResponseFromHttpsRequest(null, MediaType.TEXT_HTML).readEntity(String.class);
 
-        assertThat(response, is("<html><header><title>NRTM Version 4</title></header><body><a href='https://nrtm.db.ripe.net/TEST/update-notification-file.json'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.json'>TEST-NONAUTH</a><br/><body></html>"));
+        assertThat(response, is("<html><header><title>NRTM Version 4</title></header><body><a href='https://nrtm.db.ripe.net/TEST/update-notification-file.jose'>TEST</a><br/><a href='https://nrtm.db.ripe.net/TEST-NONAUTH/update-notification-file.jose'>TEST-NONAUTH</a><br/><body></html>"));
     }
 
     @Test

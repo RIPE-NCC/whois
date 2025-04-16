@@ -3,7 +3,7 @@ package net.ripe.db.whois.api;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.rdap.domain.Link;
-import net.ripe.db.whois.api.rdap.domain.RelationType;
+import net.ripe.db.whois.api.rdap.domain.LinkRelationType;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.apache.logging.log4j.Level;
@@ -107,9 +107,9 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
 
     protected Map<String, String> getRelationCallsFromLinks(final List<Link> links){
         return links.stream()
-                .filter(link ->  RelationType.isValidValue(link.getRel()))
+                .filter(link -> LinkRelationType.containsValidValue(link.getRel()))
                 .collect(Collectors.toMap(
-                        link -> link.getRel().toUpperCase(),
+                        Link::getRel,
                         link -> link.getHref().replace(rdapBaseUrl + "/", "")
                 ));
     }
