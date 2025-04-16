@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.ripe.db.nrtm4.domain.NrtmFileRecord;
 import net.ripe.db.nrtm4.domain.NrtmVersionInfo;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

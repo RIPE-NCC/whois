@@ -15,7 +15,7 @@ import jakarta.ws.rs.client.WebTarget;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import static org.hamcrest.MatcherAssert.assertThat;

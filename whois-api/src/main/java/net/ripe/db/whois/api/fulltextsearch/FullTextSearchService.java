@@ -14,7 +14,7 @@ import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

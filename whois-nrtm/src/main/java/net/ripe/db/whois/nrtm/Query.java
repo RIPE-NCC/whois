@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Iterator;

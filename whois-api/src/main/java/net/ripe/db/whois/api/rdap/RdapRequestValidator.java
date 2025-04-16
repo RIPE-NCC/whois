@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.MNTNER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class RdapRequestValidator {
