@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
-import org.apache.commons.lang3.math.LongRange;
+import org.apache.commons.lang3.LongRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +33,10 @@ public class ReservedResources {
 
     public boolean isReservedAsNumber(final Long asn) {
         for (LongRange range : this.reservedAsnumbers) {
-            if (range.containsLong(asn)) {
+            if (range.contains(asn)) {
                 return true;
             }
-            if (asn < range.getMinimumLong()) {
+            if (asn < range.getMinimum()) {
                 break;
             }
         }
@@ -47,10 +47,10 @@ public class ReservedResources {
 
         try {
             final AsBlockRange asBlockRange = AsBlockRange.parse(asBlock);
-            final LongRange asLongRange = new LongRange(asBlockRange.getBegin(), asBlockRange.getEnd());
+            final LongRange asLongRange = LongRange.of(asBlockRange.getBegin(), asBlockRange.getEnd());
 
             return this.reservedAsnumbers.stream()
-                    .anyMatch(reservedAsn -> reservedAsn.overlapsRange(asLongRange));
+                    .anyMatch(reservedAsn -> reservedAsn.isOverlappedBy(asLongRange));
 
         } catch (AttributeParseException ex) {
             throw new InternalServerErrorException("Invalid AS Block Range");
@@ -63,9 +63,9 @@ public class ReservedResources {
         for (String reservedAsNumber : reservedAsNumbers.split(",")) {
             if (reservedAsNumber.contains("-")) {
                 String[] startEnd = reservedAsNumber.split("-");
-                parsedAsNumbers.add(new LongRange(Long.parseLong(startEnd[0]), Long.parseLong(startEnd[1])));
+                parsedAsNumbers.add(LongRange.of(Long.parseLong(startEnd[0]), Long.parseLong(startEnd[1])));
             } else {
-                parsedAsNumbers.add(new LongRange(Long.parseLong(reservedAsNumber), Long.parseLong(reservedAsNumber)));
+                parsedAsNumbers.add(LongRange.of(Long.parseLong(reservedAsNumber), Long.parseLong(reservedAsNumber)));
             }
         }
         return parsedAsNumbers;
