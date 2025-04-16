@@ -34,10 +34,9 @@
 
         <bouncycastle.version>1.80</bouncycastle.version>
 
-        <!-- TODO: update to commons-collections4 -->
-        <commons-collections.version>3.2.2</commons-collections.version>
         <c3po.version>0.10.2</c3po.version>
         <commons-codec.version>1.18.0</commons-codec.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
         <commons-compress.version>1.27.1</commons-compress.version>
         <commons-email.version>2.0.0-M1</commons-email.version>
         <commons-io.version>2.19.0</commons-io.version>
@@ -490,9 +489,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collections.version}</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
