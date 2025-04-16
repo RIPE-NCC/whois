@@ -48,7 +48,7 @@
         <commons-net.version>3.11.1</commons-net.version>
         <commons-validator.version>1.9.0</commons-validator.version>
 
-        <diffutils.version>1.3.0</diffutils.version>
+        <diffutils.version>4.15</diffutils.version>
 
         <elasticsearch.version>7.16.3</elasticsearch.version>
         <ezvcard.version>0.12.1</ezvcard.version>
@@ -684,8 +684,8 @@
 
             <!-- diffutils -->
             <dependency>
-                <groupId>com.googlecode.java-diff-utils</groupId>
-                <artifactId>diffutils</artifactId>
+                <groupId>io.github.java-diff-utils</groupId>
+                <artifactId>java-diff-utils</artifactId>
                 <version>${diffutils.version}</version>
             </dependency>
 
