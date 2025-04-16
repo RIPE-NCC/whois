@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.collect.Lists;
 import io.netty.util.internal.StringUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;

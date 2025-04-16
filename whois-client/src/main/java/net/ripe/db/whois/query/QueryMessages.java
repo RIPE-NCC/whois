@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.QueryMessage;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import static net.ripe.db.whois.common.Messages.Type;
 

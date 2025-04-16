@@ -20,7 +20,7 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.nio.charset.Charset;
