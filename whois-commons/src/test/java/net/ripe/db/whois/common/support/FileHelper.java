@@ -6,7 +6,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.exception.NestableRuntimeException;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
 
@@ -26,7 +25,7 @@ public class FileHelper {
         try {
             return FileCopyUtils.copyToString(new InputStreamReader(new ClassPathResource(fileName).getInputStream()));
         } catch (IOException e) {
-            throw new NestableRuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
