@@ -1,7 +1,7 @@
 package net.ripe.db.whois.compare.rest;
 
 import net.ripe.db.whois.compare.common.QueryReader;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 
 public class RestQueryReader extends QueryReader {

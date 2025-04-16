@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.autokey.dao;
 
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.update.domain.OrganisationId;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;

@@ -115,7 +115,7 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
     }
 
     @Test
-    public void sendMessageDataLargerThanMaximum() throws Exception {
+    public void sendMessageDataMessageLargerThanMaximum() throws Exception {
         final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
         assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
         smtpClient.writeLine("HELO testserver");
@@ -147,6 +147,40 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
         smtpClient.writeLine("QUIT");
         assertThat(smtpClient.readLine(), startsWith("221 "));
         assertThat(mailMessageDao.claimMessage(), is(nullValue()));
+    }
+
+    @Test
+    public void sendMessageDataLineLargerThanMaximum() throws Exception {
+        final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
+        assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
+        smtpClient.writeLine("HELO testserver");
+        assertThat(smtpClient.readLine(), matchesPattern("250.*Hello testserver"));
+        smtpClient.writeLine("MAIL FROM: <user@example.com>");
+        assertThat(smtpClient.readLine(), is("250 OK"));
+        smtpClient.writeLine("RCPT TO: <test-dbm@ripe.net>");
+        assertThat(smtpClient.readLine(), is("250 Accepted"));
+        smtpClient.writeLine("DATA");
+        assertThat(smtpClient.readLine(), is("354 Enter message, ending with \".\" on a line by itself"));
+        smtpClient.writeLines(
+            "Subject: Update\n" +
+            "\n" +
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." +
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." +
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur." +
+            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." +
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." +
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur." +
+            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." +
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." +
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." +
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur." +
+            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n");
+        assertThat(smtpClient.readLine(), startsWith("501 line too long"));
+        smtpClient.writeLine(".");
+        assertThat(smtpClient.readLine(), startsWith("250 OK"));
+        smtpClient.writeLine("QUIT");
+        assertThat(smtpClient.readLine(), startsWith("221 "));
     }
 
     @Test

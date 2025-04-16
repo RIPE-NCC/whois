@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.elasticsearch;
 
 
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
