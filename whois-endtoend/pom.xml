@@ -184,7 +184,7 @@
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>com.googlecode.java-diff-utils:diffutils</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.github.java-diff-utils:java-diff-utils</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>

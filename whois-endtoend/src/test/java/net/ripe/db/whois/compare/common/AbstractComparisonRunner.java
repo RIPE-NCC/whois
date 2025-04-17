@@ -1,8 +1,8 @@
 package net.ripe.db.whois.compare.common;
 
-import difflib.Delta;
-import difflib.DiffUtils;
-import difflib.Patch;
+import com.github.difflib.DiffUtils;
+import com.github.difflib.patch.AbstractDelta;
+import com.github.difflib.patch.Patch;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -73,7 +73,7 @@ public abstract class AbstractComparisonRunner implements ComparisonRunner {
             final ComparisonResult result = filterOutKnownDifferences(executor1Result, executor2Result);
 
             final Patch patch = DiffUtils.diff(result.getList1(), result.getList2());
-            final List<Delta> deltas = patch.getDeltas();
+            final List<AbstractDelta> deltas = patch.getDeltas();
             if (!deltas.isEmpty()) {
                 ComparisonPrinter.writeDifferences(targetDir, queryString, executor1Result, executor2Result, deltas);
                 failedQueries++;
