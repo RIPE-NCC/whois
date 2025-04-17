@@ -38,6 +38,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest {
@@ -290,10 +291,10 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
 
     protected static void assertNrtmFileInfo(final String nrtmInfo, final String type, final int version, final String source) throws JSONException {
         final JSONObject jsonObject = new JSONObject(nrtmInfo);
-        MatcherAssert.assertThat(jsonObject.getInt("nrtm_version"), is(4));
-        MatcherAssert.assertThat(jsonObject.getString("type"), is(type));
-        MatcherAssert.assertThat(jsonObject.getString("source"), is(source));
-        MatcherAssert.assertThat(jsonObject.getInt("version"), is(version));
+        assertThat(jsonObject.getInt("nrtm_version"), is(4));
+        assertThat(jsonObject.getString("type"), is(type));
+        assertThat(jsonObject.getString("source"), is(source));
+        assertThat(jsonObject.getInt("version"), is(version));
     }
 
     protected static NrtmVersionRecord getNrtmVersionInfo(final String nrtmInfo) throws JSONException {
