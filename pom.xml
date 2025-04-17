@@ -132,10 +132,10 @@
         <module>whois-nrtm</module>
         <module>whois-nrtm4</module>
         <module>whois-nrtm4-client</module>
+        <module>whois-query</module>
         <module>whois-rpsl</module>
         <module>whois-scheduler</module>
         <module>whois-smtp</module>
-        <module>whois-query</module>
         <module>whois-update</module>
     </modules>
 
