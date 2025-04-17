@@ -86,6 +86,8 @@
 
         <netty.version>4.1.119.Final</netty.version>
 
+        <org.json.version>20180813</org.json.version>
+
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
         <persistence.version>1.0.2</persistence.version>
         <proprot.version>1.0</proprot.version>
@@ -700,6 +702,13 @@
                 <groupId>com.googlecode.ez-vcard</groupId>
                 <artifactId>ez-vcard</artifactId>
                 <version>${ezvcard.version}</version>
+            </dependency>
+
+            <!-- JSONObject Library -->
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org.json.version}</version>
             </dependency>
 
             <!-- Solr -->
