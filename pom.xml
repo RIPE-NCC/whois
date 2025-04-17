@@ -55,7 +55,7 @@
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <groovy.version>3.0.21</groovy.version>
+        <groovy.version>4.0.26</groovy.version>
         <guava.version>33.4.8-jre</guava.version>
 
         <hamcrest.version>3.0</hamcrest.version>
@@ -94,7 +94,7 @@
         <slf4j.version>2.0.16</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
         <spring.version>6.1.18</spring.version>
-        <spock.version>2.3-groovy-3.0</spock.version>
+        <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
         <testcontainers.elasticsearch.version>1.16.2</testcontainers.elasticsearch.version>
@@ -805,7 +805,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.codehaus.groovy</groupId>
+          <groupId>org.apache.groovy</groupId>
           <artifactId>groovy</artifactId>
           <version>${groovy.version}</version>
           <scope>test</scope>
