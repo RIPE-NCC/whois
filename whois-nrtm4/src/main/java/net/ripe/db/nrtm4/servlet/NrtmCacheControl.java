@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.nrtm4;
+package net.ripe.db.nrtm4.servlet;
 
 import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.container.ContainerRequestContext;

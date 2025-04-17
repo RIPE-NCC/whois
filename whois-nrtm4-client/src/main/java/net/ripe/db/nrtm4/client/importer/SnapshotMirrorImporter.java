@@ -2,7 +2,6 @@ package net.ripe.db.nrtm4.client.importer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
-import com.hazelcast.org.codehaus.commons.nullanalysis.NotNull;
 import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
@@ -22,6 +21,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +132,7 @@ public class SnapshotMirrorImporter extends AbstractMirrorImporter {
         batchTransactions.forEach(nrtmClientUpdateTransaction::commit);
     }
 
-    @NotNull
+    @Nonnull
     private List<TransactionStatus> processBatchAndTransactions(final String[] remainingRecords, final AtomicInteger processedCount, final ExecutorService executor){
 
         //Transaction annotation does not work with any threaded processing methods

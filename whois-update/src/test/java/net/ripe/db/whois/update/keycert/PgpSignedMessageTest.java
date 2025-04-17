@@ -360,7 +360,7 @@ public class PgpSignedMessageTest {
 
         final PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
 
-        assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
+        assertThat(subject.verify(getPublicKey_28F6CD6C()), is(true));
     }
 
     @Test
@@ -396,7 +396,7 @@ public class PgpSignedMessageTest {
 
         final PgpSignedMessage subject = PgpSignedMessage.parse(signedData, signature);
 
-        assertThat(subject.verify(getPublicKey_28F6CD6C()), Matchers.is(true));
+        assertThat(subject.verify(getPublicKey_28F6CD6C()), is(true));
     }
 
     // latin1 extended characters are not encoded into bytes properly, unless the original charset is specified.
