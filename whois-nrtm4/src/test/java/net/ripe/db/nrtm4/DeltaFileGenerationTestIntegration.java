@@ -321,7 +321,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         final UpdateNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
         final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 2);
 
-        assertThat(testUpdateNotification.getSnapshot().getVersion(), Matchers.is(new JSONObject(testDelta[0]).getLong("version")));
+        assertThat(testUpdateNotification.getSnapshot().getVersion(), is(new JSONObject(testDelta[0]).getLong("version")));
 
     }
 
