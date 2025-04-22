@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.acl;
 
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
@@ -43,10 +44,13 @@ public class IpAccessControlListManagerAccountingTest {
     private AccountingIdentifier accountingIdentifierIpv4;
     private InetAddress ipv6Address;
     private AccountingIdentifier accountingIdentifierIpv6;
+    private JdbcRpslObjectSlaveDao jdbcRpslObjectSlaveDao;
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, true, ipRanges);
+        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao,
+                personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, true
+                , ipRanges, jdbcRpslObjectSlaveDao);
         ipv4Address = Inet4Address.getLocalHost();
         ipv6Address = Inet6Address.getByName("::1");
         accountingIdentifierIpv4 = new AccountingIdentifier(ipv4Address, null);

@@ -1,12 +1,15 @@
 package net.ripe.db.whois.query.acl;
 
+import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
-import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
 import net.ripe.db.whois.common.domain.BlockEvent;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Component;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 @Component
 public class AccessControlListManager {
@@ -44,6 +48,7 @@ public class AccessControlListManager {
     private final SSOResourceConfiguration ssoResourceConfiguration;
     private final SSOAccessControlListDao ssoAccessControlListDao;
     private final SsoTokenTranslator ssoTokenTranslator;
+    private final JdbcRpslObjectSlaveDao jdbcRpslObjectSlaveDao;
     private final boolean isSSOAccountingEnabled;
 
     @Autowired
@@ -55,7 +60,8 @@ public class AccessControlListManager {
                                     final SsoTokenTranslator ssoTokenTranslator,
                                     final SSOResourceConfiguration ssoResourceConfiguration,
                                     @Value("${personal.accounting.by.sso:true}") final boolean isSSOAccountingEnabled,
-                                    final IpRanges ipRanges) {
+                                    final IpRanges ipRanges,
+                                    final JdbcRpslObjectSlaveDao jdbcRpslObjectSlaveDao) {
         this.dateTimeProvider = dateTimeProvider;
         this.ipResourceConfiguration = ipResourceConfiguration;
         this.ipAccessControlListDao = ipAccessControlListDao;
@@ -65,10 +71,15 @@ public class AccessControlListManager {
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.ipRanges = ipRanges;
         this.isSSOAccountingEnabled = isSSOAccountingEnabled;
+        this.jdbcRpslObjectSlaveDao = jdbcRpslObjectSlaveDao;
     }
 
-    public boolean requiresAcl(final RpslObject rpslObject, final Source source) {
+    public boolean requiresAcl(final RpslObject rpslObject, final Source source, final String ssoToken) {
         if (source.isGrs()) {
+            return false;
+        }
+
+        if (!StringUtil.isNullOrEmpty(ssoToken) && isUserOwnedObject(rpslObject, ssoToken)){
             return false;
         }
 
@@ -161,6 +172,11 @@ public class AccessControlListManager {
 
         final PersonalAccountingManager accountingManager = getAccountingManager(accountingIdentifier);
         accountingManager.accountPersonalObjects(amount);
+    }
+
+    private boolean isUserOwnedObject(final RpslObject rpslObject, final String userName){
+        final List<RpslObjectInfo> mntnerInfoList = jdbcRpslObjectSlaveDao.findByAttribute(AttributeType.AUTH, "SSO " + userName);
+        return mntnerInfoList.stream().anyMatch(rpslObjectInfo -> rpslObject.getValueForAttribute(AttributeType.MNT_BY).contains(rpslObjectInfo.getKey()));
     }
 
     private class SSOAccountingManager implements PersonalAccountingManager {

@@ -97,7 +97,7 @@ public class QueryHandlerAclTest {
 
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         lenient().when(accessControlListManager.canQueryPersonalObjects(accountingIdentifier)).thenReturn(true);
-        lenient().when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenAnswer(new Answer<Object>() {
+        lenient().when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class), any(String.class))).thenAnswer(new Answer<Object>() {
             @Override
             @SuppressWarnings("SuspiciousMethodCalls")
             public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
@@ -108,7 +108,7 @@ public class QueryHandlerAclTest {
 
     @Test
     public void source_without_acl() {
-        when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(false);
+        when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class), any(String.class))).thenReturn(false);
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -124,7 +124,7 @@ public class QueryHandlerAclTest {
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
 
-        verify(accessControlListManager, never()).requiresAcl(any(RpslObject.class), any(Source.class));
+        verify(accessControlListManager, never()).requiresAcl(any(RpslObject.class), any(Source.class), any(String.class));
         verify(accessControlListManager, never()).accountPersonalObjects(any(AccountingIdentifier.class), any(Integer.class));
         verifyLog(query, null, 0, 4);
     }
