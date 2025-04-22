@@ -6,6 +6,7 @@ import com.google.common.collect.Iterators;
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -14,6 +15,7 @@ import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,7 @@ public class RdapLookupService {
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
 
     private final AbuseCFinder abuseCFinder;
+    private final ReservedResources reservedResources;
 
     /**
      *
@@ -68,6 +71,7 @@ public class RdapLookupService {
     public RdapLookupService(@Value("${rdap.public.baseUrl:}") final String baseUrl,
                              @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize,
                              final RdapObjectMapper rdapObjectMapper,
+                             final ReservedResources reservedResources,
                              final RdapQueryHandler rdapQueryHandler,
                              final SourceContext sourceContext,
                              final RpslObjectUpdateDao rpslObjectUpdateDao,
@@ -79,12 +83,31 @@ public class RdapLookupService {
         this.sourceContext = sourceContext;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.abuseCFinder = abuseCFinder;
-
+        this.reservedResources = reservedResources;
     }
 
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
                                  final String key) {
         final List<RpslObject> result = rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key), request).toList();
+        return getRdapObject(request, result);
+    }
+
+    protected Object lookupForIpObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
+                                  final String key) {
+        final List<RpslObject> result = rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key), request).toList();
+
+        if(result.isEmpty()){
+            try {
+                final Ipv4Resource interval = Ipv4Resource.parse(key);
+
+                final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(interval);
+                if(adminstrativeBlock != null) result.add(adminstrativeBlock);
+
+            } catch (IllegalArgumentException e) {
+                //Do nothing
+            }
+        }
+
         return getRdapObject(request, result);
     }
 

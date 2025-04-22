@@ -308,7 +308,7 @@ public class RdapController {
                 if (isRedirect(Iterables.getOnlyElement(whoisObjectTypes), key)) {
                     return redirect(getRequestPath(request), getQueryObject(whoisObjectTypes, key));
                 }
-                object = rdapService.lookupObject(request, whoisObjectTypes, key);
+                object = rdapService.lookupForIpObject(request, whoisObjectTypes, key);
             }
             case ENTITY -> {
                 rdapRequestValidator.validateEntity(key);
@@ -418,7 +418,6 @@ public class RdapController {
         }
         return buffer.toString();
     }
-
 
     private Object handleSearch(final RdapRequestType requestType, final String[] fields, final String term,
                                 final HttpServletRequest request) {
