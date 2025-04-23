@@ -180,8 +180,8 @@ public class AccessControlListManager {
         accountingManager.accountPersonalObjects(amount);
     }
 
-    private boolean isUserOwnedObject(final RpslObject rpslObject, final String userName){
-        final List<RpslObjectInfo> mntnerInfoList = jdbcRpslObjectSlaveDao.findByAttribute(AttributeType.AUTH, "SSO " + userName);
+    private boolean isUserOwnedObject(final RpslObject rpslObject, final String ssoToken){
+        final List<RpslObjectInfo> mntnerInfoList = jdbcRpslObjectSlaveDao.findByAttribute(AttributeType.AUTH, "SSO " + ssoToken);
         return mntnerInfoList.stream().anyMatch(rpslObjectInfo -> rpslObject.getValueForAttribute(AttributeType.MNT_BY).contains(rpslObjectInfo.getKey()));
     }
 
