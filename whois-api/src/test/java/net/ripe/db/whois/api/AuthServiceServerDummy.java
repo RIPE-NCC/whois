@@ -11,7 +11,7 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.UserSession;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;

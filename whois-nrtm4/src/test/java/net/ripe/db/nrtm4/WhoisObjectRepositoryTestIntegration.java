@@ -1,10 +1,9 @@
-package net.ripe.db.whois.api.nrtmv4;
+package net.ripe.db.nrtm4;
 
 import net.ripe.db.nrtm4.dao.WhoisObjectDao;
 import net.ripe.db.nrtm4.dao.WhoisObjectRepository;
 import net.ripe.db.nrtm4.domain.SnapshotState;
 import net.ripe.db.nrtm4.domain.WhoisObjectData;
-import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

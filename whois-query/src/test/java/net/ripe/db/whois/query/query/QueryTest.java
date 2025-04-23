@@ -220,7 +220,7 @@ public class QueryTest {
             parse("-T aut-num foo");
             fail("Expected query exception");
         } catch (QueryException e) {
-            assertThat(e.getCompletionInfo(), Matchers.is(QueryCompletionInfo.PARAMETER_ERROR));
+            assertThat(e.getCompletionInfo(), is(QueryCompletionInfo.PARAMETER_ERROR));
             assertThat(e.getMessages(), contains(QueryMessages.invalidSearchKey()));
         }
     }

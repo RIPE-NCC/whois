@@ -43,8 +43,9 @@
         <commons-io.version>2.17.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
-        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
+        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException instead of IllegalArgumentException). Replace all commons-lang with commons-lang3 calls -->
         <commons-lang.version>2.6</commons-lang.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
         <commons-net.version>3.10.0</commons-net.version>
         <commons-validator.version>1.9.0</commons-validator.version>
 
@@ -84,6 +85,8 @@
         <mockito.version>5.12.0</mockito.version>
 
         <netty.version>4.1.119.Final</netty.version>
+
+        <org.json.version>20180813</org.json.version>
 
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
         <persistence.version>1.0.2</persistence.version>
@@ -129,10 +132,10 @@
         <module>whois-nrtm</module>
         <module>whois-nrtm4</module>
         <module>whois-nrtm4-client</module>
+        <module>whois-query</module>
         <module>whois-rpsl</module>
         <module>whois-scheduler</module>
         <module>whois-smtp</module>
-        <module>whois-query</module>
         <module>whois-update</module>
     </modules>
 
@@ -468,6 +471,11 @@
                 <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
                 <version>${commons-validator.version}</version>
@@ -694,6 +702,13 @@
                 <groupId>com.googlecode.ez-vcard</groupId>
                 <artifactId>ez-vcard</artifactId>
                 <version>${ezvcard.version}</version>
+            </dependency>
+
+            <!-- JSONObject Library -->
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org.json.version}</version>
             </dependency>
 
             <!-- Solr -->

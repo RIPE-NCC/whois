@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
 import net.ripe.db.whois.common.domain.CIString;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 import java.util.regex.Matcher;

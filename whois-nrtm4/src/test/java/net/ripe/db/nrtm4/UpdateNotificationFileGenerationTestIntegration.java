@@ -1,12 +1,12 @@
-package net.ripe.db.whois.api.nrtmv4;
+package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.UpdateNotificationFile;
-import net.ripe.db.whois.api.AbstractNrtmIntegrationTest;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.support.PatternMatcher;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpStatus;
@@ -20,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static net.ripe.db.whois.query.support.PatternMatcher.matchesPattern;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -313,8 +312,8 @@ public class UpdateNotificationFileGenerationTestIntegration extends AbstractNrt
 
         final UpdateNotificationFile firstIteration = getNotificationFileBySource("TEST");
 
-        assertThat(firstIteration.getSnapshot().getHash(), matchesPattern("^[0-9a-fA-F]{64}$"));
-        assertThat(firstIteration.getDeltas().get(0).getHash(), matchesPattern("^[0-9a-fA-F]{64}$"));
+        assertThat(firstIteration.getSnapshot().getHash(), PatternMatcher.matchesPattern("^[0-9a-fA-F]{64}$"));
+        assertThat(firstIteration.getDeltas().get(0).getHash(), PatternMatcher.matchesPattern("^[0-9a-fA-F]{64}$"));
     }
 
     @Test
