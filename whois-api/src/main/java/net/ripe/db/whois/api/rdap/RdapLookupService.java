@@ -15,7 +15,7 @@ import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.ReservedResources;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,6 +52,7 @@ public class RdapLookupService {
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
 
     private final AbuseCFinder abuseCFinder;
+
     private final ReservedResources reservedResources;
 
     /**
@@ -83,6 +84,7 @@ public class RdapLookupService {
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.abuseCFinder = abuseCFinder;
         this.reservedResources = reservedResources;
+
     }
 
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
@@ -220,7 +222,7 @@ public class RdapLookupService {
         return builder.toString();
     }
 
-    private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result, final String requestedkey) {
+    private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result,  final String requestedkey) {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
@@ -234,8 +236,7 @@ public class RdapLookupService {
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
-        if (RdapObjectMapper.isIANABlock(resultObject)) {
-
+        if (RdapObjectMapper.isIANABlock(resultObject)){
             final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(requestedkey);
             if(adminstrativeBlock == null) {
                 throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
@@ -254,4 +255,5 @@ public class RdapLookupService {
     private AbuseContact getAbuseContact(final RpslObject resultObject) {
         return abuseCFinder.getAbuseContact(resultObject).orElse(null);
     }
+
 }

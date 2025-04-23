@@ -29,6 +29,7 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +60,13 @@ public class ElasticFulltextSearch extends FulltextSearch {
             .terms("types-count")
             .field("object-type.raw")
             .size(ObjectType.values().length);
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
+
+    public static final List<SortBuilder<?>> SORT_BUILDERS = List.of(
+            SortBuilders.fieldSort("lookup-key.raw")
+                    .unmappedType("keyword")
+                    .order(SortOrder.ASC)
+    );
+
     private final AccessControlListManager accessControlListManager;
     private final ElasticIndexService elasticIndexService;
 

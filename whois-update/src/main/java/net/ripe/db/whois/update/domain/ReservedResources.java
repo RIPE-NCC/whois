@@ -13,7 +13,7 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
-import org.apache.commons.lang.math.LongRange;
+import org.apache.commons.lang3.LongRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +37,7 @@ public class ReservedResources {
 
     private static final String TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE = "2002-06-25T14:19:09Z";
 
+
     @Autowired
     public ReservedResources(@Value("${whois.reserved.as.numbers:}") final String reservedAsNumbers, @Value("${ip.administrative:}") final String administrativeRanges, @Value("${ipranges.bogons:}") final String ... bogons) {
         this.reservedAsnumbers = parseReservedAsNumbers(reservedAsNumbers);
@@ -46,10 +47,10 @@ public class ReservedResources {
 
     public boolean isReservedAsNumber(final Long asn) {
         for (LongRange range : this.reservedAsnumbers) {
-            if (range.containsLong(asn)) {
+            if (range.contains(asn)) {
                 return true;
             }
-            if (asn < range.getMinimumLong()) {
+            if (asn < range.getMinimum()) {
                 break;
             }
         }
@@ -60,10 +61,10 @@ public class ReservedResources {
 
         try {
             final AsBlockRange asBlockRange = AsBlockRange.parse(asBlock);
-            final LongRange asLongRange = new LongRange(asBlockRange.getBegin(), asBlockRange.getEnd());
+            final LongRange asLongRange = LongRange.of(asBlockRange.getBegin(), asBlockRange.getEnd());
 
             return this.reservedAsnumbers.stream()
-                    .anyMatch(reservedAsn -> reservedAsn.overlapsRange(asLongRange));
+                    .anyMatch(reservedAsn -> reservedAsn.isOverlappedBy(asLongRange));
 
         } catch (AttributeParseException ex) {
             throw new InternalServerErrorException("Invalid AS Block Range");
@@ -76,9 +77,9 @@ public class ReservedResources {
         for (String reservedAsNumber : reservedAsNumbers.split(",")) {
             if (reservedAsNumber.contains("-")) {
                 String[] startEnd = reservedAsNumber.split("-");
-                parsedAsNumbers.add(new LongRange(Long.parseLong(startEnd[0]), Long.parseLong(startEnd[1])));
+                parsedAsNumbers.add(LongRange.of(Long.parseLong(startEnd[0]), Long.parseLong(startEnd[1])));
             } else {
-                parsedAsNumbers.add(new LongRange(Long.parseLong(reservedAsNumber), Long.parseLong(reservedAsNumber)));
+                parsedAsNumbers.add(LongRange.of(Long.parseLong(reservedAsNumber), Long.parseLong(reservedAsNumber)));
             }
         }
         return parsedAsNumbers;
@@ -98,6 +99,23 @@ public class ReservedResources {
         return results;
     }
 
+    public boolean isBogon(final String prefix) {
+        final Interval interval;
+        try {
+            interval = IpInterval.parse(prefix);
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("{} is not a valid prefix, skipping...", prefix);
+            return false;
+        }
+
+        for (final Interval bogon : bogons) {
+            if (interval.getClass().equals(bogon.getClass()) && bogon.contains(interval)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     private Set<Ipv4Resource> parseAdministrativeBlocks(final String administrativeRanges) {
         try {
             return Arrays.stream(administrativeRanges.split(",")).map(Ipv4Resource::parse).collect(Collectors.toSet());
@@ -118,20 +136,20 @@ public class ReservedResources {
             return null;
         }
 
-       if(!(interval instanceof Ipv4Resource) || isBogon(prefix)) return null;
+        if(!(interval instanceof Ipv4Resource) || isBogon(prefix)) return null;
 
-       final Ipv4Resource administrativeBlock =  administrativeRanges.stream()
-               .filter(range -> range.contains((Ipv4Resource) interval))
-               .findAny().orElse(null);
+        final Ipv4Resource administrativeBlock =  administrativeRanges.stream()
+                .filter(range -> range.contains((Ipv4Resource) interval))
+                .findAny().orElse(null);
 
         return administrativeBlock != null ?
                 new RpslObjectBuilder().append(new RpslAttribute(AttributeType.INETNUM, administrativeBlock.toString()))
-                            .append(new RpslAttribute(AttributeType.NETNAME, "RIPE-NCC-MANAGED-ADDRESS-BLOCK"))
-                            .append(new RpslAttribute(AttributeType.STATUS, InetnumStatus.ALLOCATED_UNSPECIFIED.toString()))
-                            .append(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE))
-                            .append(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE))
-                            .append(new RpslAttribute(AttributeType.SOURCE, "RIPE"))
-                            .get() : null;
+                        .append(new RpslAttribute(AttributeType.NETNAME, "RIPE-NCC-MANAGED-ADDRESS-BLOCK"))
+                        .append(new RpslAttribute(AttributeType.STATUS, InetnumStatus.ALLOCATED_UNSPECIFIED.toString()))
+                        .append(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE))
+                        .append(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE))
+                        .append(new RpslAttribute(AttributeType.SOURCE, "RIPE"))
+                        .get() : null;
     }
 
     public boolean isAdministrative(final String prefix) {
@@ -140,23 +158,5 @@ public class ReservedResources {
         } catch (IllegalArgumentException e) {
             return false;
         }
-    }
-
-    public boolean isBogon(final String prefix) {
-        final Interval interval;
-        try {
-            interval = IpInterval.parse(prefix);
-        } catch (IllegalArgumentException e) {
-            LOGGER.warn("{} is not a valid prefix, skipping...", prefix);
-            return false;
-        }
-
-        for (final Interval bogon : bogons) {
-            if (interval.getClass().equals(bogon.getClass()) && bogon.contains(interval)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.nrtm4;
+package net.ripe.db.nrtm4.servlet;
 
 import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.BadRequestException;
@@ -11,23 +11,24 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
-import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
-import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmSourceDao;
+import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
+import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
 import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
+
 import static net.ripe.db.nrtm4.util.JWSUtil.signWithJWS;
 
 @Component
 @Path("/")
-public class NrtmClientService {
+public class NrtmService {
 
     public static final String SOURCE_LINK_PAGE = "<html><header><title>NRTM Version 4</title></header><body>%s<body></html>";
     private final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao;
@@ -38,7 +39,7 @@ public class NrtmClientService {
     final String nrtmUrl;
 
     @Autowired
-    public NrtmClientService(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
+    public NrtmService(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
                              final NrtmSourceDao nrtmSourceDao,
                              final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao,
                              final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao,
@@ -127,7 +128,7 @@ public class NrtmClientService {
                 .header(HttpHeaders.CONTENT_TYPE, "application/jose+json")
                 .build();
     }
-    
+
     private Response getResponseForDelta(final String payload) {
         return Response.ok(payload)
                 .header(HttpHeaders.CONTENT_TYPE, "application/json-seq")

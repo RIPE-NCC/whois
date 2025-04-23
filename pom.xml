@@ -29,75 +29,79 @@
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.22.1</aspectj.version>
-        <awaitility.version>4.2.0</awaitility.version>
+        <aspectj.version>1.9.24</aspectj.version>
+        <awaitility.version>4.3.0</awaitility.version>
 
-        <bouncycastle.version>1.78.1</bouncycastle.version>
+        <bouncycastle.version>1.80</bouncycastle.version>
 
-        <c3po.version>0.10.0</c3po.version>
-        <commons-codec.version>1.16.1</commons-codec.version>
-        <!-- TODO: update to commons-collections4 -->
-        <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-compress.version>1.26.1</commons-compress.version>
+        <c3po.version>0.10.2</c3po.version>
+        <commons-codec.version>1.18.0</commons-codec.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-compress.version>1.27.1</commons-compress.version>
         <commons-email.version>2.0.0-M1</commons-email.version>
-        <commons-io.version>2.17.0</commons-io.version>
+        <commons-io.version>2.19.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
-        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
+        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException instead of IllegalArgumentException). Replace all commons-lang with commons-lang3 calls -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-net.version>3.10.0</commons-net.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <commons-net.version>3.11.1</commons-net.version>
         <commons-validator.version>1.9.0</commons-validator.version>
 
-        <diffutils.version>1.3.0</diffutils.version>
+        <diffutils.version>4.15</diffutils.version>
 
         <elasticsearch.version>7.16.3</elasticsearch.version>
         <ezvcard.version>0.12.1</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <groovy.version>3.0.21</groovy.version>
-        <guava.version>32.1.3-jre</guava.version>
+        <groovy.version>4.0.26</groovy.version>
+        <guava.version>33.4.8-jre</guava.version>
 
-        <hamcrest.version>2.2</hamcrest.version>
-        <hamcrest-json.version>0.2</hamcrest-json.version>
+        <hamcrest.version>3.0</hamcrest.version>
+        <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
-        <oauth2.oidc.version>11.23</oauth2.oidc.version>
 
-        <jackson.version>2.17.2</jackson.version>
-        <jaxb.api.version>4.0.1</jaxb.api.version>
-        <jaxb.impl.version>4.0.4</jaxb.impl.version>
+        <jackson.version>2.18.3</jackson.version>
+        <jaxb.api.version>4.0.2</jaxb.api.version>
+        <jaxb.impl.version>4.0.5</jaxb.impl.version>
         <jcache.version>1.1.1</jcache.version>
-        <jersey.version>3.0.12</jersey.version>
-        <jetty.version>11.0.24</jetty.version>
+        <jersey.version>3.0.17</jersey.version>
+        <jetty.version>11.0.25</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
-        <jsonassert.version>1.5.1</jsonassert.version>
+        <jsonassert.version>1.5.3</jsonassert.version>
         <json-path.version>2.9.0</json-path.version>
-        <jsoup.version>1.16.1</jsoup.version>
-        <junit.version>5.11.1</junit.version>
+        <jsoup.version>1.19.1</jsoup.version>
+        <junit.version>5.12.2</junit.version>
 
-        <log4j.version>2.22.1</log4j.version>
+        <log4j.version>2.24.3</log4j.version>
 
         <mail.version>2.0.3</mail.version>
         <!-- TODO: update mariadb to 3.x -->
         <mariadb-java-client.version>2.7.12</mariadb-java-client.version>
-        <mockito.version>5.12.0</mockito.version>
+        <mockito.version>5.17.0</mockito.version>
 
         <netty.version>4.1.119.Final</netty.version>
+        <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
+
+        <oauth2.oidc.version>11.23.1</oauth2.oidc.version>
+        <org.json.version>20250107</org.json.version>
 
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
         <persistence.version>1.0.2</persistence.version>
         <proprot.version>1.0</proprot.version>
 
         <sentry.version>6.26.0</sentry.version>
-        <shedlock.version>5.13.0</shedlock.version>
-        <slf4j.version>2.0.16</slf4j.version>
+        <shedlock.version>5.16.0</shedlock.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>6.1.14</spring.version>
-        <spock.version>2.3-groovy-3.0</spock.version>
+        <spring.version>6.1.18</spring.version>
+        <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
         <testcontainers.elasticsearch.version>1.16.2</testcontainers.elasticsearch.version>
+        <tink.version>1.13.0</tink.version>
 
         <validation.version>3.0.2</validation.version>
         <velocity.version>2.3</velocity.version>
@@ -129,10 +133,10 @@
         <module>whois-nrtm</module>
         <module>whois-nrtm4</module>
         <module>whois-nrtm4-client</module>
+        <module>whois-query</module>
         <module>whois-rpsl</module>
         <module>whois-scheduler</module>
         <module>whois-smtp</module>
-        <module>whois-query</module>
         <module>whois-update</module>
     </modules>
 
@@ -384,7 +388,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.40</version>
+                <version>${nimbus-jose-jwt.version}</version>
             </dependency>
 
             <dependency>
@@ -396,7 +400,7 @@
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
                 <artifactId>tink</artifactId>
-                <version>1.13.0</version>
+                <version>${tink.version}</version>
             </dependency>
 
             <!-- Jakarta Mail (formerly JavaMail) TODO: [ES] depend on angus-mail -->
@@ -468,6 +472,11 @@
                 <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
                 <version>${commons-validator.version}</version>
@@ -484,9 +493,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collections.version}</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -679,8 +688,8 @@
 
             <!-- diffutils -->
             <dependency>
-                <groupId>com.googlecode.java-diff-utils</groupId>
-                <artifactId>diffutils</artifactId>
+                <groupId>io.github.java-diff-utils</groupId>
+                <artifactId>java-diff-utils</artifactId>
                 <version>${diffutils.version}</version>
             </dependency>
 
@@ -694,6 +703,13 @@
                 <groupId>com.googlecode.ez-vcard</groupId>
                 <artifactId>ez-vcard</artifactId>
                 <version>${ezvcard.version}</version>
+            </dependency>
+
+            <!-- JSONObject Library -->
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org.json.version}</version>
             </dependency>
 
             <!-- Solr -->
@@ -800,7 +816,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.codehaus.groovy</groupId>
+          <groupId>org.apache.groovy</groupId>
           <artifactId>groovy</artifactId>
           <version>${groovy.version}</version>
           <scope>test</scope>

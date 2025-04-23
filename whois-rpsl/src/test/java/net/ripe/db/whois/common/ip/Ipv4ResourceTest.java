@@ -15,11 +15,11 @@ public class Ipv4ResourceTest {
 
     // Some sugar
     private Matcher<Long> eq(final long value) {
-        return org.hamcrest.Matchers.is(value);
+        return is(value);
     }
 
     private Matcher<Integer> eq(final int value) {
-        return org.hamcrest.Matchers.is(value);
+        return is(value);
     }
 
     @Test

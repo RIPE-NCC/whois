@@ -10,6 +10,7 @@ import org.springframework.scheduling.TaskScheduler;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Tag("IntegrationTest")
 public class SchedulerConfigIntegrationTest extends AbstractSchedulerIntegrationTest {
@@ -28,7 +29,7 @@ public class SchedulerConfigIntegrationTest extends AbstractSchedulerIntegration
     @Test
     public void bean_named_taskScheduler_in_context() {
         Set<String> beanName = context.getBeanFactory().getBeansOfType(TaskScheduler.class).keySet();
-        MatcherAssert.assertThat(beanName, hasItem("taskScheduler"));
+        assertThat(beanName, hasItem("taskScheduler"));
     }
 
 }

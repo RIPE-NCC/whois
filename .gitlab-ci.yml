@@ -133,6 +133,13 @@ whois-nrtm:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
+whois-nrtm4:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm4
+
 whois-query:
   <<:
     - *it_env
@@ -156,6 +163,12 @@ whois-scheduler:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
+whois-smtp:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-smtp
 
 whois-update:
   <<:
