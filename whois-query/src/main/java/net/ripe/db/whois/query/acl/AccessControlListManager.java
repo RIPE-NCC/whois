@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.acl;
 
+import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
@@ -80,7 +81,8 @@ public class AccessControlListManager {
             return false;
         }
 
-        if (accountingIdentifier.getSsoUser() != null && isUserOwnedObject(rpslObject, accountingIdentifier.getSsoUser().uuid())){
+        if (accountingIdentifier.getSsoUser() != null && !StringUtil.isNullOrEmpty(accountingIdentifier.getSsoUser().uuid())&&
+                isUserOwnedObject(rpslObject, accountingIdentifier.getSsoUser().uuid())){
             return false;
         }
 
@@ -94,7 +96,7 @@ public class AccessControlListManager {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(accountingIdentifier.getRemoteAddress().getHostAddress()));
         }
 
-        final String username = accountingIdentifier.getSsoUser().userName();
+        final String username = accountingIdentifier.getSsoUser() != null ? accountingIdentifier.getSsoUser().userName() : null;
         if( ssoResourceConfiguration.isDenied(username)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
         }
