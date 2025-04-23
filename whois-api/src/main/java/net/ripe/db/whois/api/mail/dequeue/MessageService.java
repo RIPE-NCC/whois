@@ -110,7 +110,7 @@ public class MessageService {
         }
 
         if (!containsAllCaseInsensitive(message.emailAddresses(), outgoingEmail)) {
-            LOGGER.warn("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
+            LOGGER.debug("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
             return false;
         }
         return true;
