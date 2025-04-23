@@ -80,7 +80,7 @@ public class AccessControlListManager {
             return false;
         }
 
-        if (!StringUtil.isNullOrEmpty(accountingIdentifier.ssoToken()) && isUserOwnedObject(rpslObject, accountingIdentifier.ssoToken())){
+        if (!StringUtil.isNullOrEmpty(accountingIdentifier.getSsoToken()) && isUserOwnedObject(rpslObject, accountingIdentifier.getSsoToken())){
             return false;
         }
 
@@ -90,17 +90,17 @@ public class AccessControlListManager {
     }
 
     public void checkBlocked(final AccountingIdentifier accountingIdentifier) {
-        if(ipResourceConfiguration.isDenied(accountingIdentifier.remoteAddress())) {
-            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(accountingIdentifier.remoteAddress().getHostAddress()));
+        if(ipResourceConfiguration.isDenied(accountingIdentifier.getRemoteAddress())) {
+            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(accountingIdentifier.getRemoteAddress().getHostAddress()));
         }
 
-        final String username = accountingIdentifier.userName();
+        final String username = accountingIdentifier.getUserName();
         if( ssoResourceConfiguration.isDenied(username)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
         }
 
         if(!canQueryPersonalObjects(accountingIdentifier)) {
-            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(username == null ? accountingIdentifier.remoteAddress().getHostAddress() : username));
+            throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(username == null ? accountingIdentifier.getRemoteAddress().getHostAddress() : username));
         }
     }
 
@@ -121,7 +121,7 @@ public class AccessControlListManager {
     }
 
     public int getPersonalObjects(final AccountingIdentifier accountingIdentifier) {
-        if (isUnlimited(accountingIdentifier.remoteAddress())) {
+        if (isUnlimited(accountingIdentifier.getRemoteAddress())) {
             return Integer.MAX_VALUE;
         }
 
@@ -130,9 +130,9 @@ public class AccessControlListManager {
     }
 
     private PersonalAccountingManager getAccountingManager(final AccountingIdentifier accountingIdentifier) {
-       final String username =  accountingIdentifier.userName();
+       final String username =  accountingIdentifier.getUserName();
 
-       return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.remoteAddress()) : new SSOAccountingManager(username);
+       return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username);
     }
 
     private String getUserName(final String ssoToken, final OAuthSession oAuthSession) {
@@ -172,7 +172,7 @@ public class AccessControlListManager {
      * @param amount        The amount of personal objects accounted.
      */
     public void accountPersonalObjects(final AccountingIdentifier accountingIdentifier, final int amount) {
-        if (isUnlimited(accountingIdentifier.remoteAddress())) {
+        if (isUnlimited(accountingIdentifier.getRemoteAddress())) {
             return;
         }
 
