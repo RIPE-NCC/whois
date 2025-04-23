@@ -61,9 +61,8 @@
         <hamcrest.version>3.0</hamcrest.version>
         <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
-        <oauth2.oidc.version>11.23</oauth2.oidc.version>
 
-        <jackson.version>2.17.3</jackson.version>
+        <jackson.version>2.18.3</jackson.version>
         <jaxb.api.version>4.0.2</jaxb.api.version>
         <jaxb.impl.version>4.0.5</jaxb.impl.version>
         <jcache.version>1.1.1</jcache.version>
@@ -71,12 +70,12 @@
         <jetty.version>11.0.25</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
-        <jsonassert.version>1.5.1</jsonassert.version>
+        <jsonassert.version>1.5.3</jsonassert.version>
         <json-path.version>2.9.0</json-path.version>
-        <jsoup.version>1.16.1</jsoup.version>
+        <jsoup.version>1.19.1</jsoup.version>
         <junit.version>5.12.2</junit.version>
 
-        <log4j.version>2.22.1</log4j.version>
+        <log4j.version>2.24.3</log4j.version>
 
         <mail.version>2.0.3</mail.version>
         <!-- TODO: update mariadb to 3.x -->
@@ -84,22 +83,25 @@
         <mockito.version>5.17.0</mockito.version>
 
         <netty.version>4.1.119.Final</netty.version>
+        <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
 
-        <org.json.version>20180813</org.json.version>
+        <oauth2.oidc.version>11.23.1</oauth2.oidc.version>
+        <org.json.version>20250107</org.json.version>
 
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
         <persistence.version>1.0.2</persistence.version>
         <proprot.version>1.0</proprot.version>
 
         <sentry.version>6.26.0</sentry.version>
-        <shedlock.version>5.13.0</shedlock.version>
-        <slf4j.version>2.0.16</slf4j.version>
+        <shedlock.version>5.16.0</shedlock.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
         <spring.version>6.1.18</spring.version>
         <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
         <testcontainers.elasticsearch.version>1.16.2</testcontainers.elasticsearch.version>
+        <tink.version>1.13.0</tink.version>
 
         <validation.version>3.0.2</validation.version>
         <velocity.version>2.3</velocity.version>
@@ -386,7 +388,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.40</version>
+                <version>${nimbus-jose-jwt.version}</version>
             </dependency>
 
             <dependency>
@@ -398,7 +400,7 @@
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
                 <artifactId>tink</artifactId>
-                <version>1.13.0</version>
+                <version>${tink.version}</version>
             </dependency>
 
             <!-- Jakarta Mail (formerly JavaMail) TODO: [ES] depend on angus-mail -->
