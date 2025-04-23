@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.acl;
 
-import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
@@ -80,7 +79,7 @@ public class AccessControlListManager {
             return false;
         }
 
-        if (!StringUtil.isNullOrEmpty(accountingIdentifier.getSsoToken()) && isUserOwnedObject(rpslObject, accountingIdentifier.getSsoToken())){
+        if (accountingIdentifier.getSsoUser() != null && isUserOwnedObject(rpslObject, accountingIdentifier.getSsoUser().uuid())){
             return false;
         }
 
@@ -94,7 +93,7 @@ public class AccessControlListManager {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(accountingIdentifier.getRemoteAddress().getHostAddress()));
         }
 
-        final String username = accountingIdentifier.getUserName();
+        final String username = accountingIdentifier.getSsoUser().userName();
         if( ssoResourceConfiguration.isDenied(username)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
         }
@@ -130,18 +129,19 @@ public class AccessControlListManager {
     }
 
     private PersonalAccountingManager getAccountingManager(final AccountingIdentifier accountingIdentifier) {
-       final String username =  accountingIdentifier.getUserName();
+       final AccountingIdentifier.UserInfo username = accountingIdentifier.getSsoUser();
 
-       return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username);
+       return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username.userName());
     }
 
-    private String getUserName(final String ssoToken, final OAuthSession oAuthSession) {
+    @Nullable
+    private AccountingIdentifier.UserInfo getUserInfo(final String ssoToken, final OAuthSession oAuthSession) {
         if( !isSSOAccountingEnabled) {
             return null;
         }
 
         if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getEmail())) {
-            return oAuthSession.getEmail();
+            return new AccountingIdentifier.UserInfo(oAuthSession.getEmail(), oAuthSession.getUuid());
         }
 
         if(StringUtils.isEmpty(ssoToken)) {
@@ -151,18 +151,13 @@ public class AccessControlListManager {
         try {
             final UserSession userSession = ssoTokenTranslator.translateSsoToken(ssoToken);
             if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
-                return userSession.getUsername();
+                return new AccountingIdentifier.UserInfo(userSession.getUsername(), userSession.getUuid());
             }
         } catch (AuthServiceClientException e) {
             LOGGER.debug("Cannot translate ssoToken, will account by remoteAddr due to {}: {}", e.getClass().getName(), e.getMessage());
         }
 
         return null;
-    }
-
-    @Nullable
-    private String getSsoTokenFromOauth(final OAuthSession oAuthSession){
-        return oAuthSession != null ? oAuthSession.getUuid() : null;
     }
 
     /**
@@ -298,9 +293,8 @@ public class AccessControlListManager {
         return address;
     }
 
-    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, String ssoToken, final OAuthSession oAuthSession) {
-        final String userName = getUserName(ssoToken, oAuthSession);
-        ssoToken = StringUtil.isNullOrEmpty(ssoToken) ? getSsoTokenFromOauth(oAuthSession) : ssoToken;
-        return new AccountingIdentifier(remoteAddress, userName, ssoToken);
+    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, final String ssoToken, final OAuthSession oAuthSession) {
+        final AccountingIdentifier.UserInfo userInfo = getUserInfo(ssoToken, oAuthSession);
+        return new AccountingIdentifier(remoteAddress, userInfo);
     }
 }

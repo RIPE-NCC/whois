@@ -31,8 +31,9 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     private static final String LOCALHOST = "127.0.0.1";
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
     public static final String VALID_TOKEN_USER_NAME = "person@net.net";
-    public static final String PERSON_TOKEN_USER_NAME = "906635c2-0405-429a-800b-0602bd716124";
+    public static final String DB_E2E_1_USER_NAME = "db_e2e_1@ripe.net";
     public static final String VALID_TOKEN = "valid-token";
+    public static final String DB_E2E_1_TOKEN = "db_e2e_1";
 
     @Autowired
     private AccessControlListManager accessControlListManager;
@@ -193,7 +194,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         RestTest.target(getPort(), "whois/test/person/TP2-TEST")
                 .request()
-                .cookie("crowd.token_key", PERSON_TOKEN_USER_NAME)
+                .cookie("crowd.token_key", VALID_TOKEN)
                 .get(WhoisResources.class);
 
         final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
@@ -217,14 +218,14 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
                         "e-mail:   test@ripe.net\n" +
                         "source:    TEST");
 
-        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(DB_E2E_1_USER_NAME);
 
         RestTest.target(getPort(), "whois/test/person/TP2-TEST")
                 .request()
-                .cookie("crowd.token_key", VALID_TOKEN)
+                .cookie("crowd.token_key", DB_E2E_1_TOKEN)
                 .get(WhoisResources.class);
 
-        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(DB_E2E_1_USER_NAME);
         assertThat(accountedBySSO, is(queriedBySSO +1 ));
     }
 }

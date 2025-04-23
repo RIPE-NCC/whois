@@ -108,20 +108,20 @@ public class IpAccessControlListManagerTest {
 
     @Test
     public void check_getLimit_restricted() {
-        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Restricted, null, null)), is(PERSONAL_DATA_LIMIT));
-        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Restricted, null, null)), is(PERSONAL_DATA_LIMIT));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Restricted, null)), is(PERSONAL_DATA_LIMIT));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Restricted, null)), is(PERSONAL_DATA_LIMIT));
     }
 
     @Test
     public void check_getLimit_unrestricted() {
-        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Unrestricted, null, null)), is(Integer.MAX_VALUE));
-        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Unrestricted, null, null)), is(Integer.MAX_VALUE));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Unrestricted, null)), is(Integer.MAX_VALUE));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Unrestricted, null)), is(Integer.MAX_VALUE));
     }
 
     @Test
     public void check_getLimit_unknown() {
-        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Unknown, null, null)), is(PERSONAL_DATA_LIMIT_UNKNOWN));
-        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Unknown, null, null)), is(PERSONAL_DATA_LIMIT_UNKNOWN));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv4Unknown, null)), is(PERSONAL_DATA_LIMIT_UNKNOWN));
+        assertThat(subject.getPersonalObjects(new AccountingIdentifier(ipv6Unknown, null)), is(PERSONAL_DATA_LIMIT_UNKNOWN));
     }
 
     @Test

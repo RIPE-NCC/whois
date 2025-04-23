@@ -70,7 +70,7 @@ public class QueryHandlerAclTest {
         subject = new QueryHandler(whoisLog, accessControlListManager, ipBlockManager, sourceContext, queryExecutor);
         subject = spy(subject);
 
-        accountingIdentifier = new AccountingIdentifier(remoteAddress, null, null);
+        accountingIdentifier = new AccountingIdentifier(remoteAddress, null);
         when(accessControlListManager.getAccountingIdentifier(remoteAddress, null, null)).thenReturn(accountingIdentifier);
 
         message = new MessageObject("test");
@@ -174,7 +174,7 @@ public class QueryHandlerAclTest {
 
         when(accessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
         lenient().when(accessControlListManager.canQueryPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(remoteAddress))))).thenReturn(true);
-        when(accessControlListManager.getAccountingIdentifier(clientAddress, null, null)).thenReturn(new AccountingIdentifier(clientAddress, null, null));
+        when(accessControlListManager.getAccountingIdentifier(clientAddress, null, null)).thenReturn(new AccountingIdentifier(clientAddress, null));
         when(accessControlListManager.getPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(clientAddress))))).thenReturn(10);
 
         final Query query = Query.parse("-VclientId,10.0.0.0 DEV-MNT");
