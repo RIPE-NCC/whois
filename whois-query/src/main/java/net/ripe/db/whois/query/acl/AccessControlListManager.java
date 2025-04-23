@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
 import net.ripe.db.whois.common.domain.BlockEvent;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -177,7 +178,7 @@ public class AccessControlListManager {
 
     private boolean isUserOwnedObject(final RpslObject rpslObject, final String ssoToken){
         final List<RpslObjectInfo> mntnerInfoList = jdbcRpslObjectSlaveDao.findByAttribute(AttributeType.AUTH, "SSO " + ssoToken);
-        return mntnerInfoList.stream().anyMatch(rpslObjectInfo -> rpslObject.getValueForAttribute(AttributeType.MNT_BY).contains(rpslObjectInfo.getKey()));
+        return mntnerInfoList.stream().anyMatch(rpslObjectInfo -> rpslObject.getValuesForAttribute(AttributeType.MNT_BY).contains(CIString.ciString(rpslObjectInfo.getKey())));
     }
 
     private class SSOAccountingManager implements PersonalAccountingManager {
