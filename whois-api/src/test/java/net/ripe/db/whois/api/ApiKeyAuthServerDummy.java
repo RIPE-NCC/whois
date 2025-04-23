@@ -18,8 +18,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import net.ripe.db.whois.common.Stub;
-import net.ripe.db.whois.common.oauth.ApiKeyAuthServiceClient;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.oauth.ApiKeyAuthServiceClient;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.NetworkConnector;
@@ -57,6 +57,7 @@ public class ApiKeyAuthServerDummy implements Stub {
     public static final String BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE = "aFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==";
     public static final String BASIC_AUTH_INVALID_API_KEY = "aDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_INVALID_SIGNATURE_API_KEY = "TXp1ZzRxRVlpSTVET1dqOXI1Qkp1Y2k4OnZBdzgyRTFCMkZ2dFVyYjB0MDF0Ykt2cg==";
+    public static final String BASIC_AUTH_PERSON_OWNING_MNT = "aAAsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
 
     public static final Map<String, JWTClaimsSet> APIKEY_TO_OAUTHSESSION =  Maps.newHashMap();
 
@@ -68,6 +69,7 @@ public class ApiKeyAuthServerDummy implements Stub {
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_TEST_MNT,  getJWT(AUD, "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT profile email"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INVALID_SIGNATURE_API_KEY,  getJWT(AUD, "invalid@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:TEST-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE, getJWT(Arrays.asList("account", "whois-invalid"), "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:TEST-MNT"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNING_MNT,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:USER-OWNING-MNT"));
     }
 
     private Server server;

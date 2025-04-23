@@ -18,8 +18,8 @@ import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.oauth.APIKeySession;
-import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -53,6 +53,7 @@ import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_SIG
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNING_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_TEST_MNT;
 import static net.ripe.db.whois.api.rest.WhoisRestBasicAuthTestIntegration.getBasicAuthenticationHeader;
@@ -855,6 +856,64 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
+    public void lookup_owned_person_using_apikey_token_email_not_acl_accounted() throws Exception {
+        databaseHelper.addObject(
+                "mntner:      USER-OWNING-MNT\n" +
+                        "descr:       Owner Maintainer\n" +
+                        "admin-c:     TP1-TEST\n" +
+                        "auth:        SSO person@net.net\n" +
+                        "mnt-by:      USER-OWNING-MNT\n" +
+                        "source:      TEST");
+
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "mnt-by:   USER-OWNING-MNT\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNING_MNT)).getEmail());
+
+        SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNING_MNT))
+                .get(Response.class);
+
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNING_MNT)).getEmail());
+
+        assertThat(queriedBySSO, is(accountedBySSO));
+    }
+
+    @Test
+    public void lookup_not_owned_person_using_apikey_token_email_acl_accounted() throws Exception {
+        databaseHelper.addObject(
+                "mntner:      USER-OWNING-MNT\n" +
+                        "descr:       Owner Maintainer\n" +
+                        "admin-c:     TP1-TEST\n" +
+                        "auth:        SSO person@net.net\n" +
+                        "mnt-by:      USER-OWNING-MNT\n" +
+                        "source:      TEST");
+
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "mnt-by:   USER-OWNING-MNT\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_TEST_MNT)).getEmail());
+
+        SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_TEST_MNT))
+                .get(Response.class);
+
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_TEST_MNT)).getEmail());
+
+        assertThat(accountedBySSO, is(queriedBySSO + 1));
+    }
+
+    @Test
     public void lookup_person_using_apiKey_acl_counted_no_ip_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
         databaseHelper.addObject(
@@ -873,7 +932,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes()
                         .stream()
-                        .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
+                        .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL.getName())),
                 is(false));
 
         final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);

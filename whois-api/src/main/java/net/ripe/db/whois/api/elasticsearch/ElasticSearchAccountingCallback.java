@@ -52,7 +52,7 @@ public abstract class ElasticSearchAccountingCallback<T> {
     protected abstract T doSearch() throws IOException;
 
     protected void account(final RpslObject rpslObject) {
-        if (enabled && accessControlListManager.requiresAcl(rpslObject, source, ssoToken)) {
+        if (enabled && accessControlListManager.requiresAcl(rpslObject, source, getAccountingIdentifier())) {
             if (accountingLimit == -1) {
                 accountingLimit = accessControlListManager.getPersonalObjects(getAccountingIdentifier());
             }

@@ -53,8 +53,8 @@ public class IpAccessControlListManagerAccountingTest {
                 , ipRanges, jdbcRpslObjectSlaveDao);
         ipv4Address = Inet4Address.getLocalHost();
         ipv6Address = Inet6Address.getByName("::1");
-        accountingIdentifierIpv4 = new AccountingIdentifier(ipv4Address, null);
-        accountingIdentifierIpv6 = new AccountingIdentifier(ipv6Address, null);
+        accountingIdentifierIpv4 = new AccountingIdentifier(ipv4Address, null, null);
+        accountingIdentifierIpv6 = new AccountingIdentifier(ipv6Address, null, null);
     }
 
     @Test

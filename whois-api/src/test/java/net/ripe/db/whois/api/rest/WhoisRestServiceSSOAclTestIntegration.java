@@ -135,7 +135,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes()
                             .stream()
-                            .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
+                            .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL.getName())),
                     is(false));
 
         final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
@@ -198,5 +198,33 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
         assertThat(accountedBySSO, is(queriedBySSO ));
+    }
+
+    @Test
+    public void lookup_person_do_not_belong_to_user_using_sso_acl_is_accounted() {
+        databaseHelper.addObject(
+                "mntner:      USER-OWNING-MNT\n" +
+                        "descr:       Owner Maintainer\n" +
+                        "admin-c:     TP1-TEST\n" +
+                        "auth:        SSO person@net.net\n" +
+                        "mnt-by:      USER-OWNING-MNT\n" +
+                        "source:      TEST");
+
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "mnt-by:   USER-OWNING-MNT\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+
+        RestTest.target(getPort(), "whois/test/person/TP2-TEST")
+                .request()
+                .cookie("crowd.token_key", VALID_TOKEN)
+                .get(WhoisResources.class);
+
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(accountedBySSO, is(queriedBySSO +1 ));
     }
 }

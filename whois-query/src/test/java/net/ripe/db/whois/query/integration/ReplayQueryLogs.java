@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.QueryExecutorConfiguration;
 import net.ripe.db.whois.common.support.QueryLogEntry;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.support.QueryExecutor;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +65,7 @@ public class ReplayQueryLogs {
             this.executorService = Executors.newFixedThreadPool(nrThreads);
             this.accessControlListManager = mock(AccessControlListManager.class);
 
-            when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class), any(String.class))).thenReturn(false);
+            when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class), any(AccountingIdentifier.class))).thenReturn(false);
 
             queryExecutor = new QueryExecutor(new QueryExecutorConfiguration("WHO-IS", whoisHost, whoisPort, -1), LOGGER);
         }
