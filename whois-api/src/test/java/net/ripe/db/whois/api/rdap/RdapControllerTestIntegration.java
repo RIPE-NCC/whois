@@ -742,6 +742,22 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
     }
 
+    @Test
+    public void lookup_bogon_range_not_found() {
+
+        ipTreeUpdater.rebuild();
+
+        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            createResource("ip/0.0.0.0/8")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+        });
+        final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
+        assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
+        assertThat(error.getErrorTitle(), is("404 Not Found"));
+        assertThat(error.getDescription().get(0), is("Requested object not found"));
+    }
+
 
     @Test
     public void lookup_inetnum() {
