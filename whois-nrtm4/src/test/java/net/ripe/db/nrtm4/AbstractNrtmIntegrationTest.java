@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api;
+package net.ripe.db.nrtm4;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,17 +18,20 @@ import net.ripe.db.nrtm4.generator.NrtmKeyPairService;
 import net.ripe.db.nrtm4.generator.SnapshotFileGenerator;
 import net.ripe.db.nrtm4.generator.UpdateNotificationFileGenerator;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
+import net.ripe.db.whois.api.AbstractIntegrationTest;
+import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
@@ -38,7 +41,8 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest{
+@ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
+public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     protected UpdateNotificationFileGenerator updateNotificationFileGenerator;
@@ -271,11 +275,12 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         return webTarget;
     }
 
+    @Nonnull
     private URI getUpdateNotificationFileAbsolutePath(final String source){
         return getWebTarget(source + "/update-notification-file.jose").getUri();
     }
 
-    @NotNull
+    @Nonnull
     protected static List<DeltaFileRecord> getDeltaChanges(final String[] records) throws JsonProcessingException {
         final List<DeltaFileRecord> deltaFileRecords = Lists.newArrayList();
 

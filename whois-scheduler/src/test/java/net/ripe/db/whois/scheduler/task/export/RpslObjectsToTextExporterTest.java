@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -155,8 +156,8 @@ public class RpslObjectsToTextExporterTest {
     public void export_check_files() {
         subject.export();
 
-        assertThat(exportDir.exists(), Matchers.is(true));
-        assertThat(tmpDir.exists(), Matchers.is(false));
+        assertThat(exportDir.exists(), is(true));
+        assertThat(tmpDir.exists(), is(false));
     }
 
     @Test
