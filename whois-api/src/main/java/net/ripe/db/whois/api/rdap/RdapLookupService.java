@@ -89,26 +89,7 @@ public class RdapLookupService {
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
                                  final String key) {
         final List<RpslObject> result = rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key), request).toList();
-        return getRdapObject(request, result);
-    }
-
-    protected Object lookupForIpObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
-                                  final String key) {
-        final List<RpslObject> result = rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key), request).toList();
-
-        if(result.isEmpty()){
-            try {
-                final Ipv4Resource interval = Ipv4Resource.parse(key);
-
-                final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(interval);
-                if(adminstrativeBlock != null) result.add(adminstrativeBlock);
-
-            } catch (IllegalArgumentException e) {
-                //Do nothing
-            }
-        }
-
-        return getRdapObject(request, result);
+        return getRdapObject(request, result, key);
     }
 
     protected Object lookupForAutNum(final HttpServletRequest request, final String key) {
@@ -116,7 +97,7 @@ public class RdapLookupService {
             final Query query = getQueryObject(ImmutableSet.of(AUT_NUM), key);
             List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
 
-            return getRdapObject(request, result);
+            return getRdapObject(request, result, key);
         } catch (RdapException ex){
             throw new AutnumException(ex.getErrorTitle(), ex.getErrorDescription(), ex.getErrorCode());
         }
@@ -240,22 +221,28 @@ public class RdapLookupService {
         return builder.toString();
     }
 
-    private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result) {
+    private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result, final String requestedkey) {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
             throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
         }
 
-        final RpslObject resultObject = rpslIterator.next();
+        RpslObject resultObject = rpslIterator.next();
 
         if (rpslIterator.hasNext()) {
             throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(rpslIterator),
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
-        if (RdapObjectMapper.isIANABlock(resultObject)){
-            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+        if (RdapObjectMapper.isIANABlock(resultObject)) {
+
+            final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(requestedkey);
+            if(adminstrativeBlock == null) {
+                throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+            }
+
+            resultObject = adminstrativeBlock;
         }
 
         return rdapObjectMapper.map(
@@ -268,5 +255,4 @@ public class RdapLookupService {
     private AbuseContact getAbuseContact(final RpslObject resultObject) {
         return abuseCFinder.getAbuseContact(resultObject).orElse(null);
     }
-
 }

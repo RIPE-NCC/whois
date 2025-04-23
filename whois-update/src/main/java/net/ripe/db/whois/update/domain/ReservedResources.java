@@ -35,9 +35,10 @@ public class ReservedResources {
     private final Set<Interval> bogons;
     private final Set<Ipv4Resource> administrativeRanges;
 
+    private static final String TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE = "2002-06-25T14:19:09Z";
 
     @Autowired
-    public ReservedResources(@Value("${whois.reserved.as.numbers:}") final String reservedAsNumbers, @Value("${ipranges.administrative:}") final String administrativeRanges, @Value("${ipranges.bogons:}") final String ... bogons) {
+    public ReservedResources(@Value("${whois.reserved.as.numbers:}") final String reservedAsNumbers, @Value("${ip.administrative:}") final String administrativeRanges, @Value("${ipranges.bogons:}") final String ... bogons) {
         this.reservedAsnumbers = parseReservedAsNumbers(reservedAsNumbers);
         this.administrativeRanges = parseAdministrativeBlocks(administrativeRanges);
         this.bogons = parseBogonPrefixes(bogons);
@@ -107,19 +108,38 @@ public class ReservedResources {
     }
 
     @Nullable
-    public RpslObject getAdministrativeRange(final Ipv4Resource ipv4Resource) {
+    public RpslObject getAdministrativeRange(final String prefix) {
 
-       if(isBogon(ipv4Resource)) return null;
+        final Interval interval;
+        try {
+            interval = IpInterval.parse(prefix);
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("{} is not a valid prefix, skipping...", prefix);
+            return null;
+        }
+
+       if(!(interval instanceof Ipv4Resource) || isBogon(prefix)) return null;
 
        final Ipv4Resource administrativeBlock =  administrativeRanges.stream()
-               .filter(range -> range.contains(ipv4Resource))
+               .filter(range -> range.contains((Ipv4Resource) interval))
                .findAny().orElse(null);
 
         return administrativeBlock != null ?
                 new RpslObjectBuilder().append(new RpslAttribute(AttributeType.INETNUM, administrativeBlock.toString()))
                             .append(new RpslAttribute(AttributeType.NETNAME, "RIPE-NCC-MANAGED-ADDRESS-BLOCK"))
                             .append(new RpslAttribute(AttributeType.STATUS, InetnumStatus.ALLOCATED_UNSPECIFIED.toString()))
+                            .append(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE))
+                            .append(new RpslAttribute(AttributeType.LAST_MODIFIED, TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE))
+                            .append(new RpslAttribute(AttributeType.SOURCE, "RIPE"))
                             .get() : null;
+    }
+
+    public boolean isAdministrative(final String prefix) {
+        try {
+            return administrativeRanges.contains(Ipv4Resource.parse(prefix));
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public boolean isBogon(final String prefix) {
@@ -131,10 +151,6 @@ public class ReservedResources {
             return false;
         }
 
-        return isBogon(interval);
-    }
-
-    public boolean isBogon(final Interval interval) {
         for (final Interval bogon : bogons) {
             if (interval.getClass().equals(bogon.getClass()) && bogon.contains(interval)) {
                 return true;
