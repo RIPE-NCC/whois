@@ -419,7 +419,6 @@ public class RdapController {
         return buffer.toString();
     }
 
-
     private Object handleSearch(final RdapRequestType requestType, final String[] fields, final String term,
                                 final HttpServletRequest request) {
         LOGGER.debug("Search {} for {}", fields, term);

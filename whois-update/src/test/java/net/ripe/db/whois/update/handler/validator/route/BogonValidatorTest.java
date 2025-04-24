@@ -28,7 +28,7 @@ public class BogonValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        ReservedResources reservedResources = new ReservedResources("0,64496-131071,4200000000-4294967295","2001:2::/48", "192.0.2.0/24");
+        ReservedResources reservedResources = new ReservedResources("0,64496-131071,4200000000-4294967295","","2001:2::/48", "192.0.2.0/24");
         subject = new BogonValidator(reservedResources);
     }
 
