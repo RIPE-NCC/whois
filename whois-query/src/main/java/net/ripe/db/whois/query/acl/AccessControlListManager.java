@@ -43,7 +43,6 @@ public class AccessControlListManager {
     private final IpRanges ipRanges;
     private final SSOResourceConfiguration ssoResourceConfiguration;
     private final SSOAccessControlListDao ssoAccessControlListDao;
-    private final SsoTokenTranslator ssoTokenTranslator;
     private final boolean isSSOAccountingEnabled;
 
     @Autowired
@@ -52,7 +51,6 @@ public class AccessControlListManager {
                                     final IpAccessControlListDao ipAccessControlListDao,
                                     final PersonalObjectAccounting personalObjectAccounting,
                                     final SSOAccessControlListDao ssoAccessControlListDao,
-                                    final SsoTokenTranslator ssoTokenTranslator,
                                     final SSOResourceConfiguration ssoResourceConfiguration,
                                     @Value("${personal.accounting.by.sso:true}") final boolean isSSOAccountingEnabled,
                                     final IpRanges ipRanges) {
@@ -62,7 +60,6 @@ public class AccessControlListManager {
         this.personalObjectAccounting = personalObjectAccounting;
         this.ssoResourceConfiguration = ssoResourceConfiguration;
         this.ssoAccessControlListDao = ssoAccessControlListDao;
-        this.ssoTokenTranslator = ssoTokenTranslator;
         this.ipRanges = ipRanges;
         this.isSSOAccountingEnabled = isSSOAccountingEnabled;
     }
@@ -123,7 +120,7 @@ public class AccessControlListManager {
        return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username);
     }
 
-    private String getUserName(final String ssoToken, final OAuthSession oAuthSession) {
+    private String getUserName(final UserSession userSession, final OAuthSession oAuthSession) {
         if( !isSSOAccountingEnabled) {
             return null;
         }
@@ -132,19 +129,11 @@ public class AccessControlListManager {
             return oAuthSession.getEmail();
         }
 
-        if(StringUtils.isEmpty(ssoToken)) {
-            return null;
-        }
 
-        try {
-            final UserSession userSession = ssoTokenTranslator.translateSsoToken(ssoToken);
-            if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
-                return userSession.getUsername();
-            }
-        } catch (AuthServiceClientException e) {
-            LOGGER.debug("Cannot translate ssoToken, will account by remoteAddr due to {}: {}", e.getClass().getName(), e.getMessage());
+        if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
+            return userSession.getUsername();
         }
-
+        
         return null;
     }
 
@@ -276,8 +265,8 @@ public class AccessControlListManager {
         return address;
     }
 
-    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, final String ssoToken, final OAuthSession oAuthSession) {
-        final String userName = getUserName(ssoToken, oAuthSession);
+    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, final UserSession userSession, final OAuthSession oAuthSession) {
+        final String userName = getUserName(userSession, oAuthSession);
         return new AccountingIdentifier(remoteAddress, userName);
     }
 }

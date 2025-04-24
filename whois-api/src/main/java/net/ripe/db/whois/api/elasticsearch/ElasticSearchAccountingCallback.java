@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
@@ -16,7 +17,7 @@ public abstract class ElasticSearchAccountingCallback<T> {
 
     private final AccessControlListManager accessControlListManager;
     private final InetAddress remoteAddress;
-    private final String ssoToken;
+    private final UserSession userSession;
     private final Source source;
 
     private int accountingLimit = -1;
@@ -26,11 +27,11 @@ public abstract class ElasticSearchAccountingCallback<T> {
 
     public ElasticSearchAccountingCallback(final AccessControlListManager accessControlListManager,
                                            final String remoteAddress,
-                                           final String ssoToken,
+                                           final UserSession userSession,
                                            final Source source) {
         this.accessControlListManager = accessControlListManager;
         this.remoteAddress = InetAddresses.forString(remoteAddress);
-        this.ssoToken = ssoToken;
+        this.userSession = userSession;
         this.enabled = !accessControlListManager.isUnlimited(this.remoteAddress);
         this.source = source;
     }
@@ -64,6 +65,6 @@ public abstract class ElasticSearchAccountingCallback<T> {
     }
 
     private AccountingIdentifier getAccountingIdentifier() {
-        return accessControlListManager.getAccountingIdentifier(remoteAddress, ssoToken, null );
+        return accessControlListManager.getAccountingIdentifier(remoteAddress, userSession, null );
     }
 }

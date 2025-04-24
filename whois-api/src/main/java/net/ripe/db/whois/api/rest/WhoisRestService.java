@@ -13,6 +13,9 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -65,6 +68,7 @@ public class WhoisRestService {
     private final AccessControlListManager accessControlListManager;
     private final WhoisObjectMapper whoisObjectMapper;
     private final InternalUpdatePerformer updatePerformer;
+    private final SsoTokenTranslator ssoTokenTranslator;
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
@@ -79,6 +83,7 @@ public class WhoisRestService {
                             final WhoisObjectMapper whoisObjectMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
+                            final SsoTokenTranslator ssoTokenTranslator,
                             final LoggerContext loggerContext,
                             final AuthoritativeResourceData authoritativeResourceData,
                             final BearerTokenExtractor bearerTokenExtractor,
@@ -89,6 +94,7 @@ public class WhoisRestService {
         this.accessControlListManager = accessControlListManager;
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
+        this.ssoTokenTranslator = ssoTokenTranslator;
         this.ssoTranslator = ssoTranslator;
         this.loggerContext = loggerContext;
         this.authoritativeResourceData = authoritativeResourceData;
@@ -314,7 +320,7 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
+                    Query.parse(queryBuilder.build(key), getUserSession(crowdTokenKey), passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }
@@ -436,6 +442,14 @@ public class WhoisRestService {
     void setDryRun(final UpdateContext updateContext, final String dryRun) {
         if (isQueryParamSet(dryRun)) {
             updateContext.dryRun();
+        }
+    }
+
+    private UserSession getUserSession(final String crowdTokenKey) {
+        try {
+            return ssoTokenTranslator.translateSsoToken(crowdTokenKey);
+        } catch (AuthServiceClientException e) {
+            return null;
         }
     }
 }
