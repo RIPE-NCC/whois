@@ -1,7 +1,7 @@
 package net.ripe.db.whois.compare.common;
 
-import difflib.Chunk;
-import difflib.Delta;
+import com.github.difflib.patch.AbstractDelta;
+import com.github.difflib.patch.Chunk;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ public class ComparisonPrinter {
                                         final String query,
                                         final List<ResponseObject> responseObjects1,
                                         final List<ResponseObject> responseObjects2,
-                                        final List<Delta> deltas) throws IOException {
+                                        final List<AbstractDelta> deltas) throws IOException {
 
         final String filenameBase = String.format("%d_%%s.txt", filenameSuffix++);
 
@@ -44,15 +44,15 @@ public class ComparisonPrinter {
         }
     }
 
-    private static void writeDeltas(final String query, final File file, final List<Delta> deltas) throws IOException {
+    private static void writeDeltas(final String query, final File file, final List<AbstractDelta> deltas) throws IOException {
         LOGGER.info("Creating {}", file.getAbsolutePath());
         try (final BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(file))) {
             os.write(query.getBytes(StandardCharsets.UTF_8));
             os.write("\n\n".getBytes(StandardCharsets.UTF_8));
 
-            for (final Delta delta : deltas) {
-                final Chunk original = delta.getOriginal();
-                final Chunk revised = delta.getRevised();
+            for (final AbstractDelta delta : deltas) {
+                final Chunk original = delta.getSource();
+                final Chunk revised = delta.getTarget();
 
                 os.write(String.format("\n\n" +
                         "---------- 1 (position %d, size %d) ----------\n\n%s\n\n" +

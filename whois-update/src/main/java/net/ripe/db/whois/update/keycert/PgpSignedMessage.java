@@ -15,7 +15,6 @@ import org.springframework.util.FileCopyUtils;
 import javax.annotation.concurrent.Immutable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -74,7 +73,7 @@ public final class PgpSignedMessage {
 
             final byte[] signatureBytes = FileCopyUtils.copyToByteArray(signatureIn);
             return new PgpSignedMessage(content, signatureBytes, false);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -130,7 +129,7 @@ public final class PgpSignedMessage {
 
             return new PgpSignedMessage(signedSectionOut.toByteArray(), signatureOut.toByteArray(), true);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -206,9 +205,8 @@ public final class PgpSignedMessage {
             if ((signatureList == null) || (signatureList.size() != 1)) {
                 throw new IllegalArgumentException("Couldn't read PGP signature");
             }
-
             return signatureList.get(0);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
