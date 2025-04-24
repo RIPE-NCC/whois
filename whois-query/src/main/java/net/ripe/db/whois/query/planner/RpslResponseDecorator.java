@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.planner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
@@ -57,7 +58,6 @@ public class RpslResponseDecorator {
     private final FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     private final AbuseCInfoDecorator abuseCInfoDecorator;
     private final Set<PrimaryObjectDecorator> decorators;
-    private final SsoTokenTranslator ssoTokenTranslator;
     private final AuthServiceClient authServiceClient;
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
@@ -71,7 +71,6 @@ public class RpslResponseDecorator {
                                  final AbuseCFinder abuseCFinder,
                                  final FilterPlaceholdersDecorator filterPlaceholdersDecorator,
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
-                                 final SsoTokenTranslator ssoTokenTranslator,
                                  final AuthServiceClient authServiceClient,
                                  final ClientAuthCertificateValidator clientAuthCertificateValidator,
                                  final PrimaryObjectDecorator... decorators) {
@@ -80,7 +79,6 @@ public class RpslResponseDecorator {
         this.dummifyDecorator = dummifyDecorator;
         this.sourceContext = sourceContext;
         this.abuseCInfoDecorator = abuseCInfoDecorator;
-        this.ssoTokenTranslator = ssoTokenTranslator;
         this.authServiceClient = authServiceClient;
         this.validSyntaxFilterFunction = new SyntaxFilterFunction(true);
         this.invalidSyntaxFilterFunction = new SyntaxFilterFunction(false);
@@ -160,14 +158,14 @@ public class RpslResponseDecorator {
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
         List<String> passwords = query.getPasswords();
-        final String ssoToken = query.getSsoToken();
+        final UserSession userSession = query.getUserSession();
         final OAuthSession oAuthSession = query.getoAuthSession();
         final List<X509CertificateWrapper> certificates = query.getCertificates();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(ssoToken) && hasNotCertificates(certificates) && oAuthSession == null)?
+                (CollectionUtils.isEmpty(passwords) && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, oAuthSession, ssoToken, ssoTokenTranslator, authServiceClient,
+                        new FilterAuthFunction(passwords, oAuthSession, userSession, authServiceClient,
                                 rpslObjectDao, certificates, clientAuthCertificateValidator);
 
         return Iterables.transform(objects, input -> {

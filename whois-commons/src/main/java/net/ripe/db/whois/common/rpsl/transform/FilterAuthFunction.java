@@ -47,24 +47,21 @@ public class FilterAuthFunction implements FilterFunction {
 
     private List<String> passwords = null;
     private OAuthSession oAuthSession;
-    private String token = null;
+    private UserSession  userSession;
     private RpslObjectDao rpslObjectDao = null;
-    private SsoTokenTranslator ssoTokenTranslator;
     private AuthServiceClient authServiceClient;
     private List<X509CertificateWrapper> certificates;
     private ClientAuthCertificateValidator clientAuthCertificateValidator;
 
     public FilterAuthFunction(final List<String> passwords,
                               final OAuthSession oAuthSession,
-                              final String token,
-                              final SsoTokenTranslator ssoTokenTranslator,
+                              final UserSession userSession,
                               final AuthServiceClient authServiceClient,
                               final RpslObjectDao rpslObjectDao,
                               final List<X509CertificateWrapper> certificates,
                               final ClientAuthCertificateValidator clientAuthCertificateValidator) {
-        this.token = token;
+        this.userSession = userSession;
         this.passwords = passwords;
-        this.ssoTokenTranslator = ssoTokenTranslator;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
@@ -112,7 +109,7 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
-        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token) && (certificates == null || certificates.isEmpty()) && (oAuthSession == null || oAuthSession.getUuid() == null)) {
+        if (CollectionUtils.isEmpty(passwords) && userSession == null && (certificates == null || certificates.isEmpty()) && (oAuthSession == null || oAuthSession.getUuid() == null)) {
             return false;
         }
 
@@ -147,20 +144,15 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean ssoAuthentication(final List<RpslAttribute> authAttributes) {
-        if (StringUtils.isBlank(token)) {
+        if (userSession == null) {
             return false;
         }
 
         for (RpslAttribute attribute : authAttributes) {
             final Matcher matcher = SSO_PATTERN.matcher(attribute.getCleanValue().toString());
             if (matcher.matches()) {
-                try {
-                    final UserSession userSession = ssoTokenTranslator.translateSsoToken(token);
-                    if (userSession != null && userSession.getUuid().equals(matcher.group(1))) {
+                if (userSession.getUuid() != null && userSession.getUuid().equals(matcher.group(1))) {
                         return true;
-                    }
-                } catch (AuthServiceClientException e) {
-                    return false;
                 }
             }
         }

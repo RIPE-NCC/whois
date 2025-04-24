@@ -75,7 +75,7 @@ public class IpAccessControlListManagerTest {
         mockResourceConfiguration(ipv6Restricted, true, false, PERSONAL_DATA_LIMIT);
         mockResourceConfiguration(ipv6Unrestricted, false, true, PERSONAL_DATA_NO_LIMIT);
 
-        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, false, ipRanges);
+        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoResourceConfiguration, false, ipRanges);
 
     }
 
