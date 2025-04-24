@@ -122,7 +122,7 @@ public class QueryHandler {
                     @Override
                     public void handle(final ResponseObject responseObject) {
                         if (responseObject instanceof RpslObject) {
-                            if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource(), getAccountingIdentifier())) {
+                            if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource(), query.getEffectiveUuid())) {
                                 if (accountingLimit == -1) {
                                     accountingLimit = accessControlListManager.getPersonalObjects(getAccountingIdentifier());
                                 }

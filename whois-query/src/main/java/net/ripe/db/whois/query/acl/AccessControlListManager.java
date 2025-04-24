@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query.acl;
 
+import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
@@ -66,7 +67,7 @@ public class AccessControlListManager {
         this.jdbcRpslObjectSlaveDao = jdbcRpslObjectSlaveDao;
     }
 
-    public boolean requiresAcl(final RpslObject rpslObject, final Source source, final AccountingIdentifier accountingIdentifier) {
+    public boolean requiresAcl(final RpslObject rpslObject, final Source source, final String uuid) {
         if (source.isGrs()) {
             return false;
         }
@@ -75,7 +76,7 @@ public class AccessControlListManager {
         if (!ObjectType.PERSON.equals(objectType) && (!ObjectType.ROLE.equals(objectType) || !rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty())){
             return false;
         }
-        return true;
+        return StringUtil.isNullOrEmpty(uuid) || !isUserOwnedObject(rpslObject, uuid);
     }
 
     public void checkBlocked(final AccountingIdentifier accountingIdentifier) {
