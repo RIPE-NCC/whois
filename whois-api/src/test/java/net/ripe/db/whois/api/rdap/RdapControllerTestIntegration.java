@@ -1197,17 +1197,19 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inet6num_not_found() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("ip/2001:2002:2003::/48")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
-            fail();
-        });
-        final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
-        assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
-        assertThat(error.getErrorTitle(), is("404 Not Found"));
-        assertThat(error.getDescription().get(0), is("Requested object not found"));
+    public void lookup_inet6num_administrative() {
+        final Ip ip = createResource("ip/2001:2002:2003::/48")
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2000::/19"));
+        assertThat(ip.getStartAddress(), is("2001:2000::"));
+        assertThat(ip.getEndAddress(), is("2001:3fff:ffff:ffff:ffff:ffff:ffff:ffff"));
+        assertThat(ip.getName(), is("RIPE-NCC-MANAGED-ADDRESS-BLOCK"));
+        assertThat(ip.getType(), is("ALLOCATED UNSPECIFIED"));
+        assertThat(ip.getCountry(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("::/0"));
+        assertThat(ip.getStatus().getFirst(), is("administrative"));
     }
 
     @Test
