@@ -65,6 +65,6 @@ public abstract class ElasticSearchAccountingCallback<T> {
     }
 
     private AccountingIdentifier getAccountingIdentifier() {
-        return accessControlListManager.getAccountingIdentifier(remoteAddress, userSession, null );
+        return accessControlListManager.getAccountingIdentifier(remoteAddress, userSession == null ? null : userSession.getUsername());
     }
 }

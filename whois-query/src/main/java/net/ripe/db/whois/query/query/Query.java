@@ -636,6 +636,23 @@ public class Query {
         return this;
     }
 
+    public String getEffectiveUsername() {
+        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getEmail())) {
+            return oAuthSession.getEmail();
+        }
+
+        return userSession == null ? null : userSession.getUsername();
+    }
+
+    public String getEffectiveUuid() {
+        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getUuid())) {
+            return oAuthSession.getUuid();
+        }
+
+        return userSession == null ? null : userSession.getUuid();
+    }
+
+
     public enum MatchOperation {
         MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC(),
         MATCH_EXACT(QueryFlag.EXACT),
