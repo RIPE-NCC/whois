@@ -82,7 +82,6 @@ public class RpslResponseDecoratorTest {
                 abuseCFinder,
                 filterPlaceholdersDecorator,
                 abuseCInfoDecorator,
-                ssoTokenTranslator,
                 authServiceClient,
                 clientAuthCertificateValidator,
                 decorator);

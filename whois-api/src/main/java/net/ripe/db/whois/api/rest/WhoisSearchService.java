@@ -16,6 +16,9 @@ import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -91,15 +94,18 @@ public class WhoisSearchService {
     private static final Service SEARCH_SERVICE = new Service("search");
 
     private final AccessControlListManager accessControlListManager;
+    private final SsoTokenTranslator ssoTokenTranslator;
     private final RpslObjectStreamer rpslObjectStreamer;
     private final SourceContext sourceContext;
 
     @Autowired
     public WhoisSearchService(
             final AccessControlListManager accessControlListManager,
+            final SsoTokenTranslator ssoTokenTranslator,
             final RpslObjectStreamer rpslObjectStreamer,
             final SourceContext sourceContext) {
         this.accessControlListManager = accessControlListManager;
+        this.ssoTokenTranslator = ssoTokenTranslator;
         this.rpslObjectStreamer = rpslObjectStreamer;
         this.sourceContext = sourceContext;
     }
@@ -161,7 +167,8 @@ public class WhoisSearchService {
             queryBuilder.addFlag(separateFlag);
         }
 
-        final Query query = Query.parse(queryBuilder.build(searchKey), crowdTokenKey, Query.Origin.REST, isTrusted(request));
+
+        final Query query = Query.parse(queryBuilder.build(searchKey), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), Query.Origin.REST, isTrusted(request));
 
         final Parameters parameters = new Parameters.Builder()
                 .inverseAttributes(new InverseAttributes(inverseAttributes))

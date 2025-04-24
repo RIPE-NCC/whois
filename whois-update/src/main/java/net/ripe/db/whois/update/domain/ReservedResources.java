@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static net.ripe.db.whois.common.rpsl.AttributeType.INET6NUM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.INETNUM;
+
 @Component
 public class ReservedResources {
 
@@ -33,10 +36,9 @@ public class ReservedResources {
 
     private final List<LongRange> reservedAsnumbers;
     private final Set<Interval> bogons;
-    private final Set<Ipv4Resource> administrativeRanges;
+    private final Set<IpInterval> administrativeRanges;
 
     private static final String TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE = "2002-06-25T14:19:09Z";
-
 
     @Autowired
     public ReservedResources(@Value("${whois.reserved.as.numbers:}") final String reservedAsNumbers, @Value("${ip.administrative:}") final String administrativeRanges, @Value("${ipranges.bogons:}") final String ... bogons) {
@@ -116,9 +118,10 @@ public class ReservedResources {
 
         return false;
     }
-    private Set<Ipv4Resource> parseAdministrativeBlocks(final String administrativeRanges) {
+
+    private Set<IpInterval> parseAdministrativeBlocks(final String administrativeRanges) {
         try {
-            return Arrays.stream(administrativeRanges.split(",")).map(Ipv4Resource::parse).collect(Collectors.toSet());
+            return Arrays.stream(administrativeRanges.split(",")).map(IpInterval::parse).collect(Collectors.toSet());
         } catch (IllegalArgumentException e) {
             LOGGER.warn("{} is not a valid prefix, skipping...", administrativeRanges);
             return Sets.newHashSet();
@@ -128,7 +131,7 @@ public class ReservedResources {
     @Nullable
     public RpslObject getAdministrativeRange(final String prefix) {
 
-        final Interval interval;
+        final IpInterval<?> interval;
         try {
             interval = IpInterval.parse(prefix);
         } catch (IllegalArgumentException e) {
@@ -136,14 +139,14 @@ public class ReservedResources {
             return null;
         }
 
-        if(!(interval instanceof Ipv4Resource) || isBogon(prefix)) return null;
+        if(isBogon(prefix)) return null;
 
-        final Ipv4Resource administrativeBlock =  administrativeRanges.stream()
-                .filter(range -> range.contains((Ipv4Resource) interval))
+        final IpInterval<?> administrativeBlock =  administrativeRanges.stream()
+                .filter(range -> interval.getClass().equals(range.getClass()) && range.contains(interval))
                 .findAny().orElse(null);
 
         return administrativeBlock != null ?
-                new RpslObjectBuilder().append(new RpslAttribute(AttributeType.INETNUM, administrativeBlock.toString()))
+                new RpslObjectBuilder().append(new RpslAttribute( (administrativeBlock instanceof  Ipv4Resource) ? INETNUM : INET6NUM, administrativeBlock.toString()))
                         .append(new RpslAttribute(AttributeType.NETNAME, "RIPE-NCC-MANAGED-ADDRESS-BLOCK"))
                         .append(new RpslAttribute(AttributeType.STATUS, InetnumStatus.ALLOCATED_UNSPECIFIED.toString()))
                         .append(new RpslAttribute(AttributeType.CREATED, TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE))
@@ -154,7 +157,7 @@ public class ReservedResources {
 
     public boolean isAdministrative(final String prefix) {
         try {
-            return administrativeRanges.contains(Ipv4Resource.parse(prefix));
+            return administrativeRanges.contains(IpInterval.parse(prefix));
         } catch (IllegalArgumentException e) {
             return false;
         }

@@ -10,6 +10,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -65,7 +66,7 @@ public class Query {
 
     // TODO: [AH] these fields should be part of QueryContext, not Query
     private List<String> passwords;
-    private String ssoToken;
+    private UserSession userSession;
     private OAuthSession oAuthSession;
     private final Origin origin;
     private final boolean trusted;
@@ -114,10 +115,10 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final String ssoToken, final Origin origin, final boolean trusted) {
+    public static Query parse(final String args, final UserSession userSession, final Origin origin, final boolean trusted) {
         try {
             final Query query = new Query(args.trim(), origin, trusted);
-            query.ssoToken = ssoToken;
+            query.userSession = userSession;
 
             for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
                 queryValidator.validate(query, query.messages);
@@ -135,9 +136,9 @@ public class Query {
     }
 
 
-    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted, final List<X509CertificateWrapper> certificates, final OAuthSession oAuthSession) {
+    public static Query parse(final String args, final UserSession userSession, final List<String> passwords, final boolean trusted, final List<X509CertificateWrapper> certificates, final OAuthSession oAuthSession) {
         final Query query = parse(args, Origin.REST, trusted);
-        query.ssoToken = ssoToken;
+        query.userSession = userSession;
         query.passwords = passwords;
         query.certificates = certificates;
         query.oAuthSession = oAuthSession;
@@ -148,8 +149,8 @@ public class Query {
         return passwords;
     }
 
-    public String getSsoToken() {
-        return ssoToken;
+    public UserSession getUserSession() {
+        return userSession;
     }
 
     public OAuthSession getoAuthSession() {

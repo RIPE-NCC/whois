@@ -79,7 +79,7 @@ public class QueryHandler {
             }
 
             private AccountingIdentifier getAccountingIdentifier() {
-                return accessControlListManager.getAccountingIdentifier(accountingAddress, query.getSsoToken(), query.getoAuthSession());
+                return accessControlListManager.getAccountingIdentifier(accountingAddress, query.getUserSession(), query.getoAuthSession());
             }
 
             private QueryExecutor getQueryExecutor() {
@@ -94,7 +94,7 @@ public class QueryHandler {
 
             private void initAcl(final QueryExecutor queryExecutor) {
                 if (queryExecutor.isAclSupported()) {
-                    final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(remoteAddress, query.getSsoToken(), query.getoAuthSession());
+                    final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(remoteAddress, query.getUserSession(), query.getoAuthSession());
                     accessControlListManager.checkBlocked(accountingIdentifier);
 
                     if (query.hasProxyWithIp()) {
