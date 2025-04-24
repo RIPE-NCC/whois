@@ -111,7 +111,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
-        final UserSession userSession = getUserSession(ssoToken);
+        final UserSession userSession = ssoTokenTranslator.translateSsoTokenOrNull(ssoToken);
 
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, userSession, source) {
 
@@ -157,14 +157,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
             }
 
         }.search();
-    }
-
-    private UserSession getUserSession(final String ssoToken) {
-        try {
-            return ssoTokenTranslator.translateSsoToken(ssoToken);
-        } catch (AuthServiceClientException e) {
-            return null;
-        }
     }
 
     private org.elasticsearch.action.search.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {

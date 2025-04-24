@@ -320,7 +320,7 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), getUserSession(crowdTokenKey), passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
+                    Query.parse(queryBuilder.build(key), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }
@@ -442,14 +442,6 @@ public class WhoisRestService {
     void setDryRun(final UpdateContext updateContext, final String dryRun) {
         if (isQueryParamSet(dryRun)) {
             updateContext.dryRun();
-        }
-    }
-
-    private UserSession getUserSession(final String crowdTokenKey) {
-        try {
-            return ssoTokenTranslator.translateSsoToken(crowdTokenKey);
-        } catch (AuthServiceClientException e) {
-            return null;
         }
     }
 }

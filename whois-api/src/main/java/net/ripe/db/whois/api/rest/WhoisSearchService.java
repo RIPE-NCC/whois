@@ -168,7 +168,7 @@ public class WhoisSearchService {
         }
 
 
-        final Query query = Query.parse(queryBuilder.build(searchKey), getUserSession(crowdTokenKey), Query.Origin.REST, isTrusted(request));
+        final Query query = Query.parse(queryBuilder.build(searchKey), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), Query.Origin.REST, isTrusted(request));
 
         final Parameters parameters = new Parameters.Builder()
                 .inverseAttributes(new InverseAttributes(inverseAttributes))
@@ -192,14 +192,6 @@ public class WhoisSearchService {
                 InetAddresses.forString(request.getRemoteAddr()),
                 parameters,
                 SEARCH_SERVICE);
-    }
-
-    private UserSession getUserSession(final String crowdTokenKey) {
-        try {
-            return ssoTokenTranslator.translateSsoToken(crowdTokenKey);
-        } catch (AuthServiceClientException e) {
-            return null;
-        }
     }
 
     private void validateSearchKey(final HttpServletRequest request, final String searchKey) {
