@@ -840,7 +840,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void lookup_person_using_api_key_email_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost,  null, getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNER_MNT)));
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost,  getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_PERSON_OWNER_MNT)).getEmail());
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
@@ -945,7 +945,7 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     @Test
     public void lookup_person_using_sso_no_acl_for_unlimited_remoteAddr() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT)));
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, getOAuthSession(APIKEY_TO_OAUTHSESSION.get(BASIC_AUTH_TEST_NO_MNT)).getEmail());
 
         databaseHelper.insertAclIpLimit(LOCALHOST_WITH_PREFIX, -1, true);
         ipResourceConfiguration.reload();

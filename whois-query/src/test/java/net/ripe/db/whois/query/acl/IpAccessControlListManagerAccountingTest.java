@@ -49,8 +49,7 @@ public class IpAccessControlListManagerAccountingTest {
     @BeforeEach
     public void setUp() throws Exception {
         subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao,
-                personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, true
-                , ipRanges, jdbcRpslObjectSlaveDao);
+                personalObjectAccounting, ssoAccessControlListDao, ssoResourceConfiguration, true, ipRanges, jdbcRpslObjectSlaveDao);
         ipv4Address = Inet4Address.getLocalHost();
         ipv6Address = Inet6Address.getByName("::1");
         accountingIdentifierIpv4 = new AccountingIdentifier(ipv4Address, null);

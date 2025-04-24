@@ -6,6 +6,7 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -32,6 +33,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
     public static final String VALID_TOKEN_USER_NAME = "person@net.net";
     public static final String DB_E2E_1_USER_NAME = "db_e2e_1@ripe.net";
+    public static final UserSession VALID_TOKEN_USER_SESSION = new UserSession("aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef","person@net.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
     public static final String VALID_TOKEN = "valid-token";
     public static final String DB_E2E_1_TOKEN = "db_e2e_1";
 
@@ -102,7 +104,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     @Test
     public void lookup_person_using_sso_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, VALID_TOKEN, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, VALID_TOKEN_USER_SESSION.getUsername());
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
@@ -149,7 +151,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
     @Test
     public void lookup_person_using_sso_no_acl_for_unlimited_remoteAddr() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, VALID_TOKEN, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, VALID_TOKEN_USER_SESSION.getUsername());
 
         databaseHelper.insertAclIpLimit(LOCALHOST_WITH_PREFIX, -1, true);
         ipResourceConfiguration.reload();

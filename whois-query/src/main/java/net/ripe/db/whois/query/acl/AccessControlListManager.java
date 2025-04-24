@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.acl;
 
-import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
@@ -10,27 +9,21 @@ import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
-import net.ripe.db.whois.common.sso.AuthServiceClientException;
-import net.ripe.db.whois.common.sso.SsoTokenTranslator;
-import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -49,7 +42,6 @@ public class AccessControlListManager {
     private final IpRanges ipRanges;
     private final SSOResourceConfiguration ssoResourceConfiguration;
     private final SSOAccessControlListDao ssoAccessControlListDao;
-    private final SsoTokenTranslator ssoTokenTranslator;
     private final JdbcRpslObjectSlaveDao jdbcRpslObjectSlaveDao;
     private final boolean isSSOAccountingEnabled;
 
@@ -59,7 +51,6 @@ public class AccessControlListManager {
                                     final IpAccessControlListDao ipAccessControlListDao,
                                     final PersonalObjectAccounting personalObjectAccounting,
                                     final SSOAccessControlListDao ssoAccessControlListDao,
-                                    final SsoTokenTranslator ssoTokenTranslator,
                                     final SSOResourceConfiguration ssoResourceConfiguration,
                                     @Value("${personal.accounting.by.sso:true}") final boolean isSSOAccountingEnabled,
                                     final IpRanges ipRanges,
@@ -70,7 +61,6 @@ public class AccessControlListManager {
         this.personalObjectAccounting = personalObjectAccounting;
         this.ssoResourceConfiguration = ssoResourceConfiguration;
         this.ssoAccessControlListDao = ssoAccessControlListDao;
-        this.ssoTokenTranslator = ssoTokenTranslator;
         this.ipRanges = ipRanges;
         this.isSSOAccountingEnabled = isSSOAccountingEnabled;
         this.jdbcRpslObjectSlaveDao = jdbcRpslObjectSlaveDao;
@@ -85,9 +75,7 @@ public class AccessControlListManager {
         if (!ObjectType.PERSON.equals(objectType) && (!ObjectType.ROLE.equals(objectType) || !rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty())){
             return false;
         }
-
-        return accountingIdentifier.getSsoUser() == null || StringUtil.isNullOrEmpty(accountingIdentifier.getSsoUser().uuid()) ||
-                !isUserOwnedObject(rpslObject, accountingIdentifier.getSsoUser().uuid());
+        return true;
     }
 
     public void checkBlocked(final AccountingIdentifier accountingIdentifier) {
@@ -95,8 +83,7 @@ public class AccessControlListManager {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(accountingIdentifier.getRemoteAddress().getHostAddress()));
         }
 
-        final String username = accountingIdentifier.getSsoUser() != null ?
-accountingIdentifier.getSsoUser().userName() : null;
+        final String username = accountingIdentifier.getUserName();
         if( ssoResourceConfiguration.isDenied(username)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
         }
@@ -132,35 +119,9 @@ accountingIdentifier.getSsoUser().userName() : null;
     }
 
     private PersonalAccountingManager getAccountingManager(final AccountingIdentifier accountingIdentifier) {
-       final AccountingIdentifier.UserInfo username = accountingIdentifier.getSsoUser();
+       final String username = accountingIdentifier.getUserName();
 
-       return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username.userName());
-    }
-
-    @Nullable
-    private AccountingIdentifier.UserInfo getUserInfo(final String ssoToken, final OAuthSession oAuthSession) {
-        if( !isSSOAccountingEnabled) {
-            return null;
-        }
-
-        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getEmail())) {
-            return new AccountingIdentifier.UserInfo(oAuthSession.getEmail(), oAuthSession.getUuid());
-        }
-
-        if(StringUtils.isEmpty(ssoToken)) {
-            return null;
-        }
-
-        try {
-            final UserSession userSession = ssoTokenTranslator.translateSsoToken(ssoToken);
-            if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
-                return new AccountingIdentifier.UserInfo(userSession.getUsername(), userSession.getUuid());
-            }
-        } catch (AuthServiceClientException e) {
-            LOGGER.debug("Cannot translate ssoToken, will account by remoteAddr due to {}: {}", e.getClass().getName(), e.getMessage());
-        }
-
-        return null;
+       return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username);
     }
 
     /**
@@ -296,8 +257,8 @@ accountingIdentifier.getSsoUser().userName() : null;
         return address;
     }
 
-    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, final String ssoToken, final OAuthSession oAuthSession) {
-        final AccountingIdentifier.UserInfo userInfo = getUserInfo(ssoToken, oAuthSession);
-        return new AccountingIdentifier(remoteAddress, userInfo);
+    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, final String username) {
+        final String userName = !isSSOAccountingEnabled ? null : username;
+        return new AccountingIdentifier(remoteAddress, userName);
     }
 }

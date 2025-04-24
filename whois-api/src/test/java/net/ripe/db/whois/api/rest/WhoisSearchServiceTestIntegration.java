@@ -2637,7 +2637,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void lookup_person_with_client_flag_no_proxy() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
 
 
         databaseHelper.addObject("" +
@@ -2714,8 +2714,8 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.insertAclIpProxy(LOCALHOST);
         ipResourceConfiguration.reload();
 
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
-        final AccountingIdentifier accountingIdentifierProxy = accessControlListManager.getAccountingIdentifier(InetAddresses.forString("10.1.2.3"), null, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
+        final AccountingIdentifier accountingIdentifierProxy = accessControlListManager.getAccountingIdentifier(InetAddresses.forString("10.1.2.3"), null);
 
         final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
         final int proxylLimit = accessControlListManager.getPersonalObjects( accountingIdentifierProxy);

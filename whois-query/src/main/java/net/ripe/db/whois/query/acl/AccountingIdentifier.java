@@ -5,20 +5,19 @@ import java.net.InetAddress;
 public class AccountingIdentifier {
 
     final private InetAddress remoteAddress;
-    final private UserInfo ssoUser;
+    final private String userName;
 
-    public AccountingIdentifier(InetAddress remoteAddress, UserInfo ssoUser) {
+    public AccountingIdentifier(InetAddress remoteAddress, String userName) {
         this.remoteAddress = remoteAddress;
-        this.ssoUser = ssoUser;
+        this.userName = userName;
     }
 
-    public UserInfo getSsoUser() {
-        return ssoUser;
+    public String getUserName() {
+        return userName;
     }
 
     public InetAddress getRemoteAddress() {
         return remoteAddress;
     }
 
-    public record UserInfo(String userName, String uuid) {}
 }
