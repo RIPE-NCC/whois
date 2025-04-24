@@ -120,23 +120,6 @@ public class AccessControlListManager {
        return username == null ? new RemoteAddrAccountingManager(accountingIdentifier.getRemoteAddress()) : new SSOAccountingManager(username);
     }
 
-    private String getUserName(final UserSession userSession, final OAuthSession oAuthSession) {
-        if( !isSSOAccountingEnabled) {
-            return null;
-        }
-
-        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getEmail())) {
-            return oAuthSession.getEmail();
-        }
-
-
-        if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
-            return userSession.getUsername();
-        }
-
-        return null;
-    }
-
     /**
      * Account for the ResponseObject given
      *
@@ -265,8 +248,8 @@ public class AccessControlListManager {
         return address;
     }
 
-    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, final UserSession userSession, final OAuthSession oAuthSession) {
-        final String userName = getUserName(userSession, oAuthSession);
+    public AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress, final String username) {
+        final String userName = !isSSOAccountingEnabled ? null : username;
         return new AccountingIdentifier(remoteAddress, userName);
     }
 }
