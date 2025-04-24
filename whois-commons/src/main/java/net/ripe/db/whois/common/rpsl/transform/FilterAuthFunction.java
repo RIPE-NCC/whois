@@ -151,12 +151,8 @@ public class FilterAuthFunction implements FilterFunction {
         for (RpslAttribute attribute : authAttributes) {
             final Matcher matcher = SSO_PATTERN.matcher(attribute.getCleanValue().toString());
             if (matcher.matches()) {
-                try {
-                    if (userSession != null && userSession.getUuid().equals(matcher.group(1))) {
+                if (userSession.getUuid() != null && userSession.getUuid().equals(matcher.group(1))) {
                         return true;
-                    }
-                } catch (AuthServiceClientException e) {
-                    return false;
                 }
             }
         }
