@@ -81,14 +81,13 @@ public class AccessControlListManager {
             return false;
         }
 
-        if (accountingIdentifier.getSsoUser() != null && !StringUtil.isNullOrEmpty(accountingIdentifier.getSsoUser().uuid())&&
-                isUserOwnedObject(rpslObject, accountingIdentifier.getSsoUser().uuid())){
+        final ObjectType objectType = rpslObject.getType();
+        if (!ObjectType.PERSON.equals(objectType) && (!ObjectType.ROLE.equals(objectType) || !rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty())){
             return false;
         }
 
-        final ObjectType objectType = rpslObject.getType();
-        return ObjectType.PERSON.equals(objectType)
-                || (ObjectType.ROLE.equals(objectType) && rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty());
+        return accountingIdentifier.getSsoUser() == null || StringUtil.isNullOrEmpty(accountingIdentifier.getSsoUser().uuid()) ||
+                !isUserOwnedObject(rpslObject, accountingIdentifier.getSsoUser().uuid());
     }
 
     public void checkBlocked(final AccountingIdentifier accountingIdentifier) {
@@ -96,7 +95,8 @@ public class AccessControlListManager {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(accountingIdentifier.getRemoteAddress().getHostAddress()));
         }
 
-        final String username = accountingIdentifier.getSsoUser() != null ? accountingIdentifier.getSsoUser().userName() : null;
+        final String username = accountingIdentifier.getSsoUser() != null ?
+accountingIdentifier.getSsoUser().userName() : null;
         if( ssoResourceConfiguration.isDenied(username)) {
             throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(username));
         }
