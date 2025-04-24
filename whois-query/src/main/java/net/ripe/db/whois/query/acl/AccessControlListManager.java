@@ -133,7 +133,7 @@ public class AccessControlListManager {
         if(userSession != null && !StringUtils.isEmpty(userSession.getUsername())) {
             return userSession.getUsername();
         }
-        
+
         return null;
     }
 

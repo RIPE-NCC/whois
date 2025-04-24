@@ -12,6 +12,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -110,7 +111,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
-        final UserSession userSession = ssoTokenTranslator.translateSsoToken(ssoToken);
+        final UserSession userSession = getUserSession(ssoToken);
 
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, userSession, source) {
 
@@ -156,6 +157,14 @@ public class ElasticFulltextSearch extends FulltextSearch {
             }
 
         }.search();
+    }
+
+    private UserSession getUserSession(final String ssoToken) {
+        try {
+            return ssoTokenTranslator.translateSsoToken(ssoToken);
+        } catch (AuthServiceClientException e) {
+            return null;
+        }
     }
 
     private org.elasticsearch.action.search.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {
