@@ -83,7 +83,7 @@
         <mockito.version>5.17.0</mockito.version>
 
         <netty.version>4.1.119.Final</netty.version>
-        <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.2</nimbus-jose-jwt.version>
 
         <oauth2.oidc.version>11.23.1</oauth2.oidc.version>
         <org.json.version>20250107</org.json.version>
