@@ -31,6 +31,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter implements Smt
     private final MailMessageDao mailMessageDao;
     private final SmtpCommandHandler commandHandler;
     private final SmtpLog smtpLog;
+    private final SmtpRawLog smtpRawLog;
     private final int maximumSize;
     private final InternetAddress smtpFrom;
 
@@ -40,10 +41,12 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter implements Smt
             @Lazy final SmtpCommandHandler commandHandler,
             @Value("${mail.smtp.server.maximum.size:0}") final int maximumSize,
             @Value("${mail.smtp.from:}") final String smtpFrom,
-            final SmtpLog smtpLog) {
+            final SmtpLog smtpLog,
+            final SmtpRawLog smtpRawLog) {
         this.mailMessageDao = mailMessageDao;
         this.commandHandler = commandHandler;
         this.smtpLog = smtpLog;
+        this.smtpRawLog = smtpRawLog;
         this.maximumSize = maximumSize;
         this.smtpFrom = MimeUtility.parseAddress(smtpFrom);
     }
@@ -56,6 +59,7 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter implements Smt
                 writeResponse(ctx.channel(), SmtpResponses.sizeExceeded());
             } else {
                 smtpLog.log(ctx.channel(), "(END DATA)");
+                smtpRawLog.log(getMessage(ctx.channel()));
                 final MimeMessage mimeMessage = MimeUtility.parseMessage(getMessage(ctx.channel()));
                 if (isMessageFromOurselves(mimeMessage)) {
                     writeResponse(ctx.channel(), SmtpResponses.refusingMessageFrom(smtpFrom.getAddress()));
