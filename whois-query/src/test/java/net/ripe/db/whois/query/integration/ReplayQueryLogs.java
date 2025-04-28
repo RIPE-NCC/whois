@@ -64,7 +64,7 @@ public class ReplayQueryLogs {
             this.executorService = Executors.newFixedThreadPool(nrThreads);
             this.accessControlListManager = mock(AccessControlListManager.class);
 
-            when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(false);
+            when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class), any(String.class))).thenReturn(false);
 
             queryExecutor = new QueryExecutor(new QueryExecutorConfiguration("WHO-IS", whoisHost, whoisPort, -1), LOGGER);
         }
