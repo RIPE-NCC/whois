@@ -2669,11 +2669,19 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
 
         databaseHelper.addObject("" +
+                "mntner:      NOT-OWNER-MNT\n" +
+                "descr:       Hostmaster\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$tnG/zrDw$nps8tg76q4jgg5zg5o6os. # hm\n" +
+                "mnt-by:      NOT-OWNER-MNT\n" +
+                "source:      TEST\n");
+        databaseHelper.addObject("" +
                 "person:    Lo Person\n" +
                 "admin-c:   TP1-TEST\n" +
                 "tech-c:    TP1-TEST\n" +
                 "nic-hdl:   LP1-TEST\n" +
-                "mnt-by:    OWNER-MNT\n" +
+                "mnt-by:    NOT-OWNER-MNT\n" +
                 "source:    TEST\n");
 
         final int countBeforeQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);

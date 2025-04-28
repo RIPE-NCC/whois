@@ -1,15 +1,12 @@
 package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.sso.UserSession;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
@@ -26,7 +23,6 @@ import java.net.InetAddress;
 
 import static net.ripe.db.whois.api.RestTest.assertOnlyErrorMessage;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -140,7 +136,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes()
                             .stream()
-                            .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
+                            .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL.getName())),
                     is(false));
 
         final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
@@ -175,5 +171,61 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
         assertThat(remaining, is(limit));
+    }
+
+    @Test
+    public void lookup_person_belong_to_user_using_sso_acl_is_not_accounted() {
+        databaseHelper.addObject(
+                "mntner:      USER-OWNING-MNT\n" +
+                        "descr:       Owner Maintainer\n" +
+                        "admin-c:     TP1-TEST\n" +
+                        "auth:        SSO person@net.net\n" +
+                        "mnt-by:      USER-OWNING-MNT\n" +
+                        "source:      TEST");
+
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "mnt-by:   USER-OWNING-MNT\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+
+        RestTest.target(getPort(), "whois/test/person/TP2-TEST")
+                .request()
+                .cookie("crowd.token_key", VALID_TOKEN)
+                .get(WhoisResources.class);
+
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(accountedBySSO, is(queriedBySSO ));
+    }
+
+    @Test
+    public void lookup_person_do_not_belong_to_user_using_sso_acl_is_accounted() {
+        databaseHelper.addObject(
+                "mntner:      USER-OWNING-MNT\n" +
+                        "descr:       Owner Maintainer\n" +
+                        "admin-c:     TP1-TEST\n" +
+                        "auth:        SSO test@ripe.net\n" +
+                        "mnt-by:      USER-OWNING-MNT\n" +
+                        "source:      TEST");
+
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "mnt-by:   USER-OWNING-MNT\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+
+        RestTest.target(getPort(), "whois/test/person/TP2-TEST")
+                .request()
+                .cookie("crowd.token_key", VALID_TOKEN)
+                .get(WhoisResources.class);
+
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(accountedBySSO, is(queriedBySSO +1 ));
     }
 }
