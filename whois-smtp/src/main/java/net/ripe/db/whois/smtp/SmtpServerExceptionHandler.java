@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.TooLongFrameException;
-import io.netty.handler.codec.smtp.SmtpResponse;
 import io.netty.handler.timeout.ReadTimeoutException;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import org.slf4j.Logger;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ChannelHandler.Sharable
-public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
+public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter implements SmtpHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SmtpServerExceptionHandler.class);
 
@@ -28,16 +27,16 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
 
         switch (exception) {
             case SmtpException smtpException : {
-                handleException(channel, smtpException.getResponse());
+                writeResponse(channel, smtpException.getResponse());
                 break;
             }
             case TooLongFrameException tooLongFrameException : {
                 LOGGER.warn("Discarded line too long");
-                handleException(channel, SmtpResponses.lineTooLong());
+                writeResponse(channel, SmtpResponses.lineTooLong());
                 break;
             }
             case ReadTimeoutException readTimeoutException: {
-                handleException(channel, SmtpResponses.timeout());
+                writeResponseAndClose(channel, SmtpResponses.timeout());
                 break;
             }
             default: {
@@ -45,13 +44,8 @@ public class SmtpServerExceptionHandler extends ChannelInboundHandlerAdapter {
                         channel.id(),
                         ChannelUtil.getRemoteAddress(channel));
                 LOGGER.error(exception.getClass().getName(), exception);
-                handleException(channel, SmtpResponses.internalError());
+                writeResponse(channel, SmtpResponses.internalError());
             }
         }
     }
-
-    private void handleException(final Channel channel, final SmtpResponse smtpResponse) {
-        channel.writeAndFlush(smtpResponse);
-    }
-
 }
