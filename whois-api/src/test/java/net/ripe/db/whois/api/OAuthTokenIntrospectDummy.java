@@ -23,10 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 
 @Profile({WhoisProfile.TEST})
 @Component
@@ -51,28 +53,39 @@ public class OAuthTokenIntrospectDummy implements Stub {
             response.setContentType("text/xml;charset=utf-8");
             baseRequest.setHandled(true);
 
-            if(!request.getRequestURI().contains("ripe-ncc/protocol/openid-connect/token/introspect")) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+
+            if (request.getRequestURI().contains("ripe-ncc/protocol/openid-connect/token/introspect")) {
+                try {
+                    final SignedJWT signedJWT = SignedJWT.parse(request.getParameter("token"));
+
+                    final String email = signedJWT.getJWTClaimsSet().getStringClaim("email");
+                    if (email.equals("invalid@ripenet")) {
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                        return;
+                    }
+
+                    final boolean isActive = !email.equals("inactive@ripe.net");
+
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.setContentType(MediaType.APPLICATION_JSON);
+                    response.getWriter().println(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", isActive));
+                    return;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+
+            if (request.getRequestURI().contains("realms/ripe-ncc/protocol/openid-connect/certs")) {
+
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/json");
+                response.getWriter().println(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_public.key").toPath())));
+
                 return;
             }
 
-            try {
-                 final SignedJWT signedJWT = SignedJWT.parse(request.getParameter("token"));
-
-                 final String email = signedJWT.getJWTClaimsSet().getStringClaim("email");
-                 if(email.equals("invalid@ripenet")) {
-                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                     return;
-                 }
-
-                 final boolean isActive = !email.equals("inactive@ripe.net");
-
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType(MediaType.APPLICATION_JSON);
-                response.getWriter().println(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", isActive));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -98,6 +111,17 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
         LOGGER.info("Validate Token using  dummy server restUrl: {}", restUrl);
         ReflectionTestUtils.setField(bearerTokenExtractor, "tokenIntrospectEndpoint", restUrl);
+
+        final URI jwsUrl = new URIBuilder()
+                .setScheme("http")
+                .setHost("localhost")
+                .setPort(port)
+                .setPath("realms/ripe-ncc/protocol/openid-connect/certs")
+                .build();
+
+        LOGGER.info("Load OAUTH JWS Key  dummy server restUrl: {}", jwsUrl);
+        ReflectionTestUtils.setField(bearerTokenExtractor, "jwksSetUrl", jwsUrl);
+
     }
 
     @PreDestroy

@@ -283,7 +283,7 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                 .get(String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Invalid Access Token"));
+        assertThat(response, containsString("***Warning: Invalid OAUTH"));
     }
 
     @Test
