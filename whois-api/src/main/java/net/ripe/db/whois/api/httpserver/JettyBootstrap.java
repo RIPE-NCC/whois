@@ -318,6 +318,8 @@ public class JettyBootstrap implements ApplicationService {
         // Check client compatability first
         sslContextFactory.setExcludeCipherSuites(DEFAULT_EXCLUDED_CIPHER_SUITES);
         sslContextFactory.setExcludeProtocols(DEFAULT_EXCLUDED_PROTOCOLS);
+        sslContextFactory.setRenegotiationAllowed(false);
+        sslContextFactory.setRenegotiationLimit(0);
 
         final HttpConfiguration httpsConfiguration = new HttpConfiguration();
 
@@ -338,7 +340,6 @@ public class JettyBootstrap implements ApplicationService {
         alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
 
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
-
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
         sslConnector.setPort(port);
         return sslConnector;
