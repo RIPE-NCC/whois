@@ -83,6 +83,7 @@ public class WhoisFixture {
     protected IpTreeUpdater ipTreeUpdater;
     protected SourceContext sourceContext;
     protected IndexDao indexDao;
+
     protected WhoisServer whoisServer;
     protected QueryServer queryServer;
     protected RestClient restClient;

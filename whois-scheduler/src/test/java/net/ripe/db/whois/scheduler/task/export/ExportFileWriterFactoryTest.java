@@ -91,10 +91,10 @@ public class ExportFileWriterFactoryTest {
         final File currentSerialFile = new File(folder.toFile(), "public/TEST.CURRENTSERIAL");
         assertThat(currentSerialFile.exists(), is(true));
 
-        final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
+        final String savedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.UTF_8);
         assertThat(savedSerial, is(String.valueOf(LAST_SERIAL)));
 
-        final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.ISO_8859_1);
+        final String newSavedSerial = new String(FileCopyUtils.copyToByteArray(currentSerialFile), StandardCharsets.UTF_8);
         assertThat(newSavedSerial, is(String.valueOf(LAST_SERIAL)));
     }
 }

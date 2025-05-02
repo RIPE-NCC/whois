@@ -322,8 +322,8 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void offeredCredentialEqualsAndHashCode() {
-        final PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", StandardCharsets.ISO_8859_1);
-        final PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", StandardCharsets.ISO_8859_1);
+        PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", StandardCharsets.UTF_8);
+        PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", StandardCharsets.UTF_8);
 
         assertThat(first, equalTo(first));
         assertThat(first, not(equalTo(second)));
@@ -334,8 +334,8 @@ public class PgpCredentialValidatorTest {
 
     @Test
     public void offeredAndKnownCredentialsEqualsAndHashCode() {
-        final PgpCredential known = PgpCredential.createKnownCredential("X509-1");
-        final PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", StandardCharsets.ISO_8859_1);
+        PgpCredential known = PgpCredential.createKnownCredential("X509-1");
+        PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", StandardCharsets.UTF_8);
 
         assertThat(known, not(equalTo(offered)));
         assertThat((known.hashCode() == offered.hashCode()), is(false));
