@@ -13,18 +13,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class ClientCertificateServiceTestIntegration extends AbstractClientCertificateIntegrationTest {
-
-    @Test
-    public void client_certificate() {
-        final String response = SecureRestTest.target(getClientSSLContext(), getClientCertificatePort(), "whois/client")
-            .request()
-            .get(String.class);
-
-        assertThat(response, containsString("Found 1 certificate(s)."));
-        assertThat(response, containsString("-----BEGIN CERTIFICATE-----"));
-        assertThat(response, containsString("-----END CERTIFICATE-----"));
-    }
+public class ClientCertificateServiceFailTestIntegration extends AbstractClientCertificateIntegrationTest {
 
     @Test
     public void fail_on_no_client_certificate() {
