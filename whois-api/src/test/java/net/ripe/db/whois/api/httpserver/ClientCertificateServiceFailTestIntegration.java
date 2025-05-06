@@ -3,16 +3,20 @@ package net.ripe.db.whois.api.httpserver;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.SecureRestTest;
+import net.ripe.db.whois.common.support.DirtiesContextBeforeAndAfterClassTestExecutionListener;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestExecutionListeners;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@TestExecutionListeners(
+    listeners = DirtiesContextBeforeAndAfterClassTestExecutionListener.class,
+    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
+)
 public class ClientCertificateServiceFailTestIntegration extends AbstractClientCertificateIntegrationTest {
 
     @Test

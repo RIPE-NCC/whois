@@ -5,10 +5,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 
-/** Forces full context reinitialization before AND after test class run
- * NB: @DirtiesContext only reinitalizes AFTER test class */
-public class DirtiesContextBeforeAndAfterTestExecutionListener extends AbstractTestExecutionListener {
-
+public class DirtiesContextBeforeAndAfterClassTestExecutionListener extends AbstractTestExecutionListener {
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
