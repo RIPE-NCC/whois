@@ -23,6 +23,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -110,22 +112,20 @@ public class Downloader {
         logger.debug("Downloaded {} in {}", file, stopwatch.stop());
     }
 
-    private boolean setLastModified(final URLConnection uc, final Path path) {
+    private void setLastModified(final URLConnection uc, final Path path) {
         final String lastModified = uc.getHeaderField(HttpHeaders.LAST_MODIFIED);
-        boolean result = false;
         if (lastModified == null) {
             LOGGER.warn("No Last-modified header for {}", path);
         } else {
             try {
                 final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
-                result = path.toFile().setLastModified(Timestamp.from(lastModifiedDateTime.toLocalDateTime()).getValue());
-                if (!result) {
-                    LOGGER.warn("Unable to set last modified on {}", path);
-                }
+                final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
+                FileTime time = FileTime.fromMillis(Timestamp.from(lastModifiedDateTime.toLocalDateTime()).getValue());
+                attributes.setTimes(time, time, time);
+                LOGGER.info("Set last modified to {} for {}", lastModifiedDateTime, path);
             } catch (Exception e) {
-                LOGGER.warn("Couldn't parse Last-modified: {} due to {}: {}", lastModified, e.getClass().getName(), e.getMessage());
+                LOGGER.warn("Couldn't set last modified: {} due to {}: {}", lastModified, e.getClass().getName(), e.getMessage());
             }
         }
-        return result;
     }
 }
