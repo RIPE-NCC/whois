@@ -65,7 +65,7 @@ public class Downloader {
         final URLConnection uc = url.openConnection();
         try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
-            setLastModified(uc, path);
+            setFileTimestamp(uc, path);
             try (InputStream resourceDataStream = Files.newInputStream(path, StandardOpenOption.READ);
                  InputStream md5Stream = new URL(url + ".md5").openStream()) {
                 checkMD5(resourceDataStream, md5Stream);
@@ -90,7 +90,7 @@ public class Downloader {
 
         try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
-            setLastModified(uc, path);
+            setFileTimestamp(uc, path);
         }
     }
 
@@ -112,7 +112,7 @@ public class Downloader {
         logger.debug("Downloaded {} in {}", file, stopwatch.stop());
     }
 
-    private void setLastModified(final URLConnection uc, final Path path) {
+    private void setFileTimestamp(final URLConnection uc, final Path path) {
         final String lastModified = uc.getHeaderField(HttpHeaders.LAST_MODIFIED);
         if (lastModified == null) {
             LOGGER.warn("No Last-modified header for {}", path);
@@ -120,7 +120,7 @@ public class Downloader {
             try {
                 final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
                 final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
-                FileTime time = FileTime.fromMillis(Timestamp.from(lastModifiedDateTime.toLocalDateTime()).getValue());
+                final FileTime time = FileTime.fromMillis(Timestamp.from(lastModifiedDateTime.toLocalDateTime()).getValue());
                 attributes.setTimes(time, time, time);
                 LOGGER.info("Set last modified to {} for {}", lastModifiedDateTime, path);
             } catch (Exception e) {
