@@ -60,9 +60,10 @@ public class Downloader {
 
     @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
     public void downloadToWithMd5Check(final Logger logger, final URL url, final Path path) throws IOException {
-        try (InputStream is = url.openStream()) {
+        final URLConnection uc = url.openConnection();
+        try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
-
+            setLastModified(uc, path);
             try (InputStream resourceDataStream = Files.newInputStream(path, StandardOpenOption.READ);
                  InputStream md5Stream = new URL(url + ".md5").openStream()) {
                 checkMD5(resourceDataStream, md5Stream);
@@ -87,19 +88,7 @@ public class Downloader {
 
         try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
-        }
-
-        final String lastModified = uc.getHeaderField(HttpHeaders.LAST_MODIFIED);
-        if (lastModified != null) {
-            try {
-                final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
-                final boolean updated = path.toFile().setLastModified(Timestamp.from(lastModifiedDateTime.toLocalDateTime()).getValue());
-                if (!updated) {
-                    LOGGER.warn("Unable to set last modified on {}", path);
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Couldn't parse Last-modified: {} due to {}: {}", lastModified, e.getClass().getName(), e.getMessage());
-            }
+            setLastModified(uc, path);
         }
     }
 
@@ -119,5 +108,24 @@ public class Downloader {
         }
 
         logger.debug("Downloaded {} in {}", file, stopwatch.stop());
+    }
+
+    private boolean setLastModified(final URLConnection uc, final Path path) {
+        final String lastModified = uc.getHeaderField(HttpHeaders.LAST_MODIFIED);
+        boolean result = false;
+        if (lastModified == null) {
+            LOGGER.warn("No Last-modified header for {}", path);
+        } else {
+            try {
+                final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
+                result = path.toFile().setLastModified(Timestamp.from(lastModifiedDateTime.toLocalDateTime()).getValue());
+                if (!result) {
+                    LOGGER.warn("Unable to set last modified on {}", path);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Couldn't parse Last-modified: {} due to {}: {}", lastModified, e.getClass().getName(), e.getMessage());
+            }
+        }
+        return result;
     }
 }
