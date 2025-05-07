@@ -1869,7 +1869,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_with_override_succeeds() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("mherran", "zoh", ObjectType.MNTNER));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?unfiltered=&override=mherran,zoh,reason")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("mherran,zoh,reason {notify=false}"))
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
