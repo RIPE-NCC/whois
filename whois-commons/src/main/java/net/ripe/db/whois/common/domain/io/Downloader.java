@@ -4,8 +4,10 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import jakarta.ws.rs.core.HttpHeaders;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.domain.Timestamp;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
@@ -21,6 +23,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +36,10 @@ import java.util.regex.Pattern;
 @Component
 public class Downloader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Downloader.class);
+
     private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
+    private static final DateTimeFormatter LAST_MODIFIED_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV").withZone(ZoneId.of("GMT"));
 
     private static final int CONNECT_TIMEOUT = 60_000;
     private static final int READ_TIMEOUT = 60_000;
@@ -77,6 +87,19 @@ public class Downloader {
 
         try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
+        }
+
+        final String lastModified = uc.getHeaderField(HttpHeaders.LAST_MODIFIED);
+        if (lastModified != null) {
+            try {
+                final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
+                final boolean updated = path.toFile().setLastModified(Timestamp.from(lastModifiedDateTime.toLocalDateTime()).getValue());
+                if (!updated) {
+                    LOGGER.warn("Unable to set last modified on {}", path);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Couldn't parse Last-modified: {} due to {}: {}", lastModified, e.getClass().getName(), e.getMessage());
+            }
         }
     }
 
