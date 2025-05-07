@@ -23,10 +23,12 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.support.DirtiesContextBeforeAndAfterClassTestExecutionListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestExecutionListeners;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -42,6 +44,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
+@TestExecutionListeners(
+    listeners = DirtiesContextBeforeAndAfterClassTestExecutionListener.class,
+    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
+)
 public class WhoisRestServiceClientCertificateTestIntegration extends AbstractClientCertificateIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
