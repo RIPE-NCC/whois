@@ -4,7 +4,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import jakarta.ws.rs.core.HttpHeaders;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import net.ripe.db.whois.common.domain.Timestamp;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +119,7 @@ public class Downloader {
             try {
                 final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
                 final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
-                final FileTime time = FileTime.fromMillis(Timestamp.from(lastModifiedDateTime.toLocalDateTime()).getValue());
+                final FileTime time = FileTime.from(lastModifiedDateTime.toInstant());
                 attributes.setTimes(time, time, time);
                 LOGGER.info("Set last modified to {} for {}", lastModifiedDateTime, path);
             } catch (Exception e) {
