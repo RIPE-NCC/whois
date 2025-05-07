@@ -118,7 +118,7 @@ public class Downloader {
                 final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
                 final FileTime time = FileTime.from(lastModifiedDateTime.toInstant());
                 attributes.setTimes(time, time, time);
-                logger.info("{} last modified {}", path, lastModifiedDateTime);
+                logger.debug("{} last modified {}", path, lastModifiedDateTime);
             } catch (Exception e) {
                 logger.info("Couldn't set last modified {} on {} due to {}: {}", lastModified, path, e.getClass().getName(), e.getMessage());
             }
