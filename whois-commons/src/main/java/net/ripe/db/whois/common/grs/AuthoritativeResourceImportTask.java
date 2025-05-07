@@ -16,12 +16,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -77,6 +77,7 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
         doImport(sourceNames);
     }
 
+    @Nullable
     protected AuthoritativeResource fetchAuthoritativeResource(final String sourceName) throws IOException {
         final Logger logger = LoggerFactory.getLogger(String.format("%s_%s", getClass().getName(), sourceName));
         final String resourceDataUrl = valueResolver.resolveStringValue(String.format("${grs.import.%s.resourceDataUrl:}", sourceName));
@@ -86,14 +87,21 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
 
         final Path resourceDataFile = Paths.get(downloadDir, sourceName + "-RES");
 
-        downloader.downloadToWithMd5Check(logger, new URL(resourceDataUrl), resourceDataFile);      // TODO: only if changed since last run
+        downloader.downloadToWithMd5Check(logger, new URL(resourceDataUrl), resourceDataFile);
 
-        final LocalDateTime lastModified = Timestamp.fromMilliseconds(resourceDataFile.toFile().lastModified()).toLocalDateTime();
-        final boolean modifiedSinceLastRun = (lastModified.isAfter(this.startTime.minus(1L, ChronoUnit.HOURS)) && lastModified.isBefore(this.startTime));
-        LOGGER.info("{} last-modified {} (result {})", resourceDataFile.toFile().getName(), lastModified, modifiedSinceLastRun);
+        if (!isModifiedSinceLastTime(resourceDataFile, startTime)) {
+            // only process authoritative resource file if updated since last run
+            logger.info("Skipping {}", sourceName);
+            return null;
+        }
 
         final AuthoritativeResource authoritativeResource = AuthoritativeResource.loadFromFile(logger, sourceName, resourceDataFile);
         logger.info("Downloaded {}; asn: {}, ipv4: {}, ipv6: {}", sourceName, authoritativeResource.getNrAutNums(), authoritativeResource.getNrInetnums(), authoritativeResource.getNrInet6nums());
         return authoritativeResource;
+    }
+
+    private static boolean isModifiedSinceLastTime(final Path path, final LocalDateTime since) {
+        final LocalDateTime lastModified = Timestamp.fromMilliseconds(path.toFile().lastModified()).toLocalDateTime();
+        return lastModified.isAfter(since.minusHours(1L));
     }
 }

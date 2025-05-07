@@ -6,7 +6,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
@@ -37,8 +36,6 @@ import java.util.regex.Pattern;
 @Component
 public class Downloader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Downloader.class);
-
     private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
     private static final DateTimeFormatter LAST_MODIFIED_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV").withZone(ZoneId.of("GMT"));
 
@@ -64,7 +61,7 @@ public class Downloader {
         final URLConnection uc = url.openConnection();
         try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
-            setFileTimestamp(uc, path);
+            setFileTimes(logger, uc, path);
             try (InputStream resourceDataStream = Files.newInputStream(path, StandardOpenOption.READ);
                  InputStream md5Stream = new URL(url + ".md5").openStream()) {
                 checkMD5(resourceDataStream, md5Stream);
@@ -89,7 +86,7 @@ public class Downloader {
 
         try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
-            setFileTimestamp(uc, path);
+            setFileTimes(logger, uc, path);
         }
     }
 
@@ -111,19 +108,19 @@ public class Downloader {
         logger.debug("Downloaded {} in {}", file, stopwatch.stop());
     }
 
-    private void setFileTimestamp(final URLConnection uc, final Path path) {
+    private void setFileTimes(final Logger logger, final URLConnection uc, final Path path) {
         final String lastModified = uc.getHeaderField(HttpHeaders.LAST_MODIFIED);
         if (lastModified == null) {
-            LOGGER.warn("No Last-modified header for {}", path);
+            logger.info("Couldn't set last modified on {} because no header found", path);
         } else {
             try {
                 final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
                 final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
                 final FileTime time = FileTime.from(lastModifiedDateTime.toInstant());
                 attributes.setTimes(time, time, time);
-                LOGGER.info("Set last modified to {} for {}", lastModifiedDateTime, path);
+                logger.info("{} last modified {}", path, lastModifiedDateTime);
             } catch (Exception e) {
-                LOGGER.warn("Couldn't set last modified: {} due to {}: {}", lastModified, e.getClass().getName(), e.getMessage());
+                logger.info("Couldn't set last modified {} on {} due to {}: {}", lastModified, path, e.getClass().getName(), e.getMessage());
             }
         }
     }
