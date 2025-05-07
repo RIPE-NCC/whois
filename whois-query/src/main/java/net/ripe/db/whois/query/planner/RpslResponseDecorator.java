@@ -2,27 +2,27 @@ package net.ripe.db.whois.query.planner;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.oauth.OAuthSession;
-import net.ripe.db.whois.common.sso.UserSession;
-import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import net.ripe.db.whois.common.x509.X509CertificateWrapper;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.query.Query;
-import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -62,6 +62,7 @@ public class RpslResponseDecorator {
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
     private final ClientAuthCertificateValidator clientAuthCertificateValidator;
+    private final UserDao userDao;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -73,6 +74,7 @@ public class RpslResponseDecorator {
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final AuthServiceClient authServiceClient,
                                  final ClientAuthCertificateValidator clientAuthCertificateValidator,
+                                 final UserDao userDao,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -88,6 +90,7 @@ public class RpslResponseDecorator {
         this.toShorthandFunction = new ToShorthandFunction();
         this.toKeysFunction = new ToKeysFunction();
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
+        this.userDao = userDao;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -157,16 +160,17 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
-        List<String> passwords = query.getPasswords();
+        final List<String> passwords = query.getPasswords();
         final UserSession userSession = query.getUserSession();
         final OAuthSession oAuthSession = query.getoAuthSession();
         final List<X509CertificateWrapper> certificates = query.getCertificates();
+        final String override = query.getOverride();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
+                (CollectionUtils.isEmpty(passwords) && Strings.isNullOrEmpty(override) && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, oAuthSession, userSession, authServiceClient,
-                                rpslObjectDao, certificates, clientAuthCertificateValidator);
+                        new FilterAuthFunction(passwords, override, oAuthSession, userSession, authServiceClient,
+                                userDao, rpslObjectDao, certificates, clientAuthCertificateValidator, query.isTrusted());
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {
