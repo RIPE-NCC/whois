@@ -22,7 +22,7 @@ import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.query.Query;
-import org.elasticsearch.common.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -167,7 +167,7 @@ public class RpslResponseDecorator {
         final String override = query.getOverride();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && Strings.isNullOrEmpty(override) && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
+                (CollectionUtils.isEmpty(passwords) && StringUtils.isEmpty(override) && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
                         FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, override, oAuthSession, userSession, authServiceClient,
                                 userDao, rpslObjectDao, certificates, clientAuthCertificateValidator, query.isTrusted());

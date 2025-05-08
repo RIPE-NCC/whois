@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -21,6 +20,7 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.util.CollectionUtils;
 
@@ -103,7 +103,7 @@ public class FilterAuthFunction implements FilterFunction {
     @Override @Nonnull
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
-        if (authAttributes.isEmpty() && StringUtil.isNullOrEmpty(override)) {
+        if (authAttributes.isEmpty() && StringUtils.isEmpty(override)) {
             return rpslObject;
         }
 
@@ -137,7 +137,7 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean isOverrideAuthenticated(final ObjectType rpslType){
-        if (StringUtil.isNullOrEmpty(override)){
+        if (StringUtils.isEmpty(override)){
             return false;
         }
         final List<String> values = Lists.newArrayList(OVERRIDE_SPLITTER.split(override));
