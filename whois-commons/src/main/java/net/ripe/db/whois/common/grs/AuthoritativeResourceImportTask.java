@@ -3,6 +3,7 @@ package net.ripe.db.whois.common.grs;
 import com.google.common.base.Splitter;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
+import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.apache.commons.lang3.StringUtils;
@@ -15,13 +16,18 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringValueResolver;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Import the delegated stats file (list of authoritative resources) from every RIR.
+ */
 @Component
 public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourceImportTask implements DailyScheduledTask, EmbeddedValueResolverAware {
 
@@ -34,6 +40,7 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
     private final Downloader downloader;
     private final String downloadDir;
     private final Set<String> sourceNames;
+    private LocalDateTime startTime;
 
     @Autowired
     public AuthoritativeResourceImportTask(@Value("${grs.sources}") final String grsSourceNames,
@@ -62,16 +69,15 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
         this.valueResolver = valueResolver;
     }
 
-    /**
-     * Run at 00.15 so we don't miss the the delegated stats file which is normally published around midnight.
-     */
     @Override
-    @Scheduled(cron = "0 15 0 * * *", zone = EUROPE_AMSTERDAM)
+    @Scheduled(cron = "0 15 * * * *")
     @SchedulerLock(name = TASK_NAME)
     public void run() {
+        this.startTime = LocalDateTime.now();
         doImport(sourceNames);
     }
 
+    @Nullable
     protected AuthoritativeResource fetchAuthoritativeResource(final String sourceName) throws IOException {
         final Logger logger = LoggerFactory.getLogger(String.format("%s_%s", getClass().getName(), sourceName));
         final String resourceDataUrl = valueResolver.resolveStringValue(String.format("${grs.import.%s.resourceDataUrl:}", sourceName));
@@ -82,8 +88,20 @@ public class AuthoritativeResourceImportTask extends AbstractAutoritativeResourc
         final Path resourceDataFile = Paths.get(downloadDir, sourceName + "-RES");
 
         downloader.downloadToWithMd5Check(logger, new URL(resourceDataUrl), resourceDataFile);
+
+        if (!isModifiedSinceLastTime(resourceDataFile, startTime)) {
+            // only process authoritative resource file if updated since last run
+            logger.info("Skipping {}", sourceName);
+            return null;
+        }
+
         final AuthoritativeResource authoritativeResource = AuthoritativeResource.loadFromFile(logger, sourceName, resourceDataFile);
         logger.info("Downloaded {}; asn: {}, ipv4: {}, ipv6: {}", sourceName, authoritativeResource.getNrAutNums(), authoritativeResource.getNrInetnums(), authoritativeResource.getNrInet6nums());
         return authoritativeResource;
+    }
+
+    private static boolean isModifiedSinceLastTime(final Path path, final LocalDateTime since) {
+        final LocalDateTime lastModified = Timestamp.fromMilliseconds(path.toFile().lastModified()).toLocalDateTime();
+        return lastModified.isAfter(since.minusHours(1L));
     }
 }
