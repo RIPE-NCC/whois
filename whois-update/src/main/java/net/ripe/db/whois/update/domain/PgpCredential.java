@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.Credentials.Credential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.bouncycastle.openpgp.PGPPublicKey;
