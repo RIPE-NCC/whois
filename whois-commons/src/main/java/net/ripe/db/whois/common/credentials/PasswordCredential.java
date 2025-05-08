@@ -1,4 +1,4 @@
-package net.ripe.db.whois.common.Credentials;
+package net.ripe.db.whois.common.credentials;
 
 import java.util.Objects;
 

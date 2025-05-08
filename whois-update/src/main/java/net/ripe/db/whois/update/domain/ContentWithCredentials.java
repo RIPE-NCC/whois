@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.Credentials.Credential;
+import net.ripe.db.whois.common.credentials.Credential;
 
 import javax.annotation.concurrent.Immutable;
 import java.nio.charset.Charset;

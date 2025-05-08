@@ -1,9 +1,9 @@
 package net.ripe.db.whois.update.authentication.strategy;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.Maintainers;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Authenticator;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -31,9 +31,6 @@ public class AuthenticatorPrincipalPowerMaintainerTest {
     private IpRanges ipRanges;
 
     @Mock
-    private UserDao userDao;
-
-    @Mock
     private Origin origin;
 
     @Mock
@@ -54,6 +51,9 @@ public class AuthenticatorPrincipalPowerMaintainerTest {
     @Mock
     private LoggerContext loggerContext;
 
+    @Mock
+    private OverrideCredentialValidator overrideCredentialValidator;
+
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
 
@@ -67,7 +67,7 @@ public class AuthenticatorPrincipalPowerMaintainerTest {
         when(update.getCredentials()).thenReturn(new Credentials());
 
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
-        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
+        subject = new Authenticator(ipRanges, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2}, overrideCredentialValidator);
     }
 
 
