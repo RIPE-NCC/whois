@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.authentication.credential;
 
-import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.common.Credentials.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;

@@ -19,7 +19,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.Credentials.Credential;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
