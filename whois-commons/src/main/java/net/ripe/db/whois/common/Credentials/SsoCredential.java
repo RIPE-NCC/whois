@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.domain;
+package net.ripe.db.whois.common.Credentials;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
