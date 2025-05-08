@@ -58,8 +58,6 @@ class GrsDao {
             JdbcRpslObjectOperations.sanityCheck(slaveJdbcTemplate);
             this.masterJdbcTemplate = masterJdbcTemplate;
             this.slaveJdbcTemplate = slaveJdbcTemplate;
-        }
-        if (transactionTemplate == null) {
             final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(masterJdbcTemplate.getDataSource());
             this.transactionTemplate = new TransactionTemplate(transactionManager);
             this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -67,6 +65,7 @@ class GrsDao {
     }
 
     TransactionTemplate transactionTemplate() {
+        ensureInitialized();
         return transactionTemplate;
     }
 
