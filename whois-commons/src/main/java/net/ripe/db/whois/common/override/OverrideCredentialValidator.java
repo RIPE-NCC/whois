@@ -24,12 +24,12 @@ public class OverrideCredentialValidator {
     }
 
     public boolean isAllowedAndValid(final boolean isTrusted, final UserSession userSession,
-                                     final OverrideCredential overrideCredentials,
+                                     final OverrideCredential overrideCredential,
                                      final ObjectType objectType){
-        if (overrideCredentials == null) {
+        if (overrideCredential == null) {
             return false;
         }
-        return overrideCredentials.getOverrideValues().filter(values -> (isTrusted || isAllowedBySSO(userSession, values.getUsername())) &&
+        return overrideCredential.getOverrideValues().filter(values -> (isTrusted || isAllowedBySSO(userSession, values.getUsername())) &&
                 isValidOverride(values, objectType))
                 .isPresent();
     }
