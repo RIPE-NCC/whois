@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Credentials.Credential;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collection;

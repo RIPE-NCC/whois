@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.domain;
+package net.ripe.db.whois.common.Credentials;
 
 import java.util.Objects;
 

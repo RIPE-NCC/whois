@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.domain;
+package net.ripe.db.whois.common.Credentials;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -78,7 +78,7 @@ public final class OverrideCredential implements Credential {
         private final String password;
         private final String remarks;
 
-        OverrideValues(final String username, final String password, final String remarks) {
+        public OverrideValues(final String username, final String password, final String remarks) {
             this.username = username;
             this.password = password;
             this.remarks = remarks;
