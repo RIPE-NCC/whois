@@ -4,9 +4,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
@@ -62,7 +62,7 @@ public class RpslResponseDecorator {
     private final ToShorthandFunction toShorthandFunction;
     private final ToKeysFunction toKeysFunction;
     private final ClientAuthCertificateValidator clientAuthCertificateValidator;
-    private final UserDao userDao;
+    private final OverrideCredentialValidator overrideCredentialValidator;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -74,7 +74,7 @@ public class RpslResponseDecorator {
                                  final AbuseCInfoDecorator abuseCInfoDecorator,
                                  final AuthServiceClient authServiceClient,
                                  final ClientAuthCertificateValidator clientAuthCertificateValidator,
-                                 final UserDao userDao,
+                                 final OverrideCredentialValidator overrideCredentialValidator,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -90,7 +90,7 @@ public class RpslResponseDecorator {
         this.toShorthandFunction = new ToShorthandFunction();
         this.toKeysFunction = new ToKeysFunction();
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
-        this.userDao = userDao;
+        this.overrideCredentialValidator = overrideCredentialValidator;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -170,7 +170,8 @@ public class RpslResponseDecorator {
                 (CollectionUtils.isEmpty(passwords) && StringUtils.isEmpty(override) && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
                         FILTER_AUTH_FUNCTION :
                         new FilterAuthFunction(passwords, override, oAuthSession, userSession, authServiceClient,
-                                userDao, rpslObjectDao, certificates, clientAuthCertificateValidator, query.isTrusted());
+                                rpslObjectDao, certificates, clientAuthCertificateValidator,
+                                overrideCredentialValidator, query.isTrusted());
 
         return Iterables.transform(objects, input -> {
             if (input instanceof RpslObject) {

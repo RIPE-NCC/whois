@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.base.Splitter;
-import net.ripe.db.whois.common.Credentials.OverrideCredential;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Set;

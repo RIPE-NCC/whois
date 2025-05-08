@@ -4,11 +4,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -20,8 +20,7 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
@@ -47,54 +46,37 @@ public class FilterAuthFunction implements FilterFunction {
     public static final String FILTERED_APPENDIX = " # Filtered";
 
     private List<String> passwords = null;
-    private String override;
+    private OverrideCredential override;
     private boolean isTrusted;
     private OAuthSession oAuthSession;
     private UserSession  userSession;
     private RpslObjectDao rpslObjectDao = null;
-    private UserDao userDao;
     private AuthServiceClient authServiceClient;
     private List<X509CertificateWrapper> certificates;
     private ClientAuthCertificateValidator clientAuthCertificateValidator;
+    private OverrideCredentialValidator overrideCredentialValidator;
 
-    private static final Splitter OVERRIDE_SPLITTER = Splitter.on(',').trimResults().limit(3);
-
-    public FilterAuthFunction(final List<String> passwords,
-                              final OAuthSession oAuthSession,
-                              final UserSession userSession,
-                              final AuthServiceClient authServiceClient,
-                              final RpslObjectDao rpslObjectDao,
-                              final List<X509CertificateWrapper> certificates,
-                              final ClientAuthCertificateValidator clientAuthCertificateValidator) {
-        this.userSession = userSession;
-        this.passwords = passwords;
-        this.authServiceClient = authServiceClient;
-        this.rpslObjectDao = rpslObjectDao;
-        this.certificates = certificates;
-        this.clientAuthCertificateValidator = clientAuthCertificateValidator;
-        this.oAuthSession = oAuthSession;
-    }
 
     public FilterAuthFunction(final List<String> passwords,
                               final String override,
                               final OAuthSession oAuthSession,
                               final UserSession userSession,
                               final AuthServiceClient authServiceClient,
-                              final UserDao userDao,
                               final RpslObjectDao rpslObjectDao,
                               final List<X509CertificateWrapper> certificates,
                               final ClientAuthCertificateValidator clientAuthCertificateValidator,
+                              final OverrideCredentialValidator overrideCredentialValidator,
                               final boolean isTrusted) {
         this.userSession = userSession;
         this.passwords = passwords;
-        this.override = override;
-        this.userDao = userDao;
+        this.override = StringUtils.isEmpty(override) ? null : OverrideCredential.parse(override);
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
         this.oAuthSession = oAuthSession;
         this.isTrusted = isTrusted;
+        this.overrideCredentialValidator = overrideCredentialValidator;
     }
 
     public FilterAuthFunction() {
@@ -103,12 +85,13 @@ public class FilterAuthFunction implements FilterFunction {
     @Override @Nonnull
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
-        if (authAttributes.isEmpty() && StringUtils.isEmpty(override)) {
+        if (authAttributes.isEmpty() && override == null) {
             return rpslObject;
         }
 
         final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        final boolean authenticated = isMntnerAuthenticated(rpslObject) || isOverrideAuthenticated(rpslObject.getType());
+        final boolean authenticated = isMntnerAuthenticated(rpslObject) || overrideCredentialValidator.isAllowedAndValid(isTrusted, userSession, override,
+                        rpslObject.getType());
 
         for (final RpslAttribute authAttribute : authAttributes) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
@@ -134,14 +117,6 @@ public class FilterAuthFunction implements FilterFunction {
             }
             return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
         }
-    }
-
-    private boolean isOverrideAuthenticated(final ObjectType rpslType){
-        if (StringUtils.isEmpty(override)){
-            return false;
-        }
-        final List<String> values = Lists.newArrayList(OVERRIDE_SPLITTER.split(override));
-        return values.size() >= 2 && isAllowedToUseOverride(values.getFirst(), values.get(1), rpslType);
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
@@ -220,21 +195,5 @@ public class FilterAuthFunction implements FilterFunction {
         }
 
         return hasValidOauthSession(oAuthSession, maintainers, authAttributes);
-    }
-
-    private boolean isAllowedToUseOverride(final String overrideUsername, final String password, final ObjectType rpslType) {
-        if (isTrusted) {
-            return true;
-        }
-        if (userSession == null || !userSession.getUsername().equals(overrideUsername.concat("@ripe.net"))){
-            return false;
-        }
-
-        try {
-            final User user = userDao.getOverrideUser(overrideUsername);
-            return user.isValidPassword(password) && user.getObjectTypes().contains(rpslType);
-        } catch (EmptyResultDataAccessException exception){
-            return false;
-        }
     }
 }

@@ -4,8 +4,8 @@ package net.ripe.db.whois.query.planner;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
@@ -65,7 +65,7 @@ public class RpslResponseDecoratorTest {
     @Mock
     ClientAuthCertificateValidator clientAuthCertificateValidator;
     @Mock
-    UserDao userDao;
+    OverrideCredentialValidator overrideCredentialValidator;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
     private RpslResponseDecorator subject;
@@ -87,7 +87,7 @@ public class RpslResponseDecoratorTest {
                 abuseCInfoDecorator,
                 authServiceClient,
                 clientAuthCertificateValidator,
-                userDao,
+                overrideCredentialValidator,
                 decorator);
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);

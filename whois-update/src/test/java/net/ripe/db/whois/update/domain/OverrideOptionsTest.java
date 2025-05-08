@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.Credentials.Credential;
-import net.ripe.db.whois.common.Credentials.OverrideCredential;
+import net.ripe.db.whois.common.credentials.Credential;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 import org.junit.jupiter.api.Test;
 
 import org.mockito.Mock;
