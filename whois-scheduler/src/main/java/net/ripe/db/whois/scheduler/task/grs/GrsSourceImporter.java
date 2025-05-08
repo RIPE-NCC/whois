@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,42 +100,52 @@ class GrsSourceImporter {
 
         @Override
         public void run() {
-            final Path dump = downloadDir.resolve(String.format("%s-DMP", grsSource.getName().toUpperCase()));
-            try {
-                grsSource.acquireDump(dump);
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to acquire GRS dump", e);
-            }
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    logger.info("run: tx={} ro={} name={}",
+                        status.hasTransaction(),
+                        status.isReadOnly(),
+                        status.getTransactionName());
 
-            final Path irrDump = downloadDir.resolve(String.format("%s-IRR-DMP", grsSource.getName().toUpperCase()));
-            try {
-                grsSource.acquireIrrDump(irrDump);
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to acquire IRR dump", e);
-            }
+                    final Path dump = downloadDir.resolve(String.format("%s-DMP", grsSource.getName().toUpperCase()));
+                    try {
+                        grsSource.acquireDump(dump);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Unable to acquire GRS dump", e);
+                    }
 
-            final Stopwatch stopwatch = Stopwatch.createStarted();
+                    final Path irrDump = downloadDir.resolve(String.format("%s-IRR-DMP", grsSource.getName().toUpperCase()));
+                    try {
+                        grsSource.acquireIrrDump(irrDump);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Unable to acquire IRR dump", e);
+                    }
 
-            if (rebuild) {
-                grsSource.getDao().cleanDatabase();
-                currentObjectIds = Collections.emptySet();
-                logger.info("Rebuilding database");
-            } else {
-                currentObjectIds = Sets.newHashSet(grsSource.getDao().getCurrentObjectIds());
-                logger.info("Updating {} current objects in database", currentObjectIds.size());
-            }
+                    final Stopwatch stopwatch = Stopwatch.createStarted();
 
-            try {
-                importObjects(dump.toFile());
-                importIrrObjects(irrDump.toFile());
-                deleteNotFoundInImport();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                logger.info("created {} / updated {} / deleted {} / ignored {} in {}", nrCreated, nrUpdated, nrDeleted, nrIgnored, stopwatch.stop());
-            }
+                    if (rebuild) {
+                        grsSource.getDao().cleanDatabase();
+                        currentObjectIds = Collections.emptySet();
+                        logger.info("Rebuilding database");
+                    } else {
+                        currentObjectIds = Sets.newHashSet(grsSource.getDao().getCurrentObjectIds());
+                        logger.info("Updating {} current objects in database", currentObjectIds.size());
+                    }
 
-            updateIndexes();
+                    try {
+                        importObjects(dump.toFile());
+                        importIrrObjects(irrDump.toFile());
+                        deleteNotFoundInImport();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        logger.info("created {} / updated {} / deleted {} / ignored {} in {}", nrCreated, nrUpdated, nrDeleted, nrIgnored, stopwatch.stop());
+                    }
+
+                    updateIndexes();
+                }
+            });
         }
 
         private void importIrrObjects(final File irrDumpFile) throws IOException {
@@ -244,7 +255,6 @@ class GrsSourceImporter {
                 return builder.get();
             }
 
-            @Transactional
             private void createOrUpdate(final RpslObject importedObject) {
                 final String pkey = importedObject.getKey().toString();
                 final ObjectType type = importedObject.getType();
