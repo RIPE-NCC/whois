@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.domain;
+package net.ripe.db.whois.common.Credentials;
 
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 

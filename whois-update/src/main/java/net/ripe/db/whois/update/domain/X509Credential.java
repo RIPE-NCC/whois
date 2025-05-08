@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
+import net.ripe.db.whois.common.Credentials.Credential;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.update.keycert.X509SignedMessage;
 
