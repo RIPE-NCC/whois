@@ -7,6 +7,7 @@ import joptsimple.OptionException;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.oauth.OAuthSession;
@@ -75,7 +76,7 @@ public class Query {
 
     private List<X509CertificateWrapper> certificates;
 
-    private String override;
+    private OverrideCredential override;
 
     private Query(final String query, final Origin origin, final boolean trusted) {
         try {
@@ -146,7 +147,7 @@ public class Query {
         query.passwords = passwords;
         query.certificates = certificates;
         query.oAuthSession = oAuthSession;
-        query.override = override;
+        query.override = StringUtils.isEmpty(override) ? null : OverrideCredential.parse(override);
         return query;
     }
 
@@ -699,7 +700,7 @@ public class Query {
         }
     }
 
-    public String getOverride() {
+    public OverrideCredential getOverride() {
         return override;
     }
 

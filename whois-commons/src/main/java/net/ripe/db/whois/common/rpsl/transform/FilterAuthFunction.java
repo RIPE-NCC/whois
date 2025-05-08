@@ -20,7 +20,6 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
@@ -58,7 +57,7 @@ public class FilterAuthFunction implements FilterFunction {
 
 
     public FilterAuthFunction(final List<String> passwords,
-                              final String override,
+                              final OverrideCredential override,
                               final OAuthSession oAuthSession,
                               final UserSession userSession,
                               final AuthServiceClient authServiceClient,
@@ -69,7 +68,7 @@ public class FilterAuthFunction implements FilterFunction {
                               final boolean isTrusted) {
         this.userSession = userSession;
         this.passwords = passwords;
-        this.override = StringUtils.isEmpty(override) ? null : OverrideCredential.parse(override);
+        this.override = override;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
@@ -90,8 +89,10 @@ public class FilterAuthFunction implements FilterFunction {
         }
 
         final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        final boolean authenticated = isMntnerAuthenticated(rpslObject) || overrideCredentialValidator.isAllowedAndValid(isTrusted, userSession, override,
-                        rpslObject.getType());
+        final boolean authenticated = isMntnerAuthenticated(rpslObject) ||
+                (overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
+                        userSession, override,
+                        rpslObject.getType()));
 
         for (final RpslAttribute authAttribute : authAttributes) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
