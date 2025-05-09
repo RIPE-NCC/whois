@@ -84,15 +84,13 @@ public class FilterAuthFunction implements FilterFunction {
     @Override @Nonnull
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
-        if (authAttributes.isEmpty() && override == null) {
+
+        if (!canAuthenticate(authAttributes)) {
             return rpslObject;
         }
 
         final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        final boolean authenticated = isMntnerAuthenticated(rpslObject) ||
-                (overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
-                        userSession, override,
-                        rpslObject.getType()));
+        final boolean authenticated = isMntnerAuthenticated(rpslObject) || isOverrideAuthenticated(rpslObject.getType());
 
         for (final RpslAttribute authAttribute : authAttributes) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
@@ -118,6 +116,15 @@ public class FilterAuthFunction implements FilterFunction {
             }
             return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
         }
+    }
+
+    private boolean canAuthenticate(final List<RpslAttribute> attributes){
+        return !attributes.isEmpty() || override != null;
+    }
+
+    private boolean isOverrideAuthenticated(final ObjectType objectType){
+        return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
+                userSession, override, objectType);
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {

@@ -30,7 +30,6 @@ import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
-import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.mail.EmailStatusType;
@@ -99,9 +98,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
 @Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
-
-    @Autowired
-    IpRanges ipRanges;
 
     @Autowired QueryServer queryServer;
 
@@ -220,7 +216,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @BeforeEach
     public void setup() {
-        ipRanges.setTrusted("127.0.0.1");
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
         databaseHelper.addObject(OWNER_MNT);
@@ -1894,12 +1889,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_with_override_non_trusted_ip_with_sso_succeeds() {
-        ipRanges.setTrusted("::0");
         databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.MNTNER));
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
                 .queryParam("unfiltered", "")
                 .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .queryParam("clientIp", "2001:fff:001::")
                 .request(MediaType.APPLICATION_XML)
                 .cookie("crowd.token_key", "db_e2e_1")
                 .get(WhoisResources.class);
@@ -1922,12 +1917,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_with_override_non_trusted_ip_without_sso_then_filtered() {
-        ipRanges.setTrusted("::0");
         databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.MNTNER));
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
                 .queryParam("unfiltered", "")
                 .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .queryParam("clientIp", "2001:fff:001::")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
