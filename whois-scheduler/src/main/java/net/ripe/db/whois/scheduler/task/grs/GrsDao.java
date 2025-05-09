@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.CheckForNull;
@@ -58,9 +57,7 @@ class GrsDao {
             JdbcRpslObjectOperations.sanityCheck(slaveJdbcTemplate);
             this.masterJdbcTemplate = masterJdbcTemplate;
             this.slaveJdbcTemplate = slaveJdbcTemplate;
-            final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(masterJdbcTemplate.getDataSource());
-            this.transactionTemplate = new TransactionTemplate(transactionManager);
-            this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+            this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(masterJdbcTemplate.getDataSource()));
         }
     }
 

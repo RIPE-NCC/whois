@@ -225,7 +225,7 @@ class GrsSourceImporter {
                     if (messages.hasErrors()) {
                         logger.info("Errors for object with key {}: {}", typeAttribute, messages);
                         nrIgnored++;
-                    } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
+                    } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {     // TODO: interaction with authoritative resource data (must update that first!)
                         createOrUpdate(cleanObject);
                     }
                 }
