@@ -85,12 +85,12 @@ public class FilterAuthFunction implements FilterFunction {
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
 
-        if (!canAuthenticate(authAttributes)) {
+        if (authAttributes.isEmpty()) {
             return rpslObject;
         }
 
         final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        final boolean authenticated = isMntnerAuthenticated(rpslObject) || isOverrideAuthenticated(rpslObject.getType());
+        final boolean authenticated = isOverrideAuthenticated(rpslObject.getType()) || isMntnerAuthenticated(rpslObject);
 
         for (final RpslAttribute authAttribute : authAttributes) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
@@ -116,10 +116,6 @@ public class FilterAuthFunction implements FilterFunction {
             }
             return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
         }
-    }
-
-    private boolean canAuthenticate(final List<RpslAttribute> attributes){
-        return !attributes.isEmpty() || overrideCredential != null;
     }
 
     private boolean isOverrideAuthenticated(final ObjectType objectType){
@@ -180,7 +176,7 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean clientCertAuthentication(final List<RpslAttribute> authAttributes){
-        return clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
+        return clientAuthCertificateValidator != null && clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
     }
 
     private boolean passwordAuthentication(final List<RpslAttribute> authAttributes) {
