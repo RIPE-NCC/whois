@@ -164,12 +164,12 @@ public class RpslResponseDecorator {
         final UserSession userSession = query.getUserSession();
         final OAuthSession oAuthSession = query.getoAuthSession();
         final List<X509CertificateWrapper> certificates = query.getCertificates();
-        final OverrideCredential override = query.getOverride();
+        final OverrideCredential overrideCredential = query.getOverrideCredential();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && override == null && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
+                (CollectionUtils.isEmpty(passwords) && overrideCredential == null && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, override, oAuthSession, userSession, authServiceClient,
+                        new FilterAuthFunction(passwords, overrideCredential, oAuthSession, userSession, authServiceClient,
                                 rpslObjectDao, certificates, clientAuthCertificateValidator,
                                 overrideCredentialValidator, query.isTrusted());
 

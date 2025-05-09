@@ -76,7 +76,7 @@ public class Query {
 
     private List<X509CertificateWrapper> certificates;
 
-    private OverrideCredential override;
+    private OverrideCredential overrideCredential;
 
     private Query(final String query, final Origin origin, final boolean trusted) {
         try {
@@ -147,7 +147,7 @@ public class Query {
         query.passwords = passwords;
         query.certificates = certificates;
         query.oAuthSession = oAuthSession;
-        query.override = StringUtils.isEmpty(override) ? null : OverrideCredential.parse(override);
+        query.overrideCredential = OverrideCredential.parse(override);
         return query;
     }
 
@@ -700,8 +700,8 @@ public class Query {
         }
     }
 
-    public OverrideCredential getOverride() {
-        return override;
+    public OverrideCredential getOverrideCredential() {
+        return overrideCredential;
     }
 
     private static Charset getCharsetForName(final String charsetName) {

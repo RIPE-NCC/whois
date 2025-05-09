@@ -45,7 +45,7 @@ public class FilterAuthFunction implements FilterFunction {
     public static final String FILTERED_APPENDIX = " # Filtered";
 
     private List<String> passwords = null;
-    private OverrideCredential override;
+    private OverrideCredential overrideCredential;
     private boolean isTrusted;
     private OAuthSession oAuthSession;
     private UserSession  userSession;
@@ -57,7 +57,7 @@ public class FilterAuthFunction implements FilterFunction {
 
 
     public FilterAuthFunction(final List<String> passwords,
-                              final OverrideCredential override,
+                              final OverrideCredential overrideCredential,
                               final OAuthSession oAuthSession,
                               final UserSession userSession,
                               final AuthServiceClient authServiceClient,
@@ -68,7 +68,7 @@ public class FilterAuthFunction implements FilterFunction {
                               final boolean isTrusted) {
         this.userSession = userSession;
         this.passwords = passwords;
-        this.override = override;
+        this.overrideCredential = overrideCredential;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
@@ -119,12 +119,12 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean canAuthenticate(final List<RpslAttribute> attributes){
-        return !attributes.isEmpty() || override != null;
+        return !attributes.isEmpty() || overrideCredential != null;
     }
 
     private boolean isOverrideAuthenticated(final ObjectType objectType){
         return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
-                userSession, override, objectType);
+                userSession, overrideCredential, objectType);
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
