@@ -7,9 +7,9 @@ import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6;
 import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.commons.ip.SortedRangeSet;
+import net.ripe.db.whois.common.TransactionConfiguration;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
-import net.ripe.db.whois.common.TransactionConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.RecoverableDataAccessException;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
@@ -43,7 +43,7 @@ public class ResourceDataDao {
     @Autowired
     public ResourceDataDao(@Qualifier("internalsDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
+        this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));   // TODO: is this still necessary? Inject correct transaction manager
     }
 
     public AuthoritativeResource load(final String source) {
@@ -69,9 +69,9 @@ public class ResourceDataDao {
     }
 
     public void store(final String source, final AuthoritativeResource authoritativeResource) {
-        transactionTemplate.execute(new TransactionCallback() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            public Object doInTransaction(final TransactionStatus status) {
+            protected void doInTransactionWithoutResult(final TransactionStatus status) {
                 jdbcTemplate.update("DELETE FROM authoritative_resource WHERE source = ?", source);
 
                 final List<String> resources = authoritativeResource.getResources();
@@ -88,8 +88,6 @@ public class ResourceDataDao {
                         return resources.size();
                     }
                 });
-
-                return null;
             }
         });
     }

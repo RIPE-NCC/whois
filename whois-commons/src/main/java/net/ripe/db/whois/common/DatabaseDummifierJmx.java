@@ -23,7 +23,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
@@ -70,12 +70,10 @@ public class DatabaseDummifierJmx extends JmxBase {
         }
 
         this.jdbcTemplate = new JdbcTemplate(writeDataSource);
-        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);
+        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);   // TODO: is this still necessary? Inject correct transaction manager
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-
     }
-
 
     @ManagedOperation(description = "Dummify")
     public String dummify() {
@@ -116,10 +114,12 @@ public class DatabaseDummifierJmx extends JmxBase {
 
     private void addWork(final String table,  final ExecutorService executorService) {
         LOGGER.info("Dummifying {}", table);
-        transactionTemplate.execute(new TransactionCallback<Object>() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            public Object doInTransaction(TransactionStatus status) {
-                JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id, object FROM " + table + " WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
+            protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id, object FROM " +
+                        table +
+                        " WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
                     @Override
                     public DatabaseObjectProcessor extractData(final ResultSet rs) throws SQLException, DataAccessException {
                         while (rs.next()) {
@@ -129,7 +129,6 @@ public class DatabaseDummifierJmx extends JmxBase {
                         return null;
                     }
                 });
-                return null;
             }
         });
         LOGGER.info("Jobs size:{}", jobsAdded);
@@ -137,12 +136,11 @@ public class DatabaseDummifierJmx extends JmxBase {
 
     private void cleanUpAuthIndex(final ExecutorService executorService) {
         LOGGER.info("Removing index entries for SSO lines");
-        transactionTemplate.execute(new TransactionCallback<Object>() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            public Object doInTransaction(TransactionStatus status) {
+            protected void doInTransactionWithoutResult(final TransactionStatus status) {
                 executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
+                    @Override public void run() {
                         try {
                             jdbcTemplate.update("DELETE FROM auth WHERE auth LIKE 'SSO %' AND object_type=9");
                             jobsAdded.incrementAndGet();
@@ -151,7 +149,6 @@ public class DatabaseDummifierJmx extends JmxBase {
                         }
                     }
                 });
-                return null;
             }
         });
         LOGGER.info("Jobs size:{}", jobsAdded);
@@ -172,9 +169,9 @@ public class DatabaseDummifierJmx extends JmxBase {
 
         @Override
         public void run() {
-            transactionTemplate.execute(new TransactionCallback<Object>() {
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
-                public Object doInTransaction(TransactionStatus status) {
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
                     try {
                         final RpslObject rpslObject = RpslObject.parse(object);
                         RpslObject dummyObject = dummifier.dummify(3, rpslObject);
@@ -183,15 +180,18 @@ public class DatabaseDummifierJmx extends JmxBase {
                             dummyObject = replaceAuthAttributes(dummyObject);
                         }
 
-                        jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
+                        jdbcTemplate.update("UPDATE " +
+                                table +
+                                " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
                     } catch (RuntimeException e) {
                         LOGGER.error(String.format("%s: %s,%d failed\n%s", table, objectId, sequenceId, new String(object)), e);
                     }
                     int count = jobsDone.incrementAndGet();
-                    if (count % 100000 == 0) {
+                    if (count %
+                            100000 ==
+                            0) {
                         LOGGER.info("Finished jobs: {}", count);
                     }
-                    return null;
                 }
             });
         }
@@ -216,7 +216,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         }
     }
 
-    private static String unsupportedEnvironment(String environment) {
+    private static String unsupportedEnvironment(final String environment) {
         return String.format("Invalid environment: %s, available environments are: %s",
                 environment,
                 String.join(", ", Arrays.stream(Environment.values())
