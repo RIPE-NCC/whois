@@ -1,12 +1,13 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
-import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import org.apache.commons.compress.utils.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,6 @@ import java.util.Collections;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,11 +36,17 @@ public class FilterAuthFunctionTest {
     @Mock
     private ClientAuthCertificateValidator clientAuthCertificateValidator;
 
+    @Mock
+    private OverrideCredentialValidator overrideCredentialValidator;
+
     private FilterAuthFunction subject;
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new FilterAuthFunction();
+        subject = new FilterAuthFunction(Lists.newArrayList(), null, null, null, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator,
+                false);
+
     }
 
     @Test
@@ -90,7 +96,9 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_md5_filtered_incorrect_password() {
-        subject = new FilterAuthFunction(Collections.singletonList("test0"), null, null, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.singletonList("test0"), null, null, null, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator,
+                false);
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner:         WEIRD-MNT\n" +
                 "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
@@ -111,7 +119,9 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_md5_unfiltered() {
-        subject = new FilterAuthFunction(Collections.singletonList("test1"), null, null, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.singletonList("test1"), null, null, null, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator,
+                false);
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner:         WEIRD-MNT\n" +
                 "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
@@ -154,7 +164,8 @@ public class FilterAuthFunctionTest {
                 "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
                 "source: RIPE");
 
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, userSession, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, null, userSession, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator, false);
         final RpslObject result = subject.apply(rpslObject);
 
         assertThat(result.toString(), is(
@@ -173,7 +184,8 @@ public class FilterAuthFunctionTest {
                 "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
                 "source: RIPE");
 
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, userSession, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, null, userSession, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator, false);
         final RpslObject result = subject.apply(rpslObject);
 
         assertThat(result.toString(), is(
@@ -189,7 +201,9 @@ public class FilterAuthFunctionTest {
 
             when(authServiceClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(AuthServiceClientException.class);
 
-            subject = new FilterAuthFunction(Collections.<String>emptyList(), null, userSession, authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator);
+            subject = new FilterAuthFunction(Collections.<String>emptyList(), null, null, userSession,
+                    authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator,
+                    overrideCredentialValidator, false);
             subject.apply(RpslObject.parse("" +
                     "mntner: SSO-MNT\n" +
                     "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +

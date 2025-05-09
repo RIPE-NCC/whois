@@ -53,9 +53,14 @@ public final class OverrideCredential implements Credential {
     }
 
     public static OverrideCredential parse(final String value) {
-        final List<String> values = Lists.newArrayList(OVERRIDE_SPLITTER.split(value));
 
         final OverrideCredential notValidCredentials = new OverrideCredential(value, Optional.empty());
+
+        if (StringUtils.isEmpty(value)){
+            return notValidCredentials;
+        }
+
+        final List<String> values = Lists.newArrayList(OVERRIDE_SPLITTER.split(value));
 
         if (values.size() < 2) {
             return notValidCredentials;
