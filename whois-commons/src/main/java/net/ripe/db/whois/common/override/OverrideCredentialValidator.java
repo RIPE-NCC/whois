@@ -26,16 +26,19 @@ public class OverrideCredentialValidator {
     public boolean isAllowedAndValid(final boolean isTrusted, final UserSession userSession,
                                      final OverrideCredential overrideCredential,
                                      final ObjectType objectType){
-        if (overrideCredential == null) {
+        if (overrideCredential == null || overrideCredential.getOverrideValues().isEmpty()) {
             return false;
         }
-        return overrideCredential.getOverrideValues().filter(values -> (isTrusted || isAllowedBySSO(userSession, values.getUsername())) &&
-                isValidOverride(values, objectType))
-                .isPresent();
+        final OverrideCredential.OverrideValues overrideValues = overrideCredential.getOverrideValues().get();
+        return isAllowedToUseOverride(isTrusted, userSession, overrideValues.getUsername()) && isValidOverride(overrideValues, objectType);
     }
 
     public boolean isAllowedToUseOverride(final String remoteAddress, final UserSession userSession, final String overrideUsername){
-        if (ipRanges.isTrusted(IpInterval.parse(remoteAddress))) {
+        return isAllowedToUseOverride(ipRanges.isTrusted(IpInterval.parse(remoteAddress)), userSession, overrideUsername);
+    }
+
+    public boolean isAllowedToUseOverride(final boolean isTrusted, final UserSession userSession, final String overrideUsername){
+        if (isTrusted) {
             return true;
         }
 
