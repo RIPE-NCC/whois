@@ -128,7 +128,7 @@ public class WhoisRestOAuthScopeOptionalTestIntegration extends AbstractHttpsInt
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_apiKey_fails_null_Scope() {
+    public void create_mntner_only_data_parameter_with_apiKey_null_Scope() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -148,7 +148,7 @@ public class WhoisRestOAuthScopeOptionalTestIntegration extends AbstractHttpsInt
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_apiKey_fails_no_mnt_Scope() {
+    public void create_mntner_only_data_parameter_with_apiKey_no_mnt_Scope() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -168,7 +168,7 @@ public class WhoisRestOAuthScopeOptionalTestIntegration extends AbstractHttpsInt
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_oauth_fails_null_Scope() {
+    public void create_mntner_only_data_parameter_with_oauth_null_Scope() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -188,7 +188,7 @@ public class WhoisRestOAuthScopeOptionalTestIntegration extends AbstractHttpsInt
     }
 
     @Test
-    public void create_mntner_only_data_parameter_with_oauth_fails_no_mnt_Scope() {
+    public void create_mntner_only_data_parameter_with_oauth_no_mnt_Scope() {
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
