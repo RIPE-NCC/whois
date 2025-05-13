@@ -51,23 +51,30 @@ public class ApiKeyAuthServerDummy implements Stub {
     public static final List<String> AUD = Arrays.asList("account", "whois");
     public static final String BASIC_AUTH_TEST_NO_MNT = "eFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==";
     public static final String BASIC_AUTH_INACTIVE_TOKEN = "TlpYSTRTRVo0SzBEVTJUQ0Y0QkUxQklEOjJtQ2syNTJ6ekR0b0dva3RPaFJ2czVNWA==";
-    public static final String BASIC_AUTH_PERSON_NO_MNT = "bDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
+    public static final String BASIC_AUTH_PERSON_ANY_MNT = "bDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_PERSON_OWNER_MNT = "cDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_TEST_TEST_MNT = "dDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE = "aFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==";
     public static final String BASIC_AUTH_INVALID_API_KEY = "aDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_INVALID_SIGNATURE_API_KEY = "TXp1ZzRxRVlpSTVET1dqOXI1Qkp1Y2k4OnZBdzgyRTFCMkZ2dFVyYjB0MDF0Ykt2cg==";
 
+    public static final String BASIC_AUTH_PERSON_NO_MNT = "WVpJUUlVTThOUVo3SUpWSU1HSkZTQ09HOjB2bVNCc2taS0FSMlF5ekNFd0FBRGN5eg==";
+    public static final String BASIC_AUTH_PERSON_NULL_SCOPE = "QlBSSTNCSFBPUkhGQUJCUjVHV1M3U1hHOmhlU29ZTYzTXM3elJsM2ppc1czOFJ1Ng==";
+
+
     public static final Map<String, JWTClaimsSet> APIKEY_TO_OAUTHSESSION =  Maps.newHashMap();
 
     {
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, getJWT(AUD,  "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INACTIVE_TOKEN, getJWT(AUD,  "inactive@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NO_MNT, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", null));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, getJWT(AUD,  "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY:write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INACTIVE_TOKEN, getJWT(AUD,  "inactive@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY:write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_ANY_MNT, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "whois.mntner:ANY:write"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_TEST_MNT,  getJWT(AUD, "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT profile email"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INVALID_SIGNATURE_API_KEY,  getJWT(AUD, "invalid@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:TEST-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE, getJWT(Arrays.asList("account", "whois-invalid"), "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:TEST-MNT"));
+
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NO_MNT, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NULL_SCOPE, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", null));
     }
 
     private Server server;
