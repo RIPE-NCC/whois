@@ -1970,7 +1970,30 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
+    @Test
+    public void lookup_with_override_with_null_username_then_filtered() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("null,zoh,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
 
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST", "Filtered", null, null, null)));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+    
     // create
 
     @Test

@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.sso.UserSession;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -26,11 +27,16 @@ public class OverrideCredentialValidator {
     public boolean isAllowedAndValid(final boolean isTrusted, final UserSession userSession,
                                      final OverrideCredential overrideCredential,
                                      final ObjectType objectType){
-        if (overrideCredential == null || overrideCredential.getOverrideValues().isEmpty()) {
+        if (overrideCredential == null || overrideCredential.getOverrideValues().isEmpty() || StringUtils.isEmpty(overrideCredential.getOverrideValues().get().getUsername())) {
             return false;
         }
         final OverrideCredential.OverrideValues overrideValues = overrideCredential.getOverrideValues().get();
-        return isAllowedToUseOverride(isTrusted, userSession, overrideValues.getUsername()) && isValidOverride(overrideValues, objectType);
+
+        try {
+            return isAllowedToUseOverride(isTrusted, userSession, overrideValues.getUsername()) && isValidOverride(overrideValues, objectType);
+        } catch (EmptyResultDataAccessException e){
+            return false;
+        }
     }
 
     public boolean isAllowedToUseOverride(final String remoteAddress, final UserSession userSession, final String overrideUsername){
