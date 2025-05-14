@@ -30,12 +30,7 @@ public class OverrideCredentialValidator {
             return false;
         }
         final OverrideCredential.OverrideValues overrideValues = overrideCredential.getOverrideValues().get();
-
-        try {
-            return isAllowedToUseOverride(isTrusted, userSession, overrideValues.getUsername()) && isValidOverride(overrideValues, objectType);
-        } catch (EmptyResultDataAccessException e){
-            return false;
-        }
+        return isAllowedToUseOverride(isTrusted, userSession, overrideValues.getUsername()) && isValidOverride(overrideValues, objectType);
     }
 
     public boolean isAllowedToUseOverride(final String remoteAddress, final UserSession userSession, final String overrideUsername){
