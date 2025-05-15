@@ -47,7 +47,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
-import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -6260,11 +6259,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(member.getName(), is(attributeExpectedType));
         assertThat(member.getReferencedType(), is("route-set"));
         assertThat(member.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route-set/" + member.getValue()));
-    }
-
-    private String encode(final String input) {
-        // do not interpret template parameters
-        return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
     }
 
     private WhoisResources map(final RpslObject ... rpslObjects) {
