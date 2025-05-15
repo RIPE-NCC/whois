@@ -119,8 +119,12 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean isOverrideAuthenticated(final ObjectType objectType){
-        return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
-                userSession, overrideCredential, objectType);
+        try {
+            return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
+                    userSession, overrideCredential, objectType);
+        } catch (Exception e){
+            return false;
+        }
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
