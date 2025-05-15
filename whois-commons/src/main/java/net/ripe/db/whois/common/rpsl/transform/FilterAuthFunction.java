@@ -20,7 +20,6 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
@@ -123,7 +122,7 @@ public class FilterAuthFunction implements FilterFunction {
         try {
             return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
                     userSession, overrideCredential, objectType);
-        } catch (EmptyResultDataAccessException e){
+        } catch (Exception e){
             return false;
         }
     }
