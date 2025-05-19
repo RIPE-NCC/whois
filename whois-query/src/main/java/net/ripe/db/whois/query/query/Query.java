@@ -103,14 +103,7 @@ public class Query {
         try {
             final Query query = new Query(args.trim(), origin, trusted);
 
-            for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
-                queryValidator.validate(query, query.messages);
-            }
-
-            final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
-            if (!errors.isEmpty()) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
-            }
+            validateQuery(query);
 
             return query;
         } catch (OptionException e) {
@@ -118,23 +111,28 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final UserSession userSession, final Origin origin, final boolean trusted) {
+    public static Query parse(final String args, final UserSession userSession, final String override, final Origin origin, final boolean trusted) {
         try {
             final Query query = new Query(args.trim(), origin, trusted);
             query.userSession = userSession;
+            query.overrideCredential = OverrideCredential.parse(override);
 
-            for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
-                queryValidator.validate(query, query.messages);
-            }
-
-            final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
-            if (!errors.isEmpty()) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
-            }
+            validateQuery(query);
 
             return query;
         } catch (OptionException e) {
             throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+        }
+    }
+
+    private static void validateQuery(Query query) {
+        for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
+            queryValidator.validate(query, query.messages);
+        }
+
+        final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
+        if (!errors.isEmpty()) {
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
         }
     }
 
