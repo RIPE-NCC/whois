@@ -90,7 +90,7 @@ public class FilterAuthFunction implements FilterFunction {
         }
 
         final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        final boolean authenticated = isOverrideAuthenticated(rpslObject.getType()) || isMntnerAuthenticated(rpslObject);
+        final boolean authenticated = isOverrideAuthenticated(ObjectType.MNTNER) || isMntnerAuthenticated(rpslObject);
 
         for (final RpslAttribute authAttribute : authAttributes) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
