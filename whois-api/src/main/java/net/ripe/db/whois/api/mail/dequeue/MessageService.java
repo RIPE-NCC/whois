@@ -100,8 +100,7 @@ public class MessageService {
 
     private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail) {
         if (message.messageId() == null || message.emailAddresses() == null || message.emailAddresses().isEmpty()) {
-            LOGGER.info("Incorrect message {}", message.messageId());
-            LOGGER.warn("Incorrect message <Filtered>");
+            LOGGER.warn("Incorrect message {}", message.messageId());
             return false;
         }
 
@@ -112,7 +111,7 @@ public class MessageService {
 
         if (!containsAllCaseInsensitive(message.emailAddresses(), outgoingEmail)) {
             LOGGER.info("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
-            LOGGER.debug("Email[Filtered] in outgoing message doesn't match '<Filtered>' in failure response");
+            LOGGER.debug("Email in outgoing message doesn't match failure response");
             return false;
         }
         return true;

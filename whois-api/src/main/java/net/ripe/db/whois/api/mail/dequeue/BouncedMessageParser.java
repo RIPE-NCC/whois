@@ -186,7 +186,7 @@ public class BouncedMessageParser {
             final Matcher finalRecipientMatcher = FINAL_RECIPIENT_MATCHER.matcher(recipient);
             if (!finalRecipientMatcher.matches() || finalRecipientMatcher.groupCount() != 2){
                 LOGGER.info("Wrong formatted recipient {}", recipient);
-                LOGGER.error("Wrong formatted recipient <Filtered>");
+                LOGGER.error("Wrong formatted recipient");
                 continue;
             }
             final String email = finalRecipientMatcher.group(2);
