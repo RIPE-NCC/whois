@@ -111,7 +111,7 @@ public class MessageService {
         }
 
         if (!containsAllCaseInsensitive(message.emailAddresses(), outgoingEmail)) {
-            LOGGER.debug("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
+            LOGGER.info("Email {} in outgoing message doesn't match '{}' in failure response", outgoingEmail, StringUtils.join(message.emailAddresses(), ", "));
             LOGGER.debug("Email[Filtered] in outgoing message doesn't match '<Filtered>' in failure response");
             return false;
         }
