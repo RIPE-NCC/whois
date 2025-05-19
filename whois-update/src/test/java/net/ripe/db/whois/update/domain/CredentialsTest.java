@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.credentials.Credential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,7 +40,7 @@ public class CredentialsTest {
             subject.single(Credential.class);
             fail("Expected error on multiple credentials of the same type");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("More than 1 credentials of type: interface net.ripe.db.whois.update.domain.Credential"));
+            assertThat(e.getMessage(), is("More than 1 credentials of type: interface net.ripe.db.whois.common.credentials.Credential"));
         }
 
         assertThat(subject.has(PgpCredential.class), is(false));

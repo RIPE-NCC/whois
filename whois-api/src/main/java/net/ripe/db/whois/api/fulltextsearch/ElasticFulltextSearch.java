@@ -12,6 +12,9 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchStatusException;
@@ -68,6 +71,8 @@ public class ElasticFulltextSearch extends FulltextSearch {
     );
 
     private final AccessControlListManager accessControlListManager;
+    private final SsoTokenTranslator ssoTokenTranslator;
+
     private final ElasticIndexService elasticIndexService;
 
     private final Source source;
@@ -81,6 +86,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     @Autowired
     public ElasticFulltextSearch(final ElasticIndexService elasticIndexService,
                                  final AccessControlListManager accessControlListManager,
+                                 final SsoTokenTranslator ssoTokenTranslator,
                                  final SourceContext sourceContext,
                                  final ApplicationVersion applicationVersion,
                                  @Value("${fulltext.search.max.results:10000}") final int maxResultSize) {
@@ -90,6 +96,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         this.source = sourceContext.getCurrentSource();
         this.maxResultSize = maxResultSize;
         this.elasticIndexService = elasticIndexService;
+        this.ssoTokenTranslator = ssoTokenTranslator;
     }
 
     @Override
@@ -104,7 +111,9 @@ public class ElasticFulltextSearch extends FulltextSearch {
             throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
         }
 
-        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, ssoToken, source) {
+        final UserSession userSession = ssoTokenTranslator.translateSsoTokenOrNull(ssoToken);
+
+        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, userSession, source) {
 
             @Override
             protected SearchResponse doSearch() throws IOException {

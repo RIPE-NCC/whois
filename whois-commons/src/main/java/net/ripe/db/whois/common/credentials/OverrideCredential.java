@@ -1,4 +1,4 @@
-package net.ripe.db.whois.update.domain;
+package net.ripe.db.whois.common.credentials;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -53,9 +53,14 @@ public final class OverrideCredential implements Credential {
     }
 
     public static OverrideCredential parse(final String value) {
-        final List<String> values = Lists.newArrayList(OVERRIDE_SPLITTER.split(value));
 
         final OverrideCredential notValidCredentials = new OverrideCredential(value, Optional.empty());
+
+        if (StringUtils.isEmpty(value)){
+            return notValidCredentials;
+        }
+
+        final List<String> values = Lists.newArrayList(OVERRIDE_SPLITTER.split(value));
 
         if (values.size() < 2) {
             return notValidCredentials;
@@ -78,7 +83,7 @@ public final class OverrideCredential implements Credential {
         private final String password;
         private final String remarks;
 
-        OverrideValues(final String username, final String password, final String remarks) {
+        public OverrideValues(final String username, final String password, final String remarks) {
             this.username = username;
             this.password = password;
             this.remarks = remarks;

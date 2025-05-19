@@ -7,14 +7,16 @@ import joptsimple.OptionException;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.x509.X509CertificateWrapper;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryParser;
@@ -65,7 +67,7 @@ public class Query {
 
     // TODO: [AH] these fields should be part of QueryContext, not Query
     private List<String> passwords;
-    private String ssoToken;
+    private UserSession userSession;
     private OAuthSession oAuthSession;
     private final Origin origin;
     private final boolean trusted;
@@ -73,6 +75,8 @@ public class Query {
     private boolean matchPrimaryKeyOnly;
 
     private List<X509CertificateWrapper> certificates;
+
+    private OverrideCredential overrideCredential;
 
     private Query(final String query, final Origin origin, final boolean trusted) {
         try {
@@ -99,14 +103,7 @@ public class Query {
         try {
             final Query query = new Query(args.trim(), origin, trusted);
 
-            for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
-                queryValidator.validate(query, query.messages);
-            }
-
-            final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
-            if (!errors.isEmpty()) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
-            }
+            validateQuery(query);
 
             return query;
         } catch (OptionException e) {
@@ -114,19 +111,13 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final String ssoToken, final Origin origin, final boolean trusted) {
+    public static Query parse(final String args, final UserSession userSession, final String override, final Origin origin, final boolean trusted) {
         try {
             final Query query = new Query(args.trim(), origin, trusted);
-            query.ssoToken = ssoToken;
+            query.userSession = userSession;
+            query.overrideCredential = OverrideCredential.parse(override);
 
-            for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
-                queryValidator.validate(query, query.messages);
-            }
-
-            final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
-            if (!errors.isEmpty()) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
-            }
+            validateQuery(query);
 
             return query;
         } catch (OptionException e) {
@@ -134,13 +125,27 @@ public class Query {
         }
     }
 
+    private static void validateQuery(Query query) {
+        for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
+            queryValidator.validate(query, query.messages);
+        }
 
-    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted, final List<X509CertificateWrapper> certificates, final OAuthSession oAuthSession) {
+        final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
+        if (!errors.isEmpty()) {
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
+        }
+    }
+
+
+    public static Query parse(final String args, final UserSession userSession, final List<String> passwords,
+                              final String override, final boolean trusted,
+                              final List<X509CertificateWrapper> certificates, final OAuthSession oAuthSession) {
         final Query query = parse(args, Origin.REST, trusted);
-        query.ssoToken = ssoToken;
+        query.userSession = userSession;
         query.passwords = passwords;
         query.certificates = certificates;
         query.oAuthSession = oAuthSession;
+        query.overrideCredential = OverrideCredential.parse(override);
         return query;
     }
 
@@ -148,8 +153,8 @@ public class Query {
         return passwords;
     }
 
-    public String getSsoToken() {
-        return ssoToken;
+    public UserSession getUserSession() {
+        return userSession;
     }
 
     public OAuthSession getoAuthSession() {
@@ -635,6 +640,23 @@ public class Query {
         return this;
     }
 
+    public String getEffectiveUsername() {
+        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getEmail())) {
+            return oAuthSession.getEmail();
+        }
+
+        return userSession == null ? null : userSession.getUsername();
+    }
+
+    public String getEffectiveUuid() {
+        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getUuid())) {
+            return oAuthSession.getUuid();
+        }
+
+        return userSession == null ? null : userSession.getUuid();
+    }
+
+
     public enum MatchOperation {
         MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC(),
         MATCH_EXACT(QueryFlag.EXACT),
@@ -674,6 +696,10 @@ public class Query {
         } catch (UnsupportedCharsetException ex){
             throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidCharsetPassed(queryCharset));
         }
+    }
+
+    public OverrideCredential getOverrideCredential() {
+        return overrideCredential;
     }
 
     private static Charset getCharsetForName(final String charsetName) {

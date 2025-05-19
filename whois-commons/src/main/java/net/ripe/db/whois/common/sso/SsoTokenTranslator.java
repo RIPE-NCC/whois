@@ -17,4 +17,12 @@ public class SsoTokenTranslator {
         final UserSession userSession = authServiceClient.getUserSession(ssoToken);
         return userSession;
     }
+
+    public UserSession translateSsoTokenOrNull(final String ssoToken) {
+        try {
+            return translateSsoToken(ssoToken);
+        } catch (AuthServiceClientException e) {
+            return null;
+        }
+    }
 }

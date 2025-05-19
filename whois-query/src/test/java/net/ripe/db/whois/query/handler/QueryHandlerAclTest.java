@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doAnswer;
@@ -64,6 +65,7 @@ public class QueryHandlerAclTest {
     @Mock ResponseHandler responseHandler;
     private AccountingIdentifier accountingIdentifier;
 
+    public static String UUID = "12345";
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -71,7 +73,7 @@ public class QueryHandlerAclTest {
         subject = spy(subject);
 
         accountingIdentifier = new AccountingIdentifier(remoteAddress, null);
-        when(accessControlListManager.getAccountingIdentifier(remoteAddress, null, null)).thenReturn(accountingIdentifier);
+        when(accessControlListManager.getAccountingIdentifier(remoteAddress, null)).thenReturn(accountingIdentifier);
 
         message = new MessageObject("test");
         maintainer = RpslObject.parse("mntner: DEV-MNT");
@@ -97,7 +99,7 @@ public class QueryHandlerAclTest {
 
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         lenient().when(accessControlListManager.canQueryPersonalObjects(accountingIdentifier)).thenReturn(true);
-        lenient().when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenAnswer(new Answer<Object>() {
+        lenient().when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class), nullable(String.class))).thenAnswer(new Answer<Object>() {
             @Override
             @SuppressWarnings("SuspiciousMethodCalls")
             public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
@@ -108,7 +110,7 @@ public class QueryHandlerAclTest {
 
     @Test
     public void source_without_acl() {
-        when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class))).thenReturn(false);
+        when(accessControlListManager.requiresAcl(any(RpslObject.class), any(Source.class), nullable(String.class))).thenReturn(false);
 
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
@@ -124,7 +126,7 @@ public class QueryHandlerAclTest {
         final Query query = Query.parse("DEV-MNT");
         subject.streamResults(query, remoteAddress, contextId, responseHandler);
 
-        verify(accessControlListManager, never()).requiresAcl(any(RpslObject.class), any(Source.class));
+        verify(accessControlListManager, never()).requiresAcl(any(RpslObject.class), any(Source.class), any(String.class));
         verify(accessControlListManager, never()).accountPersonalObjects(any(AccountingIdentifier.class), any(Integer.class));
         verifyLog(query, null, 0, 4);
     }
@@ -174,7 +176,7 @@ public class QueryHandlerAclTest {
 
         when(accessControlListManager.isAllowedToProxy(remoteAddress)).thenReturn(true);
         lenient().when(accessControlListManager.canQueryPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(remoteAddress))))).thenReturn(true);
-        when(accessControlListManager.getAccountingIdentifier(clientAddress, null, null)).thenReturn(new AccountingIdentifier(clientAddress, null));
+        when(accessControlListManager.getAccountingIdentifier(clientAddress, null)).thenReturn(new AccountingIdentifier(clientAddress, null));
         when(accessControlListManager.getPersonalObjects(MockitoHamcrest.argThat(hasProperty("remoteAddress", equalTo(clientAddress))))).thenReturn(10);
 
         final Query query = Query.parse("-VclientId,10.0.0.0 DEV-MNT");

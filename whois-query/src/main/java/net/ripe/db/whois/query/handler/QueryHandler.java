@@ -79,7 +79,7 @@ public class QueryHandler {
             }
 
             private AccountingIdentifier getAccountingIdentifier() {
-                return accessControlListManager.getAccountingIdentifier(accountingAddress, query.getSsoToken(), query.getoAuthSession());
+                return accessControlListManager.getAccountingIdentifier(accountingAddress, query.getEffectiveUsername());
             }
 
             private QueryExecutor getQueryExecutor() {
@@ -94,7 +94,7 @@ public class QueryHandler {
 
             private void initAcl(final QueryExecutor queryExecutor) {
                 if (queryExecutor.isAclSupported()) {
-                    final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(remoteAddress, query.getSsoToken(), query.getoAuthSession());
+                    final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(remoteAddress, query.getEffectiveUsername());
                     accessControlListManager.checkBlocked(accountingIdentifier);
 
                     if (query.hasProxyWithIp()) {
@@ -122,7 +122,7 @@ public class QueryHandler {
                     @Override
                     public void handle(final ResponseObject responseObject) {
                         if (responseObject instanceof RpslObject) {
-                            if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource())) {
+                            if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource(), query.getEffectiveUuid())) {
                                 if (accountingLimit == -1) {
                                     accountingLimit = accessControlListManager.getPersonalObjects(getAccountingIdentifier());
                                 }
