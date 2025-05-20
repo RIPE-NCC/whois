@@ -21,6 +21,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +37,7 @@ import java.util.regex.Pattern;
 public class Downloader {
 
     private static final Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
+    private static final DateTimeFormatter LAST_MODIFIED_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV").withZone(ZoneId.of("GMT"));
 
     private static final int CONNECT_TIMEOUT = 60_000;
     private static final int READ_TIMEOUT = 60_000;
@@ -50,9 +58,10 @@ public class Downloader {
 
     @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
     public void downloadToWithMd5Check(final Logger logger, final URL url, final Path path) throws IOException {
-        try (InputStream is = url.openStream()) {
+        final URLConnection uc = url.openConnection();
+        try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
-
+            setFileTimes(logger, uc, path);
             try (InputStream resourceDataStream = Files.newInputStream(path, StandardOpenOption.READ);
                  InputStream md5Stream = new URL(url + ".md5").openStream()) {
                 checkMD5(resourceDataStream, md5Stream);
@@ -77,6 +86,7 @@ public class Downloader {
 
         try (InputStream is = uc.getInputStream()) {
             downloadToFile(logger, is, path);
+            setFileTimes(logger, uc, path);
         }
     }
 
@@ -96,5 +106,22 @@ public class Downloader {
         }
 
         logger.debug("Downloaded {} in {}", file, stopwatch.stop());
+    }
+
+    private void setFileTimes(final Logger logger, final URLConnection uc, final Path path) {
+        final String lastModified = uc.getHeaderField(HttpHeaders.LAST_MODIFIED);
+        if (lastModified == null) {
+            logger.info("Couldn't set last modified on {} because no header found", path);
+        } else {
+            try {
+                final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
+                final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
+                final FileTime time = FileTime.from(lastModifiedDateTime.toInstant());
+                attributes.setTimes(time, time, time);
+                logger.debug("{} last modified {}", path, lastModifiedDateTime);
+            } catch (Exception e) {
+                logger.info("Couldn't set last modified {} on {} due to {}: {}", lastModified, path, e.getClass().getName(), e.getMessage());
+            }
+        }
     }
 }

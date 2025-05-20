@@ -29,41 +29,40 @@
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.22.1</aspectj.version>
-        <awaitility.version>4.2.2</awaitility.version>
+        <aspectj.version>1.9.24</aspectj.version>
+        <awaitility.version>4.3.0</awaitility.version>
 
-        <bouncycastle.version>1.79</bouncycastle.version>
+        <bouncycastle.version>1.80</bouncycastle.version>
 
-        <c3po.version>0.10.1</c3po.version>
-        <commons-codec.version>1.17.1</commons-codec.version>
-        <!-- TODO: update to commons-collections4 -->
-        <commons-collections.version>3.2.2</commons-collections.version>
+        <c3po.version>0.10.2</c3po.version>
+        <commons-codec.version>1.18.0</commons-codec.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
         <commons-compress.version>1.27.1</commons-compress.version>
         <commons-email.version>2.0.0-M1</commons-email.version>
-        <commons-io.version>2.18.0</commons-io.version>
+        <commons-io.version>2.19.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
-        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
+        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException instead of IllegalArgumentException). Replace all commons-lang with commons-lang3 calls -->
         <commons-lang.version>2.6</commons-lang.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
         <commons-net.version>3.11.1</commons-net.version>
         <commons-validator.version>1.9.0</commons-validator.version>
 
-        <diffutils.version>1.3.0</diffutils.version>
+        <diffutils.version>4.15</diffutils.version>
 
         <elasticsearch.version>7.16.3</elasticsearch.version>
         <ezvcard.version>0.12.1</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <groovy.version>3.0.23</groovy.version>
-        <guava.version>33.3.1-jre</guava.version>
+        <groovy.version>4.0.26</groovy.version>
+        <guava.version>33.4.8-jre</guava.version>
 
         <hamcrest.version>3.0</hamcrest.version>
         <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
-        <oauth2.oidc.version>11.23</oauth2.oidc.version>
 
-        <jackson.version>2.18.2</jackson.version>
+        <jackson.version>2.18.3</jackson.version>
         <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
         <jaxb.api.version>4.0.2</jaxb.api.version>
         <jaxb.impl.version>4.0.5</jaxb.impl.version>
@@ -78,17 +77,21 @@
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsonassert.version>1.5.3</jsonassert.version>
         <json-path.version>2.9.0</json-path.version>
-        <jsoup.version>1.18.3</jsoup.version>
-        <junit.version>5.11.3</junit.version>
+        <jsoup.version>1.19.1</jsoup.version>
+        <junit.version>5.12.2</junit.version>
 
-        <log4j.version>2.24.2</log4j.version>
+        <log4j.version>2.24.3</log4j.version>
 
         <mail.version>2.0.3</mail.version>
         <!-- TODO: update mariadb to 3.x -->
         <mariadb-java-client.version>2.7.12</mariadb-java-client.version>
-        <mockito.version>5.14.2</mockito.version>
+        <mockito.version>5.17.0</mockito.version>
 
-        <netty.version>4.1.115.Final</netty.version>
+        <netty.version>4.1.119.Final</netty.version>
+        <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
+
+        <oauth2.oidc.version>11.23.1</oauth2.oidc.version>
+        <org.json.version>20250107</org.json.version>
 
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
         <persistence.api.version>3.2.0</persistence.api.version>
@@ -98,13 +101,14 @@
         <!-- Servlet API 6.0 for EE10 : https://jakarta.ee/specifications/servlet/6.0/ -->
         <servlet.version>6.0.0</servlet.version>
         <shedlock.version>5.16.0</shedlock.version>
-        <slf4j.version>2.0.16</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>6.2.0</spring.version>
+        <spring.version>6.2.6</spring.version>
         <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
         <testcontainers.elasticsearch.version>1.16.2</testcontainers.elasticsearch.version>
+        <tink.version>1.13.0</tink.version>
 
         <validation.api.version>3.1.0</validation.api.version>
         <velocity.version>2.4.1</velocity.version>
@@ -128,18 +132,19 @@
     </distributionManagement>
 
     <modules>
-        <module>whois-rpsl</module>
+        <module>whois-api</module>
         <module>whois-client</module>
         <module>whois-commons</module>
-        <module>whois-query</module>
-        <module>whois-nrtm</module>
-        <module>whois-update</module>
-        <module>whois-api</module>
-        <module>whois-scheduler</module>
         <module>whois-db</module>
         <module>whois-endtoend</module>
+        <module>whois-nrtm</module>
         <module>whois-nrtm4</module>
         <module>whois-nrtm4-client</module>
+        <module>whois-query</module>
+        <module>whois-rpsl</module>
+        <module>whois-scheduler</module>
+        <module>whois-smtp</module>
+        <module>whois-update</module>
     </modules>
 
     <dependencyManagement>
@@ -278,6 +283,11 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-smtp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>net.ripe.commons</groupId>
                 <artifactId>commons-ip-math</artifactId>
                 <version>${commons-ip-math.version}</version>
@@ -376,11 +386,16 @@
                 <artifactId>netty-all</artifactId>
                 <version>${netty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-smtp</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.40</version>
+                <version>${nimbus-jose-jwt.version}</version>
             </dependency>
 
             <dependency>
@@ -392,7 +407,7 @@
             <dependency>
                 <groupId>com.google.crypto.tink</groupId>
                 <artifactId>tink</artifactId>
-                <version>1.13.0</version>
+                <version>${tink.version}</version>
             </dependency>
 
             <!-- Jakarta Mail (formerly JavaMail) TODO: [ES] depend on angus-mail -->
@@ -424,6 +439,12 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcjmail-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>jakarta.mail</artifactId>
+                        <groupId>com.sun.mail</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -458,6 +479,11 @@
                 <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
                 <version>${commons-validator.version}</version>
@@ -474,9 +500,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collections.version}</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -669,8 +695,8 @@
 
             <!-- diffutils -->
             <dependency>
-                <groupId>com.googlecode.java-diff-utils</groupId>
-                <artifactId>diffutils</artifactId>
+                <groupId>io.github.java-diff-utils</groupId>
+                <artifactId>java-diff-utils</artifactId>
                 <version>${diffutils.version}</version>
             </dependency>
 
@@ -688,24 +714,19 @@
                 <version>${ezvcard.version}</version>
             </dependency>
 
+            <!-- JSONObject Library -->
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org.json.version}</version>
+            </dependency>
+
             <!-- Solr -->
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
                 <version>${solrj.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>io.sentry</groupId>
-                <artifactId>sentry-log4j2</artifactId>
-                <version>${sentry.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
@@ -804,7 +825,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.codehaus.groovy</groupId>
+          <groupId>org.apache.groovy</groupId>
           <artifactId>groovy</artifactId>
           <version>${groovy.version}</version>
           <scope>test</scope>
@@ -953,7 +974,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.0</version>
                 <configuration>
                     <release>${java.version}</release>
                     <encoding>${project.build.sourceEncoding}</encoding>
@@ -976,7 +997,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.1</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
@@ -1190,7 +1211,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
             </plugin>
             <!-- Checking for new versions of dependencies: mvn versions:display-dependency-updates -->
             <!-- https://www.mojohaus.org/versions/versions-maven-plugin/index.html -->

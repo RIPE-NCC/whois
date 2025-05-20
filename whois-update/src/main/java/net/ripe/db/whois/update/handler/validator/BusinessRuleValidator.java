@@ -10,7 +10,7 @@ import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +25,7 @@ public interface BusinessRuleValidator {
     default boolean isSkipForOverride() {
         return false;
     }
-    
+
     default void validate(final PreparedUpdate update, final UpdateContext updateContext) {
 
         final List<Message> messages = performValidation(update, updateContext);

@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import net.ripe.db.whois.api.rest.mapper.ValidXmlAdapter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import jakarta.xml.bind.annotation.XmlAccessType;

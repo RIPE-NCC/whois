@@ -55,7 +55,7 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
     }
 
     private AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress) {
-        return accessControlListManager.getAccountingIdentifier(remoteAddress, null, null);
+        return accessControlListManager.getAccountingIdentifier(remoteAddress, null);
     }
 
     @Override

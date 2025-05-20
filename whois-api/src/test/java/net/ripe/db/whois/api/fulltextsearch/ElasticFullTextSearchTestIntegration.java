@@ -2340,10 +2340,10 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         assertThat(queryResponse.getResults().size(), is(4));
 
-        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("TP1-TEST"));
-        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/48"));
-        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("2a00:2381:b2f::/56"));
-        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
+        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56"));
+        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
+        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("TP1-TEST"));
     }
 
     @Test

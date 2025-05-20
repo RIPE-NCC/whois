@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.acl;
 
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
@@ -22,9 +23,7 @@ import static net.ripe.db.whois.query.acl.AccessControlListManager.mask;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,6 +55,7 @@ public class IpAccessControlListManagerTest {
     private final LocalDate now = LocalDate.now();
     private AccountingIdentifier accountingIdentifierIpv6;
     private AccountingIdentifier accountingIdentifierIpv4;
+    private JdbcRpslObjectSlaveDao jdbcRpslObjectSlaveDao;
 
 
     @BeforeEach
@@ -75,8 +75,7 @@ public class IpAccessControlListManagerTest {
         mockResourceConfiguration(ipv6Restricted, true, false, PERSONAL_DATA_LIMIT);
         mockResourceConfiguration(ipv6Unrestricted, false, true, PERSONAL_DATA_NO_LIMIT);
 
-        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoTokenTranslator, ssoResourceConfiguration, false, ipRanges);
-
+        subject = new AccessControlListManager(dateTimeProvider, ipResourceConfiguration, ipAccessControlListDao, personalObjectAccounting, ssoAccessControlListDao, ssoResourceConfiguration, false, ipRanges, jdbcRpslObjectSlaveDao);
     }
 
     private void mockResourceConfiguration(InetAddress address, boolean denied, boolean proxy, int limit) throws UnknownHostException {

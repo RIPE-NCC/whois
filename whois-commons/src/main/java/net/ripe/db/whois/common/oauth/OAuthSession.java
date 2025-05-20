@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.oauth;
 
 import com.google.common.base.MoreObjects;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
 public class OAuthSession {

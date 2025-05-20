@@ -70,7 +70,7 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
         // Outgoing notification email to notify-dummy-role@ripe.net
         final MimeMessage notify = mailSenderStub.getMessage("nonexistant@host.org");
         final String notifyMessageId = notify.getHeader("Message-ID", "\n");
-        assertThat(notifyMessageId, Matchers.is(not(nullValue())));
+        assertThat(notifyMessageId, is(not(nullValue())));
 
         // Generate failure response for notification
         insertOutgoingMessageId("XXXXXXXX-5AE3-4C58-8E3F-860327BA955D@ripe.net", "nonexistant@host.org");

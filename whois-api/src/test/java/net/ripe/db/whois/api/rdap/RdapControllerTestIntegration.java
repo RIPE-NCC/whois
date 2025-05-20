@@ -707,9 +707,48 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inetnum_not_found() {
+    public void lookup_inetnum_return_administrative_range() {
+        final Ip ip = createResource("ip/193.0.0.0")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("193.0.0.0/8"));
+        assertThat(ip.getStartAddress(), is("193.0.0.0"));
+        assertThat(ip.getEndAddress(), is("193.255.255.255"));
+        assertThat(ip.getName(), is("RIPE-NCC-MANAGED-ADDRESS-BLOCK"));
+        assertThat(ip.getType(), is("ALLOCATED UNSPECIFIED"));
+        assertThat(ip.getCountry(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+        assertThat(ip.getStatus().getFirst(), is("administrative"));
+    }
+
+    @Test
+    public void lookup_inetnum_administrative_range_exact() {
+
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/002/8")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2.0.0.0/8"));
+        assertThat(ip.getStartAddress(), is("2.0.0.0"));
+        assertThat(ip.getEndAddress(), is("2.255.255.255"));
+        assertThat(ip.getName(), is("RIPE-NCC-MANAGED-ADDRESS-BLOCK"));
+        assertThat(ip.getType(), is("ALLOCATED UNSPECIFIED"));
+        assertThat(ip.getCountry(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+        assertThat(ip.getStatus().getFirst(), is("administrative"));
+
+    }
+
+    @Test
+    public void lookup_bogon_range_not_found() {
+
+        ipTreeUpdater.rebuild();
+
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("ip/193.0.0.0")
+            createResource("ip/0.0.0.0/8")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
         });
@@ -718,6 +757,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(error.getErrorTitle(), is("404 Not Found"));
         assertThat(error.getDescription().get(0), is("Requested object not found"));
     }
+
 
     @Test
     public void lookup_inetnum() {
@@ -1157,17 +1197,19 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inet6num_not_found() {
-        final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("ip/2001:2002:2003::/48")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .get(Ip.class);
-            fail();
-        });
-        final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
-        assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
-        assertThat(error.getErrorTitle(), is("404 Not Found"));
-        assertThat(error.getDescription().get(0), is("Requested object not found"));
+    public void lookup_inet6num_administrative() {
+        final Ip ip = createResource("ip/2001:2002:2003::/48")
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("2001:2000::/19"));
+        assertThat(ip.getStartAddress(), is("2001:2000::"));
+        assertThat(ip.getEndAddress(), is("2001:3fff:ffff:ffff:ffff:ffff:ffff:ffff"));
+        assertThat(ip.getName(), is("RIPE-NCC-MANAGED-ADDRESS-BLOCK"));
+        assertThat(ip.getType(), is("ALLOCATED UNSPECIFIED"));
+        assertThat(ip.getCountry(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("::/0"));
+        assertThat(ip.getStatus().getFirst(), is("administrative"));
     }
 
     @Test

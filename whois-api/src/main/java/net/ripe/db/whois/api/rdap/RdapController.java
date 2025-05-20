@@ -25,7 +25,7 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.query.Query;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -418,7 +418,6 @@ public class RdapController {
         }
         return buffer.toString();
     }
-
 
     private Object handleSearch(final RdapRequestType requestType, final String[] fields, final String term,
                                 final HttpServletRequest request) {

@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.database;
 
 
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

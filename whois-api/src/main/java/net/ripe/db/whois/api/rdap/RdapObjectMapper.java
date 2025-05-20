@@ -53,7 +53,7 @@ import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.update.domain.ReservedResources;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +79,7 @@ import java.util.stream.Stream;
 import static net.ripe.db.whois.api.rdap.RdapConformance.GEO_FEED_1;
 import static net.ripe.db.whois.api.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.api.rdap.domain.Status.ACTIVE;
+import static net.ripe.db.whois.api.rdap.domain.Status.ADMINISTRATIVE;
 import static net.ripe.db.whois.api.rdap.domain.Status.RESERVED;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.GROUP;
 import static net.ripe.db.whois.api.rdap.domain.vcard.VCardKind.INDIVIDUAL;
@@ -380,7 +381,6 @@ public class RdapObjectMapper {
         entity.getLinks().add(COPYRIGHT_LINK);
     }
 
-
     private RdapObject mapCommonNoticesAndPort(final RdapObject rdapResponse, final String requestUrl) {
         rdapResponse.getNotices().add(noticeFactory.generateTnC(requestUrl));
         rdapResponse.setPort43(port43);
@@ -436,7 +436,8 @@ public class RdapObjectMapper {
                 return reservedResources.isReservedAsBlock(rpslObject.getKey().toUpperCase()) ? RESERVED : ACTIVE;
             case INETNUM:
             case INET6NUM:
-                return reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED : ACTIVE;
+                return reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED :
+                        reservedResources.isAdministrative(rpslObject.getKey().toString()) ? ADMINISTRATIVE : ACTIVE;
             default:
                 throw new RdapException("400 Bad Request", "Unhandled object type: " + rpslObject.getType(),
                         HttpStatus.BAD_REQUEST_400);
@@ -813,6 +814,7 @@ public class RdapObjectMapper {
     }
 
     private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
+
         rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.UP.getValue(),
                 buildRirSearchUri(objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
 
