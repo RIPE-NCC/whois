@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.cert.X509Certificate;
 
-import static org.eclipse.jetty.server.SecureRequestCustomizer.JAKARTA_SERVLET_REQUEST_X_509_CERTIFICATE;
-
+import static org.eclipse.jetty.server.SecureRequestCustomizer.X509_ATTRIBUTE;
 /**
  * Return TLS client certificate information to the client.
  */
@@ -22,7 +21,7 @@ public class ClientCertificateService {
 
     @GET
     public Response clientCertificate(@Context final HttpServletRequest request) {
-        final X509Certificate[] certificates = (X509Certificate[]) request.getAttribute(JAKARTA_SERVLET_REQUEST_X_509_CERTIFICATE);
+        final X509Certificate[] certificates = (X509Certificate[]) request.getAttribute(X509_ATTRIBUTE);
         if (certificates == null) {
             throw new BadRequestException("Didn't find any client certificate");
         } else {
