@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,6 +104,7 @@ class GrsSourceImporter {
             try {
                 grsSource.acquireDump(dump);
             } catch (IOException e) {
+                logger.error(e.getClass().getName(), e);
                 throw new RuntimeException("Unable to acquire GRS dump", e);
             }
 
@@ -112,6 +112,7 @@ class GrsSourceImporter {
             try {
                 grsSource.acquireIrrDump(irrDump);
             } catch (IOException e) {
+                logger.error(e.getClass().getName(), e);
                 throw new RuntimeException("Unable to acquire IRR dump", e);
             }
 
@@ -126,13 +127,12 @@ class GrsSourceImporter {
                 logger.info("Updating {} current objects in database", currentObjectIds.size());
             }
 
-            logger.info("run: is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
-
             try {
                 importObjects(dump.toFile());
                 importIrrObjects(irrDump.toFile());
                 deleteNotFoundInImport();
             } catch (IOException e) {
+                logger.error(e.getClass().getName(), e);
                 throw new RuntimeException(e);
             } finally {
                 logger.info("created {} / updated {} / deleted {} / ignored {} in {}", nrCreated, nrUpdated, nrDeleted, nrIgnored, stopwatch.stop());
@@ -145,17 +145,14 @@ class GrsSourceImporter {
             grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(final TransactionStatus status) {
-                    logger.info("importIrrObjects START: tx={} ro={} name={}",
-                        status.hasTransaction(),
-                        status.isReadOnly(),
-                        status.getTransactionName());
-
+                    logger.info("importIrrObjects START");
                     if (!irrDumpFile.exists()) {
                         return;
                     }
                     try {
                         grsSource.handleIrrObjects(irrDumpFile, new GrsSourceObjectHandler());
                     } catch (IOException e) {
+                        logger.error(e.getClass().getName(), e);
                         throw new IllegalStateException(e);
                     }
                     logger.info("importIrrObjects END");
@@ -167,13 +164,11 @@ class GrsSourceImporter {
             grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(final TransactionStatus status) {
-                    logger.info("importObjects START: tx={} ro={} name={}",
-                        status.hasTransaction(),
-                        status.isReadOnly(),
-                        status.getTransactionName());
+                    logger.info("importObjects START");
                     try {
                         grsSource.handleObjects(dumpFile, new GrsSourceObjectHandler());
                     } catch (IOException e) {
+                        logger.error(e.getClass().getName(), e);
                         throw new IllegalStateException(e);
                     }
                     logger.info("importObjects END");
@@ -185,10 +180,7 @@ class GrsSourceImporter {
             grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(final TransactionStatus status) {
-                    logger.info("deleteNotFoundInImport START: tx={} ro={} name={}",
-                        status.hasTransaction(),
-                        status.isReadOnly(),
-                        status.getTransactionName());
+                    logger.info("deleteNotFoundInImport START");
 
                     if (nrCreated == 0 && nrUpdated == 0) {
                         logger.info("Skipping deletion since there were no other updates");
@@ -213,10 +205,7 @@ class GrsSourceImporter {
             grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(final TransactionStatus status) {
-                    logger.info("updateIndexes START: tx={} ro={} name={}",
-                        status.hasTransaction(),
-                        status.isReadOnly(),
-                        status.getTransactionName());
+                    logger.info("updateIndexes START");
 
                     logger.info("Updating indexes for {} changed objects with missing references", incompletelyIndexedObjectIds.size());
 
