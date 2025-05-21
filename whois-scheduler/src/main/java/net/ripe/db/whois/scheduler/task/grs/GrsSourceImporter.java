@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,99 +101,143 @@ class GrsSourceImporter {
 
         @Override
         public void run() {
+            final Path dump = downloadDir.resolve(String.format("%s-DMP", grsSource.getName().toUpperCase()));
+            try {
+                grsSource.acquireDump(dump);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to acquire GRS dump", e);
+            }
+
+            final Path irrDump = downloadDir.resolve(String.format("%s-IRR-DMP", grsSource.getName().toUpperCase()));
+            try {
+                grsSource.acquireIrrDump(irrDump);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to acquire IRR dump", e);
+            }
+
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+
+            if (rebuild) {
+                grsSource.getDao().cleanDatabase();
+                currentObjectIds = Collections.emptySet();
+                logger.info("Rebuilding database");
+            } else {
+                currentObjectIds = Sets.newHashSet(grsSource.getDao().getCurrentObjectIds());
+                logger.info("Updating {} current objects in database", currentObjectIds.size());
+            }
+
+            logger.info("run: is transaction active? {}", TransactionSynchronizationManager.isActualTransactionActive());
+
+            try {
+                importObjects(dump.toFile());
+                importIrrObjects(irrDump.toFile());
+                deleteNotFoundInImport();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                logger.info("created {} / updated {} / deleted {} / ignored {} in {}", nrCreated, nrUpdated, nrDeleted, nrIgnored, stopwatch.stop());
+            }
+
+            updateIndexes();
+        }
+
+        private void importIrrObjects(final File irrDumpFile) throws IOException {
             grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(final TransactionStatus status) {
-                    logger.info("run: tx={} ro={} name={}",
+                    logger.info("importIrrObjects START: tx={} ro={} name={}",
                         status.hasTransaction(),
                         status.isReadOnly(),
                         status.getTransactionName());
 
-                    final Path dump = downloadDir.resolve(String.format("%s-DMP", grsSource.getName().toUpperCase()));
+                    if (!irrDumpFile.exists()) {
+                        return;
+                    }
                     try {
-                        grsSource.acquireDump(dump);
+                        grsSource.handleIrrObjects(irrDumpFile, new GrsSourceObjectHandler());
                     } catch (IOException e) {
-                        throw new RuntimeException("Unable to acquire GRS dump", e);
+                        throw new IllegalStateException(e);
                     }
-
-                    final Path irrDump = downloadDir.resolve(String.format("%s-IRR-DMP", grsSource.getName().toUpperCase()));
-                    try {
-                        grsSource.acquireIrrDump(irrDump);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Unable to acquire IRR dump", e);
-                    }
-
-                    final Stopwatch stopwatch = Stopwatch.createStarted();
-
-                    if (rebuild) {
-                        grsSource.getDao().cleanDatabase();
-                        currentObjectIds = Collections.emptySet();
-                        logger.info("Rebuilding database");
-                    } else {
-                        currentObjectIds = Sets.newHashSet(grsSource.getDao().getCurrentObjectIds());
-                        logger.info("Updating {} current objects in database", currentObjectIds.size());
-                    }
-
-                    try {
-                        importObjects(dump.toFile());
-                        importIrrObjects(irrDump.toFile());
-                        deleteNotFoundInImport();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    } finally {
-                        logger.info("created {} / updated {} / deleted {} / ignored {} in {}", nrCreated, nrUpdated, nrDeleted, nrIgnored, stopwatch.stop());
-                    }
-
-                    updateIndexes();
+                    logger.info("importIrrObjects END");
                 }
             });
         }
 
-        private void importIrrObjects(final File irrDumpFile) throws IOException {
-            if (!irrDumpFile.exists()) {
-                return;
-            }
-            grsSource.handleIrrObjects(irrDumpFile, new GrsSourceObjectHandler());
-        }
-
         private void importObjects(final File dumpFile) throws IOException {
-            grsSource.handleObjects(dumpFile, new GrsSourceObjectHandler());
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    logger.info("importObjects START: tx={} ro={} name={}",
+                        status.hasTransaction(),
+                        status.isReadOnly(),
+                        status.getTransactionName());
+                    try {
+                        grsSource.handleObjects(dumpFile, new GrsSourceObjectHandler());
+                    } catch (IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                    logger.info("importObjects END");
+                }
+            });
         }
 
         private void deleteNotFoundInImport() {
-            if (nrCreated == 0 && nrUpdated == 0) {
-                logger.info("Skipping deletion since there were no other updates");
-                return;
-            }
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    logger.info("deleteNotFoundInImport START: tx={} ro={} name={}",
+                        status.hasTransaction(),
+                        status.isReadOnly(),
+                        status.getTransactionName());
 
-            logger.info("Cleaning up {} currently unreferenced objects", currentObjectIds.size());
-            for (final Integer objectId : currentObjectIds) {
-                try {
-                    grsSource.getDao().deleteObject(objectId);
-                    nrDeleted++;
-                } catch (RuntimeException e) {
-                    logger.error("Deleting object with id: {}", objectId, e);
+                    if (nrCreated == 0 && nrUpdated == 0) {
+                        logger.info("Skipping deletion since there were no other updates");
+                        return;
+                    }
+
+                    logger.info("Cleaning up {} currently unreferenced objects", currentObjectIds.size());
+                    for (final Integer objectId : currentObjectIds) {
+                        try {
+                            grsSource.getDao().deleteObject(objectId);
+                            nrDeleted++;
+                        } catch (RuntimeException e) {
+                            logger.error("Deleting object with id: {}", objectId, e);
+                        }
+                    }
+                    logger.info("deleteNotFoundInImport END");
                 }
-            }
+            });
         }
 
         private void updateIndexes() {
-            logger.info("Updating indexes for {} changed objects with missing references", incompletelyIndexedObjectIds.size());
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    logger.info("updateIndexes START: tx={} ro={} name={}",
+                        status.hasTransaction(),
+                        status.isReadOnly(),
+                        status.getTransactionName());
 
-            int nrUpdated = 0;
+                    logger.info("Updating indexes for {} changed objects with missing references", incompletelyIndexedObjectIds.size());
 
-            for (final Integer objectId : incompletelyIndexedObjectIds) {
-                try {
-                    grsSource.getDao().updateIndexes(objectId);
-                } catch (RuntimeException e) {
-                    logger.error("Updating index for object with id: {}", objectId, e);
+                    int nrUpdated = 0;
+
+                    for (final Integer objectId : incompletelyIndexedObjectIds) {
+                        try {
+                            grsSource.getDao().updateIndexes(objectId);
+                        } catch (RuntimeException e) {
+                            logger.error("Updating index for object with id: {}", objectId, e);
+                        }
+
+                        nrUpdated++;
+                        if (nrUpdated % LOG_EVERY_NR_HANDLED == 0) {
+                            logger.info("Updated {} indexes", nrUpdated);
+                        }
+                    }
+
+                    logger.info("updateIndexes END");
                 }
-
-                nrUpdated++;
-                if (nrUpdated % LOG_EVERY_NR_HANDLED == 0) {
-                    logger.info("Updated {} indexes", nrUpdated);
-                }
-            }
+            });
         }
 
         private class GrsSourceObjectHandler implements ObjectHandler {
@@ -225,7 +270,8 @@ class GrsSourceImporter {
                     if (messages.hasErrors()) {
                         logger.info("Errors for object with key {}: {}", typeAttribute, messages);
                         nrIgnored++;
-                    } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {     // TODO: interaction with authoritative resource data (must update that first!)
+                    } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
+                        // TODO: interaction with authoritative resource data (must update that first!)
                         createOrUpdate(cleanObject);
                     }
                 }
