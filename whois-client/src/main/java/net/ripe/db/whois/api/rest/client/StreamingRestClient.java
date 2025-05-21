@@ -25,6 +25,8 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
         try {
             jaxbContext = JAXBContext.newInstance(WhoisResources.class);
             xmlInputFactory = XMLInputFactory.newFactory();
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }
