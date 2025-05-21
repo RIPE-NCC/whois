@@ -139,12 +139,12 @@ class GrsSourceImporter {
         }
 
         private void importIrrObjects(final File irrDumpFile) throws IOException {
+            if (!irrDumpFile.exists()) {
+                return;
+            }
             grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(final TransactionStatus status) {
-                    if (!irrDumpFile.exists()) {
-                        return;
-                    }
                     try {
                         grsSource.handleIrrObjects(irrDumpFile, new GrsSourceObjectHandler());
                     } catch (IOException e) {
@@ -169,14 +169,13 @@ class GrsSourceImporter {
         }
 
         private void deleteNotFoundInImport() {
+            if (nrCreated == 0 && nrUpdated == 0) {
+                logger.info("Skipping deletion since there were no other updates");
+                return;
+            }
             grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(final TransactionStatus status) {
-                    if (nrCreated == 0 && nrUpdated == 0) {
-                        logger.info("Skipping deletion since there were no other updates");
-                        return;
-                    }
-
                     logger.info("Cleaning up {} currently unreferenced objects", currentObjectIds.size());
                     for (final Integer objectId : currentObjectIds) {
                         try {
@@ -195,9 +194,7 @@ class GrsSourceImporter {
                 @Override
                 protected void doInTransactionWithoutResult(final TransactionStatus status) {
                     logger.info("Updating indexes for {} changed objects with missing references", incompletelyIndexedObjectIds.size());
-
                     int nrUpdated = 0;
-
                     for (final Integer objectId : incompletelyIndexedObjectIds) {
                         try {
                             grsSource.getDao().updateIndexes(objectId);
@@ -218,7 +215,6 @@ class GrsSourceImporter {
             @Override
             public void handle(final List<String> lines) {
                 final String rpslObjectString = LINE_JOINER.join(lines);
-
                 final RpslObject rpslObject;
                 try {
                     rpslObject = RpslObject.parse(rpslObjectString);
