@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -27,8 +26,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -70,8 +67,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         }
 
         this.jdbcTemplate = new JdbcTemplate(writeDataSource);
-        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);   // TODO: is this still necessary? Inject correct transaction manager
-        this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(writeDataSource));
         this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
 
@@ -117,18 +113,15 @@ public class DatabaseDummifierJmx extends JmxBase {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(final TransactionStatus status) {
-                JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id, object FROM " +
-                        table +
-                        " WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
-                    @Override
-                    public DatabaseObjectProcessor extractData(final ResultSet rs) throws SQLException, DataAccessException {
+                JdbcStreamingHelper.executeStreaming(jdbcTemplate,
+                    "SELECT object_id, sequence_id, object FROM " + table + " WHERE sequence_id > 0",
+                    (ResultSetExtractor<DatabaseObjectProcessor>) rs -> {
                         while (rs.next()) {
                             executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), rs.getBytes(3), table));
                             jobsAdded.incrementAndGet();
                         }
                         return null;
-                    }
-                });
+                    });
             }
         });
         LOGGER.info("Jobs size:{}", jobsAdded);
@@ -140,7 +133,8 @@ public class DatabaseDummifierJmx extends JmxBase {
             @Override
             protected void doInTransactionWithoutResult(final TransactionStatus status) {
                 executorService.submit(new Runnable() {
-                    @Override public void run() {
+                    @Override
+                    public void run() {
                         try {
                             jdbcTemplate.update("DELETE FROM auth WHERE auth LIKE 'SSO %' AND object_type=9");
                             jobsAdded.incrementAndGet();
@@ -180,16 +174,12 @@ public class DatabaseDummifierJmx extends JmxBase {
                             dummyObject = replaceAuthAttributes(dummyObject);
                         }
 
-                        jdbcTemplate.update("UPDATE " +
-                                table +
-                                " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
+                        jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
                     } catch (RuntimeException e) {
                         LOGGER.error(String.format("%s: %s,%d failed\n%s", table, objectId, sequenceId, new String(object)), e);
                     }
                     int count = jobsDone.incrementAndGet();
-                    if (count %
-                            100000 ==
-                            0) {
+                    if (count % 100000 == 0) {
                         LOGGER.info("Finished jobs: {}", count);
                     }
                 }

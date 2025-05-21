@@ -43,7 +43,7 @@ public class ResourceDataDao {
     @Autowired
     public ResourceDataDao(@Qualifier("internalsDataSource") final DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));   // TODO: is this still necessary? Inject correct transaction manager
+        this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
     }
 
     public AuthoritativeResource load(final String source) {
