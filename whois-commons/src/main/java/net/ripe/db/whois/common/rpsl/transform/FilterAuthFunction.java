@@ -4,9 +4,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -43,27 +45,37 @@ public class FilterAuthFunction implements FilterFunction {
     public static final String FILTERED_APPENDIX = " # Filtered";
 
     private List<String> passwords = null;
+    private OverrideCredential overrideCredential;
+    private boolean isTrusted;
     private OAuthSession oAuthSession;
     private UserSession  userSession;
     private RpslObjectDao rpslObjectDao = null;
     private AuthServiceClient authServiceClient;
     private List<X509CertificateWrapper> certificates;
     private ClientAuthCertificateValidator clientAuthCertificateValidator;
+    private OverrideCredentialValidator overrideCredentialValidator;
+
 
     public FilterAuthFunction(final List<String> passwords,
+                              final OverrideCredential overrideCredential,
                               final OAuthSession oAuthSession,
                               final UserSession userSession,
                               final AuthServiceClient authServiceClient,
                               final RpslObjectDao rpslObjectDao,
                               final List<X509CertificateWrapper> certificates,
-                              final ClientAuthCertificateValidator clientAuthCertificateValidator) {
+                              final ClientAuthCertificateValidator clientAuthCertificateValidator,
+                              final OverrideCredentialValidator overrideCredentialValidator,
+                              final boolean isTrusted) {
         this.userSession = userSession;
         this.passwords = passwords;
+        this.overrideCredential = overrideCredential;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
         this.oAuthSession = oAuthSession;
+        this.isTrusted = isTrusted;
+        this.overrideCredentialValidator = overrideCredentialValidator;
     }
 
     public FilterAuthFunction() {
@@ -72,12 +84,13 @@ public class FilterAuthFunction implements FilterFunction {
     @Override @Nonnull
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
+
         if (authAttributes.isEmpty()) {
             return rpslObject;
         }
 
         final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        final boolean authenticated = isMntnerAuthenticated(rpslObject);
+        final boolean authenticated = isOverrideAuthenticated(ObjectType.MNTNER) || isMntnerAuthenticated(rpslObject);
 
         for (final RpslAttribute authAttribute : authAttributes) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
@@ -102,6 +115,15 @@ public class FilterAuthFunction implements FilterFunction {
                 RpslObjectFilter.addFilteredSourceReplacement(rpslObject, replace);
             }
             return new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
+        }
+    }
+
+    private boolean isOverrideAuthenticated(final ObjectType objectType){
+        try {
+            return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
+                    userSession, overrideCredential, objectType);
+        } catch (Exception e){
+            return false;
         }
     }
 
@@ -158,7 +180,7 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean clientCertAuthentication(final List<RpslAttribute> authAttributes){
-        return clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
+        return clientAuthCertificateValidator != null && clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
     }
 
     private boolean passwordAuthentication(final List<RpslAttribute> authAttributes) {

@@ -41,14 +41,18 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
+import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_ANY_MNTNR_SCOPE;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_AZP_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_EMAIL_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_JTI_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_SCOPE_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_UUID_PARAM;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.getWhoisScope;
 
 @Component
 public class BearerTokenExtractor   {
@@ -56,6 +60,7 @@ public class BearerTokenExtractor   {
     private static final Logger LOGGER = LoggerFactory.getLogger(BearerTokenExtractor.class);
 
     private final boolean enabled;
+    private final boolean isScopeMandatory;
     private final URI tokenIntrospectEndpoint;
     private final ClientSecretBasic keycloakClient;
 
@@ -63,10 +68,12 @@ public class BearerTokenExtractor   {
 
     @Autowired
     public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
+                                @Value("${apikey.scope.mandatory:false}") final boolean isScopeMandatory,
                                 @Value("${openId.metadata.url:}")  final String openIdMetadataUrl,
                                 @Value("${keycloak.idp.password:}")  final String keycloakPassword,
                                 @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId) {
         this.enabled = enabled;
+        this.isScopeMandatory = isScopeMandatory;
         this.keycloakClient = new ClientSecretBasic(new ClientID(whoisKeycloakId), new Secret(keycloakPassword));
 
         final OIDCProviderMetadata oidcProviderMetadata = getOIDCMetadata(openIdMetadataUrl);
@@ -140,12 +147,13 @@ public class BearerTokenExtractor   {
                 oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience("API Key").toString());
             }
 
+            populateScope(claimSet.getStringClaim(OAUTH_CUSTOM_SCOPE_PARAM), oAuthSessionBuilder);
+
             return oAuthSessionBuilder.azp(claimSet.getStringClaim(OAUTH_CUSTOM_AZP_PARAM))
                     .email(claimSet.getStringClaim(OAUTH_CUSTOM_EMAIL_PARAM))
                     .aud(claimSet.getStringListClaim(JWTClaimNames.AUDIENCE))
                     .jti(claimSet.getStringClaim(OAUTH_CUSTOM_JTI_PARAM))
-                    .uuid(claimSet.getStringClaim(OAUTH_CUSTOM_UUID_PARAM))
-                    .scope(claimSet.getStringClaim(OAUTH_CUSTOM_SCOPE_PARAM)).build();
+                    .uuid(claimSet.getStringClaim(OAUTH_CUSTOM_UUID_PARAM)).build();
 
         } catch (BadJWSException e) {
             tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Token validation failed, %s", e.getMessage()));
@@ -176,6 +184,22 @@ public class BearerTokenExtractor   {
         return audiences.stream().anyMatch(appName -> appName.equalsIgnoreCase(keycloakClient.getClientID().getValue()));
     }
 
+    private void populateScope(final String scopes,  final OAuthSession.Builder oAuthSessionBuilder) {
+
+        final Optional<String> whoisScope = getWhoisScope(scopes);
+        if(whoisScope.isPresent() ) {
+            oAuthSessionBuilder.scope(whoisScope.get());
+            return;
+        }
+
+        if(isScopeMandatory) {
+            oAuthSessionBuilder.errorStatus("Whois scope can not be empty");
+            return;
+        }
+
+       oAuthSessionBuilder.scope(OAUTH_ANY_MNTNR_SCOPE);
+    }
+
     private OAuthSession callTokenInspectionEndpoint(final BearerAccessToken accessToken) {
         final OAuthSession.Builder oAuthSessionBuilder = new OAuthSession.Builder();
 
@@ -201,12 +225,13 @@ public class BearerTokenExtractor   {
                 oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience("Access Token").toString());
             }
 
+            populateScope(tokenDetails.getStringParameter(OAUTH_CUSTOM_SCOPE_PARAM), oAuthSessionBuilder);
+
             return oAuthSessionBuilder.azp(tokenDetails.getStringParameter(OAUTH_CUSTOM_AZP_PARAM))
                     .email(tokenDetails.getStringParameter(OAUTH_CUSTOM_EMAIL_PARAM))
                     .aud(Audience.toStringList(tokenDetails.getAudience()))
                     .jti(tokenDetails.getStringParameter(OAUTH_CUSTOM_JTI_PARAM))
-                    .uuid(tokenDetails.getStringParameter(OAUTH_CUSTOM_UUID_PARAM))
-                    .scope(tokenDetails.getStringParameter(OAUTH_CUSTOM_SCOPE_PARAM)).build();
+                    .uuid(tokenDetails.getStringParameter(OAUTH_CUSTOM_UUID_PARAM)).build();
 
         } catch (Exception e) {
             LOGGER.error("Failed to extract OAuth session", e);

@@ -47,6 +47,8 @@ public class ResponseFactory {
         velocityEngine.setProperty(RuntimeConstants.SPACE_GOBBLING, "bc");
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+        velocityEngine.setProperty("classpath.resource.loader.cache", "true");
+        velocityEngine.setProperty("classpath.resource.loader.modificationCheckInterval", "0");
         velocityEngine.init();
     }
 
