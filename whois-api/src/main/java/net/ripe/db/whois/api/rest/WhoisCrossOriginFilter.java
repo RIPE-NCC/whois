@@ -61,16 +61,12 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
         public String getQueryString() {
             if(!isCrossOrigin(origin)) return super.getQueryString();
 
-            final UriBuilder builder = UriBuilder.newInstance();
-            builder.replaceQuery(super.getQueryString());
-
-            builder.replaceQueryParam("password", null);
-            builder.replaceQueryParam("override", null);
-
-            return builder.build().getQuery();
+            return UriBuilder.newInstance()
+                    .replaceQuery(super.getQueryString())
+                    .replaceQueryParam("password", null)
+                    .replaceQueryParam("override", null)
+                    .build().getQuery();
         }
-
-
     }
 
     private static boolean isCrossOrigin(final String origin) {
