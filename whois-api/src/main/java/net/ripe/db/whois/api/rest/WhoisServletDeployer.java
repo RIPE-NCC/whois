@@ -19,6 +19,7 @@ import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.jaxb.internal.JaxbMessagingBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -148,9 +149,7 @@ public class WhoisServletDeployer implements ServletDeployer {
 
         resourceConfig.register(new JaxbMessagingBinder());
 
-        // only allow cross-origin requests from ripe.net
-        final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
-        crossOriginFilterHolder.setInitParameter(org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.db.ripe.net");
+       context.addFilter(WhoisCrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }
