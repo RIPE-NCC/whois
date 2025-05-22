@@ -19,7 +19,6 @@ import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.jaxb.internal.JaxbMessagingBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
