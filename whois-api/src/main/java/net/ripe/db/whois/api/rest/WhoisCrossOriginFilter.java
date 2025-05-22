@@ -19,8 +19,7 @@ import java.io.IOException;
 public class WhoisCrossOriginFilter extends CrossOriginFilter {
 
     @Override
-    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException
-    {
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
 
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
@@ -34,11 +33,11 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
             return;
         }
 
-        handle((HttpServletRequest) request, (HttpServletResponse)response);
-        super.doFilter(new CrossOriginRequestWrapper((HttpServletRequest) request), response, chain);
+        addCORSHeaders(httpRequest, (HttpServletResponse) response);
+        super.doFilter(new CrossOriginRequestWrapper(httpRequest), response, chain);
     }
 
-    private void handle(final HttpServletRequest request, final HttpServletResponse response) {
+    private void addCORSHeaders(final HttpServletRequest request, final HttpServletResponse response) {
 
         if ((request.getMethod().equals(HttpMethod.GET))
                 || request.getMethod().equals(HttpMethod.HEAD)
