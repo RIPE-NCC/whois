@@ -11,6 +11,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 @Component
 public class OverrideCredentialValidator {
@@ -63,11 +64,12 @@ public class OverrideCredentialValidator {
     @Nullable
     public User getValidOverrideUser(final String override) {
       try {
-          final OverrideCredential.OverrideValues overrideValues = OverrideCredential.parse(override).getOverrideValues().orElse(null);
-          final User overrideUser =  overrideValues != null ? userDao.getOverrideUser(overrideValues.getUsername()) : null;
+          final Optional<OverrideCredential.OverrideValues> overrideValues = OverrideCredential.parse(override).getOverrideValues();
+
+          final User overrideUser = overrideValues.map(values -> userDao.getOverrideUser(values.getUsername())).orElse(null);
           if (overrideUser == null) return null;
 
-          return overrideUser.isValidPassword(overrideValues.getPassword()) ? overrideUser : null;
+          return overrideUser.isValidPassword(overrideValues.get().getPassword()) ? overrideUser : null;
 
       } catch (Exception e) {
           return null;
