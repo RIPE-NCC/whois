@@ -11,12 +11,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +53,10 @@ public class GrsSourceImporterTest {
     @Mock GrsDao.UpdateResult updateResultUpdate;
     @Mock AuthoritativeResource authoritativeResource;
     @Mock SourceContext sourceContext;
+    @Mock PlatformTransactionManager transactionManager;
+    @Mock TransactionDefinition transactionDefinition;
+    @Mock TransactionStatus transactionStatus;
+    @InjectMocks TransactionTemplate transactionTemplate;
 
     Logger logger = LoggerFactory.getLogger(GrsSourceImporter.class);
 
@@ -55,6 +64,8 @@ public class GrsSourceImporterTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+
+
         lenient().when(grsSource.getDao()).thenReturn(grsDao);
         when(grsSource.getLogger()).thenReturn(logger);
         when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
@@ -68,6 +79,8 @@ public class GrsSourceImporterTest {
 
         lenient().when(grsDao.createObject(any(RpslObject.class))).thenReturn(updateResultCreate);
         lenient().when(grsDao.updateObject(any(GrsObjectInfo.class), any(RpslObject.class))).thenReturn(updateResultUpdate);
+        lenient().when(grsDao.transactionTemplate()).thenReturn(transactionTemplate);
+        lenient().when(transactionManager.getTransaction(any(TransactionDefinition.class))).thenReturn(transactionStatus);
 
         subject = new GrsSourceImporter(folder.getAbsolutePath(), sanitizer, sourceContext);
     }

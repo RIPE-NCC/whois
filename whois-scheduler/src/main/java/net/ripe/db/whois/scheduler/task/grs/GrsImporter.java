@@ -83,8 +83,9 @@ public class GrsImporter implements DailyScheduledTask {
         executorService.shutdownNow();
     }
 
+    // N.B. The GrsImporter job must run *after* the AuthoritativeResourceImportTask so we know which resources belong in the GRS mirror
     @Override
-    @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
+    @Scheduled(cron = "0 20 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "GrsImporter")
     public void run() {
         if (!grsImportEnabled) {

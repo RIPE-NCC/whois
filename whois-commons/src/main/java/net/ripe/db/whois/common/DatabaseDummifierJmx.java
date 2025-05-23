@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -23,12 +22,10 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -70,12 +67,9 @@ public class DatabaseDummifierJmx extends JmxBase {
         }
 
         this.jdbcTemplate = new JdbcTemplate(writeDataSource);
-        final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(writeDataSource);
-        this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(writeDataSource));
         this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-
     }
-
 
     @ManagedOperation(description = "Dummify")
     public String dummify() {
@@ -116,20 +110,18 @@ public class DatabaseDummifierJmx extends JmxBase {
 
     private void addWork(final String table,  final ExecutorService executorService) {
         LOGGER.info("Dummifying {}", table);
-        transactionTemplate.execute(new TransactionCallback<Object>() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            public Object doInTransaction(TransactionStatus status) {
-                JdbcStreamingHelper.executeStreaming(jdbcTemplate, "SELECT object_id, sequence_id, object FROM " + table + " WHERE sequence_id > 0", new ResultSetExtractor<DatabaseObjectProcessor>() {
-                    @Override
-                    public DatabaseObjectProcessor extractData(final ResultSet rs) throws SQLException, DataAccessException {
+            protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                JdbcStreamingHelper.executeStreaming(jdbcTemplate,
+                    "SELECT object_id, sequence_id, object FROM " + table + " WHERE sequence_id > 0",
+                    (ResultSetExtractor<DatabaseObjectProcessor>) rs -> {
                         while (rs.next()) {
                             executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getInt(2), rs.getBytes(3), table));
                             jobsAdded.incrementAndGet();
                         }
                         return null;
-                    }
-                });
-                return null;
+                    });
             }
         });
         LOGGER.info("Jobs size:{}", jobsAdded);
@@ -137,9 +129,9 @@ public class DatabaseDummifierJmx extends JmxBase {
 
     private void cleanUpAuthIndex(final ExecutorService executorService) {
         LOGGER.info("Removing index entries for SSO lines");
-        transactionTemplate.execute(new TransactionCallback<Object>() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            public Object doInTransaction(TransactionStatus status) {
+            protected void doInTransactionWithoutResult(final TransactionStatus status) {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
@@ -151,7 +143,6 @@ public class DatabaseDummifierJmx extends JmxBase {
                         }
                     }
                 });
-                return null;
             }
         });
         LOGGER.info("Jobs size:{}", jobsAdded);
@@ -172,9 +163,9 @@ public class DatabaseDummifierJmx extends JmxBase {
 
         @Override
         public void run() {
-            transactionTemplate.execute(new TransactionCallback<Object>() {
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
-                public Object doInTransaction(TransactionStatus status) {
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
                     try {
                         final RpslObject rpslObject = RpslObject.parse(object);
                         RpslObject dummyObject = dummifier.dummify(3, rpslObject);
@@ -191,7 +182,6 @@ public class DatabaseDummifierJmx extends JmxBase {
                     if (count % 100000 == 0) {
                         LOGGER.info("Finished jobs: {}", count);
                     }
-                    return null;
                 }
             });
         }
@@ -216,7 +206,7 @@ public class DatabaseDummifierJmx extends JmxBase {
         }
     }
 
-    private static String unsupportedEnvironment(String environment) {
+    private static String unsupportedEnvironment(final String environment) {
         return String.format("Invalid environment: %s, available environments are: %s",
                 environment,
                 String.join(", ", Arrays.stream(Environment.values())
