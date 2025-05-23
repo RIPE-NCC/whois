@@ -26,7 +26,7 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
         // GET request does not trigger a pre-flight request
         if(httpRequest.getMethod().equals(HttpMethod.GET)
                 && httpRequest.getPathInfo().contains("syncupdates")
-                && isCrossOrigin(httpRequest.getHeader(HttpHeaders.ORIGIN))) {
+                && isCrossOrigin(httpRequest)) {
 
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.sendError(HttpStatus.UNAUTHORIZED_401, "Not Authorized");
@@ -39,7 +39,11 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
 
     private void addCORSHeaders(final HttpServletRequest request, final HttpServletResponse response) {
 
-        if ((request.getMethod().equals(HttpMethod.GET))
+        if(!isCrossOrigin(request)) {
+            return;
+        }
+
+        if (request.getMethod().equals(HttpMethod.GET)
                 || request.getMethod().equals(HttpMethod.HEAD)
                 || request.getMethod().equals(HttpMethod.OPTIONS)) {
 
@@ -49,16 +53,13 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
 
     private static final class CrossOriginRequestWrapper extends HttpServletRequestWrapper {
 
-        private final String origin;
-
         private CrossOriginRequestWrapper(final HttpServletRequest request) {
             super(request);
-            origin = request.getHeader(HttpHeaders.ORIGIN);
         }
 
         @Override
         public String getQueryString() {
-            if(!isCrossOrigin(origin)) return super.getQueryString();
+            if(!isCrossOrigin( (HttpServletRequest) getRequest())) return super.getQueryString();
 
             return UriBuilder.newInstance()
                     .replaceQuery(super.getQueryString())
@@ -68,7 +69,7 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
         }
     }
 
-    private static boolean isCrossOrigin(final String origin) {
-        return StringUtils.isNotEmpty(origin);
+    private static boolean isCrossOrigin(final HttpServletRequest request) {
+        return StringUtils.isNotEmpty(request.getHeader(HttpHeaders.ORIGIN));
     }
 }
