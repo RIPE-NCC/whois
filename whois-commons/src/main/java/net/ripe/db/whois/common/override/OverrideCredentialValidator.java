@@ -10,6 +10,8 @@ import net.ripe.db.whois.common.sso.UserSession;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
+
 @Component
 public class OverrideCredentialValidator {
 
@@ -24,13 +26,12 @@ public class OverrideCredentialValidator {
     }
 
     public boolean isAllowedAndValid(final boolean isTrusted, final UserSession userSession,
-                                     final OverrideCredential overrideCredential,
+                                     final User overrideUser,
                                      final ObjectType objectType){
-        if (overrideCredential == null || overrideCredential.getOverrideValues().isEmpty()) {
+        if (overrideUser == null || overrideUser.getUsername() == null) {
             return false;
         }
-        final OverrideCredential.OverrideValues overrideValues = overrideCredential.getOverrideValues().get();
-        return isAllowedToUseOverride(isTrusted, userSession, overrideValues.getUsername()) && isValidOverride(overrideValues, objectType);
+        return isAllowedToUseOverride(isTrusted, userSession, overrideUser.getUsername().toString()) && overrideUser.getObjectTypes().contains(objectType);
     }
 
     public boolean isAllowedToUseOverride(final String remoteAddress, final UserSession userSession, final String overrideUsername){
@@ -56,5 +57,20 @@ public class OverrideCredentialValidator {
     public boolean isValidOverride(final OverrideCredential.OverrideValues overrideValues, final ObjectType objectType) throws EmptyResultDataAccessException {
         final User user = userDao.getOverrideUser(overrideValues.getUsername());
         return user.isValidPassword(overrideValues.getPassword()) && user.getObjectTypes().contains(objectType);
+    }
+
+
+    @Nullable
+    public User getValidOverrideUser(final String override) {
+      try {
+          final OverrideCredential.OverrideValues overrideValues = OverrideCredential.parse(override).getOverrideValues().orElse(null);
+          final User overrideUser =  overrideValues != null ? userDao.getOverrideUser(overrideValues.getUsername()) : null;
+          if (overrideUser == null) return null;
+
+          return overrideUser.isValidPassword(overrideValues.getPassword()) ? overrideUser : null;
+
+      } catch (Exception e) {
+          return null;
+      }
     }
 }
