@@ -280,7 +280,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .queryParam("unfiltered", "")
                 .queryParam("override", encode("mherran,zoh,reason {notify=false}"))
                 .request(MediaType.APPLICATION_XML)
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stats.ripe.net")
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stat.ripe.net")
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get(WhoisResources.class);
 
