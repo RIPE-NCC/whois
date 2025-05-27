@@ -132,7 +132,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stat.ripe.net")
                 .get(Response.class);
 
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://stat.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://example.com")
                 .get(Response.class);
 
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://example.com"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
     }
 
     @Test
@@ -155,7 +155,6 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
 
         assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
         assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-
     }
 
     @Test
@@ -180,8 +179,8 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("false"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
 
         // actual request is still allowed (it's the browsers responsibility to honor the restriction)
         assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));

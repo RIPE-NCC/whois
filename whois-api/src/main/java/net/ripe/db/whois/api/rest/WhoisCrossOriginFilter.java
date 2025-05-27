@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.HttpHeaders;
+import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -16,11 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Arrays;
 
 @Component
-public class WhoisCrossOriginFilter extends CrossOriginFilter {
+public class WhoisCrossOriginFilter implements Filter {
 
     final protected String[] allowedHostsforCrossOrigin;
 
@@ -34,7 +36,7 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         addCORSHeaders(httpRequest, (HttpServletResponse) response);
-        super.doFilter(new CrossOriginRequestWrapper(httpRequest, allowedHostsforCrossOrigin), response, chain);
+        chain.doFilter(new CrossOriginRequestWrapper(httpRequest, allowedHostsforCrossOrigin), response);
     }
 
     private void addCORSHeaders(final HttpServletRequest request, final HttpServletResponse response) {
@@ -45,11 +47,16 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
         final String accessControlAllowOrigin = getAccessControlAllowOriginHeader(request);
         if(accessControlAllowOrigin != null) response.setHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, accessControlAllowOrigin);
 
-        final Boolean shouldAddCredentialHeader = isHostsAllowedForCrossOrigin(request, allowedHostsforCrossOrigin) && !"*".equals(accessControlAllowOrigin);
-        response.setHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, shouldAddCredentialHeader.toString());
+        final boolean shouldAddCredentialHeader = isHostsAllowedForCrossOrigin(request, allowedHostsforCrossOrigin);
+        if(shouldAddCredentialHeader) response.setHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
     }
 
+    @Nullable
     private String getAccessControlAllowOriginHeader(final HttpServletRequest request) {
+       if(isHostsAllowedForCrossOrigin(request, allowedHostsforCrossOrigin)) {
+           return getHttpOrigin(request);
+       }
+
         if (request.getMethod().equals(HttpMethod.GET)
                 || request.getMethod().equals(HttpMethod.HEAD)
                 || request.getMethod().equals(HttpMethod.OPTIONS)) {
@@ -57,7 +64,7 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
             return "*";
         }
 
-        return isHostsAllowedForCrossOrigin(request, allowedHostsforCrossOrigin) ? request.getHeader(HttpHeaders.ORIGIN) : null;
+        return null;
     }
 
     private static final class CrossOriginRequestWrapper extends HttpServletRequestWrapper {
@@ -82,12 +89,16 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
     }
 
     private static boolean isOriginHeaderPresent(final HttpServletRequest request) {
-        return StringUtils.isNotEmpty(request.getHeader(HttpHeaders.ORIGIN));
+        return StringUtils.isNotEmpty(getHttpOrigin(request));
+    }
+
+    private static String getHttpOrigin(HttpServletRequest request) {
+        return request.getHeader(HttpHeaders.ORIGIN);
     }
 
     private static boolean isHostsAllowedForCrossOrigin(final HttpServletRequest request, final String[] allowedHostsforCrossOrigin) {
         if(!isOriginHeaderPresent(request)) return true;
 
-        return Arrays.stream(allowedHostsforCrossOrigin).anyMatch( host -> host.equalsIgnoreCase(request.getHeader(HttpHeaders.ORIGIN)));
+        return Arrays.stream(allowedHostsforCrossOrigin).anyMatch( host -> host.equalsIgnoreCase(getHttpOrigin(request)));
     }
 }
