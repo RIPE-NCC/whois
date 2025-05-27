@@ -104,7 +104,7 @@
         <tink.version>1.13.0</tink.version>
 
         <validation.version>3.0.2</validation.version>
-        <velocity.version>2.3</velocity.version>
+        <velocity.version>2.4.1</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
     </properties>
