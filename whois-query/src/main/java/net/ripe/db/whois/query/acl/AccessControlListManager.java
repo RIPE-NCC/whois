@@ -1,6 +1,5 @@
 package net.ripe.db.whois.query.acl;
 
-import io.netty.util.internal.StringUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectSlaveDao;
@@ -19,6 +18,7 @@ import net.ripe.db.whois.query.dao.IpAccessControlListDao;
 import net.ripe.db.whois.query.dao.SSOAccessControlListDao;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +76,7 @@ public class AccessControlListManager {
         if (!ObjectType.PERSON.equals(objectType) && (!ObjectType.ROLE.equals(objectType) || !rpslObject.findAttributes(AttributeType.ABUSE_MAILBOX).isEmpty())){
             return false;
         }
-        return StringUtil.isNullOrEmpty(uuid) || !isUserOwnedObject(rpslObject, uuid);
+        return StringUtils.isEmpty(uuid) || !isUserOwnedObject(rpslObject, uuid);
     }
 
     public void checkBlocked(final AccountingIdentifier accountingIdentifier) {

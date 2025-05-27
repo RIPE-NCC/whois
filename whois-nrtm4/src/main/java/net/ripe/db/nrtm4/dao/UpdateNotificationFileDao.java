@@ -2,8 +2,8 @@ package net.ripe.db.nrtm4.dao;
 
 import net.ripe.db.nrtm4.domain.NotificationFile;
 import net.ripe.db.nrtm4.domain.NrtmSource;
-import org.mariadb.jdbc.internal.logging.Logger;
-import org.mariadb.jdbc.internal.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;

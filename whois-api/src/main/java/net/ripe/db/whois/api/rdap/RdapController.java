@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rdap;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
-import io.netty.util.internal.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -261,7 +260,7 @@ public class RdapController {
         //TODO: [MH] Status is being ignored until administrative resources are included in RDAP. If status is not
         // given or status is inactive...include administrative resources in the output. However, if status is active
         // return just non administrative resources, as we are doing now.
-        if (StringUtil.isNullOrEmpty(status)){
+        if (StringUtils.isEmpty(status)){
             return;
         }
 

@@ -1,6 +1,6 @@
 package net.ripe.db.nrtm4.client.dao;
 
-import io.netty.util.internal.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 
@@ -21,7 +21,7 @@ public enum NrtmClientDocumentType {
 
     @Nullable
     public static NrtmClientDocumentType fromValue(String value) {
-        if (StringUtil.isNullOrEmpty(value)){
+        if (StringUtils.isEmpty(value)){
             return null;
         }
 
