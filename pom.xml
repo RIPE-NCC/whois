@@ -92,7 +92,7 @@
         <persistence.version>1.0.2</persistence.version>
         <proprot.version>1.0</proprot.version>
 
-        <sentry.version>6.26.0</sentry.version>
+        <sentry.version>8.13.2</sentry.version>
         <shedlock.version>5.16.0</shedlock.version>
         <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
