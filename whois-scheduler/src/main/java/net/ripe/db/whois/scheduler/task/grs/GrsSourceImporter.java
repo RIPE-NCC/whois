@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,11 +142,30 @@ class GrsSourceImporter {
             if (!irrDumpFile.exists()) {
                 return;
             }
-            grsSource.handleIrrObjects(irrDumpFile, new GrsSourceObjectHandler());
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    try {
+                        grsSource.handleIrrObjects(irrDumpFile, new GrsSourceObjectHandler());
+                    } catch (IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            });
         }
 
         private void importObjects(final File dumpFile) throws IOException {
-            grsSource.handleObjects(dumpFile, new GrsSourceObjectHandler());
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    try {
+                        grsSource.handleObjects(dumpFile, new GrsSourceObjectHandler());
+                    } catch (IOException e) {
+                        logger.error(e.getClass().getName(), e);
+                        throw new IllegalStateException(e);
+                    }
+                }
+            });
         }
 
         private void deleteNotFoundInImport() {
@@ -153,42 +173,48 @@ class GrsSourceImporter {
                 logger.info("Skipping deletion since there were no other updates");
                 return;
             }
-
-            logger.info("Cleaning up {} currently unreferenced objects", currentObjectIds.size());
-            for (final Integer objectId : currentObjectIds) {
-                try {
-                    grsSource.getDao().deleteObject(objectId);
-                    nrDeleted++;
-                } catch (RuntimeException e) {
-                    logger.error("Deleting object with id: {}", objectId, e);
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    logger.info("Cleaning up {} currently unreferenced objects", currentObjectIds.size());
+                    for (final Integer objectId : currentObjectIds) {
+                        try {
+                            grsSource.getDao().deleteObject(objectId);
+                            nrDeleted++;
+                        } catch (RuntimeException e) {
+                            logger.error("Deleting object with id: {}", objectId, e);
+                        }
+                    }
                 }
-            }
+            });
         }
 
         private void updateIndexes() {
-            logger.info("Updating indexes for {} changed objects with missing references", incompletelyIndexedObjectIds.size());
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    logger.info("Updating indexes for {} changed objects with missing references", incompletelyIndexedObjectIds.size());
+                    int nrUpdated = 0;
+                    for (final Integer objectId : incompletelyIndexedObjectIds) {
+                        try {
+                            grsSource.getDao().updateIndexes(objectId);
+                        } catch (RuntimeException e) {
+                            logger.error("Updating index for object with id: {}", objectId, e);
+                        }
 
-            int nrUpdated = 0;
-
-            for (final Integer objectId : incompletelyIndexedObjectIds) {
-                try {
-                    grsSource.getDao().updateIndexes(objectId);
-                } catch (RuntimeException e) {
-                    logger.error("Updating index for object with id: {}", objectId, e);
+                        nrUpdated++;
+                        if (nrUpdated % LOG_EVERY_NR_HANDLED == 0) {
+                            logger.info("Updated {} indexes", nrUpdated);
+                        }
+                    }
                 }
-
-                nrUpdated++;
-                if (nrUpdated % LOG_EVERY_NR_HANDLED == 0) {
-                    logger.info("Updated {} indexes", nrUpdated);
-                }
-            }
+            });
         }
 
         private class GrsSourceObjectHandler implements ObjectHandler {
             @Override
             public void handle(final List<String> lines) {
                 final String rpslObjectString = LINE_JOINER.join(lines);
-
                 final RpslObject rpslObject;
                 try {
                     rpslObject = RpslObject.parse(rpslObjectString);
@@ -244,7 +270,6 @@ class GrsSourceImporter {
                 return builder.get();
             }
 
-            @Transactional
             private void createOrUpdate(final RpslObject importedObject) {
                 final String pkey = importedObject.getKey().toString();
                 final ObjectType type = importedObject.getType();
