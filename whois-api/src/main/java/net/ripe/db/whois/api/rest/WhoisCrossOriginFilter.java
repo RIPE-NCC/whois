@@ -13,16 +13,21 @@ import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.UriBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 
 @Component
 public class WhoisCrossOriginFilter implements Filter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisCrossOriginFilter.class);
 
     final protected String[] allowedHostsforCrossOrigin;
 
@@ -99,6 +104,12 @@ public class WhoisCrossOriginFilter implements Filter {
     private static boolean isHostsAllowedForCrossOrigin(final HttpServletRequest request, final String[] allowedHostsforCrossOrigin) {
         if(!isOriginHeaderPresent(request)) return true;
 
-        return Arrays.stream(allowedHostsforCrossOrigin).anyMatch( host -> host.equalsIgnoreCase(getHttpOrigin(request)));
+        try {
+            final URI uri = new URI(getHttpOrigin(request));
+            return Arrays.stream(allowedHostsforCrossOrigin).anyMatch( host -> host.equalsIgnoreCase(uri.getHost()));
+        } catch (Exception e) {
+            LOGGER.debug("Failed to parse origin header", e);
+            return false;
+        }
     }
 }
