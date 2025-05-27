@@ -14,7 +14,8 @@ import net.ripe.db.whois.common.source.SourceContext;
 import org.slf4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.CheckForNull;
 import java.sql.ResultSet;
@@ -39,6 +40,8 @@ class GrsDao {
     private JdbcTemplate masterJdbcTemplate;
     private JdbcTemplate slaveJdbcTemplate;
 
+    private TransactionTemplate transactionTemplate;
+
     GrsDao(final Logger logger, final DateTimeProvider dateTimeProvider, final CIString sourceName, final SourceContext sourceContext) {
         this.logger = logger;
         this.dateTimeProvider = dateTimeProvider;
@@ -54,7 +57,13 @@ class GrsDao {
             JdbcRpslObjectOperations.sanityCheck(slaveJdbcTemplate);
             this.masterJdbcTemplate = masterJdbcTemplate;
             this.slaveJdbcTemplate = slaveJdbcTemplate;
+            this.transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(masterJdbcTemplate.getDataSource()));
         }
+    }
+
+    TransactionTemplate transactionTemplate() {
+        ensureInitialized();
+        return transactionTemplate;
     }
 
     void cleanDatabase() {
@@ -136,7 +145,6 @@ class GrsDao {
         return new UpdateResult(rpslObjectInfo, missingReferences);
     }
 
-    @Transactional
     Set<CIString> updateIndexes(final int objectId) {
         ensureInitialized();
         final GrsObjectInfo grsObjectInfo = get(objectId);
