@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.HttpHeaders;
+import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -11,55 +12,78 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.UriBuilder;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Arrays;
 
-public class WhoisCrossOriginFilter extends CrossOriginFilter {
+@Component
+public class WhoisCrossOriginFilter implements Filter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisCrossOriginFilter.class);
+
+    final protected String[] allowedHostsforCrossOrigin;
+
+    @Autowired
+    public WhoisCrossOriginFilter(@Value("${whois.allow.cross.origin.hosts}") final String[] allowedHostsforCrossOrigin) {
+        this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
+    }
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
-
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-        // GET request does not trigger a pre-flight request
-        if(httpRequest.getMethod().equals(HttpMethod.GET)
-                && httpRequest.getPathInfo().contains("syncupdates")
-                && isCrossOrigin(httpRequest)) {
-
-            final HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.sendError(HttpStatus.UNAUTHORIZED_401, "Not Authorized");
-            return;
-        }
-
         addCORSHeaders(httpRequest, (HttpServletResponse) response);
-        super.doFilter(new CrossOriginRequestWrapper(httpRequest), response, chain);
+        chain.doFilter(new CrossOriginRequestWrapper(httpRequest, allowedHostsforCrossOrigin), response);
     }
 
     private void addCORSHeaders(final HttpServletRequest request, final HttpServletResponse response) {
-
-        if(!isCrossOrigin(request)) {
+        if(!isOriginHeaderPresent(request)) {
             return;
         }
+
+        final String accessControlAllowOrigin = getAccessControlAllowOriginHeader(request);
+        if(accessControlAllowOrigin != null) response.setHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, accessControlAllowOrigin);
+
+        final boolean shouldAddCredentialHeader = isHostsAllowedForCrossOrigin(request, allowedHostsforCrossOrigin);
+        if(shouldAddCredentialHeader) response.setHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
+    }
+
+    @Nullable
+    private String getAccessControlAllowOriginHeader(final HttpServletRequest request) {
+       if(isHostsAllowedForCrossOrigin(request, allowedHostsforCrossOrigin)) {
+           return getHttpOrigin(request);
+       }
 
         if (request.getMethod().equals(HttpMethod.GET)
                 || request.getMethod().equals(HttpMethod.HEAD)
                 || request.getMethod().equals(HttpMethod.OPTIONS)) {
 
-            response.setHeader(CrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, "*");
+            return "*";
         }
+
+        return null;
     }
 
     private static final class CrossOriginRequestWrapper extends HttpServletRequestWrapper {
 
-        private CrossOriginRequestWrapper(final HttpServletRequest request) {
+        private final String[] allowedHostsforCrossOrigin;
+
+        private CrossOriginRequestWrapper(final HttpServletRequest request, final String[] allowedHostsforCrossOrigin) {
             super(request);
+            this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
         }
 
         @Override
         public String getQueryString() {
-            if(!isCrossOrigin( (HttpServletRequest) getRequest())) return super.getQueryString();
+            if(isHostsAllowedForCrossOrigin((HttpServletRequest) getRequest(), allowedHostsforCrossOrigin)) return super.getQueryString();
 
             return UriBuilder.newInstance()
                     .replaceQuery(super.getQueryString())
@@ -69,7 +93,23 @@ public class WhoisCrossOriginFilter extends CrossOriginFilter {
         }
     }
 
-    private static boolean isCrossOrigin(final HttpServletRequest request) {
-        return StringUtils.isNotEmpty(request.getHeader(HttpHeaders.ORIGIN));
+    private static boolean isOriginHeaderPresent(final HttpServletRequest request) {
+        return StringUtils.isNotEmpty(getHttpOrigin(request));
+    }
+
+    private static String getHttpOrigin(HttpServletRequest request) {
+        return request.getHeader(HttpHeaders.ORIGIN);
+    }
+
+    private static boolean isHostsAllowedForCrossOrigin(final HttpServletRequest request, final String[] allowedHostsforCrossOrigin) {
+        if(!isOriginHeaderPresent(request)) return true;
+
+        try {
+            final URI uri = new URI(getHttpOrigin(request));
+            return Arrays.stream(allowedHostsforCrossOrigin).anyMatch( host -> host.equalsIgnoreCase(uri.getHost()));
+        } catch (Exception e) {
+            LOGGER.debug("Failed to parse origin header", e);
+            return false;
+        }
     }
 }
