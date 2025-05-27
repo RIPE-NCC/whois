@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@Component
+@Component("dummifierNrtmV4")
 public class DummifierNrtmV4 extends DummifierNrtm {
 
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
@@ -21,11 +21,18 @@ public class DummifierNrtmV4 extends DummifierNrtm {
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.REMARKS, "Dummified");
     }
 
+    private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();
+
     public RpslObject dummify(final RpslObject rpslObject) {
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
         dummifyAttributes(attributes, rpslObject.getKey());
 
         return dummify(4, new RpslObject(rpslObject, attributes));
+    }
+
+    public boolean shouldCreatePlaceHolder(final RpslObject rpslObject) {
+        final ObjectType objectType = rpslObject.getType();
+        return writtenPlaceHolders.add(objectType) && (objectType.equals(ObjectType.ROLE) || objectType.equals(ObjectType.PERSON));
     }
 
     public boolean isAllowed(final RpslObject rpslObject) {

@@ -5,12 +5,14 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.executor.decorators.DummifyDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
@@ -60,6 +62,10 @@ public class RpslResponseDecoratorTest {
     @Mock FilterPlaceholdersDecorator filterPlaceholdersDecorator;
     @Mock SsoTokenTranslator ssoTokenTranslator;
     @Mock AuthServiceClient authServiceClient;
+    @Mock
+    ClientAuthCertificateValidator clientAuthCertificateValidator;
+    @Mock
+    OverrideCredentialValidator overrideCredentialValidator;
     @InjectMocks AbuseCInfoDecorator abuseCInfoDecorator;
 
     private RpslResponseDecorator subject;
@@ -79,8 +85,9 @@ public class RpslResponseDecoratorTest {
                 abuseCFinder,
                 filterPlaceholdersDecorator,
                 abuseCInfoDecorator,
-                ssoTokenTranslator,
                 authServiceClient,
+                clientAuthCertificateValidator,
+                overrideCredentialValidator,
                 decorator);
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);

@@ -5,7 +5,8 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 import javax.net.ssl.KeyManager;
@@ -45,7 +46,12 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
 
     @BeforeAll
     public static void enableClientAuth() {
-        System.setProperty("client.cert.auth.enabled", "true");
+        System.setProperty("port.client.auth", "0");
+    }
+
+    @AfterAll
+    public static void disableClientAuth() {
+        System.clearProperty("port.client.auth");
     }
 
     public SSLContext getClientSSLContext() {
@@ -112,4 +118,7 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
         return builder.get();
     }
 
+    public int getClientCertificatePort() {
+        return jettyBootstrap.getClientAuthPort();
+    }
 }

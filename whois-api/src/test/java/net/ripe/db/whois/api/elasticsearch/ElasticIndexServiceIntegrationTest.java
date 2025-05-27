@@ -28,7 +28,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
         assertThat(whoisDocCount, is(0L));
-        elasticIndexService.addEntry(RPSL_MNT_PERSON);
+        elasticIndexService.createOrUpdateEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // one document after adding
@@ -45,7 +45,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
         long whoisDocCount = elasticIndexService.getWhoisDocCount();
         // No document in index
         assertThat(whoisDocCount, is(0L));
-        elasticIndexService.addEntry(RPSL_MNT_PERSON);
+        elasticIndexService.createOrUpdateEntry(RPSL_MNT_PERSON);
         Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
         whoisDocCount = elasticIndexService.getWhoisDocCount();
         // one document after adding
@@ -78,7 +78,7 @@ public class ElasticIndexServiceIntegrationTest extends AbstractElasticSearchInt
 
     @Test
     public void should_not_throw_error_invalid_objectType_history() throws IOException {
-        elasticIndexService.addEntry(RPSL_MNT_PERSON);
+        elasticIndexService.createOrUpdateEntry(RPSL_MNT_PERSON);
         ElasticIndexMetadata elasticIndexMetadata = new ElasticIndexMetadata(1, "TEST");
         elasticIndexService.updateMetadata(elasticIndexMetadata);
 

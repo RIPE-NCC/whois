@@ -28,7 +28,7 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.SsoHelper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,6 +173,8 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "whois.db", "WHOIS", "whois_schema.sql", "whois_data.sql");
         setupDatabase(jdbcTemplate, "internals.database", "INTERNALS", "internals_schema.sql", "internals_data.sql");
         setupDatabase(jdbcTemplate, "nrtm.database", "NRTM", "nrtm_schema.sql", "nrtm_data.sql");
+        setupDatabase(jdbcTemplate, "nrtm.client.info.database", "NRTM_CLIENT", "nrtm_client_schema.sql", "nrtm_client_data.sql");
+        setupDatabase(jdbcTemplate, "nrtm.client.database", "NRTM_UPDATE", "whois_schema.sql", "whois_data.sql");
 
         final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
@@ -187,6 +189,12 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         final String nrtmSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM", DB_HOST, dbBaseName);
         System.setProperty("nrtm.slave.database.url", nrtmSlaveUrl);
+
+        final String nrtmClientInfoSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_CLIENT", DB_HOST, dbBaseName);
+        System.setProperty("nrtm.client.info.slave.database.url", nrtmClientInfoSlaveUrl);
+
+        final String nrtmClientSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_UPDATE", DB_HOST, dbBaseName);
+        System.setProperty("nrtm.client.slave.database.url", nrtmClientSlaveUrl);
 
         final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s", DB_HOST, dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
@@ -226,7 +234,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     static void setupDatabase(final JdbcTemplate jdbcTemplate, final String propertyBase, final String name, final String... sql) {
         final String dbName = dbBaseName + "_" + name;
-        jdbcTemplate.execute("CREATE DATABASE " + dbName + " CHARACTER SET latin1 COLLATE latin1_swedish_ci");
+        jdbcTemplate.execute("CREATE DATABASE " + dbName + " CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
@@ -446,7 +454,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         return rpslObjectDao.getByKey(type, pkey);
     }
 
-    public void unban(final String prefix) {
+    public void unbanIp(final String prefix) {
         aclTemplate.update("INSERT INTO acl_event (prefix, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
                 prefix,
                 new Date(),
@@ -456,14 +464,38 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         aclTemplate.update("DELETE FROM acl_denied WHERE prefix = ?", prefix);
     }
 
+    public void unbanSSOId(final String ssoId) {
+        aclTemplate.update("INSERT INTO acl_sso_event (sso_id, event_time, daily_limit, event_type) VALUES (?, ?, ?, ?)",
+                ssoId,
+                new Date(),
+                0,
+                BlockEvent.Type.UNBLOCK.name());
+
+        aclTemplate.update("DELETE FROM acl_sso_denied WHERE sso_id = ?", ssoId);
+    }
+
     public void insertAclIpDenied(final String prefix) {
         aclTemplate.update(
                 "INSERT INTO acl_denied (prefix, comment, denied_date) VALUES (?, ?, ?)",
                 prefix, "comment", new Date());
     }
 
+    public void insertAclSSODenied(final String ssoId) {
+        aclTemplate.update(
+                "INSERT INTO acl_sso_denied (sso_id, comment, denied_date) VALUES (?, ?, ?)",
+                ssoId, "comment", new Date());
+    }
+
     public void clearAclLimits() {
         aclTemplate.update("DELETE FROM acl_limit");
+    }
+
+    public void clearAclTables() {
+        aclTemplate.update("DELETE FROM acl_denied");
+        aclTemplate.update("DELETE FROM acl_event");
+        aclTemplate.update("DELETE FROM acl_sso_denied");
+        aclTemplate.update("DELETE FROM acl_sso_event");
+        clearAclLimits();
     }
 
     public void insertAclIpLimit(final String prefix, final int limit, final boolean unlimitedConnections) {

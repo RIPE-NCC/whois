@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -18,11 +19,10 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,7 +92,7 @@ public class ElasticIndexService {
         return true;
     }
 
-    protected void addEntry(final RpslObject rpslObject) throws IOException {
+    protected void createOrUpdateEntry(final RpslObject rpslObject) throws IOException {
         if (!isElasticRunning()) {
             return;
         }
@@ -131,14 +131,26 @@ public class ElasticIndexService {
         client.deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
+    protected void refreshIndex(){
+        try {
+            client.indices().refresh(new RefreshRequest(whoisAliasIndex), RequestOptions.DEFAULT);
+        } catch (IOException ex){
+            LOGGER.error("Failed to refresh ES index {}: {}", whoisAliasIndex, ex);
+        }
+    }
+
     protected long getWhoisDocCount() throws IOException {
+        return getWhoisDocCount(whoisAliasIndex);
+    }
+
+    public long getWhoisDocCount(final String indexName) throws IOException {
         if (!isElasticRunning()) {
             throw new IllegalStateException("ES is not running");
         }
 
-        final CountRequest countRequest = new CountRequest(whoisAliasIndex);
-        final SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        searchSourceBuilder.query(QueryBuilders.matchAllQuery());
+        final CountRequest countRequest = new CountRequest(indexName);
+        countRequest.query(QueryBuilders.matchAllQuery());
+
         final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
         return countResponse.getCount();
     }
@@ -159,12 +171,20 @@ public class ElasticIndexService {
             documentFields.getSource().get(SOURCE).toString());
     }
 
-    protected void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
+    public void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
+        updateMetadata(metadata, metadataIndex);
+    }
+
+    public String getMetadataIndex() {
+        return metadataIndex;
+    }
+
+    public void updateMetadata(final ElasticIndexMetadata metadata, final String metadatIndexName) throws IOException {
         if (!isElasticRunning()) {
-          return;
+            return;
         }
 
-        final UpdateRequest updateRequest = new UpdateRequest(metadataIndex, SERIAL_DOC_ID);
+        final UpdateRequest updateRequest = new UpdateRequest(metadatIndexName, SERIAL_DOC_ID);
 
         final XContentBuilder builder = XContentFactory.jsonBuilder()
                 .startObject()
@@ -204,7 +224,7 @@ public class ElasticIndexService {
         }
     }
 
-    private XContentBuilder json(final RpslObject rpslObject) throws IOException {
+    public XContentBuilder json(final RpslObject rpslObject) throws IOException {
         final XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
 
         final RpslObject filterRpslObject = filterRpslObject(rpslObject);

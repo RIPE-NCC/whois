@@ -2,9 +2,13 @@ package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.collect.Iterables;
 import net.ripe.db.whois.common.domain.CIString;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -12,6 +16,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -796,6 +801,30 @@ public class RpslObjectTest {
                 "mnt-by:         DEV-MNT1\n" +
                 "source:         TEST\n" +
                 "+\n"));
+    }
+
+    @Test
+    public void rpslobject_is_serialisable() throws Exception {
+        final RpslObject subject = RpslObject.parse("" +
+                "mntner: DEV-MNT\n" +
+                "mnt-by:   DEV-MNT1\n" +
+                "source: TEST\n" +
+                " \n");
+
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        try (final ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+            objectOutputStream.writeObject(subject);
+        }
+
+        assertThat(byteArrayOutputStream.size(), is(greaterThan(0)));
+
+        final RpslObject deserialisedSubject;
+        try (final ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()))) {
+            deserialisedSubject = (RpslObject)objectInputStream.readObject();
+        }
+
+        assertThat(deserialisedSubject, is(subject));
     }
 
     // helper methods

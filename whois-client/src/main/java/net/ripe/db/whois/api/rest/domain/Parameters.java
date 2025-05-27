@@ -57,6 +57,9 @@ public class Parameters {
     @XmlTransient
     private Boolean unformatted;
 
+    @XmlTransient
+    private Boolean roaCheck;
+
     public Parameters(
             final InverseAttributes inverseAttributes,
             final String client,
@@ -70,7 +73,8 @@ public class Parameters {
             final Boolean abuseContact,
             final Integer limit,
             final Integer offset,
-            final Boolean unformatted) {
+            final Boolean unformatted,
+            final Boolean roaCheck) {
         this.inverseAttributes = inverseAttributes;
         this.typeFilters = typeFilters;
         this.flags = flags;
@@ -84,6 +88,7 @@ public class Parameters {
         this.offset = offset;
         this.unformatted = unformatted;
         this.client = client;
+        this.roaCheck = roaCheck;
     }
 
     public Parameters() {
@@ -140,6 +145,10 @@ public class Parameters {
 
     public String getClient() { return client; }
 
+    public Boolean getRoaCheck() {
+        return roaCheck;
+    }
+
     public static class Builder {
 
         private InverseAttributes inverseAttributes;
@@ -155,6 +164,7 @@ public class Parameters {
         private Integer limit;
         private Integer offset;
         private Boolean unformatted;
+        private Boolean roaCheck;
 
         public Builder inverseAttributes(final InverseAttributes inverseAttributes) {
             this.inverseAttributes = inverseAttributes;
@@ -221,6 +231,11 @@ public class Parameters {
             return this;
         }
 
+        public Builder roaCheck(final Boolean roaCheck) {
+            this.roaCheck = roaCheck;
+            return this;
+        }
+
         public Parameters build() {
             return new Parameters(
                     inverseAttributes,
@@ -235,7 +250,8 @@ public class Parameters {
                     abuseContact,
                     limit,
                     offset,
-                    unformatted);
+                    unformatted,
+                    roaCheck);
         }
     }
 }

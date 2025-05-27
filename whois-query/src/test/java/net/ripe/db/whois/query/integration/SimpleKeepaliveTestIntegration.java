@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.is;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest {
 
-    private static final String END_OF_HEADER = "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n\n";
+    private static final String END_OF_HEADER = "% See https://docs.db.ripe.net/terms-conditions.html\n\n";
     private static final String READ_TIMEOUT_FRAGMENT = "has been closed after a period of inactivity";
 
     @BeforeAll
@@ -59,7 +59,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
 
     @Test
     public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
 
@@ -77,7 +77,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
 
     @Test
     public void readTimeoutShouldPrintErrorMessage() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
 
@@ -93,7 +93,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
 
     @Test
     public void kFlagShouldKeepTheConnectionOpenAfterSupportedQuery() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
         channelFuture.sync();

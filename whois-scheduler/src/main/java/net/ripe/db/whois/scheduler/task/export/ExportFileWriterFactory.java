@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.DummifierNrtm;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -36,7 +37,7 @@ class ExportFileWriterFactory {
     private final String internalExportDir;
 
     @Autowired
-    ExportFileWriterFactory(final DummifierNrtm dummifierNrtm,
+    ExportFileWriterFactory(@Qualifier("dummifierNrtm") final DummifierNrtm dummifierNrtm,
                             @Value("${dir.rpsl.export.internal}") final String internalExportDir,
                             @Value("${dir.rpsl.export.external}") final String externalExportDir,
                             @Value("${whois.source}") final String source,

@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.ElasticSearchHelper;
+import net.ripe.db.whois.api.fulltextsearch.ElasticFullTextRebuild;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -44,11 +45,15 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     @Autowired
     ElasticFullTextIndex elasticFullTextIndex;
 
+    @Autowired
+    ElasticFullTextRebuild elasticFullTextRebuild;
+
+
     @BeforeAll
     public static void setUpElasticCluster() {
         if (StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAINERS))) {
             if (elasticsearchContainer == null) {
-                elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
+                elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.16.3");
                 elasticsearchContainer.start();
             }
 
@@ -65,7 +70,6 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     @BeforeEach
     public void setUpIndexes() throws Exception {
-        elasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
         rebuildIndex();
     }
 
@@ -76,62 +80,12 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     public void rebuildIndex() {
         try {
-            this.doRebuild();
+            elasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
+            elasticFullTextRebuild.rebuild(getWhoisIndex(), getMetadataIndex(), false);
             Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.info("Failed to update the ES indexes {}", e.getMessage());
         }
-    }
-
-    private void doRebuild() throws IOException {
-        if (!elasticIndexService.isEnabled()) {
-            LOGGER.info("Elasticsearch not enabled");
-            return;
-        }
-        LOGGER.info("Rebuilding Elasticsearch indexes");
-
-        elasticIndexService.deleteAll();
-        final int maxSerial = JdbcRpslObjectOperations.getSerials(databaseHelper.getWhoisTemplate()).getEnd();
-
-        // sadly Executors don't offer a bounded/blocking submit() implementation
-        final int numThreads = Runtime.getRuntime().availableProcessors();
-        final ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(numThreads * 64);
-        final ExecutorService executorService = new ThreadPoolExecutor(numThreads, numThreads,
-                0L, TimeUnit.MILLISECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
-
-        JdbcStreamingHelper.executeStreaming(databaseHelper.getWhoisTemplate(), "" +
-                        "SELECT object_id, object " +
-                        "FROM last " +
-                        "WHERE sequence_id != 0 ",
-                new ResultSetExtractor<Void>() {
-                    private static final int LOG_EVERY = 500000;
-
-                    @Override
-                    public Void extractData(final ResultSet rs) throws SQLException, DataAccessException {
-                        int nrIndexed = 0;
-                        while (rs.next()) {
-                            executorService.submit(new DatabaseObjectProcessor(rs.getInt(1), rs.getBytes(2)));
-                            if (++nrIndexed % LOG_EVERY == 0) {
-                                LOGGER.info("Indexed {} objects", nrIndexed);
-                            }
-                        }
-                        LOGGER.info("Indexed {} objects", nrIndexed);
-                        return null;
-                    }
-                }
-        );
-
-        executorService.shutdown();
-
-        try {
-            executorService.awaitTermination(1, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            LOGGER.error("shutdown", e);
-        }
-
-        elasticIndexService.updateMetadata(new ElasticIndexMetadata(maxSerial,
-                sourceContext.getMasterSource().getName().toString()));
-        LOGGER.info("Completed Rebuilding Elasticsearch indexes");
     }
 
     public void deleteAll() throws IOException {
@@ -148,49 +102,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     public abstract String getWhoisIndex();
 
-    public static ElasticsearchContainer getElasticsearchContainer() {
-        return elasticsearchContainer;
-    }
-
-    public ElasticIndexService getElasticIndexService() {
-        return elasticIndexService;
-    }
-
-    public ElasticSearchHelper getElasticSearchHelper() {
-        return elasticSearchHelper;
-    }
-
-    public ElasticFullTextIndex getElasticFullTextIndex() {
-        return elasticFullTextIndex;
-    }
 
     public abstract String getMetadataIndex();
 
-    final class DatabaseObjectProcessor implements Runnable {
-        final int objectId;
-        final byte[] object;
-
-        private DatabaseObjectProcessor(final int objectId, final byte[] object) {
-            this.objectId = objectId;
-            this.object = object;
-        }
-
-        @Override
-        public void run() {
-            final RpslObject rpslObject;
-            try {
-                rpslObject = RpslObject.parse(objectId, object);
-
-            } catch (RuntimeException e) {
-                LOGGER.warn("Unable to parse object with id: {}", objectId, e);
-                return;
-            }
-
-            try {
-                elasticIndexService.addEntry(rpslObject);
-            } catch (IOException e) {
-                throw new IllegalStateException("Indexing", e);
-            }
-        }
-    }
 }

@@ -1,22 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
-import net.ripe.db.whois.api.rest.domain.Action;
-import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
-import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.Update;
-import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.CookieParam;
@@ -29,9 +13,26 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import net.ripe.db.whois.api.rest.domain.Action;
+import net.ripe.db.whois.api.rest.domain.ActionRequest;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.log.LoggerContext;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.Collections;
 import java.util.List;
 
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 
 @Component
@@ -64,9 +65,13 @@ public class BatchUpdatesService {
                        @QueryParam("delete-reason") final String reason,
                        @CookieParam(AuthServiceClient.TOKEN_KEY)  final String crowdTokenKey) {
 
+        if (whoisResources == null || whoisResources.getWhoisObjects().size() == 0) {
+            return Response.status(BAD_REQUEST).entity("WhoisResources is mandatory").build();
+        }
+
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, null, request);
             updateContext.setBatchUpdate();
 
             if(isQueryParamSet(dryRun)) {

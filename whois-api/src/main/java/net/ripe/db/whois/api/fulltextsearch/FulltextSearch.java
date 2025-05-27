@@ -19,7 +19,7 @@ public abstract class FulltextSearch {
 
     }
 
-    abstract SearchResponse performSearch(final SearchRequest searchRequest, final String remoteAddr) throws IOException;
+    abstract SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException;
 
 
     protected SearchResponse.Lst getResponseHeader(final SearchRequest searchRequest, final long elapsedTime) {

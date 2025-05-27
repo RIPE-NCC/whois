@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -11,8 +12,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,7 @@ public class FullTextSearchService {
             @QueryParam("hl.simple.post") @DefaultValue("</b>") final String highlightPost,
             @QueryParam("wt") @DefaultValue("xml") final String writerType,
             @QueryParam("facet") @DefaultValue("false") final String facet,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @Context final HttpServletRequest request) {
         try {
             return ok(search(
@@ -59,7 +62,7 @@ public class FullTextSearchService {
                             .setHighlightPost(highlightPost)
                             .setFormat(writerType)
                             .setFacet(facet)
-                            .build(), request));
+                            .build(), crowdTokenKey, request));
         } catch (IllegalArgumentException e) {
             return badRequest(e.getMessage());
         } catch (QueryException qe) {
@@ -102,9 +105,9 @@ public class FullTextSearchService {
     //
     // TODO: only search in possibly value fields, according to query string
     //
-    public SearchResponse search(final SearchRequest searchRequest, final HttpServletRequest request) {
+    public SearchResponse search(final SearchRequest searchRequest, final String ssoToken, final HttpServletRequest request) {
         try {
-            return fulltextSearch.performSearch(searchRequest, request.getRemoteAddr());
+            return fulltextSearch.performSearch(searchRequest, ssoToken, request.getRemoteAddr());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

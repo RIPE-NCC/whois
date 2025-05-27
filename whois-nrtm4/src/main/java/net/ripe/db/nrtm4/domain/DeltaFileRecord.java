@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 
@@ -26,7 +25,7 @@ public class DeltaFileRecord implements NrtmFileRecord {
 
     private final Action action;
     @JsonProperty("object_class")
-    private final ObjectType objectType;
+    private final String objectClass;
     @JsonProperty("primary_key")
     private final String primaryKey;
     @JsonSerialize(using = RpslObjectJsonSupport.Serializer.class)
@@ -35,19 +34,19 @@ public class DeltaFileRecord implements NrtmFileRecord {
 
     private DeltaFileRecord() {
         action = null;
-        objectType = null;
+        objectClass = null;
         primaryKey = null;
         object = null;
     }
 
     private DeltaFileRecord(
         final Action action,
-        final ObjectType objectType,
+        final String objectClass,
         final String primaryKey,
         final RpslObject rpslObject
     ) {
         this.action = action;
-        this.objectType = objectType;
+        this.objectClass = objectClass;
         this.primaryKey = primaryKey;
         this.object = rpslObject;
     }
@@ -56,16 +55,16 @@ public class DeltaFileRecord implements NrtmFileRecord {
         return new DeltaFileRecord(Action.ADD_MODIFY, null, null, rpslObject);
     }
 
-    public static DeltaFileRecord delete(final ObjectType objectType, final String primaryKey) {
-        return new DeltaFileRecord(Action.DELETE, objectType, primaryKey, null);
+    public static DeltaFileRecord delete(final String objectClass, final String primaryKey) {
+        return new DeltaFileRecord(Action.DELETE, objectClass, primaryKey, null);
     }
 
     public Action getAction() {
         return action;
     }
 
-    public ObjectType getObjectType() {
-        return objectType;
+    public String getObjectClass() {
+        return objectClass;
     }
 
     public String getPrimaryKey() {

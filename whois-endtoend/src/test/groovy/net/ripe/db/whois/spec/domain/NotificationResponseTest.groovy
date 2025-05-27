@@ -27,7 +27,7 @@ mntner: DEV-ROOT-MNT
 
 
 The RIPE Database is subject to Terms and Conditions:
-https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions
+https://docs.db.ripe.net/terms-conditions.html
 
 For assistance or clarification please visit https://www.ripe.net/s/notify.""")
 
@@ -60,7 +60,7 @@ remarks: changed
 
 
 The RIPE Database is subject to Terms and Conditions:
-https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions
+https://docs.db.ripe.net/terms-conditions.html
 
 For assistance or clarification please visit https://www.ripe.net/s/notify.""")
 
@@ -90,7 +90,7 @@ mtner: DEV-ROOT-MNT
 
 
 The RIPE Database is subject to Terms and Conditions:
-https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions
+https://docs.db.ripe.net/terms-conditions.html
 
 For assistance or clarification please visit https://www.ripe.net/s/notify.""")
 

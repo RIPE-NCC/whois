@@ -10,7 +10,7 @@ package net.ripe.db.whois.common.ip;
  *
  * @param <K> the interval type
  */
-public interface Interval<K extends Interval<K>> {
+public sealed interface Interval<K extends Interval<K>> permits IpInterval {
 
     /**
      * Tests if this interval contains <code>that</code>. Note that if two

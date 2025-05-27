@@ -2,24 +2,23 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.WebApplicationException;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +43,7 @@ public class WhoisSearchServiceTest {
             try {
                 subject.search(
                         request,
+                        null,
                         Sets.newHashSet("TEST"),
                         "AARDVARK-MNT",
                         Collections.EMPTY_SET,
@@ -55,7 +55,9 @@ public class WhoisSearchServiceTest {
                         null,
                         null,
                         null,
-                        null);
+                        null,
+                        null,
+                        false);
                 fail("Disallowed option " + disallowedFlag + " did not throw error");
             } catch (WebApplicationException e) {
                 assertThat(((WhoisResources)e.getResponse().getEntity()).getErrorMessages().get(0).getText(), is("Disallowed search flag '%s'"));

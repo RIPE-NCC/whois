@@ -5,20 +5,10 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.WriterAppender;
-import org.apache.logging.log4j.core.config.AppenderRef;
-import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import java.io.StringWriter;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,8 +33,6 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
             "nic-hdl:       TP1-TEST\n" +
             "mnt-by:        OWNER-MNT\n" +
             "source:        TEST");
-
-    private final StringWriter stringWriter = new StringWriter();
 
     @BeforeEach
     public void setup() {
@@ -162,37 +150,4 @@ public class JettyRequestLogTestIntegration extends AbstractIntegrationTest {
         assertThat(getRequestLog(), containsString("oVeRrIdE=overrideUser,FILTERED"));
         assertThat(getRequestLog(), not(containsString("overPASS1")));
     }
-
-    // helper methods
-
-    // Ref. https://logging.apache.org/log4j/2.x/manual/customconfig.html
-    private void addLog4jAppender() {
-        final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        final Configuration config = ctx.getConfiguration();
-        this.stringWriter.getBuffer().setLength(0);
-        final Appender appender = WriterAppender.newBuilder()
-                .setName("REQUESTLOG")
-                .setTarget(this.stringWriter)
-                .build();
-        appender.start();
-        config.addAppender(appender);
-        final AppenderRef ref = AppenderRef.createAppenderRef("REQUESTLOG", null, null);
-        final AppenderRef[] refs = new AppenderRef[] {ref};
-        final LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, "org.eclipse.jetty.server.RequestLog", "true", refs, null, config, null );
-        loggerConfig.addAppender(appender, null, null);
-        config.addLogger("org.eclipse.jetty.server.RequestLog", loggerConfig);
-        ctx.updateLoggers();
-    }
-
-    private void removeLog4jAppender() {
-        final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        final Configuration config = ctx.getConfiguration();
-        config.removeLogger("org.eclipse.jetty.server.RequestLog");
-        ctx.updateLoggers();
-    }
-
-    private String getRequestLog() {
-        return stringWriter.toString();
-    }
-
 }

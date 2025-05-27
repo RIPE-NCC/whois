@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class RestServiceHelper {
 
@@ -128,7 +128,6 @@ public class RestServiceHelper {
         whoisResources.includeTermsAndConditions();
         return whoisResources;
     }
-
 
     public static List<ErrorMessage> createErrorMessages(final List<Message> messages) {
         final List<ErrorMessage> errorMessages = Lists.newArrayList();

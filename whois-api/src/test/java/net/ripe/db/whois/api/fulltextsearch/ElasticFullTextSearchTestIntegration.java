@@ -10,8 +10,9 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.dao.jdbc.JdbcAccessControlListDao;
+import net.ripe.db.whois.query.dao.jdbc.JdbcIpAccessControlListDao;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -35,6 +36,7 @@ import java.io.StringReader;
 import java.net.Inet4Address;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,9 +57,13 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
     private static final String WHOIS_INDEX = "whois_fulltext";
     private static final String METADATA_INDEX = "metadata_fulltext";
+    public static final String VALID_TOKEN_USER_NAME = "person@net.net";
+    public static final String VALID_TOKEN = "valid-token";
+
 
     @Autowired TestPersonalObjectAccounting testPersonalObjectAccounting;
-    @Autowired JdbcAccessControlListDao jdbcAccessControlListDao;
+    @Autowired
+    JdbcIpAccessControlListDao jdbcIpAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
 
     @Value("${api.rest.baseurl}")
@@ -217,7 +223,8 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
                 "nic-hdl: AA1-RIPE\n" +
                 "remarks: Other remark\n" +
                 "source: RIPE"));
-         rebuildIndex();
+
+        rebuildIndex();
 
         final QueryResponse queryResponse = query("q=remark&facet=true");
 
@@ -230,6 +237,92 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(facet.getValueCount(), is(2));
         assertThat(facet.getValues().toString(), containsString("mntner (2)"));
         assertThat(facet.getValues().toString(), containsString("person (1)"));
+    }
+
+
+    @Test
+    public void search_different_object_types_with_facets() {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                "remarks: Some remark\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "person: First Last\n" +
+                "nic-hdl: AA1-RIPE\n" +
+                "remarks: Other remark\n" +
+                "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "irt: irt-IRT1\n" +
+                "mnt-ref:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "role: role test\n" +
+                "nic-hdl: AA2-RIPE\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "inetnum:  109.107.192.0 - 109.107.223.255\n" +
+                "netname:  CZ-OSKARMOBIL-20091021\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "inet6num:  2a01:820::/32\n" +
+                "netname:  VODAFONE-ITALY\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "domain: 112.109.in-addr.arpa\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "aut-num:         AS34419\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "as-set:          AS-VODAFONE\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "route:           206.29.144.0/20\n" +
+                "origin:          AS34419\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "route6:          2a00::/22\n" +
+                "origin:          AS34419\n" +
+                "mnt-by:   DEV1-MNT\n" +
+                "remarks: Other remark\n" +
+                "source:    RIPE"));
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=remark&facet=true");
+
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults().getNumFound(), is(11L));
+        final List<FacetField> facets = queryResponse.getFacetFields();
+        assertThat(facets, hasSize(1));
+        final FacetField facet = facets.get(0);
+        assertThat(facet.getName(), is("object-type"));
+        assertThat(facet.getValueCount(), is(11));
+        assertThat(facet.getValues().toString(), containsString("as-set (1)"));
+        assertThat(facet.getValues().toString(), containsString("aut-num (1)"));
+        assertThat(facet.getValues().toString(), containsString("domain (1)"));
+        assertThat(facet.getValues().toString(), containsString("inet6num (1)"));
+        assertThat(facet.getValues().toString(), containsString("inetnum (1)"));
+        assertThat(facet.getValues().toString(), containsString("irt (1)"));
+        assertThat(facet.getValues().toString(), containsString("mntner (1)"));
+        assertThat(facet.getValues().toString(), containsString("person (1)"));
+        assertThat(facet.getValues().toString(), containsString("role (1)"));
+        assertThat(facet.getValues().toString(), containsString("route (1)"));
+        assertThat(facet.getValues().toString(), containsString("route6 (1)"));
     }
 
     @Test
@@ -914,7 +1007,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     @Test
     public void permanent_block() {
         final IpInterval localhost = IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress());
-        jdbcAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
+        jdbcIpAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
         ipResourceConfiguration.reload();
 
         databaseHelper.addObject(RpslObject.parse(
@@ -925,6 +1018,33 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         try {
             query("q=john%20mcdonald");
+            fail("request should have been blocked");
+        } catch (ClientErrorException cee) {
+            assertThat(cee.getResponse().getStatus(), is(429));
+        } finally {
+            assertThat(aclJdbcTemplate.update("DELETE FROM acl_denied WHERE prefix = ?", localhost.toString()), is(1));
+            ipResourceConfiguration.reload();
+        }
+    }
+
+    @Test
+    public void permanent_block_sso() {
+        final IpInterval localhost = IpInterval.parse(Inet4Address.getLoopbackAddress().getHostAddress());
+        jdbcIpAccessControlListDao.savePermanentBlock(localhost, LocalDate.now(), 1, "test");
+        ipResourceConfiguration.reload();
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        try {
+            parseResponse(
+                    RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
+                            .request()
+                            .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                            .get(String.class));
             fail("request should have been blocked");
         } catch (ClientErrorException cee) {
             assertThat(cee.getResponse().getStatus(), is(429));
@@ -953,6 +1073,28 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void too_many_personal_object_temporary_block_sso() {
+        testPersonalObjectAccounting.accountPersonalObject(VALID_TOKEN_USER_NAME, 5000);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        try {
+            parseResponse(
+                    RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
+                            .request()
+                            .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                            .get(String.class));
+            fail("request should have been blocked");
+        } catch (ClientErrorException cee) {
+            assertThat(cee.getResponse().getStatus(), is(429));
+        }
+    }
+
+    @Test
     public void should_account_for_personal_objects() {
         testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
 
@@ -966,6 +1108,28 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         int totalCount = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
         assertThat(totalCount, is(2));
+    }
+
+    @Test
+    public void should_account_for_personal_objects_using_sso() {
+        testPersonalObjectAccounting.accountPersonalObject(Inet4Address.getLoopbackAddress(), 1);
+        testPersonalObjectAccounting.accountPersonalObject(VALID_TOKEN_USER_NAME, 1);
+
+        databaseHelper.addObject(RpslObject.parse(
+                "person: John McDonald\n" +
+                        "nic-hdl: AA1-RIPE\n" +
+                        "source: RIPE"));
+        rebuildIndex();
+
+        RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald")
+                .request()
+                .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                .get(String.class);
+
+        int totalCountIp = testPersonalObjectAccounting.getQueriedPersonalObjects(Inet4Address.getLoopbackAddress());
+        int totalCountSSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(totalCountIp, is(1)) ;
+        assertThat(totalCountSSO, is(2));
     }
 
     @Test
@@ -2176,10 +2340,10 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         assertThat(queryResponse.getResults().size(), is(4));
 
-        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("TP1-TEST"));
-        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/48"));
-        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("2a00:2381:b2f::/56"));
-        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
+        assertThat(queryResponse.getResults().get(0).get("lookup-key"), is("2a00:2381:b2f::/48"));
+        assertThat(queryResponse.getResults().get(1).get("lookup-key"), is("2a00:2381:b2f::/56"));
+        assertThat(queryResponse.getResults().get(2).get("lookup-key"), is("81.128.169.144 - 81.128.169.159"));
+        assertThat(queryResponse.getResults().get(3).get("lookup-key"), is("TP1-TEST"));
     }
 
     @Test
@@ -2557,6 +2721,8 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
     }
+
+
     private String getHost(final String url) {
         final URI uri = URI.create(url);
         return uri.getHost();
@@ -2732,6 +2898,32 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         assertThat(numFound(query("q=test.it")), is(1L));
     }
+
+    @Test
+    public void fulltext_search_expected_hl() {
+        databaseHelper.addObject("""
+                person: First Last
+                nic-hdl: AA1-RIPE
+                remarks: Other remark
+                e-mail:  it@test.it
+                source: RIPE
+                """);
+
+        databaseHelper.addObject("""
+                mntner:         MHM-MNT
+                admin-c:        AA1-RIPE
+                mnt-by:         MHM-MNT
+                created:        2024-07-01T11:02:24Z
+                last-modified:  2025-02-03T08:54:01Z
+                source:         TEST
+                """);
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("facet=true&format=xml&hl=true&q=(%22MHM%5C-MNT%22)&start=0&wt=json");
+        assertThat(getHighlightRecordsKeys(queryResponse), containsInAnyOrder("mnt-by", "mntner"));
+    }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {
@@ -2754,10 +2946,18 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     private List<String> getHighlightValues(final QueryResponse queryResponse) {
         return queryResponse.getHighlighting()
                 .values().stream()
-                    .map(entry -> entry.values())
-                    .flatMap(next -> next.stream())
+                    .map(Map::values)
+                    .flatMap(Collection::stream)
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
+    }
+
+    private List<String> getHighlightRecordsKeys(final QueryResponse queryResponse) {
+        return queryResponse.getHighlighting()
+                .values().stream()
+                .map(Map::keySet)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     private String searchQuery(final String queryString) {

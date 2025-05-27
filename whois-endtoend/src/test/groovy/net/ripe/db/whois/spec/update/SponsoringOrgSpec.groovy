@@ -121,7 +121,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 """,
                 "ASSANY"       : """\
@@ -135,7 +134,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 """,
                 "ASSPI-64"     : """\
@@ -148,7 +146,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 source:       TEST
                 """,
@@ -162,7 +159,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED ANYCAST
                 source:       TEST
                 """,
@@ -200,7 +196,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 """,
                 "ASSANYSPON"  : """\
@@ -215,7 +210,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 """,
                 "ASSPI-64SPON": """\
@@ -228,7 +222,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA-TEST
                 source:       TEST
@@ -805,7 +798,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:     denis,override1
 
@@ -818,7 +810,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA-TEST
                 source:       TEST
@@ -879,7 +870,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:     denis,override1
 
@@ -892,7 +882,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
                 source:       TEST
@@ -971,7 +960,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 3, 1)
+        ack.countErrorWarnInfo(1, 4, 1)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
@@ -1158,7 +1147,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       %s%s
                 sponsoring-org: ORG-OFA10-TEST
                 source:       TEST
@@ -1374,7 +1362,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA2-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -1388,7 +1375,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA2-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -1400,7 +1386,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA2-TEST
                 source:       TEST
@@ -1571,7 +1556,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:     denis,override1
 
@@ -1585,7 +1569,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:     denis,override1
 
@@ -1598,7 +1581,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 source:       TEST
                 override:     denis,override1
@@ -1753,7 +1735,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA2-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:   denis,override1
 
@@ -1768,7 +1749,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA2-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:   denis,override1
 
@@ -1781,7 +1761,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA2-TEST
                 source:       TEST
@@ -1847,7 +1826,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA2-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inetnum:      192.168.101.0 - 192.168.101.255
@@ -1861,7 +1839,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA2-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inet6num:     2001:100::/64
@@ -1873,7 +1850,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-LIRA2-TEST
                 source:       TEST
@@ -1951,7 +1927,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -1964,7 +1939,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED ANYCAST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -1976,7 +1950,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 source:       TEST
 
@@ -2288,11 +2261,10 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 delete:   testing
 
-                password: hm
+                password: nccend
                 """.stripIndent(true)
         )
 
@@ -2330,7 +2302,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inetnum:      192.168.101.0 - 192.168.101.255
@@ -2344,7 +2315,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inet6num:     2001:100::/64
@@ -2356,7 +2326,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
                 source:       TEST
@@ -2532,7 +2501,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:   denis,override1
 
@@ -2547,7 +2515,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:   denis,override1
 
@@ -2560,7 +2527,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
                 source:       TEST
@@ -2640,7 +2606,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inetnum:      192.168.201.0 - 192.168.201.255
@@ -2654,7 +2619,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 inet6num:     2001:600::/64
@@ -2666,7 +2630,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
                 source:       TEST
@@ -2854,7 +2817,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:    denis,override1
 
@@ -2869,7 +2831,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:    denis,override1
 
@@ -2882,7 +2843,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 status:       ASSIGNED PI
                 sponsoring-org: ORG-OFA10-TEST
                 source:       TEST

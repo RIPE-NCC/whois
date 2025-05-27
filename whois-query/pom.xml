@@ -31,7 +31,6 @@
         <dependency>
             <groupId>com.amazonaws.proprot</groupId>
             <artifactId>proprot</artifactId>
-            <version>1.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -40,14 +39,13 @@
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.12.9</version>
+                <version>1.15.0</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>
@@ -69,18 +67,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                        <version>2.6</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>commons-net</groupId>
-                        <artifactId>commons-net</artifactId>
-                        <version>3.9.0</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

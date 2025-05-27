@@ -3,6 +3,8 @@ package net.ripe.db.whois.scheduler.task.grs;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.io.Downloader;
@@ -15,6 +17,8 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.source.SourceContext;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.elasticsearch.common.Strings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,12 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -45,8 +48,8 @@ class LacnicGrsSource extends GrsSource {
 
     private final String userId;
     private final String password;
-
-    private Client client;
+    private final String irrDownload;
+    private final Client client;
 
     @Autowired
     LacnicGrsSource(
@@ -56,12 +59,13 @@ class LacnicGrsSource extends GrsSource {
             final AuthoritativeResourceData authoritativeResourceData,
             final Downloader downloader,
             @Value("${grs.import.lacnic.userId:}") final String userId,
-            @Value("${grs.import.lacnic.password:}") final String password) {
+            @Value("${grs.import.lacnic.password:}") final String password,
+            @Value("${grs.import.lacnic.irr.download:}") final String irrDownload) {
         super(source, sourceContext, dateTimeProvider, authoritativeResourceData, downloader);
 
+        this.irrDownload = irrDownload;
         this.userId = userId;
         this.password = password;
-
         this.client = ClientBuilder.newBuilder()
                 .property(ClientProperties.CONNECT_TIMEOUT, TIMEOUT)
                 .property(ClientProperties.READ_TIMEOUT, TIMEOUT)
@@ -78,6 +82,14 @@ class LacnicGrsSource extends GrsSource {
         final String downloadAction = loginAction.replace("stini", "bulkWhoisLoader");
 
         downloader.downloadTo(logger, new URL(downloadAction), path);
+    }
+
+    @Override
+    public void acquireIrrDump(final Path path) throws IOException {
+        if (Strings.isNullOrEmpty(irrDownload)) {
+            return;
+        }
+        downloader.downloadTo(logger, new URL(irrDownload), path);
     }
 
     private String get(final String url) {
@@ -100,25 +112,45 @@ class LacnicGrsSource extends GrsSource {
     public void handleObjects(final File file, final ObjectHandler handler) throws IOException {
         try (FileInputStream is = new FileInputStream(file)) {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
-            handleLines(reader, lines -> {
-                final String rpslObjectString = Joiner.on("").join(lines);
-                final RpslObject rpslObjectBase = RpslObject.parse(rpslObjectString);
+            handleLines(reader, lines -> new LacnicLineHandler(handler).handleLines(lines));
+        }
+    }
 
-                final List<RpslAttribute> newAttributes = Lists.newArrayList();
-                for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
+    @Override
+    public void handleIrrObjects(final File file, final ObjectHandler handler) throws IOException {
+        try (InputStream is = new GzipCompressorInputStream(new FileInputStream(file))) {
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
+            handleLines(reader, lines -> new LacnicLineHandler(handler).handleLines(lines));
+        }
+    }
 
-                    final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
-                    if (transformFunction != null) {
-                        attribute = transformFunction.apply(attribute);
-                    }
+    private class LacnicLineHandler implements LineHandler {
 
-                    if (attribute.getType() != null) {
-                        newAttributes.add(attribute);
-                    }
+        private final ObjectHandler objectHandler;
+
+        public LacnicLineHandler(final ObjectHandler objectHandler) {
+            this.objectHandler = objectHandler;
+        }
+
+        @Override
+        public void handleLines(final List<String> lines) {
+            final String rpslObjectString = Joiner.on("").join(lines);
+            final RpslObject rpslObjectBase = RpslObject.parse(rpslObjectString);
+
+            final List<RpslAttribute> newAttributes = Lists.newArrayList();
+            for (RpslAttribute attribute : rpslObjectBase.getAttributes()) {
+
+                final Function<RpslAttribute, RpslAttribute> transformFunction = TRANSFORM_FUNCTIONS.get(ciString(attribute.getKey()));
+                if (transformFunction != null) {
+                    attribute = transformFunction.apply(attribute);
                 }
 
-                handler.handle(FILTER_CHANGED_FUNCTION.apply(new RpslObject(newAttributes)));
-            });
+                if (attribute.getType() != null) {
+                    newAttributes.add(attribute);
+                }
+            }
+
+            objectHandler.handle(FILTER_CHANGED_FUNCTION.apply(new RpslObject(newAttributes)));
         }
     }
 
@@ -141,13 +173,11 @@ class LacnicGrsSource extends GrsSource {
 
         addTransformFunction(input -> {
             final IpInterval<?> ipInterval = IpInterval.parse(input.getCleanValue());
-            if (ipInterval instanceof Ipv4Resource) {
-                return new RpslAttribute(AttributeType.INETNUM, input.getValue());
-            } else if (ipInterval instanceof Ipv6Resource) {
-                return new RpslAttribute(AttributeType.INET6NUM, input.getValue());
-            } else {
-                throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
-            }
+            return switch (ipInterval) {
+                case Ipv4Resource ipv4Resource -> new RpslAttribute(AttributeType.INETNUM, input.getValue());
+                case Ipv6Resource ipv6Resource -> new RpslAttribute(AttributeType.INET6NUM, input.getValue());
+                case null -> throw new IllegalArgumentException(String.format("Unexpected input: %s", input.getCleanValue()));
+            };
         }, "inetnum");
 
         addTransformFunction(input -> new RpslAttribute(AttributeType.DESCR, input.getValue()), "owner");

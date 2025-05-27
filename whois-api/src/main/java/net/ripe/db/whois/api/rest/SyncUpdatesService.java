@@ -20,9 +20,11 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.UpdatesParser;
+import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -38,7 +40,7 @@ import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -70,6 +72,7 @@ public class SyncUpdatesService {
     private final LoggerContext loggerContext;
     private final SourceContext sourceContext;
     private final SsoTokenTranslator ssoTokenTranslator;
+    private final BearerTokenExtractor bearerTokenExtractor;
 
     @Autowired
     public SyncUpdatesService(final DateTimeProvider dateTimeProvider,
@@ -77,6 +80,7 @@ public class SyncUpdatesService {
                               final UpdatesParser updatesParser,
                               final LoggerContext loggerContext,
                               final SourceContext sourceContext,
+                              final BearerTokenExtractor bearerTokenExtractor,
                               final SsoTokenTranslator ssoTokenTranslator) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
@@ -84,6 +88,7 @@ public class SyncUpdatesService {
         this.loggerContext = loggerContext;
         this.sourceContext = sourceContext;
         this.ssoTokenTranslator = ssoTokenTranslator;
+        this.bearerTokenExtractor = bearerTokenExtractor;
     }
 
     @GET
@@ -98,15 +103,17 @@ public class SyncUpdatesService {
             @QueryParam(Command.DIFF) final String diff,
             @QueryParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(decode(data, getCharset(contentType)))
                 .setNew(nnew)
-                .setHelp(help)
+                .setHelp(getHelp(help, data))
                 .setRedirect(redirect)
                 .setDiff(diff)
                 .setRemoteAddress(httpServletRequest.getRemoteAddr())
                 .setSource(source)
+                .setApiKeyId(apiKeyId)
                 .setSsoToken(crowdTokenKey)
                 .build();
         return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
@@ -125,15 +132,17 @@ public class SyncUpdatesService {
             @FormParam(Command.DIFF) final String diff,
             @FormParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
                 .setNew(nnew)
-                .setHelp(help)
+                .setHelp(getHelp(help, data))
                 .setRedirect(redirect)
                 .setDiff(diff)
                 .setRemoteAddress(httpServletRequest.getRemoteAddr())
                 .setSource(source)
+                .setApiKeyId(apiKeyId)
                 .setSsoToken(crowdTokenKey)
                 .build();
         return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
@@ -151,19 +160,31 @@ public class SyncUpdatesService {
             @FormDataParam(Command.NEW) final String nnew,
             @FormDataParam(Command.DIFF) final String diff,
             @FormDataParam(Command.REDIRECT) final String redirect,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
                 .setNew(nnew)
-                .setHelp(help)
+                .setHelp(getHelp(help, data))
                 .setRedirect(redirect)
                 .setDiff(diff)
                 .setRemoteAddress(httpServletRequest.getRemoteAddr())
                 .setSource(source)
+                .setApiKeyId(apiKeyId)
                 .setSsoToken(crowdTokenKey)
                 .build();
         return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
+    }
+
+    @Nullable
+    private String getHelp(final String help, final String data) {
+        if (StringUtils.isEmpty(data)) {
+            // default to help
+            return "yes";
+        } else {
+            return help;
+        }
     }
 
     private Response doSyncUpdate(final HttpServletRequest httpServletRequest, final Request request, final Charset charset) {
@@ -192,12 +213,13 @@ public class SyncUpdatesService {
 
             final UpdateContext updateContext = new UpdateContext(loggerContext);
 
-            if( RestServiceHelper.isHttpProtocol(httpServletRequest) ){
+            if(RestServiceHelper.isHttpProtocol(httpServletRequest)){
                 updateContext.addGlobalMessage(UpdateMessages.httpSyncupdate());
             }
 
             setSsoSessionToContext(updateContext, request.getSsoToken());
             setClientCertificates(updateContext, httpServletRequest);
+            updateContext.setOAuthSession(bearerTokenExtractor.extractBearerToken(httpServletRequest, request.getApiKeyId()));
 
             final String content = request.hasParam("DATA") ? request.getParam("DATA") : "";
 
@@ -346,12 +368,14 @@ public class SyncUpdatesService {
         private final String remoteAddress;
         private final String source;
         private final String ssoToken;
+        private final String apiKeyId;
 
         private Request(final RequestBuilder requestBuilder) {
             this.params = requestBuilder.params;
             this.remoteAddress = requestBuilder.remoteAddress;
             this.source = requestBuilder.source;
             this.ssoToken = requestBuilder.ssoToken;
+            this.apiKeyId = requestBuilder.apiKeyId;
         }
 
         public String getRemoteAddress() {
@@ -364,6 +388,10 @@ public class SyncUpdatesService {
 
         public String getSsoToken() {
             return ssoToken;
+        }
+
+        public String getApiKeyId() {
+            return apiKeyId;
         }
 
         public boolean hasParam(final String key) {
@@ -412,6 +440,7 @@ public class SyncUpdatesService {
             private String remoteAddress;
             private String source;
             private String ssoToken;
+            private String apiKeyId;
 
             public RequestBuilder setData(final String data) {
                 params.put(Command.DATA, data);
@@ -450,6 +479,11 @@ public class SyncUpdatesService {
 
             public RequestBuilder setSsoToken(final String ssoToken) {
                 this.ssoToken = ssoToken;
+                return this;
+            }
+
+            public RequestBuilder setApiKeyId(final String apiKeyId) {
+                this.apiKeyId = apiKeyId;
                 return this;
             }
 

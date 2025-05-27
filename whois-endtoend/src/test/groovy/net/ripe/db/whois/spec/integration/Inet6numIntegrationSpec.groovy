@@ -1072,4 +1072,88 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
         insert =~ /Modify SUCCEEDED: \[inet6num\] a000:11:fe::\/64/
         insert =~ /Value A000:0011:fE:00::012c\/64 converted to a000:11:fe::\/64/
     }
+
+    def "update, not more specific allowed status with mnt-lower attribute"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2221::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        update =~ /FAIL/
+        update =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED:"
+            status/
+    }
+
+    def "update, not more specific allowed status with mnt-lower attribute override"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2221::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        update.contains("Modify SUCCEEDED: [inet6num] 2221::/64")
+        update.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\"\n            status");
+    }
+
+    def "create, not more specific allowed status with mnt-lower attribute"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2001::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        status: ASSIGNED
+                                        tech-c: TEST-PN
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        insert =~ /FAIL/
+        insert =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED:"
+            status/
+    }
+
+    def "create, not more specific allowed status with mnt-lower attribute with override"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2001::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        status: ASSIGNED
+                                        tech-c: TEST-PN
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        insert.contains("Create SUCCEEDED: [inet6num] 2001::/64")
+        insert.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\"\n            status")
+    }
 }

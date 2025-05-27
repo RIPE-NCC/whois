@@ -1,5 +1,125 @@
 # next
 
+# 1.117
+
+[update] Parent status for LIR-PARTITIONED PA cannot be ASSIGNED PA (#1669) 
+[update] ASSIGNED PA Cannot have less/more specific ASSIGNED PA (#1672) 
+[update] Aggregation by LIR Parent should not be allowed for Aggregation by LIR (#1673)
+[update] Do not allow LIR-PARTITIONED PA under SUB-ALLOCATED PA in (#1702)
+[update] Support OAuth 2.0 (#1688) 
+[rdap] Self Links Must Have the Type Set (#1685) 
+[rdap] Validate Correct Key Before Redirect (#1689) 
+[rdap] Fix Relation For Cross-Prefix Inetnum Range (#1693) 
+[rdap] Bottom should check Parent does not CONTAINS search term (#1701) 
+[rdap] Non Existing Search IP Terms in TOP and UP (#1703) 
+[rdap] Add "-rdap" prefix to Relations And Change links (#1700) 
+[rdap] Minimum status for Relations (#1705) 
+[nrtm] Correct aut-num object class name in delta file (#1692) 
+[nrtm] Client Reject Deltas When Discontinuous and reinitialise (#1699)
+[nrtm] Client Reject update in case client is ahead instead of reinitialise (#1698)
+
+# 1.116
+
+[rdap] RDAP Relation Searches Endpoint (#1603)
+[rdap] Fixes to RDAP RIR-Search (Basic Searches) Feature (#1611)
+[rdap] Return Abuse-c Entity for RDAP organisation Entity Query (#1659)
+[update] Update key-cert lookup URL in update notification (#1631)
+[update] Warn if mbrs-by-ref in set object is changed (#1662)
+[update] Warn on override if set membership claim is not supported by mbrs-by-ref (#1660)
+[nrtm] NRTMv4 use EC p256 key instead of ec25519 (#1645)
+[nrtm] Remove old NRTMv4 Update Notification File Links (#1652)
+[nrtm] Do not send the SOURCE in NRTMv4 relative URLs (#1654)
+
+# 1.115.1
+
+[update] API Key fix parsing details
+
+# 1.115
+
+[all] API Key Authentication (#1569, #1597, #1618, #1620, #1622, #1624, #1626, #1627)
+[nrtm] NRTMv4 client implementation (#1560, #1574, #1575, #1596, #1579, #1577, #1605, #1609, #1610, #1621)
+[nrtm] Use relative path in NRTM update notification file (#1583)
+[nrtm] Add JWS Support To Fix Race Condition in NRTMv4 (#1564, #1589)
+[rdap] Add MNTNER to RDAP Entities Search (#1612) 
+[query] Import ARIN and LACNIC IRR database dumps into mirror (#1428)
+[update] SyncUpdates will return an error in future if used over HTTP (#1561) 
+[update] MailUpdates will return an error in future if a password is used (#1559)
+[update] Include password authentication type in Whois Update notifications (#1541) 
+[update] Extend Maximum Length of an Email Address (#1545) 
+[query] Allow blocking by source address on Port 43 Queries (#1539)
+[update] Generate mail Message-ID including angle brackets. (#1534)
+[all] Change Database Schema from Latin1 to UTF8 (#1525) 
+
+# 1.114
+
+[nrtm] NRTMv4 Key Rotation (#1484)
+[update] Return an error if an email address is longer than 80 characters (#1492)
+[update] DoS Filter for Update Requests (#1495)
+[update] Block IP Filter (#1498)
+[update] Use transaction manager per datasource (#1501)
+[update] "text" Content Type processed as "text/plain" for Mail Messages (#1515)
+[update] Add Warning When Password Authentication is used in Mailupdates (#1511)
+[query] Mp-member Attribute is clickable (#1506)
+
+# 1.113.2
+
+[update] Handle multipart/mixed Bounces and Auto-submitted Messages (#1490)
+
+# 1.113.1
+
+[update] validate max references (#1486)
+
+# 1.113
+
+[all] Inetnum AGGREGATED-BY-LIR status (#1467)
+[api] Enable Client Auth Certificate for Lookup (#1475)
+[api] ROA Overlapping INVALID ROA and VALID ROA fix (#1470)
+[all] Java 21 Support (#1440)
+
+# 1.112.1
+
+[update] validate max references (#1486)
+
+# 1.112
+
+[all] NWI-4: Add ALLOCATED-ASSIGNED PA inetnum status (#1432)
+[query] Set Charset Flag (#1450)
+[update] Don't allow "mnt-lower" on assignments (#1452)
+[api] Fixed Syncupdates HELP Bug (#1453)
+[rdap] RDAP Link Title is a String not List<String> (#1445)
+[mail] Remove Message If Bounce Detection Or Unsubscribe Fails (#1418)
+[mail] Handle Multiple Delivery Status Notification Failure Responses for the Same Email Address (#1417)
+[mail] Final-Recipient: RFC822 is case insensitive (#1423)
+[mail] Refactor Mail Sender to allow multiple recipients (#1411)
+[all] Route ROA checker (#1416)
+[all] Schedule ROA load each 15 minutes (#1444)
+[query] Allow inverse query for e-mail from trusted addresses (#1435)
+[query] Allow inverse query for sponsoring-org from all addresses (#1431)
+[nrtm] Return 404 on invalid NRTMv4 notification file path (#1422)
+
+# 1.111
+
+[update] Don't send email to undeliverable addresses (#1404)
+[update] Add email unsubscribe support (#1404)
+
+# 1.110
+
+[rdap] Implemented RDAP Extension for Geofeed Data (draft-ietf-regext-rdap-geofeed-01) (#1366)
+[rdap] Improve RDAP documentation (#1373, #1388)
+[rdap] Implement RDAP RIR Search - Basic Search Features (#1379)
+[rdap] Enable e-mail in RDAP entity responses (in top level vcard) (#1384)
+[rdap] Add geofeed as a link to conform with v1 draft (#1374)
+[api] Separate secure connector for Client Certificate authentication (#1390)
+[api] Use clientip flag as remote address from trusted source (#1391)
+[api] Redirect HTTP(S) requests to whois.ripe.net to the DB web application query page (#1396)
+[api] Elasticsearch refreshed after update/create (#1367)
+[api] Document inet6num assignment-size maximum prefix (#1375)
+[all] Daily limit is configurable (#1401)
+
+# 1.109.1
+
+[rdap] Organisation RDAP Object is Assumed to be an IP on Country Attribute (#1362)
+
 # 1.109
 
 [rdap] Rdap redaction (#1317)

@@ -17,7 +17,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -201,11 +200,6 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
         assertThat(object.getPrimaryKey(), contains(new Attribute("nic-hdl", "TP1-TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
-    }
-
-    private String encode(final String input) {
-        // do not interpret template parameters
-        return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
     }
 
     private WhoisResources map(final RpslObject ... rpslObjects) {

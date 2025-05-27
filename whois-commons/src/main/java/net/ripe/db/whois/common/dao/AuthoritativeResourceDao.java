@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.TransactionConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.RecoverableDataAccessException;
@@ -13,7 +14,7 @@ import javax.sql.DataSource;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
-@Transactional(isolation = Isolation.READ_COMMITTED)
+@Transactional(transactionManager = TransactionConfiguration.INTERNALS_UPDATE_TRANSACTION, isolation = Isolation.READ_COMMITTED)
 public class AuthoritativeResourceDao {
 
     private final JdbcTemplate internalsTemplate;

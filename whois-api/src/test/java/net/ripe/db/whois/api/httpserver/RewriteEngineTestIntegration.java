@@ -11,6 +11,7 @@ import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -30,13 +31,16 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.net.URI;
 
+import static jakarta.ws.rs.client.Entity.*;
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
@@ -134,9 +138,23 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
-                .put(jakarta.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+                .put(entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
+    }
+
+    @Test
+    public void domain_object_creation_over_https() {
+        try {
+            RestTest.target(getPort(), "domain-objects/test")
+                    .request()
+                    .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                    .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
+                    .post(entity("{}", MediaType.APPLICATION_JSON), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("WhoisResources is mandatory"));
+        }
     }
 
     @Test
@@ -152,7 +170,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
-                .post(jakarta.ws.rs.client.Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+                .post(entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
@@ -176,6 +194,28 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
         final String responseBody = response.readEntity(String.class);
         assertThat(responseBody, containsString("You have requested Help information from the RIPE NCC Database"));
+    }
+
+    @Test
+    public void syncupdates_url_encoded_post_data() {
+        final Response response = RestTest.target(getPort(), "")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl).replace("rest", "syncupdates"))
+                .post(entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:        Test Person\n" +
+                                "address:       Amsterdam\n" +
+                                "phone:         +31\n" +
+                                "nic-hdl:       TP2-RIPE\n" +
+                                "mnt-by:        mntner-mnt\n" +
+                                "changed:       user@host.org 20171025\n" +
+                                "source:        TEST\n" +
+                                "password: emptypassword\n"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), Response.class);
+
+        final String responseBody = response.readEntity(String.class);
+
+        assertThat(responseBody, containsString("Create FAILED: [person] TP2-RIPE   Test Person"));
+        assertThat(responseBody, not(containsString("You have requested Help information from the RIPE NCC Database")));
     }
 
     @Test
@@ -209,7 +249,7 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.FOUND_302));
-        assertThat(response.getHeaderString("Location"), is("https://github.com/RIPE-NCC/whois/wiki/WHOIS-REST-API"));
+        assertThat(response.getHeaderString("Location"), is("https://docs.db.ripe.net/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"));
 
     }
 
@@ -248,6 +288,17 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .options();
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
+    public void whois_ripe_net() {
+        Response response = RestTest.target(getPort(), "/some-value")
+                .request()
+                .header(HttpHeaders.HOST, "whois.ripe.net")
+                .get();
+
+        assertThat(response.getStatus(), is(HttpStatus.MOVED_PERMANENTLY_301));
+        assertThat(response.getLocation(), is(URI.create("https://apps.db.ripe.net/db-web-ui/query")));
     }
 
     // helper methods

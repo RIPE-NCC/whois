@@ -24,13 +24,14 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.CheckForNull;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static net.ripe.db.whois.common.rpsl.AttributeType.STATUS;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.LEGACY;
 import static net.ripe.db.whois.update.domain.Action.CREATE;
+import static net.ripe.db.whois.update.domain.Action.MODIFY;
 
 /**
  * Apply stricter status validation when creating an inetnum object.
@@ -68,7 +69,7 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
+    protected List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Ipv4Resource ipInterval = Ipv4Resource.parse(updatedObject.getKey());
         final List<Message> validationMessages = Lists.newArrayList();
@@ -88,32 +89,8 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
         return subject.hasPrincipal(Principal.RS_MAINTAINER);
     }
 
-    @CheckForNull
-    private RpslObject findParentWithRsMaintainer(final Ipv4Resource ipInterval) {
-        @SuppressWarnings("unchecked")
-        final List<Ipv4Entry> allLessSpecific = Lists.reverse(ipv4Tree.findAllLessSpecific(ipInterval));
-        for (final Ipv4Entry parent : allLessSpecific) {
-            final RpslObject parentObject = objectDao.getById(parent.getObjectId());
-            final Set<CIString> mntBy = parentObject.getValuesForAttribute(AttributeType.MNT_BY);
-
-            final boolean missingRsMaintainer = !maintainers.isRsMaintainer(mntBy);
-            if (!missingRsMaintainer) {
-                return parentObject;
-            }
-        }
-
-        return null;
-    }
-
     private void checkAuthorisationForStatus(final PreparedUpdate update, final UpdateContext updateContext, final InetnumStatus currentStatus, final List<Message> validationMessages) {
         final Set<CIString> mntBy = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
-
-        if (currentStatus.requiresAllocMaintainer()) {
-            if (!updateContext.getSubject(update).hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-                validationMessages.add(UpdateMessages.statusRequiresAuthorization(currentStatus.toString()));
-                return;
-            }
-        }
 
         if (currentStatus.requiresRsMaintainer()) {
             final boolean missingRsMaintainer = !maintainers.isRsMaintainer(mntBy);
@@ -121,7 +98,7 @@ public class InetnumStrictStatusValidator implements BusinessRuleValidator {
                 validationMessages.add(UpdateMessages.statusRequiresAuthorization(update.getUpdatedObject().getValueForAttribute(STATUS).toString()));
                 return;
             }
-            if (!updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
+            if (update.getAction() == CREATE && !updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
                 validationMessages.add(UpdateMessages.authorisationRequiredForSetStatus(currentStatus.toString()));
             }
         }

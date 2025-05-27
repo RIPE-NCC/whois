@@ -14,7 +14,7 @@ import java.util.List;
 public class ErrorMessages {
 
     @XmlElement(name = "errormessage")
-    private List<ErrorMessage> errorMessages;
+    private final List<ErrorMessage> errorMessages;
 
     public ErrorMessages(final List<ErrorMessage> errorMessages) {
         this.errorMessages = errorMessages;

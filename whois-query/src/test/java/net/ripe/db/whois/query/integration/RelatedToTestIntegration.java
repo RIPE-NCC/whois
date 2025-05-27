@@ -50,7 +50,7 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     private void references_self(final String query) {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
 
         final String check = "role:           Asia Pacific Network Information Centre\n";
         assertThat(response, containsString(check));

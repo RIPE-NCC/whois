@@ -39,7 +39,19 @@
             <groupId>net.ripe.commons</groupId>
             <artifactId>commons-ip-math</artifactId>
         </dependency>
-
+        <!-- bouncy castle -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpg-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcjmail-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
         <!-- TODO: [ES] are these dependencies necessary? -->
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -65,6 +77,10 @@
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -128,7 +144,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>0.8.12</version>
                 <!-- TODO: Including this in jacoco plugin throws Can't add different class with same name: org/apache/commons/collections/ArrayStack
                             I tried to exclude this file, package  and dependency also still from some other dependency tree it gets included
                  -->
@@ -172,6 +188,10 @@
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>io.netty:netty-buffer</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-jcl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcpkix-jdk18on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcutil-jdk18on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcpkix-jdk15on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcutil-jdk15on</ignoredUsedUndeclaredDependency>
                     </ignoredUsedUndeclaredDependencies>
 
                     <!-- Ignore dependencies coming from another dependency and which we are just using in

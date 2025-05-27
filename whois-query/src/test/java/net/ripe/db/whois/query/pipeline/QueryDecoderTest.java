@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.util.Attribute;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -20,6 +21,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.ripe.db.whois.query.pipeline.WhoisEncoder.CHARSET_ATTRIBUTE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -34,6 +36,7 @@ public class QueryDecoderTest {
     @Mock private Channel channelMock;
     @Mock private ChannelFuture channelFutureMock;
     @Mock private ChannelPipeline channelPipelineMock;
+    @Mock private Attribute attributeMock;
     @Mock private ChannelHandlerContext channelHandlerContextMock;
     @Mock private AccessControlListManager accessControlListManager;
     @InjectMocks private QueryDecoder subject;
@@ -49,6 +52,7 @@ public class QueryDecoderTest {
     public void validDecodedStringShouldReturnQuery() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
         when(accessControlListManager.isTrusted(any(InetAddress.class))).thenReturn(true);
+        when(channelMock.attr(CHARSET_ATTRIBUTE)).thenReturn(attributeMock);
 
         final String queryString = "-Tperson DW-RIPE";
         final Query expectedQuery = Query.parse(queryString);

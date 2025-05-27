@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.integration
 
-
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.junit.jupiter.api.Tag
 
@@ -373,6 +372,292 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
       response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
   }
 
+    def "create ALLOCATED ASSIGNED PA inetnum using RS credentials"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                    password: hm
+                    """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "create ALLOCATED ASSIGNED PA inetnum using override credentials"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    override:denis,override1
+                    """.stripIndent(true)))
+        then:
+        response =~ /Create SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Info:    Value 192.0.0.0\/24 converted to 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "create ALLOCATED ASSIGNED PA inetnum failed without RS maintainer"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                    password: hm
+                    """.stripIndent(true)))
+        then:
+        response =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response.contains("***Error:   Status ALLOCATED-ASSIGNED PA can only be created by the database\n" +
+                "            administrator")
+    }
+
+    def "create ALLOCATED ASSIGNED PA inetnum failed using user credentials"() {
+        when:
+        def response = syncUpdate(new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                    """.stripIndent(true)))
+        then:
+        response =~ /Create FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response.contains("***Error:   Setting status ALLOCATED-ASSIGNED PA requires administrative\n" +
+                "            authorisation")
+    }
+
+    def "modify status ALLOCATED ASSIGNED PA status to ALLOCATED PA by using user credentials"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED-ASSIGNED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "modify status ALLOCATED PA to ALLOCATED-ASSIGNED PA status by using user credentials"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED-ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /SUCCESS/
+        response =~ /Modify SUCCEEDED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+    }
+
+    def "modify status ALLOCATED PA to ALLOCATED UNSPECIFIED status fails"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED UNSPECIFIED
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the
+            object/
+    }
+
+    def "modify status ALLOCATED ASSIGNED PA status to ALLOCATED UNSPECIFIED fails"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED-ASSIGNED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ALLOCATED UNSPECIFIED
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the
+            object/
+    }
+
+
+    def "modify status ALLOCATED ASSIGNED PA status to ASSIGNED PA fails"() {
+        given:
+        def insertResponse = syncUpdate(new SyncUpdate(data: """\
+                            inetnum: 192.0.0.0/24
+                            netname: RIPE-NCC
+                            descr: description
+                            country: DK
+                            admin-c: TEST-PN
+                            tech-c: TEST-PN
+                            status: ALLOCATED-ASSIGNED PA
+                            mnt-by: RIPE-NCC-HM-MNT
+                            mnt-by: TEST-MNT
+                            org: ORG-TOL5-TEST
+                            source: TEST
+                            password: hm
+                            password: update
+                        """.stripIndent(true)))
+        when:
+        insertResponse =~ /SUCCESS/
+        then:
+        def response = syncUpdate new SyncUpdate(data: """\
+                    inetnum: 192.0.0.0/24
+                    netname: RIPE-NCC
+                    descr: description
+                    country: DK
+                    admin-c: TEST-PN
+                    tech-c: TEST-PN
+                    status: ASSIGNED PA
+                    mnt-by: RIPE-NCC-HM-MNT
+                    mnt-by: TEST-MNT
+                    org: ORG-TOL5-TEST
+                    source: TEST
+                    password: update
+                """.stripIndent(true))
+        then:
+        response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
+        response =~ /\*\*\*Error:   status value cannot be changed, you must delete and re-create the
+            object/
+    }
+
     def "handle failure of out-of-range CIDR notation"() {
         when:
         def response = syncUpdate(new SyncUpdate(data: """\
@@ -382,7 +667,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     country: DK
                     admin-c: TEST-PN
                     tech-c: TEST-PN
-                    status: ALLOCATED PI
+                    status: ALLOCATED PA
                     mnt-by: RIPE-NCC-HM-MNT
                     org: ORG-TOL5-TEST
                     source: TEST
@@ -391,6 +676,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                     """.stripIndent(true)))
         then:
         response =~ /Create FAILED: \[inetnum\] 192.0.0.1\/24/
+        response =~ /Syntax error in 192.0.0.1\/24/
     }
 
     def "modify status ALLOCATED PA has reference to RIR organisation"() {
@@ -432,7 +718,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
   }
 
   def "create status ALLOCATED PA no alloc maintainer"() {
-    when:
+      when:
       def insertResponse = syncUpdate(new SyncUpdate(data: """\
             inetnum: 192.0.0.0 - 192.0.0.255
             netname: RIPE-NCC
@@ -442,6 +728,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             tech-c: TEST-PN
             status: ALLOCATED PA
             mnt-by: TEST-MNT
+            mnt-by: RIPE-NCC-HM-MNT
             org: ORG-TOL1-TEST
             source: TEST
             password: update
@@ -505,7 +792,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
     then:
       response =~ /FAIL/
       response =~ /Referenced organisation has wrong "org-type"/
-      response =~ /Allowed values are \[IANA, RIR, LIR\]/
+      response =~ /Allowed values are \[RIR, LIR\]/
   }
 
   def "modify status ALLOCATED PA has reference to non-RIR organisation with override"() {
@@ -2150,6 +2437,94 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent(true)))
         then:
         response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
+    }
+
+
+    def "update, not more specific allowed status with mnt-lower attribute"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum: 193.0.0.0 - 193.0.0.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PI
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        update =~ /FAIL/
+        update =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED PI:"
+            status/
+    }
+
+    def "update, not more specific allowed status with mnt-lower attribute override"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum: 193.0.0.0 - 193.0.0.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PI
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        update.contains("Modify SUCCEEDED: [inetnum] 193.0.0.0 - 193.0.0.255")
+        update.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\"\n            status");
+    }
+
+    def "create, not more specific allowed status with mnt-lower attribute"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.200.0 - 192.168.200.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PI
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        insert =~ /FAIL/
+        insert =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED PI:"
+            status/
+    }
+
+    def "create, not more specific allowed status with mnt-lower attribute override"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.200.0 - 192.168.200.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PI
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        insert.contains("Create SUCCEEDED: [inetnum] 192.168.200.0 - 192.168.200.255")
+        insert.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\"\n            status");
     }
 
 }

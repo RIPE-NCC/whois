@@ -25,75 +25,86 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- JAVA version -->
-        <java.version>17</java.version>
+        <java.version>21</java.version>
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.19</aspectj.version>
-        <awaitility.version>4.2.0</awaitility.version>
+        <aspectj.version>1.9.24</aspectj.version>
+        <awaitility.version>4.3.0</awaitility.version>
 
-        <bouncycastle.version>1.76</bouncycastle.version>
+        <bouncycastle.version>1.80</bouncycastle.version>
 
-        <c3po.version>0.9.5.5</c3po.version>
-        <commons-codec.version>1.16.0</commons-codec.version>
-        <!-- TODO: update to commons-collections4 -->
-        <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-compress.version>1.24.0</commons-compress.version>
-        <commons-email.version>1.5</commons-email.version>
-        <commons-io.version>2.13.0</commons-io.version>
+        <c3po.version>0.10.2</c3po.version>
+        <commons-codec.version>1.18.0</commons-codec.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-compress.version>1.27.1</commons-compress.version>
+        <commons-email.version>2.0.0-M1</commons-email.version>
+        <commons-io.version>2.19.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
-        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException) -->
+        <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException instead of IllegalArgumentException). Replace all commons-lang with commons-lang3 calls -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-net.version>3.9.0</commons-net.version>
-        <commons-validator.version>1.7</commons-validator.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <commons-net.version>3.11.1</commons-net.version>
+        <commons-validator.version>1.9.0</commons-validator.version>
 
-        <diffutils.version>1.3.0</diffutils.version>
+        <diffutils.version>4.15</diffutils.version>
 
-        <elasticsearch.version>7.15.0</elasticsearch.version>
-        <ezvcard.version>0.12.0</ezvcard.version>
+        <elasticsearch.version>7.16.3</elasticsearch.version>
+        <ezvcard.version>0.12.1</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <groovy.version>3.0.19</groovy.version>
-        <guava.version>32.1.2-jre</guava.version>
+        <groovy.version>4.0.26</groovy.version>
+        <guava.version>33.4.8-jre</guava.version>
 
-        <hamcrest.version>2.2</hamcrest.version>
+        <hamcrest.version>3.0</hamcrest.version>
+        <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
 
-        <jackson.version>2.15.2</jackson.version>
-        <jaxb.api.version>4.0.0</jaxb.api.version>
-        <jaxb.impl.version>4.0.3</jaxb.impl.version>
+        <jackson.version>2.18.3</jackson.version>
+        <jaxb.api.version>4.0.2</jaxb.api.version>
+        <jaxb.impl.version>4.0.5</jaxb.impl.version>
         <jcache.version>1.1.1</jcache.version>
-        <jersey.version>3.0.11</jersey.version>
-        <jetty.version>11.0.17</jetty.version>
+        <jersey.version>3.0.17</jersey.version>
+        <jetty.version>11.0.25</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
-        <jsoup.version>1.16.1</jsoup.version>
-        <junit.version>5.9.3</junit.version>
+        <jsonassert.version>1.5.3</jsonassert.version>
+        <json-path.version>2.9.0</json-path.version>
+        <jsoup.version>1.19.1</jsoup.version>
+        <junit.version>5.12.2</junit.version>
 
-        <log4j.version>2.20.0</log4j.version>
+        <log4j.version>2.24.3</log4j.version>
 
-        <mail.version>2.0.2</mail.version>
+        <mail.version>2.0.3</mail.version>
         <!-- TODO: update mariadb to 3.x -->
-        <mariadb-java-client.version>2.7.10</mariadb-java-client.version>
-        <mockito.version>3.12.4</mockito.version>
+        <mariadb-java-client.version>2.7.12</mariadb-java-client.version>
+        <mockito.version>5.17.0</mockito.version>
 
-        <netty.version>4.1.97.Final</netty.version>
+        <netty.version>4.1.119.Final</netty.version>
+        <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
+
+        <oauth2.oidc.version>11.23.1</oauth2.oidc.version>
+        <org.json.version>20250107</org.json.version>
 
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
         <persistence.version>1.0.2</persistence.version>
+        <proprot.version>1.0</proprot.version>
 
         <sentry.version>6.26.0</sentry.version>
-        <shedlock.version>4.44.0</shedlock.version>
-        <slf4j.version>2.0.7</slf4j.version>
+        <shedlock.version>5.16.0</shedlock.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>6.0.11</spring.version>
-        <spock.version>2.3-groovy-3.0</spock.version>
+        <spring.version>6.2.6</spring.version>
+        <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
+        <testcontainers.elasticsearch.version>1.16.2</testcontainers.elasticsearch.version>
+        <tink.version>1.13.0</tink.version>
+
         <validation.version>3.0.2</validation.version>
-        <velocity.version>2.3</velocity.version>
+        <velocity.version>2.4.1</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
     </properties>
@@ -114,17 +125,19 @@
     </distributionManagement>
 
     <modules>
-        <module>whois-rpsl</module>
+        <module>whois-api</module>
         <module>whois-client</module>
         <module>whois-commons</module>
-        <module>whois-query</module>
-        <module>whois-nrtm</module>
-        <module>whois-update</module>
-        <module>whois-api</module>
-        <module>whois-scheduler</module>
         <module>whois-db</module>
         <module>whois-endtoend</module>
+        <module>whois-nrtm</module>
         <module>whois-nrtm4</module>
+        <module>whois-nrtm4-client</module>
+        <module>whois-query</module>
+        <module>whois-rpsl</module>
+        <module>whois-scheduler</module>
+        <module>whois-smtp</module>
+        <module>whois-update</module>
     </modules>
 
     <dependencyManagement>
@@ -204,6 +217,18 @@
             </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
+                <artifactId>whois-nrtm4-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-nrtm4-client</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
                 <artifactId>whois-query</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -249,6 +274,11 @@
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-smtp</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.ripe.commons</groupId>
@@ -349,11 +379,39 @@
                 <artifactId>netty-all</artifactId>
                 <version>${netty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-smtp</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus-jose-jwt.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <version>${oauth2.oidc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.crypto.tink</groupId>
+                <artifactId>tink</artifactId>
+                <version>${tink.version}</version>
+            </dependency>
 
             <!-- Jakarta Mail (formerly JavaMail) TODO: [ES] depend on angus-mail -->
             <dependency>
                 <groupId>org.eclipse.angus</groupId>
                 <artifactId>jakarta.mail</artifactId>
+                <version>${mail.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.angus</groupId>
+                <artifactId>dsn</artifactId>
                 <version>${mail.version}</version>
             </dependency>
 
@@ -414,6 +472,11 @@
                 <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
                 <version>${commons-validator.version}</version>
@@ -430,21 +493,14 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>${commons-collections.version}</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections4.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
-                <artifactId>commons-email</artifactId>
+                <artifactId>commons-email2-jakarta</artifactId>
                 <version>${commons-email.version}</version>
-                <!-- TODO: [ES] commons-email has not switched to Jakarta -->
-                <exclusions>
-                    <exclusion>
-                        <artifactId>javax.mail</artifactId>
-                        <groupId>com.sun.mail</groupId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -632,8 +688,8 @@
 
             <!-- diffutils -->
             <dependency>
-                <groupId>com.googlecode.java-diff-utils</groupId>
-                <artifactId>diffutils</artifactId>
+                <groupId>io.github.java-diff-utils</groupId>
+                <artifactId>java-diff-utils</artifactId>
                 <version>${diffutils.version}</version>
             </dependency>
 
@@ -647,6 +703,13 @@
                 <groupId>com.googlecode.ez-vcard</groupId>
                 <artifactId>ez-vcard</artifactId>
                 <version>${ezvcard.version}</version>
+            </dependency>
+
+            <!-- JSONObject Library -->
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${org.json.version}</version>
             </dependency>
 
             <!-- Solr -->
@@ -666,6 +729,37 @@
                 <groupId>net.javacrumbs.shedlock</groupId>
                 <artifactId>shedlock-provider-jdbc-template</artifactId>
                 <version>${shedlock.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.amazonaws.proprot</groupId>
+                <artifactId>proprot</artifactId>
+                <version>${proprot.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>uk.co.datumedge</groupId>
+                <artifactId>hamcrest-json</artifactId>
+                <version>${hamcrest-json.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.skyscreamer</groupId>
+                <artifactId>jsonassert</artifactId>
+                <version>${jsonassert.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>${json-path.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${testcontainers.elasticsearch.version}</version>
+                <scope>test</scope>
             </dependency>
 
         </dependencies>
@@ -722,7 +816,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.codehaus.groovy</groupId>
+          <groupId>org.apache.groovy</groupId>
           <artifactId>groovy</artifactId>
           <version>${groovy.version}</version>
           <scope>test</scope>
@@ -776,7 +870,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <id>before-unit-test-execution</id>
@@ -855,7 +949,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.4.0</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -871,18 +965,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.14.0</version>
                 <configuration>
                     <release>${java.version}</release>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <compilerArgs>
-                        <arg>-Xlint</arg>
+                        <arg>-Xlint:all</arg>
                         <arg>-Xlint:-unchecked</arg>
                         <arg>-Xlint:-rawtypes</arg>
                         <arg>-Xlint:-serial</arg>
                         <arg>-Xlint:-fallthrough</arg>
+                        <arg>-Xlint:-processing</arg>
                     	<arg>--add-modules</arg>
                     	<arg>java.sql,java.xml</arg>
+                        <!-- explicitly enable annotation processing. -->
+                        <arg>-proc:full</arg>
                     </compilerArgs>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
@@ -891,7 +988,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.1</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
@@ -899,7 +996,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>3.4.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -911,7 +1008,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -924,7 +1021,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
+                <version>3.1.3</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
@@ -932,9 +1029,10 @@
                 <version>1.13.1</version>
             </plugin>
             <plugin>
+                <!-- RUN UNIT TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.5.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
@@ -945,9 +1043,11 @@
                         <exclude>${test.files.integration}</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
-                    <forkCount>1C</forkCount>
-                    <threadCount>1</threadCount>
+                    <parallel>true</parallel>
+                    <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
                     <excludedGroups>IntegrationTest,ManualTest,ElasticSearchTest</excludedGroups>
                     <systemPropertyVariables>
                         <hazelcast.version.check.enabled>false</hazelcast.version.check.enabled>
@@ -957,9 +1057,10 @@
                 </configuration>
             </plugin>
             <plugin>
+                <!-- RUN INTEGRATION TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.5.2</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>
@@ -970,8 +1071,12 @@
                         <exclude>${test.files.excludes}</exclude>
                     </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
-                    <forkCount>1C</forkCount>
+                    <!-- Ref. https://maven.apache.org/surefire/maven-failsafe-plugin/examples/fork-options-and-parallel-execution.html -->
+                    <parallel>true</parallel>
+                    <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
                     <runOrder>random</runOrder>
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
@@ -985,10 +1090,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <!-- Plugin forked from mojohaus project to add Java 11 support -->
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.12.9</version>
+                <version>1.15.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -1019,7 +1123,6 @@
                         <exclude>**/net/ripe/db/whois/common/Message.java</exclude>
                         <exclude>**/net/ripe/db/whois/common/Messages.java</exclude>
                     </excludes>
-
                     <Xlint>warning</Xlint>
                     <verbose>true</verbose>
                     <forceAjcCompile>true</forceAjcCompile>
@@ -1071,7 +1174,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <rules>
                         <dependencyConvergence/>
@@ -1099,7 +1202,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.8.1</version>
             </plugin>
         </plugins>
     </build>
@@ -1203,7 +1306,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>2.8.1</version>
+                <version>2.17.1</version>
                 <reportSets>
                     <reportSet>
                         <reports>

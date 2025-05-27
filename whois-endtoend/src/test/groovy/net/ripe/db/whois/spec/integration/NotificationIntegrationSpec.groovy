@@ -523,6 +523,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "last-modified:  2013-06-25T09:00:00Z\n" +
                 "source:         TEST # Filtered\n" +
                 "\n" +
+                "Changed by password.\n" +
+                "\n" +
                 "---\n" +
                 "OBJECT BELOW MODIFIED:\n" +
                 "\n" +
@@ -561,9 +563,11 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "last-modified:  2013-06-25T09:00:00Z\n" +
                 "source:         TEST\n" +
                 "\n" +
+                "Changed by password.\n" +
+                "\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions"
+                "https://docs.db.ripe.net/terms-conditions.html"
         )
 
         noMoreMessages()
@@ -676,6 +680,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "created:        2013-06-25T09:00:00Z\n" +
                 "last-modified:  2013-06-25T09:00:00Z\n" +
                 "source:         TEST # Filtered\n" +
+                "\n" +
+                "Changed by password.\n" +
                 "\n" +
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "Some object(s) in RIPE Database added references to\n" +
@@ -851,6 +857,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "\n" +
                 "The old object can be seen in the history using the query options --list-versions and --show-version 1 OTHER-MNT\n" +
                 "\n" +
+                "Changed by password.\n" +
+                "\n" +
                 "---\n" +
                 "OBJECT BELOW CREATED:\n" +
                 "\n" +
@@ -888,6 +896,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "last-modified:  %s\n" +
                 "source:         TEST\n" +
                 "\n" +
+                "Changed by password.\n" +
+                "\n" +
                 "---\n" +
                 "OBJECT BELOW MODIFIED:\n" +
                 "\n" +
@@ -922,6 +932,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "\n" +
                 "The old object can be seen in the history using the query options --list-versions and --show-version\n" +
                 "\n" +
+                "Changed by password.\n" +
+                "\n" +
                 "---\n" +
                 "OBJECT BELOW DELETED:\n" +
                 "\n" +
@@ -941,6 +953,8 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "source:         TEST\n" +
                 "\n" +
                 "***Info:    reason\n" +
+                "\n" +
+                "Changed by password.\n" +
                 "\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n",

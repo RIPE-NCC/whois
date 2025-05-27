@@ -87,7 +87,7 @@ public class RsngAuthoritativeResourceWorker {
                 .queryParam("page-number", "1")
                 .request()
                 .header(HttpHeaders.ACCEPT, "application/json")
-                .header("X-API_KEY", apiKey)
+                .header("ncc-internal-api-key", apiKey)
                 .get(String.class);
     }
 }

@@ -19,8 +19,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,18 +27,20 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import static net.ripe.db.whois.api.fulltextsearch.ElasticFulltextSearch.SORT_BUILDERS;
 
 @Component
 public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
-
-    public static final List<SortBuilder<?>> SORT_BUILDERS = Arrays.asList(SortBuilders.scoreSort(), SortBuilders.fieldSort("lookup-key.raw").unmappedType("keyword"));
 
     private final int maxResultSize;
     private final RpslObjectDao objectDao;
     private final ElasticIndexService elasticIndexService;
     private final AccessControlListManager accessControlListManager;
+    private static final Set<String> EXACT_MATCH_SEARCH_FIELDS = Set.of("netname", "inetnum", "inet6num", "as-name", "aut-num");
 
     @Autowired
     public RdapElasticFullTextSearchService(@Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao objectDao,
@@ -54,10 +54,11 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
     }
 
     @Override
-    public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp, final Source source) throws IOException {
+    public List<RpslObject> performSearch(final String[] fields, final String term, final String clientIp,
+                                          final Source source) throws IOException {
 
         try {
-            return new ElasticSearchAccountingCallback<List<RpslObject>>(accessControlListManager, clientIp, source) {
+            return new ElasticSearchAccountingCallback<List<RpslObject>>(accessControlListManager,  clientIp, null, source) {
 
                 @Override
                 protected List<RpslObject> doSearch() throws IOException {
@@ -91,16 +92,36 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 }
 
                 private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
-                    if (term.indexOf('*') == -1 && term.indexOf('?') == -1) {
-                        final MultiMatchQueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(term, fields)
-                                .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
-                                .operator(Operator.AND);
-                        return multiMatchQuery;
+                    if (hasWildCard()) {
+                        return createWildCardQuery();
                     }
 
+                    return isExactMatchSearch() ? createExactMatchQuery() :
+                            new MultiMatchQueryBuilder(term, fields)
+                                    .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
+                                    .operator(Operator.AND);
+                }
+
+                private boolean isExactMatchSearch(){
+                    return EXACT_MATCH_SEARCH_FIELDS.containsAll(Stream.of(fields).toList());
+                }
+
+                private boolean hasWildCard(){
+                    return term.indexOf('*') != -1 || term.indexOf('?') != -1;
+                }
+
+                private BoolQueryBuilder createExactMatchQuery(){
+                    final BoolQueryBuilder exactMatch = QueryBuilders.boolQuery();
+                    for (String field : fields) {
+                        exactMatch.should(QueryBuilders.termQuery(String.format("%s.lowercase", field), term.toLowerCase()));
+                    }
+                    return exactMatch;
+                }
+
+                private BoolQueryBuilder createWildCardQuery(){
                     final BoolQueryBuilder wildCardBuilder = QueryBuilders.boolQuery();
                     for (String field : fields) {
-                        wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.raw", field), term));
+                        wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.lowercase", field), term.toLowerCase()));
                     }
                     return wildCardBuilder;
                 }

@@ -69,7 +69,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
             "mnt-by:      OWNER-MNT\n" +
             "source:      TEST");
 
-    private static String TEST_ROLE_STRING = "" +
+    private static final String TEST_ROLE_STRING = "" +
             "role:           Test Role\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +
@@ -218,7 +218,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.UPGRADE_REQUIRED_426));
-        assertThat(response.readEntity(String.class), containsString("HTTPS required for Basic authorization"));
+        assertThat(response.readEntity(String.class), containsString("HTTPS required for Authorization Header"));
     }
 
     @Test
@@ -282,7 +282,7 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
 
-    private static String getBasicAuthenticationHeader(String username, String password) {
+    public static String getBasicAuthenticationHeader(String username, String password) {
         String valueToEncode = username + ":" + password;
         return "Basic " + Base64.getEncoder().encodeToString(valueToEncode.getBytes());
     }

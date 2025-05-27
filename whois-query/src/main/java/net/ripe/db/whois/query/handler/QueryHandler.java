@@ -4,10 +4,12 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.domain.ResponseObject;
+import net.ripe.db.whois.common.hazelcast.IpBlockManager;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -27,16 +29,19 @@ public class QueryHandler {
     private final AccessControlListManager accessControlListManager;
     private final BasicSourceContext sourceContext;
     private final List<QueryExecutor> queryExecutors;
+    private final IpBlockManager ipBlockManager;
 
     @Autowired
     public QueryHandler(final WhoisLog whoisLog,
                         final AccessControlListManager accessControlListManager,
+                        final IpBlockManager ipBlockManager,
                         final BasicSourceContext sourceContext,
                         final QueryExecutor... queryExecutors) {
         this.whoisLog = whoisLog;
         this.accessControlListManager = accessControlListManager;
         this.sourceContext = sourceContext;
         this.queryExecutors = Lists.newArrayList(queryExecutors);
+        this.ipBlockManager = ipBlockManager;
     }
 
     public void streamResults(final Query query, final InetAddress remoteAddress, final Integer contextId, final ResponseHandler responseHandler) {
@@ -52,6 +57,10 @@ public class QueryHandler {
             @Override
             public void run() {
                 try {
+                    if (ipBlockManager.isBlockedIp(remoteAddress)){
+                        throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedForAbuse(remoteAddress.getHostAddress()));
+                    }
+
                     final QueryExecutor queryExecutor = getQueryExecutor();
                     initAcl(queryExecutor);
                     executeQuery(queryExecutor);
@@ -64,9 +73,13 @@ public class QueryHandler {
                     throw e;
                 } finally {
                     if (accountedObjects > 0) {
-                        accessControlListManager.accountPersonalObjects(accountingAddress, accountedObjects);
+                        accessControlListManager.accountPersonalObjects(getAccountingIdentifier(), accountedObjects);
                     }
                 }
+            }
+
+            private AccountingIdentifier getAccountingIdentifier() {
+                return accessControlListManager.getAccountingIdentifier(accountingAddress, query.getEffectiveUsername());
             }
 
             private QueryExecutor getQueryExecutor() {
@@ -81,7 +94,8 @@ public class QueryHandler {
 
             private void initAcl(final QueryExecutor queryExecutor) {
                 if (queryExecutor.isAclSupported()) {
-                    checkBlocked(remoteAddress);
+                    final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(remoteAddress, query.getEffectiveUsername());
+                    accessControlListManager.checkBlocked(accountingIdentifier);
 
                     if (query.hasProxyWithIp()) {
                         if (!accessControlListManager.isAllowedToProxy(remoteAddress)) {
@@ -89,20 +103,12 @@ public class QueryHandler {
                         }
 
                         accountingAddress = InetAddresses.forString(query.getProxyIp());
-                        checkBlocked(accountingAddress);
+                        accessControlListManager.checkBlocked(accountingIdentifier);
                     } else {
                         accountingAddress = remoteAddress;
                     }
 
                     useAcl = !accessControlListManager.isUnlimited(accountingAddress);
-                }
-            }
-
-            private void checkBlocked(final InetAddress inetAddress) {
-                if (accessControlListManager.isDenied(inetAddress)) {
-                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedPermanently(inetAddress));
-                } else if (!accessControlListManager.canQueryPersonalObjects(inetAddress)) {
-                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(inetAddress));
                 }
             }
 
@@ -116,13 +122,13 @@ public class QueryHandler {
                     @Override
                     public void handle(final ResponseObject responseObject) {
                         if (responseObject instanceof RpslObject) {
-                            if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource())) {
+                            if (useAcl && accessControlListManager.requiresAcl((RpslObject) responseObject, sourceContext.getCurrentSource(), query.getEffectiveUuid())) {
                                 if (accountingLimit == -1) {
-                                    accountingLimit = accessControlListManager.getPersonalObjects(accountingAddress);
+                                    accountingLimit = accessControlListManager.getPersonalObjects(getAccountingIdentifier());
                                 }
 
                                 if (++accountedObjects > accountingLimit) {
-                                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(accountingAddress));
+                                    throw new QueryException(QueryCompletionInfo.BLOCKED, QueryMessages.accessDeniedTemporarily(accountingAddress.getHostAddress()));
                                 }
                             } else {
                                 notAccountedObjects++;
@@ -139,5 +145,4 @@ public class QueryHandler {
 
         }.run();
     }
-
 }

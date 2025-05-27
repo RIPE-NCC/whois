@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -22,6 +24,7 @@ import org.springframework.context.annotation.Profile;
 import java.util.Arrays;
 
 @Configuration
+@EnableCaching(mode = AdviceMode.ASPECTJ)
 @DeployedProfile
 public class HazelcastInstanceManager {
 
@@ -80,6 +83,20 @@ public class HazelcastInstanceManager {
                     .setStatisticsEnabled(true)
                     .setEvictionConfig(evictionConfig)
                     .setTimeToLiveSeconds(60));
+
+            // @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid")
+            config.addMapConfig(new MapConfig()
+                    .setName("ssoHistoricalUserDetails")
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
+
+            config.addMapConfig(new MapConfig()
+                    .setName("apiKeyOAuth")
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
+
 
             this.hazelcastInstance = getHazelcastInstance(config);
 

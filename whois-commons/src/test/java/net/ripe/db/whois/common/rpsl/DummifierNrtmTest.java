@@ -39,8 +39,13 @@ public class DummifierNrtmTest {
             assertThat(subject.isAllowed(1, object), is(true));
             assertThat(subject.isAllowed(2, object), is(true));
 
-            assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderPersonObject()));
-            assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderPersonObject()));
+            if (objectType.equals(ObjectType.ROLE)) {
+                assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderRoleObject()));
+                assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderRoleObject()));
+            } else {
+                assertThat(subject.dummify(1, object), is(DummifierNrtm.getPlaceholderPersonObject()));
+                assertThat(subject.dummify(2, object), is(DummifierNrtm.getPlaceholderPersonObject()));
+            }
 
         }
     }

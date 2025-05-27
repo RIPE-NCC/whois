@@ -30,7 +30,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 @JsonInclude(NON_EMPTY)
 @XmlRootElement(name = "whois-resources")
 public class WhoisResources {
-    public static final String TERMS_AND_CONDITIONS = "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions";
+    public static final String TERMS_AND_CONDITIONS = "https://docs.db.ripe.net/terms-conditions.html";
 
     private Parameters parameters;
 

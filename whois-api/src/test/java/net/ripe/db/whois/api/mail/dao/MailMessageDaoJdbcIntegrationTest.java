@@ -149,6 +149,6 @@ public class MailMessageDaoJdbcIntegrationTest extends AbstractIntegrationTest {
     }
 
     private List<Map<String, Object>> getAllMessages() {
-        return databaseHelper.getMailupdatesTemplate().queryForList("select * from mailupdates");
+        return mailupdatesTemplate.queryForList("select * from mailupdates");
     }
 }

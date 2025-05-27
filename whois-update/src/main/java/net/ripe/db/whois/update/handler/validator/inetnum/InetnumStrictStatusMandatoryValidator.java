@@ -16,8 +16,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
-import net.ripe.db.whois.update.authentication.Principal;
-import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -72,7 +70,7 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
     }
 
     @SuppressWarnings("unchecked")
-    private List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
+    protected List<Message> validateStatusAgainstResourcesInTree(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         final Ipv4Resource ipInterval = Ipv4Resource.parse(updatedObject.getKey());
         final List<Message> validationMessages = Lists.newArrayList();
@@ -121,10 +119,6 @@ public class InetnumStrictStatusMandatoryValidator implements BusinessRuleValida
         }
 
         return validationMessages;
-    }
-
-    private boolean authByRs(final Subject subject) {
-        return subject.hasPrincipal(Principal.RS_MAINTAINER);
     }
 
     private boolean checkAuthorizationForStatusInHierarchy(final PreparedUpdate update, final Ipv4Resource ipInterval) {

@@ -1,0 +1,33 @@
+{
+  "roas": [
+    { "asn": "AS42187", "prefix": "94.127.92.0/24", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS52511", "prefix": "2803:8240::/32", "maxLength": 32, "ta": "lacnic" },
+    { "asn": "AS16243", "prefix": "217.114.96.0/20", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS44889", "prefix": "46.38.144.0/23", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS51018", "prefix": "95.159.84.0/22", "maxLength": 22, "ta": "ripe" },
+    { "asn": "AS132824", "prefix": "2401:3740:375::/48", "maxLength": 48, "ta": "apnic" },
+    { "asn": "AS5483", "prefix": "85.204.99.0/24", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS206262", "prefix": "185.186.80.0/24", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS61317", "prefix": "85.237.203.0/24", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS262178", "prefix": "190.113.64.0/20", "maxLength": 24, "ta": "lacnic" },
+    { "asn": "AS62468", "prefix": "156.224.16.0/20", "maxLength": 24, "ta": "afrinic" },
+    { "asn": "AS138995", "prefix": "2001:df4:1500::/48", "maxLength": 48, "ta": "apnic" },
+    { "asn": "AS47443", "prefix": "93.174.80.0/21", "maxLength": 21, "ta": "ripe" },
+    { "asn": "AS25145", "prefix": "2a02:ac80:4000::/48", "maxLength": 48, "ta": "ripe" },
+    { "asn": "AS61317", "prefix": "195.88.86.0/23", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS3215", "prefix": "92.142.0.0/16", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS200088", "prefix": "37.252.10.0/23", "maxLength": 23, "ta": "ripe" },
+    { "asn": "AS6830", "prefix": "2001:4050:8000::/33", "maxLength": 33, "ta": "ripe" },
+    { "asn": "AS136400", "prefix": "103.86.126.0/24", "maxLength": 24, "ta": "apnic" },
+    { "asn": "AS136255", "prefix": "2400:ac40:8b7::/48", "maxLength": 48, "ta": "apnic" },
+    { "asn": "AS62217", "prefix": "91.220.127.0/24", "maxLength": 24, "ta": "ripe" },
+    { "asn": "AS6505", "prefix": "206.48.0.0/16", "maxLength": 16, "ta": "arin" },
+    { "asn": "AS5511", "prefix": "206.48.0.0/16", "maxLength": 16, "ta": "arin" },
+    { "asn": "AS1964", "prefix": "206.48.0.0/16", "maxLength": 16, "ta": "arin" },
+    { "asn": "AS6505", "prefix": "193.4.0.0/16", "maxLength": 16, "ta": "arin" },
+    { "asn": "AS7505", "prefix": "200.4.0.0/23", "maxLength": 23, "ta": "arin" },
+    { "asn": "AS6505", "prefix": "176.223.250.0/23", "maxLength": 23, "ta": "ripe" },
+    { "asn": "AS44546", "prefix": "92.38.0.0/17", "maxLength": 24, "ta": "arin" },
+    { "asn": "AS61979", "prefix": "92.38.44.0/22", "maxLength": 24, "ta": "ripe" }
+  ]
+}

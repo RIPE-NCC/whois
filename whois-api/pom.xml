@@ -35,20 +35,15 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-nrtm4</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
 
+        <!-- jetty -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-alpn-server</artifactId>
@@ -135,6 +130,24 @@
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
+        <!-- Jakarta Mail -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>dsn</artifactId>
+        </dependency>
+
+        <!-- Signature -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+        </dependency>
+
+        <!-- testing -->
+
         <!-- Solr -->
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -145,10 +158,8 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>1.16.2</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
@@ -170,21 +181,23 @@
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
-            <version>1.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.co.datumedge</groupId>
             <artifactId>hamcrest-json</artifactId>
-            <version>0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <version>2.7.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -196,9 +209,9 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.12.9</version>
+                <version>1.15.0</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>
@@ -215,7 +228,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-xjc-plugin</artifactId>
-                <version>2.6.1</version>
+                <version>3.3.4</version>
                 <executions>
                     <execution>
                         <phase>none</phase>
@@ -223,7 +236,7 @@
                 </executions>
                 <configuration>
                     <extensions>
-                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.6.1</extension>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:3.3.4</extension>
                     </extensions>
                     <sourceRoot>${project.build.sourceDirectory}</sourceRoot>
                     <xsdOptions>

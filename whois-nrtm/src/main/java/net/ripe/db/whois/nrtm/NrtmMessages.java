@@ -12,7 +12,7 @@ public class NrtmMessages {
     public static Message termsAndConditions() {
         return new Message(Messages.Type.INFO,
             "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions");
+                "% See https://docs.db.ripe.net/terms-conditions.html");
     }
 
     public static Message version(final String applicationVersion) {

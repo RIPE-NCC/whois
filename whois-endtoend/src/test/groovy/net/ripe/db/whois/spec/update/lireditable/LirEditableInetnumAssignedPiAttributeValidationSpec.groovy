@@ -1,8 +1,9 @@
 package net.ripe.db.whois.spec.update.lireditable
 
+import org.junit.jupiter.api.Tag
 
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditableAttributeValidation {
 
     // data for tests
@@ -123,7 +124,6 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
                 mnt-by:       LIR-MNT
                 remarks:      a different remark# changed
                 notify:       other@ripe.net    # changed
-                mnt-lower:    LIR-MNT
                 mnt-routes:   OWNER2-MNT        # changed
                 mnt-domains:  DOMAINS-MNT       # changed
                 mnt-irt:      IRT-2-TEST        # changed
@@ -162,7 +162,6 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}
                 mnt-routes:   LIR2-MNT          # changed
                 mnt-domains:  ${resourceRipeMntner}
                 source:       TEST
@@ -203,7 +202,6 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}
                 mnt-routes:   ${resourceRipeMntner}
                 mnt-routes:   ${differentRipeMntner} # added
                 mnt-domains:  ${resourceRipeMntner}
@@ -246,8 +244,6 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}  # ripe-ncc-mnt
-                mnt-lower:    LIR-MNT          # extra
                 mnt-routes:   OWNER-MNT        # extra
                 mnt-domains:  ${resourceRipeMntner}  # ripe-ncc-mnt
                 mnt-domains:  DOMAINS-MNT      # extra
@@ -289,7 +285,6 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}
                 mnt-routes:   ${resourceRipeMntner}
                 mnt-domains:  LIR2-MNT          # changed
                 source:       TEST
@@ -330,7 +325,6 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}
                 mnt-routes:   ${resourceRipeMntner}
                 mnt-domains:  ${resourceRipeMntner}
                 mnt-domains:  ${differentRipeMntner} # added
@@ -373,8 +367,6 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}  # ripe-ncc-mnt
-                mnt-lower:    LIR-MNT          # extra
                 mnt-routes:   ${resourceRipeMntner}  # ripe-ncc-mnt
                 mnt-routes:   OWNER-MNT        # extra
                 mnt-domains:  DOMAINS-MNT      # extra
@@ -459,12 +451,15 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
         )
 
         then:
-        ack.success
+        ack.errors
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
+        ]
     }
 
     def "modify resource, change (mnt-lower) lir-unlocked attributes by lir"() {
@@ -503,12 +498,14 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
+        ]
     }
 
     def "modify resource, can change net-name and mnt-by (lir-locked) attributes by lir"() {
@@ -615,10 +612,11 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -657,10 +655,11 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -701,10 +700,11 @@ class LirEditableInetnumAssignedPiAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 

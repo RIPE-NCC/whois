@@ -2,15 +2,17 @@ package net.ripe.db.whois.api.rest.mapper;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.ObjectMessages;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
-import net.ripe.db.whois.common.search.ManagedAttributeSearch;
+import net.ripe.db.whois.api.rest.search.RpslMessageGenerator;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import static net.ripe.db.whois.api.rest.RestServiceHelper.getServerAttributeMapper;
 
@@ -28,16 +31,20 @@ public class WhoisObjectServerMapper {
     private final AbuseContactSearch abuseContactSearch;
     private final ManagedAttributeSearch managedAttributeSearch;
 
+    private final List<RpslMessageGenerator> queryMessageGenerators;
+
     @Autowired
     public WhoisObjectServerMapper(
             final WhoisObjectMapper whoisObjectMapper,
             final ResourceHolderSearch resourceHolderSearch,
             final AbuseContactSearch abuseContactSearch,
-            final ManagedAttributeSearch managedAttributeSearch) {
+            final ManagedAttributeSearch managedAttributeSearch,
+            final List<RpslMessageGenerator> queryMessageGenerators) {
         this.whoisObjectMapper = whoisObjectMapper;
         this.resourceHolderSearch = resourceHolderSearch;
         this.abuseContactSearch = abuseContactSearch;
         this.managedAttributeSearch = managedAttributeSearch;
+        this.queryMessageGenerators = queryMessageGenerators;
     }
 
     public List<WhoisVersion> mapVersions(final List<DeletedVersionResponseObject> deleted, final List<VersionResponseObject> versions) {
@@ -68,6 +75,17 @@ public class WhoisObjectServerMapper {
     public void mapAbuseContact(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject) {
         if (Boolean.TRUE.equals(parameters.getAbuseContact())) {
             whoisObject.setAbuseContact(abuseContactSearch.findAbuseContact(rpslObject));
+        }
+    }
+
+    public void mapObjectMessages(final WhoisObject whoisObject, final Parameters parameters, final RpslObject rpslObject){
+        final ObjectMessages objectMessagesFormatted = new ObjectMessages(queryMessageGenerators
+                .stream()
+                .map(objectMessageGenerator -> objectMessageGenerator.generate(rpslObject, parameters))
+                .filter(Objects::nonNull)
+                .toList());
+        if (!objectMessagesFormatted.getMessages().isEmpty()){
+            whoisObject.setObjectMessages(objectMessagesFormatted);
         }
     }
 

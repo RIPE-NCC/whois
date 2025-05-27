@@ -19,7 +19,6 @@ public class DummifierNrtm implements Dummifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(DummifierNrtm.class);
 
     static final Set<ObjectType> SKIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.PERSON, ObjectType.ROLE);
-    static final Set<ObjectType> STRIPPED_OBJECT_TYPES = Sets.immutableEnumSet(ObjectType.MNTNER, ObjectType.ORGANISATION);
 
     private static final String PERSON_ROLE_PLACEHOLDER = "DUMY-RIPE";
     static final Set<AttributeType> PERSON_ROLE_REFERENCES = Sets.immutableEnumSet(
@@ -51,7 +50,7 @@ public class DummifierNrtm implements Dummifier {
 
         // [EB]: Shortcircuit for objects we'd normally skip for old protocols.
         if (version <= 2 && usePlaceHolder(rpslObject)) {
-            return getPlaceholderPersonObject();
+            return objectType.equals(ObjectType.ROLE) ? getPlaceholderRoleObject() : getPlaceholderPersonObject();
         }
 
         final List<RpslAttribute> attributes = Lists.newArrayList(rpslObject.getAttributes());
@@ -120,6 +119,7 @@ public class DummifierNrtm implements Dummifier {
     }
 
     public boolean isAllowed(final int version, final RpslObject rpslObject) {
+        //Here PERSON and ROLE without abuseMailBox objects will be not allowed for VERSION 3
         return version <= 2 || !usePlaceHolder(rpslObject);
     }
 
@@ -215,24 +215,52 @@ public class DummifierNrtm implements Dummifier {
     }
 
     public static RpslObject getPlaceholderPersonObject() {
+        return getPlaceholderPersonObject(CIString.ciString("RIPE"));
+    }
+
+    public static RpslObject getPlaceholderPersonObject(final CIString source){
+        return RpslObject.parse(String.format("""
+                        person:         Placeholder Person Object
+                        address:        RIPE Network Coordination Centre
+                        address:        P.O. Box 10096
+                        address:        1001 EB Amsterdam
+                        address:        The Netherlands
+                        phone:          +31 20 535 4444
+                        nic-hdl:        DUMY-RIPE
+                        mnt-by:         RIPE-DBM-MNT
+                        remarks:        **********************************************************
+                        remarks:        * This is a placeholder object to protect personal data.
+                        remarks:        * To view the original object, please query the RIPE
+                        remarks:        * Database at:
+                        remarks:        * http://www.ripe.net/whois
+                        remarks:        **********************************************************
+                        created:        2009-07-24T17:00:00Z
+                        last-modified:  2009-07-24T17:00:00Z
+                        source:         %s""", source));
+    }
+
+    public static RpslObject getPlaceholderRoleObject() {
         return RpslObject.parse("" +
-                        "person:         Placeholder Person Object\n" +
-                        "address:        RIPE Network Coordination Centre\n" +
-                        "address:        P.O. Box 10096\n" +
-                        "address:        1001 EB Amsterdam\n" +
-                        "address:        The Netherlands\n" +
-                        "phone:          +31 20 535 4444\n" +
-                        "nic-hdl:        DUMY-RIPE\n" +
-                        "mnt-by:         RIPE-DBM-MNT\n" +
-                        "remarks:        **********************************************************\n" +
-                        "remarks:        * This is a placeholder object to protect personal data.\n" +
-                        "remarks:        * To view the original object, please query the RIPE\n" +
-                        "remarks:        * Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        **********************************************************\n" +
-                        "created:        2009-07-24T17:00:00Z\n" +
-                        "last-modified:  2009-07-24T17:00:00Z\n" +
-                        "source:         RIPE"
+                "role:           Placeholder Role Object\n" +
+                "address:        RIPE Network Coordination Centre\n" +
+                "address:        P.O. Box 10096\n" +
+                "address:        1001 EB Amsterdam\n" +
+                "address:        The Netherlands\n" +
+                "phone:          +31 20 535 4444\n" +
+                "e-mail:         ripe-dbm@ripe.net\n" +
+                "admin-c:        DUMY-RIPE\n" +
+                "tech-c:         DUMY-RIPE\n" +
+                "nic-hdl:        ROLE-RIPE\n" +
+                "mnt-by:         RIPE-DBM-MNT\n" +
+                "remarks:        **********************************************************\n" +
+                "remarks:        * This is a placeholder object to protect personal data.\n" +
+                "remarks:        * To view the original object, please query the RIPE\n" +
+                "remarks:        * Database at:\n" +
+                "remarks:        * http://www.ripe.net/whois\n" +
+                "remarks:        **********************************************************\n" +
+                "created:        2009-07-24T17:00:00Z\n" +
+                "last-modified:  2009-07-24T17:00:00Z\n" +
+                "source:         RIPE"
         );
     }
 }

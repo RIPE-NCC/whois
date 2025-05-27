@@ -6,7 +6,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import org.springframework.stereotype.Component;
 
 import java.security.cert.X509Certificate;

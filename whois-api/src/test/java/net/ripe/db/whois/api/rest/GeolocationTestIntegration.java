@@ -82,7 +82,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<geolocation-attributes>"));
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
-        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>"));
+        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>"));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<language value=\"EN\">"));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
-        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>"));
+        assertThat(response, containsString("<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>"));
     }
 
     @Test
@@ -249,6 +249,41 @@ public class GeolocationTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
         assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.0.0.0 - 10.255.255.255\"/>"));
+    }
+
+    @Test
+    public void parent_inetnum_with_geolocation_allocated_Assigned_pa() throws Exception {
+        databaseHelper.addObject(
+                "inetnum:        10.0.0.0 - 10.255.255.255\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "language:       EN\n" +
+                        "geoloc:         52.375599 5.9888802\n" +
+                        "descr:          Private Network\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ALLOCATED UNSPECIFIED\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
+        databaseHelper.addObject(
+                "inetnum:        10.1.0.0 - 10.1.255.255\n" +
+                        "netname:        RIPE-NCC\n" +
+                        "descr:          Private Network\n" +
+                        "geoloc:         52.375599 4.899902\n" +
+                        "country:        NL\n" +
+                        "tech-c:         TP1-TEST\n" +
+                        "status:         ALLOCATED-ASSIGNED PA\n" +
+                        "mnt-by:         OWNER-MNT\n" +
+                        "mnt-lower:      OWNER-MNT\n" +
+                        "source:         TEST");
+        ipTreeUpdater.rebuild();
+
+        final String response = RestTest.target(getPort(), "whois/geolocation?ipkey=10.1.0.0%20-%2010.1.255.255")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class);
+
+        assertThat(response, containsString("<location value=\"52.375599 4.899902\">"));
+        assertThat(response, containsString("<link xlink:type=\"locator\" xlink:href=\"http://rest.db.ripe.net/lookup/test/inetnum/10.1.0.0 - 10.1.255.255\"/>"));
     }
 
     @Test

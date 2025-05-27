@@ -2,7 +2,9 @@ package net.ripe.db.whois.api.httpserver;
 
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
-import jakarta.ws.rs.HEAD;
+import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
+import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
+import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -11,7 +13,6 @@ import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
-import org.eclipse.jetty.jmx.ObjectMBean;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
@@ -27,23 +28,17 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlets.PushCacheFilter;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jmx.JmxException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.management.JMException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import java.lang.management.ManagementFactory;
 import java.security.KeyStore;
 import java.security.cert.CRL;
 import java.time.ZoneOffset;
@@ -59,7 +54,7 @@ public class JettyBootstrap implements ApplicationService {
 
     private static final String EXTENDED_RIPE_LOG_FORMAT =
         "%{client}a " +         // log client address
-        "%{host}i " +           // host
+        "%{server}a " +         // host
         "- " +                  // -
         "%u " +                 // URL path
         "%{dd/MMM/yyyy:HH:mm:ss Z|" + ZoneOffset.systemDefault().getId() + "}t " +  // timestamp
@@ -91,7 +86,6 @@ public class JettyBootstrap implements ApplicationService {
             "SSLv3"
     };
 
-    private final ObjectName dosFilterMBeanName;
 
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
@@ -100,12 +94,26 @@ public class JettyBootstrap implements ApplicationService {
     private final WhoisKeystore whoisKeystore;
     private final String trustedIpRanges;
     private final boolean rewriteEngineEnabled;
-    private final boolean dosFilterEnabled;
     private final boolean sniHostCheck;
     private Server server;
     private int securePort;
     private int port;
     private final int idleTimeout;
+
+    private int clientAuthPort;
+
+    private final boolean xForwardedForHttps;
+
+    private final boolean xForwardedForHttp;
+
+    private final boolean dosFilterEnabled;
+
+    private final WhoisQueryDoSFilter whoisQueryDoSFilter;
+
+    private final WhoisUpdateDoSFilter whoisUpdateDoSFilter;
+
+    private final IpBlockListFilter ipBlockListFilter;
+
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -113,14 +121,20 @@ public class JettyBootstrap implements ApplicationService {
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
                           final WhoisKeystore whoisKeystore,
+                          final WhoisQueryDoSFilter whoisQueryDoSFilter,
+                          final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
-                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
                           @Value("${port.api:0}") final int port,
-                          @Value("${port.api.secure:-1}") final int securePort
-              ) throws MalformedObjectNameException {
+                          @Value("${port.api.secure:-1}") final int securePort,
+                          @Value("${port.client.auth:-1}") final int clientAuthPort,
+                          @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
+                          @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
+                          @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
+                          final IpBlockListFilter ipBlockListFilter
+                        ) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
@@ -129,13 +143,18 @@ public class JettyBootstrap implements ApplicationService {
         this.trustedIpRanges = trustedIpRanges;
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
-        this.dosFilterMBeanName = ObjectName.getInstance("net.ripe.db.whois:name=DosFilter");
-        this.dosFilterEnabled = dosFilterEnabled;
         this.sniHostCheck = sniHostCheck;
         this.idleTimeout = idleTimeout;
         this.securePort = securePort;
         this.port = port;
         this.server = null;
+        this.clientAuthPort = clientAuthPort;
+        this.xForwardedForHttp = xForwardedForHttp;
+        this.xForwardedForHttps = xForwardedForHttps;
+        this.dosFilterEnabled = dosFilterEnabled;
+        this.whoisQueryDoSFilter = whoisQueryDoSFilter;
+        this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
+        this.ipBlockListFilter = ipBlockListFilter;
     }
 
     @Override
@@ -158,6 +177,10 @@ public class JettyBootstrap implements ApplicationService {
         return this.securePort;
     }
 
+    public int getClientAuthPort(){
+        return this.clientAuthPort;
+    }
+
     public Server getServer() {
         return this.server;
     }
@@ -178,29 +201,24 @@ public class JettyBootstrap implements ApplicationService {
     server = new Server(threadPool);
       */
     private Server createServer() {
-        final Server server = new Server();
-
-        if (this.securePort >= 0) {
-             server.setConnectors(new Connector[]{createConnector(server), createSecureConnector(server)});
-         } else {
-             server.setConnectors(new Connector[]{createConnector(server)});
-         }
-
         final WebAppContext context = new WebAppContext();
         context.setContextPath("/");
         context.setResourceBase("src/main/webapp");
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(PushCacheFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+        context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
 
-        try {
-            context.addFilter(createDosFilter(), "/*", EnumSet.allOf(DispatcherType.class));
-        } catch (JmxException | JMException e) {
-            throw new IllegalStateException("Error creating DOS Filter", e);
+        if (!dosFilterEnabled) {
+            LOGGER.info("DoSFilter is *not* enabled");
+        } else {
+            context.addFilter(createDosFilter(whoisQueryDoSFilter), "/*", EnumSet.allOf(DispatcherType.class));
+            context.addFilter(createDosFilter(whoisUpdateDoSFilter), "/*", EnumSet.allOf(DispatcherType.class));
         }
 
         final HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[] { context });
+        final Server server = new Server();
+        setConnectors(server);
         server.setHandler(handlers);
 
         server.setStopAtShutdown(false);
@@ -219,14 +237,25 @@ public class JettyBootstrap implements ApplicationService {
         return server;
     }
 
-    private Connector createConnector(final Server server) {
+
+    private void setConnectors(final Server server) {
         final HttpConfiguration httpConfiguration = new HttpConfiguration();
-        if (isHttpProxy()) {
-            // client address is set in X-Forwarded-For header by HTTP proxy
-            httpConfiguration.addCustomizer(new RemoteAddressCustomizer());
-            // request protocol is set in X-Forwarded-Proto header by HTTP proxy
+
+        if (this.xForwardedForHttp){
             httpConfiguration.addCustomizer(new ProtocolCustomizer());
         }
+        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, this.xForwardedForHttp));
+        server.setConnectors(new Connector[]{createInsecureConnector(server, httpConfiguration)});
+
+        if (isHttps()){
+            server.addConnector(createSecureConnector(server, this.securePort, false));
+            if (isClientAuthCert()) {
+                server.addConnector(createSecureConnector(server, this.clientAuthPort, true));
+            }
+        }
+    }
+
+    private Connector createInsecureConnector(final Server server, final HttpConfiguration httpConfiguration) {
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
@@ -238,34 +267,23 @@ public class JettyBootstrap implements ApplicationService {
      * Use the DoSFilter from Jetty for rate limiting: https://www.eclipse.org/jetty/documentation/current/dos-filter.html.
      * See {@link WhoisDoSFilter} for the customisations added.
      * @return the rate limiting filter
-     * @throws JmxException if anything goes wrong JMX wise
-     * @throws JMException if anything goes wrong JMX wise
      */
-    private FilterHolder createDosFilter() throws JmxException, JMException {
-        WhoisDoSFilter dosFilter = new WhoisDoSFilter();
-        FilterHolder holder = new FilterHolder(dosFilter);
-        holder.setName("DoSFilter");
-
-        if (!dosFilterEnabled) {
-            LOGGER.info("DoSFilter is *not* enabled");
-        }
-        holder.setInitParameter("enabled", Boolean.toString(dosFilterEnabled));
-        holder.setInitParameter("maxRequestsPerSec", "50");
-        holder.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // high default, 10 minutes
+    private FilterHolder createDosFilter(final WhoisDoSFilter whoisDoSFilter) {
+        FilterHolder holder = new FilterHolder(whoisDoSFilter);
+        holder.setName(whoisDoSFilter.getClass().getSimpleName());
+        holder.setInitParameter("enabled", "true");
+        holder.setInitParameter("maxRequestsPerSec", whoisDoSFilter.getLimit());
+        holder.setInitParameter("maxRequestMs", "" + 10 * 60 * 1_000); // 10 minutes until we consider the request is a violation and drop it
         holder.setInitParameter("delayMs", "-1"); // reject requests over threshold
         holder.setInitParameter("remotePort", "false");
         holder.setInitParameter("trackSessions", "false");
         holder.setInitParameter("insertHeaders", "false");
         holder.setInitParameter("ipWhitelist", trustedIpRanges);
 
-        if (!ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
-            ManagementFactory.getPlatformMBeanServer().registerMBean(new ObjectMBean(dosFilter), dosFilterMBeanName);
-        }
-
         return holder;
     }
 
-    private Connector createSecureConnector(final Server server) {
+    private Connector createSecureConnector(final Server server, final int port, final boolean isClientCertificate) {
         // allow (untrusted) self-signed certificates to connect
         final SslContextFactory.Server sslContextFactory = new SslContextFactory.Server() {
             @Override
@@ -288,10 +306,12 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
 
-        // enable optional client certificates
-        sslContextFactory.setWantClientAuth(true);
-        sslContextFactory.setValidateCerts(false);
-        sslContextFactory.setTrustAll(true);
+        if (isClientCertificate) {
+            // accept self-signed client certificates for authentication
+            sslContextFactory.setNeedClientAuth(true);
+            sslContextFactory.setValidateCerts(false);
+            sslContextFactory.setTrustAll(true);
+        }
 
         // Exclude weak / insecure ciphers
         // TODO CBC became weak, we need to skip them in the future https://support.kemptechnologies.com/hc/en-us/articles/9338043775757-CBC-ciphers-marked-as-weak-by-SSL-labs
@@ -306,6 +326,8 @@ public class JettyBootstrap implements ApplicationService {
             LOGGER.warn("SNI host check is OFF");   // normally off for testing on localhost
             secureRequestCustomizer.setSniHostCheck(false);
         }
+
+        httpsConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, xForwardedForHttps));
         httpsConfiguration.addCustomizer(secureRequestCustomizer);
 
         httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
@@ -318,7 +340,7 @@ public class JettyBootstrap implements ApplicationService {
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
-        sslConnector.setPort(this.securePort);
+        sslConnector.setPort(port);
         return sslConnector;
     }
 
@@ -366,9 +388,6 @@ public class JettyBootstrap implements ApplicationService {
         LOGGER.info("Shutdown Jetty");
         new Thread(() -> {
             try {
-                if (ManagementFactory.getPlatformMBeanServer().isRegistered(dosFilterMBeanName)) {
-                    ManagementFactory.getPlatformMBeanServer().unregisterMBean(dosFilterMBeanName);
-                }
                 server.stop();
             } catch (Exception e) {
                 LOGGER.error("Stopping server", e);
@@ -408,24 +427,34 @@ public class JettyBootstrap implements ApplicationService {
     private void updatePorts() {
         for (Connector connector : this.server.getConnectors()) {
             final int localPort = ((NetworkConnector) connector).getLocalPort();
-            if (connector.getProtocols().contains("ssl")) {
-                this.securePort = localPort;
-            } else {
+            if(!connector.getProtocols().contains("ssl")) {
                 this.port = localPort;
+                continue;
+            }
+
+            if (securePort == 0){
+                this.securePort = localPort;
+                continue;
+            }
+
+            if (clientAuthPort == 0) {
+                this.clientAuthPort = localPort;
             }
         }
     }
 
+    public boolean isClientAuthCert(){
+        return clientAuthPort >= 0;
+    }
+
+    private boolean isHttps(){
+        return securePort >= 0;
+    }
     private void logJettyStarted() {
-        if (this.securePort > 0) {
+        if (isHttps()) {
             LOGGER.info("Jetty started on HTTP port {} HTTPS port {}", this.port, this.securePort);
         } else {
             LOGGER.info("Jetty started on HTTP port {} (NO HTTPS)", this.port);
         }
-    }
-
-    private boolean isHttpProxy() {
-        // if we are not handling HTTPS then assume a loadbalancer is proxying requests
-        return securePort < 0;
     }
 }

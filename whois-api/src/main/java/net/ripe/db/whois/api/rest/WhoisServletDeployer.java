@@ -51,7 +51,10 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final BatchUpdatesService batchUpdatesService;
     private final HealthCheckService healthCheckService;
     private final ClientCertificateService clientCertificateService;
-    private final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer;
+    private final HttpsBasicAuthFiler httpsBasicAuthFiler;
+    private final HttpsAuthHeaderFiler httpsAuthHeaderFiler;
+    private final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter;
+    private final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -69,8 +72,11 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
                                 final HealthCheckService healthCheckService,
-                                final HttpsBasicAuthCustomizer httpsBasicAuthCustomizer,
-                                final ClientCertificateService clientCertificateService) {
+                                final HttpsBasicAuthFiler httpsBasicAuthFiler,
+                                final HttpsAuthHeaderFiler httpsAuthHeaderFiler,
+                                final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter,
+                                final ClientCertificateService clientCertificateService,
+                                final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter) {
         this.whoisRestService = whoisRestService;
         this.whoisSearchService = whoisSearchService;
         this.whoisVersionService = whoisVersionService;
@@ -87,13 +93,19 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.batchUpdatesService = batchUpdatesService;
         this.healthCheckService = healthCheckService;
         this.clientCertificateService = clientCertificateService;
-        this.httpsBasicAuthCustomizer = httpsBasicAuthCustomizer;
+        this.httpsBasicAuthFiler = httpsBasicAuthFiler;
+        this.httpsAuthHeaderFiler = httpsAuthHeaderFiler;
+        this.httpsAPIKeyAuthFilter = httpsAPIKeyAuthFilter;
+        this.syncUpdatesHttpSchemeFilter = syncUpdatesHttpSchemeFilter;
     }
 
     @Override
     public void deploy(WebAppContext context) {
         context.addFilter(new FilterHolder(maintenanceModeFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
-        context.addFilter(new FilterHolder(httpsBasicAuthCustomizer), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(httpsAuthHeaderFiler), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(httpsAPIKeyAuthFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(httpsBasicAuthFiler), "/whois/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(syncUpdatesHttpSchemeFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         EncodingFilter.enableFor(resourceConfig, GZipEncoder.class);
@@ -136,9 +148,7 @@ public class WhoisServletDeployer implements ServletDeployer {
 
         resourceConfig.register(new JaxbMessagingBinder());
 
-        // only allow cross-origin requests from ripe.net
-        final FilterHolder crossOriginFilterHolder = context.addFilter(org.eclipse.jetty.servlets.CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
-        crossOriginFilterHolder.setInitParameter(org.eclipse.jetty.servlets.CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.ripe.net");
+       context.addFilter(WhoisCrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

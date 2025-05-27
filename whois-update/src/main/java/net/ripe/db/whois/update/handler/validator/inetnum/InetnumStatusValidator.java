@@ -70,16 +70,25 @@ public class InetnumStatusValidator implements BusinessRuleValidator {
 
         final List<Message> validationMessages = Lists.newArrayList();
 
-        final CIString originalStatus = update.getReferenceObject().getValueForAttribute(AttributeType.STATUS);
-        final CIString updateStatus = update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS);
+        final InetnumStatus originalStatus = InetnumStatus.getStatusFor(update.getReferenceObject().getValueForAttribute(AttributeType.STATUS));
+        final InetnumStatus updateStatus = InetnumStatus.getStatusFor(update.getUpdatedObject().getValueForAttribute(AttributeType.STATUS));
 
-        if (!Objects.equals(originalStatus, updateStatus)) {
+        if(canChangeStatus(originalStatus, updateStatus)) {
+            return Collections.EMPTY_LIST;
+        }
+
+        if (originalStatus != updateStatus) {
             validationMessages.add(UpdateMessages.statusChange());
         }
 
         validateHierarchy(update.getUpdatedObject(), update, validationMessages);
 
         return validationMessages;
+    }
+
+    public static final boolean canChangeStatus(final InetnumStatus originalStatus, final InetnumStatus updateStatus) {
+        return (originalStatus == InetnumStatus.ALLOCATED_PA && updateStatus == InetnumStatus.ALLOCATED_ASSIGNED_PA)
+                || (originalStatus == InetnumStatus.ALLOCATED_ASSIGNED_PA && updateStatus == InetnumStatus.ALLOCATED_PA);
     }
 
     private List<Message> validateDelete(final PreparedUpdate update, final UpdateContext updateContext) {

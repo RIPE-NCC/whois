@@ -23,7 +23,7 @@ public class Event implements Serializable {
     @XmlElement(required = true)
     protected Action eventAction;
     @XmlSchemaType(name = "dateTime")
-    @XmlJavaTypeAdapter(DateTimeAdapter.class)
+    @XmlJavaTypeAdapter(IsoOffsetDateTimeAdapter.class)
     @XmlElement(required = true)
     protected LocalDateTime eventDate;
     @XmlElement(required = false)

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.common.conversion;
 
 import com.google.common.base.Splitter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Iterator;
 import java.util.List;
@@ -20,15 +21,26 @@ public class PasswordFilter {
 
     //from logsearch tweaked
     private static final Pattern PASSWORD_PATTERN_FOR_CONTENT = Pattern.compile("(?im)^(override|password)(:|%3A)\\s*(.+)\\s*$");
+    private static final Pattern BASIC_AUTH_HEADER_PATTERN_FOR_CONTENT = Pattern.compile("(?im)^(Header: Authorization=Basic)\\s*(.*)\\s*$", Pattern.CASE_INSENSITIVE);
+
     private static final Pattern URI_PASSWORD_PATTERN_PASSWORD_FOR_URL = Pattern.compile("(?<=)(password|override)(:|=|%3A)([^&^\\s]*)", Pattern.CASE_INSENSITIVE);
 
     public static String filterPasswordsInContents(final String contents) {
-        String result = contents;
-        if (contents != null) {
-            final Matcher matcher = PASSWORD_PATTERN_FOR_CONTENT.matcher(contents);
-            result = replacePassword(matcher);
+        if(StringUtils.isEmpty(contents)) {
+            return contents;
         }
-        return result;
+
+        final String filteredContent = replaceBasicAuthHeader(BASIC_AUTH_HEADER_PATTERN_FOR_CONTENT.matcher(contents));
+        return replacePassword(PASSWORD_PATTERN_FOR_CONTENT.matcher(filteredContent));
+    }
+
+    private static String replaceBasicAuthHeader(final Matcher matcher)  {
+        final StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            matcher.appendReplacement(result, String.format("%s FILTERED", matcher.group(1)));
+        }
+        matcher.appendTail(result);
+        return result.toString();
     }
 
     public static String filterPasswordsInUrl(final String url) {

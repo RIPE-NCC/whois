@@ -35,6 +35,11 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-jaxb</artifactId>
+        </dependency>
+
         <!-- Jackson Jax-RS provider for JSON content type -->
         <dependency>
             <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
@@ -47,6 +52,10 @@
         <dependency>
              <groupId>com.fasterxml.jackson.core</groupId>
              <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
          <!-- Glassfish JAXB implementation -->

@@ -116,7 +116,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "        <primary-key value=\"193.0.0.0 - 193.0.0.255\"/>\n" +
                 "    </parameters>\n" +
                 "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\" suspect=\"false\" org-id=\"ORG-OT1-TEST\"/>\n" +
-                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "</abuse-resources>"));
     }
 
@@ -193,7 +193,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}"));
     }
@@ -242,7 +242,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}"));
     }
@@ -310,7 +310,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}"));
     }
@@ -348,7 +348,7 @@ public class AbuseContactTestIntegration extends AbstractIntegrationTest {
                 "        <primary-key value=\"2a00:1f78::/32\"/>\n" +
                 "    </parameters>\n" +
                 "    <abuse-contacts key=\"TR1-TEST\" email=\"abuse@test.net\" suspect=\"false\" org-id=\"ORG-OT1-TEST\"/>\n" +
-                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "</abuse-resources>"));
     }
 

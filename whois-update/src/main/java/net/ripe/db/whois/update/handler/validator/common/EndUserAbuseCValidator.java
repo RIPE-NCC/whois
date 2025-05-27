@@ -17,7 +17,6 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,7 +51,11 @@ public class EndUserAbuseCValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        final RpslObject organisation = rpslObjectDao.getByKey(ObjectType.ORGANISATION, org);
+        final RpslObject organisation = rpslObjectDao.getByKeyOrNull(ObjectType.ORGANISATION, org);
+        if (organisation == null) {
+            return Collections.emptyList();
+        }
+
         if (OrgType.OTHER != OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE))) {
             return Collections.emptyList();
         }
@@ -62,15 +65,15 @@ public class EndUserAbuseCValidator implements BusinessRuleValidator {
         }
 
         if (organisation.getValueOrNullForAttribute(AttributeType.ABUSE_C) == null) {
-            return Arrays.asList(UpdateMessages.noAbuseContact(org));
+            return List.of(UpdateMessages.noAbuseContact(org));
         } else {
             final RpslObject abuseContact = rpslObjectDao.getByKeyOrNull(ROLE, organisation.getValueForAttribute(AttributeType.ABUSE_C));
 
             if (abuseContact == null) {
-                return Arrays.asList(UpdateMessages.abuseCPersonReference());
+                return List.of(UpdateMessages.abuseCPersonReference());
             } else {
                 if (!abuseContact.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                    return Arrays.asList(UpdateMessages.abuseMailboxRequired(abuseContact.getKey(), update.getUpdatedObject().getType()));
+                    return List.of(UpdateMessages.abuseMailboxRequired(abuseContact.getKey(), update.getUpdatedObject().getType()));
                 }
             }
         }

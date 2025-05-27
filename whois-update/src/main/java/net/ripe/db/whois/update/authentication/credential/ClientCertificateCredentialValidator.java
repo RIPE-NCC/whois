@@ -4,12 +4,12 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.ClientCertificateCredential;
+import net.ripe.db.whois.common.credentials.ClientCertificateCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +36,11 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     public ClientCertificateCredentialValidator(final RpslObjectDao rpslObjectDao,
                                                 final DateTimeProvider dateTimeProvider,
                                                 final LoggerContext loggerContext,
-                                                final @Value("${client.cert.auth.enabled:false}") boolean enabled) {
+                                                @Value("${port.client.auth:-1}") final int clientAuthPort) {
         this.rpslObjectDao = rpslObjectDao;
         this.dateTimeProvider = dateTimeProvider;
         this.loggerContext = loggerContext;
-        this.enabled = enabled;
+        this.enabled = clientAuthPort >= 0;
 
         LOGGER.info("Client certificate authentication is {}abled", enabled? "en" : "dis");
     }
@@ -56,7 +56,7 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     }
 
     @Override
-    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<ClientCertificateCredential> offeredCredentials, final X509Credential knownCredential) {
+    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<ClientCertificateCredential> offeredCredentials, final X509Credential knownCredential, final RpslObject maintainer) {
         if (!enabled) {
             return false;
         }
@@ -74,6 +74,8 @@ public class ClientCertificateCredentialValidator implements CredentialValidator
     }
 
     private boolean verifyClientCertificate(final PreparedUpdate update, final UpdateContext updateContext, final ClientCertificateCredential offeredCredential, final X509Credential knownCredential) {
+        // TODO: [MH] Consider to use ClientAuthCertificate from commons module, some validations for update and get
+        //  is used here
         final String keyId = knownCredential.getKeyId();
         final X509CertificateWrapper x509CertificateWrapper = getKeyWrapper(update, updateContext, keyId);
         if (x509CertificateWrapper == null) {

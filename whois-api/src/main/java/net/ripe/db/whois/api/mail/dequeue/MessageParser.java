@@ -19,7 +19,7 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -27,7 +27,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,6 +177,7 @@ public class MessageParser {
     }
 
     private void parseContents(@Nonnull final MessageParts messageParts, @Nonnull final Part part, @Nullable final Part parentPart) throws MessagingException, IOException {
+        handleInvalidTypes(part);
         final ContentType contentType = new ContentType(part.getContentType());
         final Object content = getContent(part, contentType);
         final Charset charset = getCharset(contentType);
@@ -222,6 +223,12 @@ public class MessageParser {
                     parseContents(messageParts, bodyPart, part);
                 }
             }
+        }
+    }
+
+    private static void handleInvalidTypes(Part part) throws MessagingException {
+        if ("text".equals(part.getContentType())){
+            part.setHeader("Content-Type", "text/plain;");
         }
     }
 

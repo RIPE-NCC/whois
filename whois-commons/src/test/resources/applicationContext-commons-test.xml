@@ -9,5 +9,5 @@
             location="classpath:whois.version.properties,classpath:whois.properties"
             system-properties-mode="OVERRIDE"/>
 
-    <import resource="applicationContext-commons.xml"/>
+    <bean class="net.ripe.db.whois.common.WhoisCommonConfig" />
 </beans>

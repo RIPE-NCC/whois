@@ -3,8 +3,10 @@ package net.ripe.db.whois.update.domain;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -14,7 +16,7 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
 import net.ripe.db.whois.update.dns.DnsCheckResponse;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 
 import javax.annotation.CheckForNull;
@@ -37,9 +39,11 @@ public class UpdateContext {
     private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
     private UserSession userSession;
+    private OAuthSession oAuthSession;
     private List<X509CertificateWrapper> clientCertificates;
     private int nrSinceRestart;
     private boolean dryRun;
+
     private boolean batchUpdate;
 
     public UpdateContext(final LoggerContext loggerContext) {
@@ -322,8 +326,16 @@ public class UpdateContext {
         this.userSession = userSession;
     }
 
+    public void setOAuthSession(final OAuthSession oAuthSession) {
+        this.oAuthSession = oAuthSession;
+    }
+
     public UserSession getUserSession() {
         return userSession;
+    }
+
+    public OAuthSession getOAuthSession() {
+        return oAuthSession;
     }
 
     public void setClientCertificates(final List<X509CertificateWrapper> certificates) {

@@ -21,23 +21,25 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.update.domain.ClientCertificateCredential;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.OAuthCredential;
+import net.ripe.db.whois.common.credentials.ClientCertificateCredential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Paragraph;
-import net.ripe.db.whois.update.domain.PasswordCredential;
-import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -83,6 +85,7 @@ public class DomainObjectService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String sourceParam,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         if (resources == null || resources.getWhoisObjects().size() == 0) {
@@ -92,7 +95,7 @@ public class DomainObjectService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
 
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
             updateContext.setBatchUpdate();
 
             auditlogRequest(request);
@@ -162,9 +165,11 @@ public class DomainObjectService {
                 default:
                     if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
                         throw new UpdateFailedException(CONFLICT, resources);
-                    } else {
-                        throw new UpdateFailedException(BAD_REQUEST, resources);
                     }
+                    if (updateContext.getMessages(update).contains(UpdateMessages.dnsCheckTimeout())){
+                        throw new UpdateFailedException(INTERNAL_SERVER_ERROR, resources);
+                    }
+                    throw new UpdateFailedException(BAD_REQUEST, resources);
             }
         }
     }
@@ -204,6 +209,10 @@ public class DomainObjectService {
             for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
                 credentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
             }
+        }
+
+        if (updateContext.getOAuthSession() != null) {
+            credentials.add(OAuthCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         return new Credentials(credentials);

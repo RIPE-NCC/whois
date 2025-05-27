@@ -2,23 +2,18 @@ package net.ripe.db.whois.api;
 
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchConfigurations;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
-import net.ripe.db.whois.common.rpsl.AttributeSyntax;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 @Component
 public class ElasticSearchHelper {
@@ -70,7 +65,7 @@ public class ElasticSearchHelper {
         }
     }
 
-    @NotNull
+    @Nonnull
     private RestHighLevelClient getEsClient() {
         return new RestHighLevelClient(RestClient.builder(HttpHost.create(hostname)));
     }

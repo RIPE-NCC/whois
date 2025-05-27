@@ -1,7 +1,8 @@
-image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:21fc0efa
+image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:v0.0.10
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  ES_JAVA_OPTS: '-Xms1g -Xmx4g'
   TZ: Europe/Amsterdam
   WS_MAVEN_AGGREGATEMODULES: "true"
   PROJECT_NAME: "whois"
@@ -37,6 +38,7 @@ build:
   artifacts:
     paths:
       - "*/target/*.jar"
+    expire_in: 6 months
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
@@ -71,16 +73,17 @@ release:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
   before_script:
-    - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
-    - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
+    - mariadb -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
+    - mariadb -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 1073741824;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_lock_wait_timeout = 1000;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   services: &mariadb_service
-    - mariadb:10.2
+    - mariadb:11.4
 
 
-whois-groovy:
+whois-endtoend:
   <<:
     - *it_env
     - *mariadb_configuration
@@ -94,7 +97,7 @@ whois-api:
     - *mariadb_configuration
   services:
     - *mariadb_service
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
       alias: "elasticsearch"
       command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
   script:
@@ -130,6 +133,13 @@ whois-nrtm:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
+whois-nrtm4:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm4
+
 whois-query:
   <<:
     - *it_env
@@ -153,6 +163,12 @@ whois-scheduler:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
+whois-smtp:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-smtp
 
 whois-update:
   <<:

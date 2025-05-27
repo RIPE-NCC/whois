@@ -147,7 +147,6 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
-                mnt-lower:    LIR-MNT
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir

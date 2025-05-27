@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -62,6 +63,7 @@ class IndexWithRoute extends IndexStrategyWithSingleLookupTable {
             this.origin = origin;
         }
 
+        @Nullable
         private static RouteKey parse(final String value) {
             final Matcher matcher = ROUTE_PATTERN.matcher(value);
             if (!matcher.matches()) {

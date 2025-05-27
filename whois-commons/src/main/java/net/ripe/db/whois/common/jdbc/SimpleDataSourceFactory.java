@@ -31,6 +31,7 @@ public class SimpleDataSourceFactory implements DataSourceFactory {
             cpds.setMaxPoolSize(100);
             cpds.setMaxIdleTime(7200);
             cpds.setPreferredTestQuery("SELECT 1");
+            cpds.setConnectionTesterClassName("com.mchange.v2.c3p0.impl.DefaultConnectionTester");
             cpds.setIdleConnectionTestPeriod(15);
 
             return cpds;

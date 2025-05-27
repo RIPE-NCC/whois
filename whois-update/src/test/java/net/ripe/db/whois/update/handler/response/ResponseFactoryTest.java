@@ -138,7 +138,7 @@ public class ResponseFactoryTest {
                 "\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -198,7 +198,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n\n"));
@@ -256,7 +256,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -328,7 +328,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -361,7 +361,7 @@ public class ResponseFactoryTest {
                 "ftp://ftp.ripe.net/rfc/rfc4012.txt\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -477,9 +477,87 @@ public class ResponseFactoryTest {
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
                 "Changed by PGP-KEY-123. You can find contact details for this key here:\n" +
-                "https://apps.db.ripe.net/search/lookup.html?source=ripe&key=PGP-KEY-123&type=key-cert\n"+
+                "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=PGP-KEY-123&types=key-cert\n"+
                 "\n" ));
 
+    }
+
+    @Test
+    public void notification_success_with_effective_apiKey_credentials() {
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("test@ripe.net (f60ee0fc)", Update.EffectiveCredentialType.APIKEY);
+
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by SSO account using API Key id: test@ripe.net (f60ee0fc)\n"+
+                "\n" ));
+
+    }
+
+    @Test
+    public void notification_success_with_effective_password_credentials() {
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("MD5-PW", Update.EffectiveCredentialType.PASSWORD);
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by password.\n" +
+                "\n" ));
+    }
+
+    @Test
+    public void notification_success_with_effective_x509_credentials() {
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("X509-1", Update.EffectiveCredentialType.X509);
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by X509-1. You can find contact details for this key here:\n" +
+                "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=X509-1&types=key-cert\n"+
+                "\n" ));
     }
 
     @Test
@@ -607,7 +685,7 @@ public class ResponseFactoryTest {
 
         assertThat(message, containsString("" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please visit https://www.ripe.net/s/notify."));
     }
@@ -615,7 +693,7 @@ public class ResponseFactoryTest {
     private void assertVersion(final String response) {
         assertThat(response, stringMatchesRegexp("(?is).*" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "https://apps.db.ripe.net/docs/HTML-Terms-And-Conditions\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n" +
