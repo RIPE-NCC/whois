@@ -9,7 +9,6 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import io.netty.util.internal.StringUtil;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
@@ -18,6 +17,7 @@ import net.ripe.db.nrtm4.client.dao.NrtmClientVersionInfo;
 import net.ripe.db.nrtm4.client.importer.DeltaMirrorImporter;
 import net.ripe.db.nrtm4.client.importer.SnapshotMirrorImporter;
 import net.ripe.db.whois.common.domain.Hosts;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -220,7 +220,7 @@ public class UpdateNotificationFileProcessor {
         try {
             final String publicKey = Files.readString(Path.of(publicKeyPath));
 
-            if (StringUtil.isNullOrEmpty(publicKey)) {
+            if (StringUtils.isEmpty(publicKey)) {
                 throw new FileNotFoundException("Public key file not found in resources: " + publicKeyPath);
             }
 

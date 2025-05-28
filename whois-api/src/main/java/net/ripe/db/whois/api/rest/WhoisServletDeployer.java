@@ -55,6 +55,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final HttpsAuthHeaderFiler httpsAuthHeaderFiler;
     private final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter;
     private final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter;
+    private final WhoisCrossOriginFilter whoisCrossOriginFilter;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -68,6 +69,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final ReferencesService referencesService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
+                                final WhoisCrossOriginFilter whoisCrossOriginFilter,
                                 final DomainObjectService domainObjectService,
                                 final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
@@ -97,6 +99,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.httpsAuthHeaderFiler = httpsAuthHeaderFiler;
         this.httpsAPIKeyAuthFilter = httpsAPIKeyAuthFilter;
         this.syncUpdatesHttpSchemeFilter = syncUpdatesHttpSchemeFilter;
+        this.whoisCrossOriginFilter = whoisCrossOriginFilter;
     }
 
     @Override
@@ -106,6 +109,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         context.addFilter(new FilterHolder(httpsAPIKeyAuthFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(httpsBasicAuthFiler), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(syncUpdatesHttpSchemeFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(whoisCrossOriginFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         EncodingFilter.enableFor(resourceConfig, GZipEncoder.class);
@@ -147,8 +151,6 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(customMessageBodyWriter);
 
         resourceConfig.register(new JaxbMessagingBinder());
-
-       context.addFilter(WhoisCrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

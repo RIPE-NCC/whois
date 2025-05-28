@@ -9,8 +9,8 @@ import net.ripe.db.nrtm4.dao.UpdateNrtmFileRepository;
 import net.ripe.db.nrtm4.domain.NrtmKeyRecord;
 import net.ripe.db.nrtm4.util.JWSUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
-import org.mariadb.jdbc.internal.logging.Logger;
-import org.mariadb.jdbc.internal.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

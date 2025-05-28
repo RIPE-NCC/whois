@@ -25,14 +25,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import java.time.LocalDateTime;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -131,7 +132,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stat.ripe.net")
                 .get(Response.class);
 
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://stat.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
     }
 
     @Test
@@ -141,7 +142,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .header(com.google.common.net.HttpHeaders.ORIGIN, "https://example.com")
                 .get(Response.class);
 
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://example.com"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
     }
 
     @Test
@@ -153,6 +154,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .options();
 
         assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
     }
 
     @Test
@@ -177,8 +179,8 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(is(notNullValue())));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
 
         // actual request is still allowed (it's the browsers responsibility to honor the restriction)
         assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
@@ -271,7 +273,25 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void cross_origin_post_request_from_apps_db_ripe_net_is_allowed_override_no_sensitive_information() {
+    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed_override_no_sensitive_information() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("mherran", "zoh", ObjectType.MNTNER));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("mherran,zoh,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stat.ripe.net")
+                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        Attribute expected = new Attribute("auth", "SSO", "Filtered", null, null, null);
+        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(expected));
+    }
+
+    @Test
+    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed_override_with_sensitive_information() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("mherran", "zoh", ObjectType.MNTNER));
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
@@ -284,12 +304,12 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
-        Attribute expected = new Attribute("auth", "SSO", "Filtered", null, null, null);
+        Attribute expected = new Attribute("auth", "SSO person@net.net", null, null, null, null);
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(expected));
     }
 
     @Test
-    public void cross_origin_post_request_from_apps_db_ripe_net_is_allowed_multiple_password_no_sensitive_information() {
+    public void cross_origin_get_request_from_non_db_ripe_net_is_allowed_multiple_password_no_sensitive_information() {
         databaseHelper.addObject("" +
                 "mntner:         MNT-TEST" + "\n" +
                 "descr:          test\n" +
@@ -302,7 +322,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/TEST/mntner/MNT-TEST?password=test&password=test123&unfiltered")
                 .request(MediaType.APPLICATION_XML_TYPE)
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stats.ripe.net")
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .get(WhoisResources.class);
 
@@ -317,18 +337,19 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
     public void create_object_syncupdate_only_data_parameter_not_allowed() {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        assertThrows(NotAuthorizedException.class, () -> {
-            RestTest.target(getPort(), "whois/syncupdates/test?" +
+        final Response whoisResources =
+                RestTest.target(getPort(), "whois/syncupdates/test?" +
                             "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
-                    .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                    .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stats.ripe.net")
                     .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                    .get(String.class);
-        });
+                    .get(Response.class);
+
+        assertThat(whoisResources.getStatus(), is(200));
     }
 
     @Test
-    public void create_not_allowed_from_any_origin() {
+    public void create_only_allowed_from_allow_list_origin() {
         final RpslObject ownerMnt = new RpslObjectBuilder(OWNER_MNT)
                 .addAttribute(1, new RpslAttribute(AttributeType.AUTH, String.format("MD5-PW %s", PasswordHelper.hashMd5Password("+Pass word+"))))
                 .get();
@@ -338,7 +359,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
             RestTest.target(getPort(), "whois/test/person")
                     .queryParam("password", "+Pass word+")
                     .request()
-                    .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                    .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stats.ripe.net")
                     .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
         });
@@ -355,27 +376,32 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person")
                 .queryParam("password", "+Pass word+")
                 .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST"), is(not(nullValue())));
     }
 
     @Test
-    public void update_not_allowed_from_any_origin() {
+    public void update_only_allowed_from_allowed_origin_list() {
         final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
                 .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
                         new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва")).sort().get();
 
-        assertThrows(NotAuthorizedException.class, () -> {
-            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
                     .request()
                     .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
                     .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                             WhoisResources.class);
-        });
+
+        RestTest.assertWarningCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+
+        final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
+        assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        ???????? ?????,??????"));
 
         assertThrows(NotAuthorizedException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
@@ -385,30 +411,17 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                             WhoisResources.class);
         });
-
-
-        final WhoisResources response =
-                RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
-                        .request()
-                        .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
-                                WhoisResources.class);
-
-        RestTest.assertWarningCount(response, 1);
-        RestTest.assertErrorMessage(response, 0, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
-
-        final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
-        assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        ???????? ?????,??????"));
     }
 
     @Test
-    public void delete_not_allowed_from_any_origin() {
+    public void delete_only_allowed_from_allow_list_hosts() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
         assertThrows(NotAuthorizedException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                     .queryParam("password", "test")
                     .request()
-                    .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                    .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stats.ripe.net")
                     .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                     .delete(WhoisResources.class);
         });
@@ -426,15 +439,15 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
         WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                 .queryParam("password", "test")
                 .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
-
     private WhoisResources map(final RpslObject ... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
-
 }
