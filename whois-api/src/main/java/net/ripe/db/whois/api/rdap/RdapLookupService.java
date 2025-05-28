@@ -12,13 +12,16 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
+import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.query.query.Query;
-import org.apache.commons.lang.StringUtils;
+import net.ripe.db.whois.update.domain.ReservedResources;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +53,8 @@ public class RdapLookupService {
 
     private final AbuseCFinder abuseCFinder;
 
+    private final ReservedResources reservedResources;
+
     /**
      *
      * @param baseUrl
@@ -66,6 +71,7 @@ public class RdapLookupService {
     public RdapLookupService(@Value("${rdap.public.baseUrl:}") final String baseUrl,
                              @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize,
                              final RdapObjectMapper rdapObjectMapper,
+                             final ReservedResources reservedResources,
                              final RdapQueryHandler rdapQueryHandler,
                              final SourceContext sourceContext,
                              final RpslObjectUpdateDao rpslObjectUpdateDao,
@@ -77,13 +83,14 @@ public class RdapLookupService {
         this.sourceContext = sourceContext;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.abuseCFinder = abuseCFinder;
+        this.reservedResources = reservedResources;
 
     }
 
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
                                  final String key) {
         final List<RpslObject> result = rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, key), request).toList();
-        return getRdapObject(request, result);
+        return getRdapObject(request, result, key);
     }
 
     protected Object lookupForAutNum(final HttpServletRequest request, final String key) {
@@ -91,7 +98,7 @@ public class RdapLookupService {
             final Query query = getQueryObject(ImmutableSet.of(AUT_NUM), key);
             List<RpslObject> result = rdapQueryHandler.handleAutNumQuery(query, request);
 
-            return getRdapObject(request, result);
+            return getRdapObject(request, result, key);
         } catch (RdapException ex){
             throw new AutnumException(ex.getErrorTitle(), ex.getErrorDescription(), ex.getErrorCode());
         }
@@ -173,6 +180,7 @@ public class RdapLookupService {
                 autnumResult,
                 inetnumResult,
                 inet6numResult,
+                getAbuseContact(organisation),
                 maxEntityResultSize);
     }
 
@@ -214,14 +222,14 @@ public class RdapLookupService {
         return builder.toString();
     }
 
-    private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result) {
+    private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result,  final String requestedkey) {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
             throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
         }
 
-        final RpslObject resultObject = rpslIterator.next();
+        RpslObject resultObject = rpslIterator.next();
 
         if (rpslIterator.hasNext()) {
             throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(rpslIterator),
@@ -229,13 +237,23 @@ public class RdapLookupService {
         }
 
         if (RdapObjectMapper.isIANABlock(resultObject)){
-            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+            final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(requestedkey);
+            if(adminstrativeBlock == null) {
+                throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+            }
+
+            resultObject = adminstrativeBlock;
         }
 
         return rdapObjectMapper.map(
                 getRequestUrl(request),
                 resultObject,
-                abuseCFinder.getAbuseContact(resultObject).orElse(null));
+                getAbuseContact(resultObject));
+    }
+
+    @Nullable
+    private AbuseContact getAbuseContact(final RpslObject resultObject) {
+        return abuseCFinder.getAbuseContact(resultObject).orElse(null);
     }
 
 }

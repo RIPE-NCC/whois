@@ -521,6 +521,178 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         "            referenced set [AS-TESTSET]")
     }
 
+    def "change mbrs-by-ref from as-set add warning if change causes aut-num member-of to fail"() {
+
+        when:
+        syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    UPD-MNT    # matches AS101 mntner
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET             # added member-of set
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        def replacedMntner = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    OTHER-MNT  # replaced UPD-MNT, doing this will cause aut-num update to FAIL
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+        then:
+        replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
+    }
+
+    def "change mbrs-by-ref from as-set do not add warning if mbrs-by-ref is ANY"() {
+
+        when:
+        syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    UPD-MNT    # matches AS101 mntner
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET             # added member-of set
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        def replacedMntner = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    ANY
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+        then:
+        replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        !replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
+    }
+
+    def "change mbrs-by-ref from as-set do not add warning if member-of valid"() {
+
+        when:
+        syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref: UPD-MNT    # matches AS1 mntner
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET             # added member-of set
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        def replacedMntner = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    UPD-MNT
+            mbrs-by-ref:    OTHER-MNT
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+        then:
+        replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        !replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
+    }
+
     def "modify, added member-of value does not exist"() {
         given:
         def insertResponse = syncUpdate(new SyncUpdate(data: """\

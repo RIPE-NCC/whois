@@ -20,11 +20,11 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.UpdatesParser;
-import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -40,7 +40,7 @@ import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -103,7 +103,7 @@ public class SyncUpdatesService {
             @QueryParam(Command.DIFF) final String diff,
             @QueryParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(decode(data, getCharset(contentType)))
@@ -132,7 +132,7 @@ public class SyncUpdatesService {
             @FormParam(Command.DIFF) final String diff,
             @FormParam(Command.REDIRECT) final String redirect,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()
                 .setData(data)
@@ -160,7 +160,7 @@ public class SyncUpdatesService {
             @FormDataParam(Command.NEW) final String nnew,
             @FormDataParam(Command.DIFF) final String diff,
             @FormDataParam(Command.REDIRECT) final String redirect,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
         final Request request = new Request.RequestBuilder()

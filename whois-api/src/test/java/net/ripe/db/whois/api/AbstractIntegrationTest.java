@@ -3,7 +3,7 @@ package net.ripe.db.whois.api;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
 import net.ripe.db.whois.api.rdap.domain.Link;
-import net.ripe.db.whois.api.rdap.domain.RelationType;
+import net.ripe.db.whois.api.rdap.domain.LinkRelationType;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.apache.logging.log4j.Level;
@@ -14,6 +14,7 @@ import org.apache.logging.log4j.core.appender.WriterAppender;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,10 +108,15 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
 
     protected Map<String, String> getRelationCallsFromLinks(final List<Link> links){
         return links.stream()
-                .filter(link ->  RelationType.isValidValue(link.getRel()))
+                .filter(link -> LinkRelationType.containsValidValue(link.getRel()))
                 .collect(Collectors.toMap(
-                        link -> link.getRel().toUpperCase(),
+                        Link::getRel,
                         link -> link.getHref().replace(rdapBaseUrl + "/", "")
                 ));
+    }
+
+    protected String encode(final String input) {
+        // do not interpret template parameters
+        return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
     }
 }

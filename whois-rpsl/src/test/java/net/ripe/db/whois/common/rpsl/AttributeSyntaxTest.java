@@ -1280,7 +1280,7 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
         verifySuccess(ObjectType.INET6NUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
 
-        verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "ALLOCATED PI");
+        verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "INVALID");
     }
 
     @Test
@@ -1289,7 +1289,7 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "AssIgNed");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "legacy");
 
-        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "ALLOCATED PI");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "INVALID");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "33546565465");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "PGPKEY-");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "whatever");

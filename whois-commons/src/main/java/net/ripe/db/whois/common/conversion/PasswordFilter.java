@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.conversion;
 
 import com.google.common.base.Splitter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Iterator;
 import java.util.List;

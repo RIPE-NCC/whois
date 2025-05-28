@@ -4,11 +4,12 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.apiKey.OAuthSession;
-import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.x509.X509CertificateWrapper;
+import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -17,10 +18,9 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.common.sso.AuthServiceClientException;
-import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
-import org.apache.commons.lang.StringUtils;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.ripe.db.whois.common.apiKey.ApiKeyUtils.hasValidApiKey;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.hasValidOauthSession;
 
 /*
 password and cookie parameters are used in rest api lookup ONLY, so the port43 netty worker pool is not affected by any SSO
@@ -46,30 +46,38 @@ public class FilterAuthFunction implements FilterFunction {
     public static final String FILTERED_APPENDIX = " # Filtered";
 
     private List<String> passwords = null;
+    private OverrideCredential overrideCredential;
+    private boolean isTrusted;
     private OAuthSession oAuthSession;
-    private String token = null;
+    private UserSession  userSession;
+    private User overrideUser;
     private RpslObjectDao rpslObjectDao = null;
-    private SsoTokenTranslator ssoTokenTranslator;
     private AuthServiceClient authServiceClient;
     private List<X509CertificateWrapper> certificates;
     private ClientAuthCertificateValidator clientAuthCertificateValidator;
+    private OverrideCredentialValidator overrideCredentialValidator;
+
 
     public FilterAuthFunction(final List<String> passwords,
+                              final User overrideUser,
                               final OAuthSession oAuthSession,
-                              final String token,
-                              final SsoTokenTranslator ssoTokenTranslator,
+                              final UserSession userSession,
                               final AuthServiceClient authServiceClient,
                               final RpslObjectDao rpslObjectDao,
                               final List<X509CertificateWrapper> certificates,
-                              final ClientAuthCertificateValidator clientAuthCertificateValidator) {
-        this.token = token;
+                              final ClientAuthCertificateValidator clientAuthCertificateValidator,
+                              final OverrideCredentialValidator overrideCredentialValidator,
+                              final boolean isTrusted) {
+        this.userSession = userSession;
         this.passwords = passwords;
-        this.ssoTokenTranslator = ssoTokenTranslator;
+        this.overrideUser = overrideUser;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
         this.oAuthSession = oAuthSession;
+        this.isTrusted = isTrusted;
+        this.overrideCredentialValidator = overrideCredentialValidator;
     }
 
     public FilterAuthFunction() {
@@ -78,12 +86,13 @@ public class FilterAuthFunction implements FilterFunction {
     @Override @Nonnull
     public RpslObject apply(final RpslObject rpslObject) {
         final List<RpslAttribute> authAttributes = rpslObject.findAttributes(AttributeType.AUTH);
+
         if (authAttributes.isEmpty()) {
             return rpslObject;
         }
 
         final Map<RpslAttribute, RpslAttribute> replace = Maps.newHashMap();
-        final boolean authenticated = isMntnerAuthenticated(rpslObject);
+        final boolean authenticated = isOverrideAuthenticated(ObjectType.MNTNER) || isMntnerAuthenticated(rpslObject);
 
         for (final RpslAttribute authAttribute : authAttributes) {
             final Iterator<String> authIterator = SPACE_SPLITTER.split(authAttribute.getCleanValue()).iterator();
@@ -111,8 +120,17 @@ public class FilterAuthFunction implements FilterFunction {
         }
     }
 
+    private boolean isOverrideAuthenticated(final ObjectType objectType){
+        try {
+            return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
+                    userSession, overrideUser, objectType);
+        } catch (Exception e){
+            return false;
+        }
+    }
+
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
-        if (CollectionUtils.isEmpty(passwords) && StringUtils.isBlank(token) && (certificates == null || certificates.isEmpty()) && (oAuthSession == null || oAuthSession.getUuid() == null)) {
+        if (CollectionUtils.isEmpty(passwords) && userSession == null && (certificates == null || certificates.isEmpty()) && (oAuthSession == null || oAuthSession.getUuid() == null)) {
             return false;
         }
 
@@ -147,20 +165,15 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean ssoAuthentication(final List<RpslAttribute> authAttributes) {
-        if (StringUtils.isBlank(token)) {
+        if (userSession == null) {
             return false;
         }
 
         for (RpslAttribute attribute : authAttributes) {
             final Matcher matcher = SSO_PATTERN.matcher(attribute.getCleanValue().toString());
             if (matcher.matches()) {
-                try {
-                    final UserSession userSession = ssoTokenTranslator.translateSsoToken(token);
-                    if (userSession != null && userSession.getUuid().equals(matcher.group(1))) {
+                if (userSession.getUuid() != null && userSession.getUuid().equals(matcher.group(1))) {
                         return true;
-                    }
-                } catch (AuthServiceClientException e) {
-                    return false;
                 }
             }
         }
@@ -169,7 +182,7 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean clientCertAuthentication(final List<RpslAttribute> authAttributes){
-        return clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
+        return clientAuthCertificateValidator != null && clientAuthCertificateValidator.existValidCertificate(authAttributes, certificates);
     }
 
     private boolean passwordAuthentication(final List<RpslAttribute> authAttributes) {
@@ -191,6 +204,6 @@ public class FilterAuthFunction implements FilterFunction {
             maintainers.add(rpslObject);
         }
 
-        return hasValidApiKey(oAuthSession, maintainers, authAttributes);
+        return hasValidOauthSession(oAuthSession, maintainers, authAttributes);
     }
 }

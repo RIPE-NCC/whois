@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Tag("IntegrationTest")
 public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
@@ -26,6 +26,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     private static final String TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia";
 
     private static final String USER_EMAIL = "test@ripe.net";
+
     @Autowired
     private CacheManager cacheManager;
     @Autowired

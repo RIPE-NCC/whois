@@ -63,13 +63,11 @@ public class IpDomainUniqueHierarchyValidator implements BusinessRuleValidator {
     }
 
     private IpTree getIpTree(final IpInterval reverseIp) {
-        if (reverseIp instanceof Ipv4Resource) {
-            return ipv4DomainTree;
-        } else if (reverseIp instanceof Ipv6Resource) {
-            return ipv6DomainTree;
-        }
-
-        throw new IllegalArgumentException("Unexpected reverse ip: " + reverseIp);
+        return switch (reverseIp) {
+            case Ipv4Resource ipv4Resource -> ipv4DomainTree;
+            case Ipv6Resource ipv6Resource -> ipv6DomainTree;
+            case null -> throw new IllegalArgumentException("Unexpected reverse ip: " + reverseIp);
+        };
     }
 
     @Override

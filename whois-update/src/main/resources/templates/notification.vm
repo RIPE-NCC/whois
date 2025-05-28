@@ -82,6 +82,9 @@ Changed by SSO account: $update.preparedUpdate.update.effectiveCredential
 Changed by SSO account using API Key id: $update.preparedUpdate.update.effectiveCredential
 #end
 
+#if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'OAUTH')
+Changed by SSO account using OAUTH: $update.preparedUpdate.update.effectiveCredential
+#end
 
 #if ($update.preparedUpdate.update.effectiveCredential && $update.preparedUpdate.update.effectiveCredentialType ==  'PASSWORD')
 Changed by password.

@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;

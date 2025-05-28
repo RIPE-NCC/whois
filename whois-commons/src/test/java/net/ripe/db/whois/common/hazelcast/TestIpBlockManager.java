@@ -1,19 +1,15 @@
 package net.ripe.db.whois.common.hazelcast;
 
 import com.google.common.base.Joiner;
-import com.google.common.net.InetAddresses;
+import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.mockito.internal.util.collections.Sets;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.util.Set;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 @Profile({WhoisProfile.TEST})
@@ -24,7 +20,7 @@ public class TestIpBlockManager implements IpBlockManager {
     private final Set<IpInterval> ipBlockedSet;
 
     public TestIpBlockManager(@Value("${ipranges.blocked.list:}") final String blockedListIps) {
-        ipBlockedSet = Sets.newSet();
+        ipBlockedSet = Sets.newHashSet();
 
         ipBlockedSet.addAll(getBlockedIntervals(blockedListIps));
     }

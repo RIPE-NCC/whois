@@ -1,34 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.net.InetAddresses;
-import net.ripe.db.whois.api.QueryBuilder;
-import net.ripe.db.whois.api.apiKey.BearerTokenExtractor;
-import net.ripe.db.whois.api.rest.domain.Parameters;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.query.QueryFlag;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.domain.QueryException;
-import net.ripe.db.whois.query.query.Query;
-import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.Update;
-import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.log.LoggerContext;
-import net.ripe.db.whois.update.sso.SsoTranslator;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.CookieParam;
@@ -45,6 +17,36 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import net.ripe.db.whois.api.QueryBuilder;
+import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
+import net.ripe.db.whois.api.rest.domain.Parameters;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
+import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.domain.QueryException;
+import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.log.LoggerContext;
+import net.ripe.db.whois.update.sso.SsoTranslator;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import java.net.URI;
 import java.util.List;
 
@@ -65,10 +67,12 @@ public class WhoisRestService {
     private final AccessControlListManager accessControlListManager;
     private final WhoisObjectMapper whoisObjectMapper;
     private final InternalUpdatePerformer updatePerformer;
+    private final SsoTokenTranslator ssoTokenTranslator;
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
     private final BearerTokenExtractor bearerTokenExtractor;
+    private final OverrideCredentialValidator overrideCredentialValidator;
     private final String baseUrl;
 
     @Autowired
@@ -79,9 +83,11 @@ public class WhoisRestService {
                             final WhoisObjectMapper whoisObjectMapper,
                             final InternalUpdatePerformer updatePerformer,
                             final SsoTranslator ssoTranslator,
+                            final SsoTokenTranslator ssoTokenTranslator,
                             final LoggerContext loggerContext,
                             final AuthoritativeResourceData authoritativeResourceData,
                             final BearerTokenExtractor bearerTokenExtractor,
+                            final OverrideCredentialValidator overrideCredentialValidator,
                             @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
@@ -89,10 +95,12 @@ public class WhoisRestService {
         this.accessControlListManager = accessControlListManager;
         this.whoisObjectMapper = whoisObjectMapper;
         this.updatePerformer = updatePerformer;
+        this.ssoTokenTranslator = ssoTokenTranslator;
         this.ssoTranslator = ssoTranslator;
         this.loggerContext = loggerContext;
         this.authoritativeResourceData = authoritativeResourceData;
         this.bearerTokenExtractor = bearerTokenExtractor;
+        this.overrideCredentialValidator = overrideCredentialValidator;
         this.baseUrl = baseUrl;
     }
 
@@ -106,7 +114,7 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
@@ -166,7 +174,7 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -222,7 +230,7 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -286,11 +294,12 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam("override") final String override,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("unformatted") final String unformatted,
             @QueryParam("unfiltered") final String unfiltered,
             @QueryParam("managed-attributes") final String managedAttributes,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact) {
 
@@ -314,7 +323,8 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), crowdTokenKey, passwords, isTrusted(request), ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractAndValidateAudience(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
+                    Query.parse(queryBuilder.build(key), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), passwords, overrideCredentialValidator.getValidOverrideUser(override), isTrusted(request),
+                            ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }

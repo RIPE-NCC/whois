@@ -7,7 +7,7 @@ import com.google.common.net.HttpHeaders;
 import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.BadMessageException;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;

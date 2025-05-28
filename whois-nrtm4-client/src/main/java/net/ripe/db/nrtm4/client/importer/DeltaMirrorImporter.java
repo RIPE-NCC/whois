@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4.client.importer;
 
-import io.netty.util.internal.StringUtil;
 import net.ripe.db.nrtm4.client.client.MirrorDeltaInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
@@ -10,6 +9,7 @@ import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -87,7 +88,11 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
                     isFirstRecord = false;
                     continue;
                 }
-                processDeltaRecord(record);
+                final MirrorDeltaInfo mirrorDeltaInfo = mapDeltaRecordOrNull(record);
+                if (mirrorDeltaInfo == null){
+                    continue;
+                }
+                applyDeltaRecord(mirrorDeltaInfo);
             }
 
             if (metadata == null){
@@ -103,6 +108,27 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
 
     private void persistDeltaVersion(final String source, final int version, final String sessionId) throws IllegalArgumentException {
         nrtm4ClientInfoRepository.saveDeltaFileVersion(source, version, sessionId);
+    }
+
+    @Nullable
+    private MirrorDeltaInfo mapDeltaRecordOrNull(final String record){
+        try {
+            final JSONObject jsonObject = new JSONObject(record);
+            final String deltaAction = jsonObject.getString("action");
+            final String deltaObjectType = jsonObject.optString("object_class", null);
+            final String deltaPrimaryKey = jsonObject.optString("primary_key", null);
+            final String deltaUpdatedObject = jsonObject.optString("object", null);
+            final RpslObject rpslObject = ! StringUtils.isEmpty(deltaUpdatedObject) ?
+                    RpslObject.parse(deltaUpdatedObject) : null;
+
+            return new MirrorDeltaInfo(rpslObject,
+                    deltaAction,
+                    deltaObjectType,
+                    deltaPrimaryKey);
+        } catch (Exception ex){
+            LOGGER.warn("Unable to parse delta record, skipping");
+            return null;
+        }
     }
 
     @Transactional(transactionManager = NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION, isolation = Isolation.REPEATABLE_READ)
@@ -150,21 +176,6 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
                     .getSerialByObjectId(rpslObjectUpdateInfo.getObjectId(), rpslObjectUpdateInfo.getSequenceId()) != null;
         }
         return false;
-    }
-
-    private void processDeltaRecord(final String records) {
-        final JSONObject jsonObject = new JSONObject(records);
-        final String deltaAction = jsonObject.getString("action");
-        final String deltaObjectType = jsonObject.optString("object_class", null);
-        final String deltaPrimaryKey = jsonObject.optString("primary_key", null);
-        final String deltaUpdatedObject = jsonObject.optString("object", null);
-        final RpslObject rpslObject = !StringUtil.isNullOrEmpty(deltaUpdatedObject) ?
-                RpslObject.parse(deltaUpdatedObject) : null;
-
-        applyDeltaRecord(new MirrorDeltaInfo(rpslObject,
-                        deltaAction,
-                        deltaObjectType,
-                        deltaPrimaryKey));
     }
 
     private Metadata extractMetadata(final String firstRecord){

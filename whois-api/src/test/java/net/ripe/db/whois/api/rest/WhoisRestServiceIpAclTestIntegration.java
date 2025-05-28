@@ -100,7 +100,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void lookup_person_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
@@ -115,7 +115,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void lookup_person_filtered_acl_still_counted() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
 
         databaseHelper.addObject(
                 "person:    Test Person\n" +
@@ -161,7 +161,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void lookup_autnum_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
@@ -192,7 +192,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void lookup_version_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
@@ -209,7 +209,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
     @Test
     public void diff_version_acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
-        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null, null);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
 
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 

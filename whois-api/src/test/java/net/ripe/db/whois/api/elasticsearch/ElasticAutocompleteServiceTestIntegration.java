@@ -189,6 +189,29 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
+    public void query_returns_maximum_results_and_alphabetical_sorted() {
+        databaseHelper.addObject("mntner: ABCA-MNT");
+        databaseHelper.addObject("mntner: ABCC-MNT");
+        databaseHelper.addObject("mntner: ABCE-MNT");
+        databaseHelper.addObject("mntner: ABCB-MNT");
+        databaseHelper.addObject("mntner: ABCD-MNT");
+        databaseHelper.addObject("mntner: ABCÑ-MNT");
+        databaseHelper.addObject("mntner: ABCM-MNT");
+
+        rebuildIndex();
+        
+        assertThat(getValues(query("ABC", "mntner"), "key"),
+                contains(
+                        "ABCA-MNT",
+                        "ABCB-MNT",
+                        "ABCC-MNT",
+                        "ABCD-MNT",
+                        "ABCE-MNT",
+                        "ABCM-MNT",
+                        "ABCÑ-MNT"));
+    }
+
+    @Test
     public void field_reference_matched_one_result_case_insensitive() {
         databaseHelper.addObject(
                 "person:  Admin1\n" +
@@ -378,10 +401,10 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         final List<String> keys = getValues(query("telecom", "mnt-by"), "key");
 
         assertThat(keys, hasSize(4));
-        assertThat(keys.get(0), is("telecom"));
-        assertThat(keys.get(1), is("AB-TELECOM-MNT"));
-        assertThat(keys.get(2), is("ADM-RUS-TELECOM"));
-        assertThat(keys.get(3), is("AIRNET-TELECOM-MNT"));
+        assertThat(keys.get(0), is("AB-TELECOM-MNT"));
+        assertThat(keys.get(1), is("ADM-RUS-TELECOM"));
+        assertThat(keys.get(2), is("AIRNET-TELECOM-MNT"));
+        assertThat(keys.get(3), is("telecom"));
     }
 
     @Test

@@ -18,7 +18,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -169,7 +169,7 @@ public class ReferencesService {
                 @PathParam("source") final String sourceParam,
                 @Context final HttpServletRequest request,
                 @QueryParam("password") final List<String> passwords,
-                @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+                @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
                 @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         validateWhoisResources(whoisResources);
@@ -399,7 +399,7 @@ public class ReferencesService {
             @PathParam("key") final String keyParam,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @QueryParam("override") final String override,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 

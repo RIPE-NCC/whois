@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.authentication.credential;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 

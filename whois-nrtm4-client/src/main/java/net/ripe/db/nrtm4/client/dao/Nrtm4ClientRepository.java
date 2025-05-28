@@ -34,23 +34,20 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.updateL
 public class Nrtm4ClientRepository {
 
     private final JdbcTemplate jdbcMasterTemplate;
-    private final JdbcTemplate jdbcSlaveTemplate;
     private final DateTimeProvider dateTimeProvider;
 
     public Nrtm4ClientRepository(@Qualifier("nrtmClientMasterDataSource") final DataSource masterDataSource,
-                                     @Qualifier("nrtmClientSlaveDataSource") final DataSource slaveDataSource,
                                      final DateTimeProvider dateTimeProvider) {
         this.jdbcMasterTemplate = new JdbcTemplate(masterDataSource);
-        this.jdbcSlaveTemplate = new JdbcTemplate(slaveDataSource);
         this.dateTimeProvider = dateTimeProvider;
     }
 
     public void truncateTables(){
         jdbcMasterTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
 
-        final String databaseName = jdbcSlaveTemplate.queryForObject("SELECT DATABASE()", String.class);
+        final String databaseName = jdbcMasterTemplate.queryForObject("SELECT DATABASE()", String.class);
 
-        final List<String> tables = jdbcSlaveTemplate.queryForList(
+        final List<String> tables = jdbcMasterTemplate.queryForList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = ?",
                 String.class,
                 databaseName
@@ -75,7 +72,7 @@ public class Nrtm4ClientRepository {
     public Integer getSerialByObjectId(final int objectId, final int sequenceId) {
         final String query = "SELECT serial_id FROM serials WHERE object_id = ? AND sequence_id = ?";
         try {
-            return jdbcSlaveTemplate.queryForObject(query, Integer.class, objectId, sequenceId);
+            return jdbcMasterTemplate.queryForObject(query, Integer.class, objectId, sequenceId);
         } catch (EmptyResultDataAccessException ex){
             return null;
         }

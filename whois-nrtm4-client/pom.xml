@@ -12,10 +12,6 @@
     <artifactId>whois-nrtm4-client</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <json.version>20180813</json.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
@@ -41,14 +37,16 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
 
         <!-- JSONObject Library -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>${json.version}</version>
         </dependency>
-
 
         <!-- Signature -->
         <dependency>

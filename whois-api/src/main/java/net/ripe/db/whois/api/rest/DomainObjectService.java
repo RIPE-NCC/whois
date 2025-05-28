@@ -21,20 +21,20 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.apiKey.ApiKeyUtils;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.update.domain.APIKeyCredential;
-import net.ripe.db.whois.update.domain.ClientCertificateCredential;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.OAuthCredential;
+import net.ripe.db.whois.common.credentials.ClientCertificateCredential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Paragraph;
-import net.ripe.db.whois.update.domain.PasswordCredential;
-import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -85,7 +85,7 @@ public class DomainObjectService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String sourceParam,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(ApiKeyUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         if (resources == null || resources.getWhoisObjects().size() == 0) {
@@ -212,7 +212,7 @@ public class DomainObjectService {
         }
 
         if (updateContext.getOAuthSession() != null) {
-            credentials.add(APIKeyCredential.createOfferedCredential(updateContext.getOAuthSession()));
+            credentials.add(OAuthCredential.createOfferedCredential(updateContext.getOAuthSession()));
         }
 
         return new Credentials(credentials);

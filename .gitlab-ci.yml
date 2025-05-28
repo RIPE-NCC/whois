@@ -1,4 +1,4 @@
-image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:v0.0.5
+image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:v0.0.10
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
@@ -73,13 +73,14 @@ release:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
   before_script:
-    - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
-    - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 1073741824;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
+    - mariadb -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
+    - mariadb -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 1073741824;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_lock_wait_timeout = 1000;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   services: &mariadb_service
-    - mariadb:10.2
+    - mariadb:11.4
 
 
 whois-endtoend:
@@ -132,6 +133,13 @@ whois-nrtm:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
+whois-nrtm4:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm4
+
 whois-query:
   <<:
     - *it_env
@@ -155,6 +163,12 @@ whois-scheduler:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
+whois-smtp:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-smtp
 
 whois-update:
   <<:
