@@ -2,8 +2,12 @@ package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
 import net.ripe.db.whois.common.jmx.JmxBase;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierRC;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -164,6 +169,10 @@ public class DatabaseDummifierJmx extends JmxBase {
                         final RpslObject rpslObject = RpslObject.parse(object);
                         RpslObject dummyObject = dummifier.dummify(3, rpslObject);
 
+                        if (ObjectType.MNTNER.equals(rpslObject.getType())) {
+                            dummyObject = replaceAuthAttributes(dummyObject);
+                        }
+
                         jdbcTemplate.update("UPDATE " + table + " SET object = ? WHERE object_id = ? AND sequence_id = ?", dummyObject.toByteArray(), objectId, sequenceId);
                     } catch (RuntimeException e) {
                         LOGGER.error(String.format("%s: %s,%d failed\n%s", table, objectId, sequenceId, new String(object)), e);
@@ -175,6 +184,23 @@ public class DatabaseDummifierJmx extends JmxBase {
                 }
             });
         }
+    }
+
+    static RpslObject replaceAuthAttributes(final RpslObject rpslObject) {
+        RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
+
+        final Iterator<RpslAttribute> attributes = builder.getAttributes().iterator();
+        while (attributes.hasNext()) {
+            final RpslAttribute attribute = attributes.next();
+            if (AttributeType.AUTH.equals(attribute.getType())) {
+                if (attribute.getCleanValue().startsWith("md5-pw") ||
+                        attribute.getCleanValue().startsWith("sso")) {
+                    attributes.remove();
+                }
+            }
+        }
+        
+        return builder.get();
     }
 
     private static String unsupportedEnvironment(final String environment) {
