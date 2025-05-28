@@ -4,11 +4,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.Validate;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
@@ -18,7 +21,11 @@ import static net.ripe.db.whois.common.domain.CIString.ciImmutableSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Immutable
-public final class RpslAttribute {
+public final class RpslAttribute implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private static final int LEADING_CHARS = 16;
     private static final int LEADING_CHARS_SHORTHAND = 5;
 
@@ -287,7 +294,7 @@ public final class RpslAttribute {
             if (type != attribute.type) {
                 return false;
             }
-            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues());
+            return Iterables.elementsEqual(getCleanValues(), attribute.getCleanValues()) && StringUtils.equalsIgnoreCase(getCleanComment(), attribute.getCleanComment());
         }
     }
 

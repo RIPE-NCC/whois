@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.authentication.credential;
 
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 
@@ -12,5 +13,5 @@ interface CredentialValidator<T extends Credential, K extends Credential> {
 
     Class<T> getSupportedOfferedCredentialType();
 
-    boolean hasValidCredential(PreparedUpdate update, UpdateContext updateContext, Collection<T> offeredCredentials, K knownCredential);
+    boolean hasValidCredential(PreparedUpdate update, UpdateContext updateContext, Collection<T> offeredCredentials, K knownCredential, RpslObject maintainer);
 }

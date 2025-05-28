@@ -1,10 +1,10 @@
 package net.ripe.db.whois.changedphase3;
 
-import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.changedphase3.util.Scenario.Builder.given;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Method.CREATE;
@@ -27,16 +27,19 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Req.NOT_APPLIC__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.NO_CHANGED__;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class ChangedIntermediateModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         System.setProperty("feature.toggle.changed.attr.available", "true");
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         System.clearProperty("feature.toggle.changed.attr.available");
     }

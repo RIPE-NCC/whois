@@ -10,11 +10,11 @@ import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateStatus;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -61,7 +61,7 @@ class AuditLogger {
 
             doc = documentBuilder.newDocument();
             dbupdate = doc.createElement("dbupdate");
-            dbupdate.setAttribute("created", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
+            dbupdate.setAttribute("created", FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentDateTime()));
             doc.appendChild(dbupdate);
 
             messages = doc.createElement("messages");
@@ -127,7 +127,7 @@ class AuditLogger {
         }
 
         updateElement.setAttribute("attempt", String.valueOf(attempt));
-        updateElement.setAttribute("time", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
+        updateElement.setAttribute("time", FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentDateTime()));
 
         final RpslObject updatedObject = update.getSubmittedObject();
         updateElement.appendChild(keyValue("key", updatedObject.getFormattedKey()));

@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -32,7 +32,6 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
          "ASSIGNMENT-END-USER": """\
@@ -64,16 +63,15 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 netname:      ASSIGNED-192-168-1
                 country:      NL
                 org:          ORG-LIR1-TEST
-                sponsoring-org: ORG-LIR1-TEST  # changed
+                sponsoring-org: ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -108,10 +106,9 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -144,7 +141,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -182,16 +179,18 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT                     # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.1.0 - 192.168.1.255") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
+        ]
     }
 
     def "modify inetnum without ripe mnt, add mnt-lower by lir mntner"() {
@@ -216,16 +215,18 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT        # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.2.0 - 192.168.2.255" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.2.0 - 192.168.2.255") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
+        ]
     }
 
     //  MODIFY allocations attributes WITH OVERRIDE
@@ -252,10 +253,9 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 override: denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -263,7 +263,7 @@ class NonAllocationAttributeValidationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.1.0 - 192.168.1.255" }
     }
 }

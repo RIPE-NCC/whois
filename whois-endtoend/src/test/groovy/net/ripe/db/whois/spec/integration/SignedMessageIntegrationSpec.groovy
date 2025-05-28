@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.integration
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import java.time.LocalDateTime
 import org.springframework.test.util.ReflectionTestUtils
 import spock.lang.Ignore
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
     //FIXME [TP] this workaround with the authenticator and the principalsMap is a hack to...
     //FIXME [TP] ...temporarilly allow hierarchical *mail*updates with power maintainers. Do not replicate this logic.
@@ -304,10 +304,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nsource: TEST")
                       + "password: owner")
     then:
@@ -337,7 +337,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 kichVGo7GB7vQjpdBmQUpK6O0Rpjejsq7qkEsyFuHZulpL5rcnGtPsQUO/FXU1k=
                 =jZ51
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -379,10 +379,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-E5F13570\nsource: TEST")
                       + "password: owner")
     then:
@@ -408,7 +408,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 tmkAoIkbaEShTyG3wS/uCqQpzKFsOROt
                 =q0GT
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -423,7 +423,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   def "inline pgp signed syncupdate with invalid existing key"() {
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().replaceAll("source:\\s*TEST", "auth: PGPKEY-57639544\nsource: TEST") + "password: owner")
+              getFixtures().get("OWNER-MNT").stripIndent(true).replaceAll("source:\\s*TEST", "auth: PGPKEY-57639544\nsource: TEST") + "password: owner")
 
       def ack = syncUpdate new SyncUpdate(data: """
                 -----BEGIN PGP SIGNED MESSAGE-----
@@ -449,7 +449,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 2I65qVJXecj9RSbkLZung8o9ItXzPooEXggQCHHq93EvwCcgKi8s4OTWqUfje5Y=
                 =it26
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       ack.contains("Create FAILED: [person] FP1-TEST   First Person")
 
@@ -507,10 +507,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nsource: TEST")
                       + "password: owner")
     then:
@@ -538,7 +538,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 f30WkWsIMzmKAvIe0kGqQ2DVWiYqxektx1MgElhz6+fZWjLNcJQ3HycG9PF+oYs=
                 =EeZC
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
@@ -548,7 +548,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2015-11-18T17:15:43")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -577,7 +577,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 Aud70JClL28GkoykbGqv9tf8mw78YuazTxhhNK4lw5YTDNNWahA/r9rDj21XiY8=
                 =KrRX
                 -----END PGP SIGNATURE-----
-            """.stripIndent().replaceAll("\n\n", "\n  \t  \n"))
+            """.stripIndent(true).replaceAll("\n\n", "\n  \t  \n"))
     then:
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
@@ -588,7 +588,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -626,7 +626,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                     i+UXPIrHzJ3HUw0w+gLEPMJOoGLhClFua/MFoROLG3Ka9RKve0ayDFWRjeVQt5k=
                     =kiEz
                     -----END PGP SIGNATURE-----
-                    """.stripIndent())
+                    """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -642,7 +642,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   def "inline pgp signed mailupdate with invalid keycert referenced by mntner"() {
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-57639544\nsource: TEST")
                       + "password: owner")
     then:
@@ -672,7 +672,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 38ZFNyJmTcoQ4nV3X6glwAg/lfWPhG0EByV/uhzmilv1Midetv2626/Cecn+tS0=
                 =0+bz
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -691,7 +691,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2015-11-18T17:30:38")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -719,7 +719,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
             PZk4tkptHQHJKRRBBTnoTWO0DWpspaFoXf2pdPnluL8XB7IKCi9FQrm4Atc13o4=
             =VzjZ
             -----END PGP SIGNATURE-----
-            """.stripIndent())
+            """.stripIndent(true))
     then:
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
@@ -790,10 +790,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-E7220D0A\nsource: TEST")
                       + "password: owner")
     then:
@@ -827,7 +827,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
             GrQn43LxX0fhr4sadDvs
             =/OHS
             -----END PGP SIGNATURE-----
-            """.stripIndent())
+            """.stripIndent(true))
     then:
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
@@ -901,10 +901,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
     then:
@@ -930,7 +930,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 8HgTc4f3Dl9H3tvvOnUA/3YAkKqJGFdzkienbsX66RvSwdRP36gPyWCw6rQnkyaR
                 =espv
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -970,7 +970,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 ucVz+7OCUmT+dI15jXlZSLWwaMZ6KHafgPio5ZuACE5GeqjC0m/vG5QWXOTiHYw=
                 =OMjb
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -1016,10 +1016,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
     then:
@@ -1049,7 +1049,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 iQa32gXdGvAA0RcELaA1kH5ZJvWaZwY1I9mnrFNgkqbANmUqbmogOpku/8d7fu0=
                 =OlpN
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -1086,7 +1086,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 KY69NNAejyQ16FDY4pQdDxhJsCmDcq+h72SZlLd3LKboMuGmbl2cgeIe65LSc0E=
                 =UB8z
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -1210,7 +1210,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-                """.stripIndent())
+                """.stripIndent(true))
 
     and:
       syncUpdate new SyncUpdate(data: """
@@ -1253,9 +1253,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-                """.stripIndent())
+                """.stripIndent(true))
     and:
-      syncUpdate new SyncUpdate(data: (getFixtures().get("OWNER-MNT").stripIndent().
+      syncUpdate new SyncUpdate(data: (getFixtures().get("OWNER-MNT").stripIndent(true).
               replaceAll("source:\\s*TEST", "auth: PGPKEY-AAAAAAAA\nauth: PGPKEY-BBBBBBBB\nsource: TEST")
               + "password: owner"))
     and:
@@ -1285,7 +1285,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 RhzeD+qm1Vt8Zl9Xgo2++SoD4Xxw6wfujhl9NLBUt92KtgjEPjrkqnYhwVPyEqE=
                 =TfFa
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
       )
 
     then:
@@ -1344,9 +1344,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-                """.stripIndent())
+                """.stripIndent(true))
     and:
-      syncUpdate new SyncUpdate(data: (getFixtures().get("OWNER-MNT").stripIndent().
+      syncUpdate new SyncUpdate(data: (getFixtures().get("OWNER-MNT").stripIndent(true).
               replaceAll("source:\\s*TEST", "auth: PGPKEY-81CCF97D\nsource: TEST")
               + "password: owner"))
     and:
@@ -1391,7 +1391,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 L0feEtd9bj9AVsizm9TSI2lPM+AMuqDykwmn/FJTw0LUpohSTy0EEvpuU2qriKU=
                 =k2zm
                 -----END PGP SIGNATURE-----
-                """.stripIndent()
+                """.stripIndent(true)
       )
 
     then:
@@ -1410,7 +1410,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   def "multipart pgp signed message with crlf stripped from content"() {
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
     then:
@@ -1473,7 +1473,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2014-09-22T17:33:40")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -1533,7 +1533,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2013-01-02T16:53:25")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
     then:
@@ -1624,7 +1624,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2013-01-03T09:17:29")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
     then:
@@ -1696,7 +1696,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2013-01-08T15:05:05")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
     then:
@@ -1915,10 +1915,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
     then:
@@ -2057,10 +2057,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
     then:
@@ -2182,10 +2182,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
     then:
@@ -2301,10 +2301,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
     then:
@@ -2389,7 +2389,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   def "multipart plaintext X509 signed message when maintainer only has pgp keycert"() {
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -2474,7 +2474,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   def "multipart plaintext X509 signed message with invalid keycert"() {
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-111\nsource: TEST")
                       + "password: owner")
     then:
@@ -2589,10 +2589,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 password:     owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
     then:
@@ -2797,7 +2797,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       def message = send "From: Edward Shryane <eshryane@ripe.net>\n" +
               "Content-Type: multipart/signed;\n" +
@@ -2904,11 +2904,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 certif:       -----END CERTIFICATE-----
                 mnt-by:       OWNER-MNT
                 source:       TEST
-                password:     owner
-             """.stripIndent())
+                override: denis, override1 
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
     then:
@@ -2990,10 +2990,10 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:       OWNER-MNT
                 source:       TEST
                 password:     owner
-             """.stripIndent())
+             """.stripIndent(true))
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
     then:
@@ -3086,7 +3086,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
 
       syncUpdate new SyncUpdate(data: """
                 inetnum: 192.0.0.0 - 193.0.0.255
@@ -3101,15 +3101,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 source:  TEST
                 password: hm
                 password: owner
-                """.stripIndent())
+                """.stripIndent(true))
 
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: owner")
 
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
+              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: X509-1\nsource: TEST")
                       + "password: hm")
 
@@ -3200,12 +3200,12 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2013-01-07T10:48:20")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
 
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
+              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: hm")
 
@@ -3222,7 +3222,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                   source:  TEST
                   password: hm
                   password: owner
-                  """.stripIndent())
+                  """.stripIndent(true))
 
     clearPowerMaintainers()
     then:
@@ -3318,7 +3318,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         OWNER-MNT
                 source:         TEST
                 password:       owner
-             """.stripIndent())
+             """.stripIndent(true))
 
       syncUpdate new SyncUpdate(data: """
                   inetnum: 192.0.0.0 - 193.0.0.255
@@ -3333,16 +3333,16 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                   source:  TEST
                   password: hm
                   password: owner
-                  """.stripIndent())
+                  """.stripIndent(true))
 
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-E06D7E01\nsource: TEST")
                       + "password: owner")
     then:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
+              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-E06D7E01\nsource: TEST")
                       + "password: hm")
     then:
@@ -3372,7 +3372,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 8jnvRrjSfhMzuaXuPOM=
                 =B14w
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
 
     then:
       message.contains("Create SUCCEEDED: [inetnum] 193.0.0.0 - 193.0.0.255")
@@ -3383,11 +3383,11 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2013-01-08T16:09:06")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
                       + "password: owner")
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent().
+              getFixtures().get("RIPE-NCC-HM-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: hm")
 
@@ -3404,7 +3404,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                   source:  TEST
                   password: hm
                   password: owner
-                  """.stripIndent())
+                  """.stripIndent(true))
 
     clearPowerMaintainers()
 
@@ -3487,7 +3487,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2015-11-20T15:22:20")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -3539,7 +3539,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   def "pgp signed message with public key attached is not supported"() {
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -3649,7 +3649,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2020-03-10T10:23:56")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -3690,7 +3690,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
   def "pgp signed message with invalid signature"() {
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -3713,7 +3713,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
                 nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -3729,7 +3729,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2019-02-05T17:02:00")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-C88CA438\nsource: TEST")
                       + "password: owner")
     then:
@@ -3757,7 +3757,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 cjfleMW4Xw==
                 =BT/+
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -3771,7 +3771,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2019-02-05T17:02:00")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-8947C26B\nsource: TEST")
                       + "password: owner")
     then:
@@ -3798,7 +3798,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 XttJxq5FbaSzl1IR7FYu9kT8afqKm45R1mjogG35tp2J5ApX4Q==
                 =5zUI
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -3812,7 +3812,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2019-02-05T18:38:00")) // current time is >1 hour after signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -3842,7 +3842,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 9RtMtNMzojs5RXER+S8U07RhVgYtrg==
                 =yqKe
                 -----END PGP SIGNATURE-----
-                """.stripIndent())
+                """.stripIndent(true))
     then:
       def ack = ackFor message
 
@@ -3857,7 +3857,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       setTime(LocalDateTime.parse("2016-03-31T17:25:15")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
-              getFixtures().get("OWNER-MNT").stripIndent().
+              getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
@@ -3920,4 +3920,69 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
 
+  def "pgp signed message with base64 encoded content"() {
+    given:
+      setTime(LocalDateTime.parse("2021-09-29T11:23:22")) // current time is >1 hour after signing time
+    when:
+      syncUpdate new SyncUpdate(data:
+              getFixtures().get("OWNER-MNT").stripIndent(true).
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST") +
+                      "password: owner")
+    then:
+      def message = send "" +
+              "Message-ID: <a64222cd-6cb7-4a6a-33ec-3111e9e79331@ripe.net>\n" +
+              "Date: Wed, 29 Sep 2021 11:23:17 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)\n" +
+              " Gecko/20100101 Thunderbird/91.1.2\n" +
+              "Content-Language: en-US\n" +
+              "To: test-dbm@ripe.net\n" +
+              "From: No Reply <noreply@ripe.net>\n" +
+              "Subject: NEW\n" +
+              "Content-Type: multipart/signed; micalg=pgp-sha256;\n" +
+              " protocol=\"application/pgp-signature\";\n" +
+              " boundary=\"------------z60obBv7fVfOOgKt1tN8jpOM\"\n" +
+              "\n" +
+              "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+              "--------------z60obBv7fVfOOgKt1tN8jpOM\n" +
+              "Content-Type: multipart/mixed; boundary=\"------------Vea17wsKD2zUMOZmbw2ly2r0\";\n" +
+              " protected-headers=\"v1\"\n" +
+              "From: No Reply <noreply@ripe.net>\n" +
+              "To: test-dbm@ripe.net\n" +
+              "Message-ID: <a64222cd-6cb7-4a6a-33ec-3111e9e79331@ripe.net>\n" +
+              "Subject: NEW\n" +
+              "\n" +
+              "--------------Vea17wsKD2zUMOZmbw2ly2r0\n" +
+              "Content-Type: text/plain; charset=UTF-8; format=flowed\n" +
+              "Content-Transfer-Encoding: base64\n" +
+              "\n" +
+              "cGVyc29uOsKgIEZpcnN0IFBlcnNvbg0KYWRkcmVzczogU3QgSmFtZXMgU3RyZWV0DQphZGRy\n" +
+              "ZXNzOiBCdXJubGV5DQphZGRyZXNzOiBVSw0KcGhvbmU6wqDCoCArNDQgMjgyIDQyMDQ2OQ0K\n" +
+              "bmljLWhkbDogRlAxLVRFU1QNCm1udC1ieTrCoCBPV05FUi1NTlQNCnNvdXJjZTrCoCBURVNU\n" +
+              "DQoNCg==\n" +
+              "\n" +
+              "--------------Vea17wsKD2zUMOZmbw2ly2r0--\n" +
+              "\n" +
+              "--------------z60obBv7fVfOOgKt1tN8jpOM\n" +
+              "Content-Type: application/pgp-signature; name=\"OpenPGP_signature.asc\"\n" +
+              "Content-Description: OpenPGP digital signature\n" +
+              "Content-Disposition: attachment; filename=\"OpenPGP_signature\"\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "\n" +
+              "wsB5BAABCAAjFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmFUMIUFAwAAAAAACgkQu8y7LVdjlQ0X\n" +
+              "dAf/TqDMoPLSVz54m6LpJi1/CZ2aG5aEWAZUUkz1Qjf0KbPN6i3tJRvzovb8KWTyge8/JtSIA3tW\n" +
+              "3Srq1OJE9dimlC7cTAjRtk+V5FPn35vWGyH8SbQPZ2GtcIXY7BvChfXFykXZO4nt47+oU2EN+V1V\n" +
+              "Y9HnLnpR6atGTqdGWAGjcHTd5b2wMzxFaXyeTBNehDNAFiiIeKupdoVy8dOES4mW9lgmDIVFIzNq\n" +
+              "gAxdlPUCJoquVHwM+g5VZG6Wb1ahUs/c3ACnb7iw/x/TfnUbtryy22q9m1sgBHRGgUpc6Zp7XyGB\n" +
+              "PbhoRb5m4s95oxOh5crFMcRveIx8SCj45YqX0ONuew==\n" +
+              "=mjpm\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--------------z60obBv7fVfOOgKt1tN8jpOM--\n"
+
+    then:
+      def ack = ackFor message
+      ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
+  }
 }

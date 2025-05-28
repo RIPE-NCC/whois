@@ -1,11 +1,12 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 class MemberReclaimSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
@@ -265,7 +266,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -307,7 +308,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -349,7 +350,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: mr-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -395,7 +396,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -441,7 +442,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -487,7 +488,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -531,7 +532,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -581,7 +582,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -629,7 +630,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -678,7 +679,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -728,7 +729,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -777,7 +778,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: sub2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -829,7 +830,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: sub
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -883,7 +884,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -933,7 +934,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -982,7 +983,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1032,7 +1033,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1095,7 +1096,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1150,7 +1151,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1265,7 +1266,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1386,7 +1387,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1581,7 +1582,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 delete: member reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:

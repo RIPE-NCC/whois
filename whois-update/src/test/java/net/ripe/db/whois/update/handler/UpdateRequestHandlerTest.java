@@ -10,7 +10,6 @@ import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Paragraph;
-import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
@@ -20,23 +19,23 @@ import net.ripe.db.whois.update.handler.response.ResponseFactory;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
 import net.ripe.db.whois.update.sso.SsoTranslator;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UpdateRequestHandlerTest {
     @Mock UpdateRequest updateRequest;
     @Mock Update update;
@@ -56,16 +55,16 @@ public class UpdateRequestHandlerTest {
 
     @InjectMocks UpdateRequestHandler subject;
 
-    @Before
+    @BeforeEach
     @SuppressWarnings("unchecked")
     public void setUp() {
-        when(update.getOperation()).thenReturn(Operation.UNSPECIFIED);
-        when(update.getSubmittedObject()).thenReturn(RpslObject.parse("mntner: DEV-ROOT-MNT"));
-        when(update.getType()).thenReturn(ObjectType.MNTNER);
+        lenient().when(update.getOperation()).thenReturn(Operation.UNSPECIFIED);
+        lenient().when(update.getSubmittedObject()).thenReturn(RpslObject.parse("mntner: DEV-ROOT-MNT"));
+        lenient().when(update.getType()).thenReturn(ObjectType.MNTNER);
 
-        when(updateRequest.getOrigin()).thenReturn(origin);
-        when(updateRequest.getKeyword()).thenReturn(Keyword.NONE);
-        when(updateContext.createAck()).thenReturn(ack);
+        lenient().when(updateRequest.getOrigin()).thenReturn(origin);
+        lenient().when(updateRequest.getKeyword()).thenReturn(Keyword.NONE);
+        lenient().when(updateContext.createAck()).thenReturn(ack);
     }
 
     @Test
@@ -76,8 +75,6 @@ public class UpdateRequestHandlerTest {
         when(responseFactory.createAckResponse(updateContext, origin, ack)).thenReturn("ACK");
 
         final RpslObject maintainer = RpslObject.parse("mntner: DEV-ROOT-MNT");
-        when(update.getSubmittedObject()).thenReturn(maintainer);
-        when(updateContext.getStatus(any(PreparedUpdate.class))).thenReturn(UpdateStatus.SUCCESS);
 
         subject.handle(updateRequest, updateContext);
 
@@ -96,9 +93,6 @@ public class UpdateRequestHandlerTest {
         when(responseFactory.createAckResponse(updateContext, origin, ack)).thenReturn("ACK");
 
         final RpslObject domain = RpslObject.parse("domain: 36.84.80.in-addr.arpa");
-        when(update.getType()).thenReturn(ObjectType.DOMAIN);
-        when(update.getSubmittedObject()).thenReturn(domain);
-        when(updateContext.getStatus(any(PreparedUpdate.class))).thenReturn(UpdateStatus.SUCCESS);
 
         subject.handle(updateRequest, updateContext);
 
@@ -116,10 +110,6 @@ public class UpdateRequestHandlerTest {
         when(responseFactory.createAckResponse(updateContext, origin, ack)).thenReturn("ACK");
 
         final RpslObject domain = RpslObject.parse("domain: 36.84.80.in-addr.arpa");
-        when(update.getType()).thenReturn(ObjectType.DOMAIN);
-        when(update.getSubmittedObject()).thenReturn(domain);
-        when(update.getOperation()).thenReturn(Operation.DELETE);
-        when(updateContext.getStatus(any(PreparedUpdate.class))).thenReturn(UpdateStatus.SUCCESS);
 
         subject.handle(updateRequest, updateContext);
 

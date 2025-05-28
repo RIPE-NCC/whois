@@ -13,7 +13,6 @@ import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
-import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -42,7 +41,6 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -76,7 +74,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
         Set<Integer> differences = loadObjects(proxy, loadedObjects);
         if (!differences.isEmpty()) {
             final Source originalSource = sourceContext.getCurrentSource();
-            LOGGER.warn("Objects in source {} not found for ids: {}", originalSource, differences);
+            LOGGER.info("Objects in source {} not found for ids: {}", originalSource, differences);
 
             if (originalSource.getType().equals(Source.Type.SLAVE)) {
                 final Source masterSource = Source.master(originalSource.getName());
@@ -84,7 +82,7 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
                     sourceContext.setCurrent(masterSource);
                     differences = loadObjects(proxy, loadedObjects);
                     if (!differences.isEmpty()) {
-                        LOGGER.warn("Objects in source {} not found for ids: {}", masterSource, differences);
+                        LOGGER.info("Objects in source {} not found for ids: {}", masterSource, differences);
                     }
                 } catch (IllegalSourceException e) {
                     LOGGER.debug("Source not configured: {}", masterSource, e);
@@ -169,12 +167,6 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     @Override
     public RpslObject getById(final int objectId) {
         return JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectId);
-    }
-
-    @Override
-    public LocalDateTime getLastUpdated(int objectId) {
-        final long timestamp = jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", Long.class, new Object[]{objectId});
-        return (Timestamp.fromSeconds(timestamp)).toLocalDateTime();
     }
 
     @Override

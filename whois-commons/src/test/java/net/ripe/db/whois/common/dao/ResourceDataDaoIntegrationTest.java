@@ -1,12 +1,12 @@
 package net.ripe.db.whois.common.dao;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +16,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 import java.util.Scanner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class ResourceDataDaoIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired @Qualifier("internalsDataSource")
     DataSource dataSource;
@@ -42,7 +42,7 @@ public class ResourceDataDaoIntegrationTest extends AbstractDaoIntegrationTest {
 
         subject.store("test", resourceData);
         final AuthoritativeResource loadedData = subject.load("test");
-        assertEquals(resourceData, loadedData);
+        assertThat(resourceData, equalTo(loadedData));
     }
 
     @Test

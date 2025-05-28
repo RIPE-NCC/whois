@@ -1,26 +1,27 @@
 package net.ripe.db.whois.nrtm;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.net.InetSocketAddress;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+import java.net.InetSocketAddress;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 public class NrtmExceptionHandlerTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS) private Channel channelMock;
@@ -31,7 +32,7 @@ public class NrtmExceptionHandlerTest {
 
     private static final String QUERY = "query";
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(channelHandlerContextMock.channel()).thenReturn(channelMock);
         when(channelMock.remoteAddress()).thenReturn(new InetSocketAddress(0));
@@ -42,8 +43,8 @@ public class NrtmExceptionHandlerTest {
     }
 
     @Test
-    public void handle_illegal_argument_exception() throws Exception {
-        subject.exceptionCaught(channelHandlerContextMock, new IllegalArgumentException(QUERY));
+    public void handle_nrtm_exception() throws Exception {
+        subject.exceptionCaught(channelHandlerContextMock, new NrtmException(QUERY));
 
         verify(channelMock, times(1)).writeAndFlush(QUERY + "\n\n");
         verify(channelFutureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
@@ -53,7 +54,7 @@ public class NrtmExceptionHandlerTest {
     public void handle_exception() throws Exception {
         subject.exceptionCaught(channelHandlerContextMock, new Exception());
 
-        verify(channelMock, times(1)).write(NrtmExceptionHandler.MESSAGE);
+        verify(channelMock, times(1)).writeAndFlush(NrtmMessages.internalError().toString());
         verify(channelFutureMock, times(1)).addListener(ChannelFutureListener.CLOSE);
     }
 }

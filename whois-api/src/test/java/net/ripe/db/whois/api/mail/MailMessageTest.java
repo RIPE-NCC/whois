@@ -3,7 +3,7 @@ package net.ripe.db.whois.api.mail;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Keyword;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

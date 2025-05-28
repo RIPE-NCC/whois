@@ -1,41 +1,43 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import java.util.Collections;
 import java.util.List;
 
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 
 @Component
 @Path("/batch")
 public class BatchUpdatesService {
-
     private final static String DELETE_REASON = "Batch Delete";
 
     private final LoggerContext loggerContext;
@@ -61,11 +63,15 @@ public class BatchUpdatesService {
                        @QueryParam("override") final String override,
                        @QueryParam("dry-run") final String dryRun,
                        @QueryParam("delete-reason") final String reason,
-                       @CookieParam("crowd.token_key") final String crowdTokenKey) {
+                       @CookieParam(AuthServiceClient.TOKEN_KEY)  final String crowdTokenKey) {
+
+        if (whoisResources == null || whoisResources.getWhoisObjects().size() == 0) {
+            return Response.status(BAD_REQUEST).entity("WhoisResources is mandatory").build();
+        }
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, null, request);
             updateContext.setBatchUpdate();
 
             if(isQueryParamSet(dryRun)) {

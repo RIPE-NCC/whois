@@ -8,23 +8,23 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.LegacyAutnum;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AutnumAttributeGeneratorTest {
 
     @Mock Update update;
@@ -35,19 +35,18 @@ public class AutnumAttributeGeneratorTest {
     @Mock LegacyAutnum legacyAutnum;
     @InjectMocks AutnumAttributeGenerator autnumStatusAttributeGenerator;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(sourceContext.getCurrentSource()).thenReturn(Source.master("TEST"));
         when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
         isMaintainedByRir(false);
-        when(legacyAutnum.contains(any(CIString.class))).thenReturn(Boolean.FALSE);
     }
 
     @Test
     public void generate_assigned_status_on_create() {
         final RpslObject autnum = RpslObject.parse("aut-num: AS3333\nmnt-by: RIPE-NCC-HM-MNT\nsource: RIPE");
         isMaintainedByRir(true);
-        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
+        when(legacyAutnum.contains(any(CIString.class))).thenReturn(Boolean.FALSE);
 
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
@@ -60,7 +59,6 @@ public class AutnumAttributeGeneratorTest {
         final RpslObject autnum = RpslObject.parse("aut-num: AS3333\nmnt-by: TEST-MNT\nsource: RIPE");
         isMaintainedByRir(true);
         when(legacyAutnum.contains(any(CIString.class))).thenReturn(Boolean.TRUE);
-        when(updateContext.getAction(update)).thenReturn(Action.CREATE);
 
         final RpslObject result = autnumStatusAttributeGenerator.generateAttributes(null, autnum, update, updateContext);
 
@@ -89,6 +87,6 @@ public class AutnumAttributeGeneratorTest {
     // helper methods
 
     private void isMaintainedByRir(final boolean maintained) {
-        when(authoritativeResource.isMaintainedInRirSpace(any(ObjectType.class), any(CIString.class))).thenReturn(maintained);
+        lenient().when(authoritativeResource.isMaintainedInRirSpace(any(ObjectType.class), any(CIString.class))).thenReturn(maintained);
     }
 }

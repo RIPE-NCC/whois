@@ -7,19 +7,20 @@ import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AsblockByRsMaintainersOnlyValidatorTest {
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -27,7 +28,7 @@ public class AsblockByRsMaintainersOnlyValidatorTest {
 
     private AsblockByRsMaintainersOnlyValidator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new AsblockByRsMaintainersOnlyValidator();
     }
@@ -44,33 +45,31 @@ public class AsblockByRsMaintainersOnlyValidatorTest {
 
     @Test
     public void validate_override_succeeds() {
-        when(update.isOverride()).thenReturn(true);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
         when(subjectObject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(subjectObject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.asblockIsMaintainedByRipe());
     }
 
     @Test
     public void validate_authenticatedByDbmMaintainer_succeeds() {
-        when(update.isOverride()).thenReturn(false);
         when(updateContext.getSubject(update)).thenReturn(subjectObject);
-        when(subjectObject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(true);
+       lenient().when(subjectObject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.asblockIsMaintainedByRipe());
     }
 
     @Test
     public void validate_not_authenticatedByDbmMaintainer_or_override_fails() {
-        when(update.isOverride()).thenReturn(false);
-        when(updateContext.getSubject(update)).thenReturn(subjectObject);
-        when(subjectObject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(false);
+        lenient().when(updateContext.getSubject(update)).thenReturn(subjectObject);
+        lenient().when(subjectObject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.asblockIsMaintainedByRipe());
     }

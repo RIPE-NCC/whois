@@ -1,12 +1,13 @@
 package net.ripe.db.whois.common.jdbc;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DatabaseVersionCheckTest {
 
@@ -42,19 +43,22 @@ public class DatabaseVersionCheckTest {
 
     @Test
     public void testCheckDatabaseOK() {
-        DatabaseVersionCheck subject = new DatabaseVersionCheck(null);
+        final DatabaseVersionCheck subject = new DatabaseVersionCheck(null);
         subject.checkDatabase(ImmutableList.of("whois-1.51", "whois-1.4", "whois-2.15.4"), "TEST", "whois-2.16");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testCheckDatabaseFail() {
-        DatabaseVersionCheck subject = new DatabaseVersionCheck(null);
-        subject.checkDatabase(ImmutableList.of("whois-1.51", "whois-1.4", "whois-2.15.4"), "TEST", "whois-1.16");
+        assertThrows(IllegalStateException.class, () -> {
+            DatabaseVersionCheck subject = new DatabaseVersionCheck(null);
+            subject.checkDatabase(ImmutableList.of("whois-1.51", "whois-1.4", "whois-2.15.4"), "TEST", "whois-1.16");
+
+        });
     }
 
     @Test
     public void testCheckDatabaseSucceedForAnotherDB() {
-        DatabaseVersionCheck subject = new DatabaseVersionCheck(null);
+        final DatabaseVersionCheck subject = new DatabaseVersionCheck(null);
         subject.checkDatabase(ImmutableList.of("scheduler-1.51", "whois-1.4", "acl-2.15.4"), "TEST", "whois-1.16");
     }
 }

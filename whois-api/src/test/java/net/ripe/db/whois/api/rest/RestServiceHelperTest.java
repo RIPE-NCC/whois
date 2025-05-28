@@ -1,17 +1,18 @@
 package net.ripe.db.whois.api.rest;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
-import javax.servlet.http.HttpServletRequest;
+import org.mockito.Mock;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RestServiceHelperTest {
     @Mock private HttpServletRequest request;
 
@@ -33,7 +34,7 @@ public class RestServiceHelperTest {
         assertThat(getRequestURL("http://test.net", "password=abc&param=one&password=xyz&param=two"), is("http://test.net?param=one&param=two"));
         assertThat(getRequestURL("http://test.net", "password=aaa&password=bbb&param=one&password=ccc&param=two"), is("http://test.net?param=one&param=two"));
     }
-    
+
     @Test
     public void getRequestUrlWithPasswordWithoutOverride() {
         assertThat(getRequestURL("http://test.net", "unformatted=true&override=rsng,TEST-DBM-MNT"), is("http://test.net?unformatted=true&override=rsng,FILTERED"));

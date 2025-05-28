@@ -1,17 +1,18 @@
 package net.ripe.db.whois.query.handler;
 
-import net.ripe.db.whois.common.profiles.DeployedProfile;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.net.InetAddress;
 
 @Component
-@DeployedProfile
+@Profile(WhoisProfile.DEPLOYED)
 public class WhoisLog {
     private final Logger logger = LoggerFactory.getLogger(WhoisLog.class);
 

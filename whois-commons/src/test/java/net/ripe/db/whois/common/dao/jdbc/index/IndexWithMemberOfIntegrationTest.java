@@ -1,26 +1,27 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
     IndexStrategy subject;
 
     RpslObject asSet;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = IndexStrategies.get(AttributeType.MEMBER_OF);
 
@@ -43,25 +44,31 @@ public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
         assertThat(getNrMemberOf(), is(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void add_route() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "route:     193.0.0.0/8\n" +
-                "origin:    AS100\n" +
-                "member-of: AS-BOGUS");
+        assertThrows(IllegalArgumentException.class, () -> {
+            final RpslObject rpslObject = RpslObject.parse("" +
+                    "route:     193.0.0.0/8\n" +
+                    "origin:    AS100\n" +
+                    "member-of: AS-BOGUS");
 
-        final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
-        subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MEMBER_OF));
+            final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
+            subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MEMBER_OF));
+
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void add_autnum_invalid_reference() {
-        final RpslObject rpslObject = RpslObject.parse("" +
-                "aut-num:         AS5404\n" +
-                "member-of:       AS-UNKNOWN");
+        assertThrows(IllegalArgumentException.class, () -> {
+            final RpslObject rpslObject = RpslObject.parse("" +
+                    "aut-num:         AS5404\n" +
+                    "member-of:       AS-UNKNOWN");
 
-        final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
-        subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MEMBER_OF));
+            final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(2, rpslObject.getType(), rpslObject.getKey());
+            subject.addToIndex(whoisTemplate, rpslObjectInfo, rpslObject, rpslObject.getValueForAttribute(AttributeType.MEMBER_OF));
+
+        });
     }
 
     @Test
@@ -144,7 +151,7 @@ public class IndexWithMemberOfIntegrationTest extends IndexIntegrationTestBase {
         databaseHelper.addObject("route: 195.10.40.0/29\nmember-of: rs-ripe\nmnt-by: test-mnt\norigin:AS3255");
 
         final List<RpslObjectInfo> result = subject.findInIndex(whoisTemplate, "rs-ripe");
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0).getKey(), is("195.10.40.0/29AS3255"));
     }
 

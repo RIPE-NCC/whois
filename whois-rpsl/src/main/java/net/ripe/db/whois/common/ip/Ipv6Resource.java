@@ -8,13 +8,14 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
-public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable<Ipv6Resource> {
+public final class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable<Ipv6Resource> {
     public static final String IPV6_REVERSE_DOMAIN = ".ip6.arpa";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Ipv4Resource.class);
@@ -120,10 +121,18 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
             if (prefixLength < 0 || prefixLength > 128) {
                 throw new IllegalArgumentException("Invalid prefix length: " + prefixOrAddress);
             }
-            return parse(InetAddresses.forString(trimmedPrefixOrAddress.substring(0, slashIndex)), prefixLength);
+            return parse(InetAddresses.forString(stripOptionalBrackets(trimmedPrefixOrAddress.substring(0, slashIndex))), prefixLength);
         } else {
-            return parse(InetAddresses.forString(trimmedPrefixOrAddress), IPV6_BITCOUNT);
+            return parse(InetAddresses.forString(stripOptionalBrackets(trimmedPrefixOrAddress)), IPV6_BITCOUNT);
         }
+    }
+
+    private static String stripOptionalBrackets(final String address) {
+        if (address.length() > 1 &&
+            (address.charAt(0) == '[' && address.charAt(address.length() - 1) == ']')) {
+            return address.substring(1, address.length() - 1);
+        }
+        return address;
     }
 
     public static Ipv6Resource parseReverseDomain(final String address) {
@@ -375,6 +384,7 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
         return compareTo(other) == 0;
     }
 
+    @Nullable
     public static Ipv6Resource parseIPv6Resource(final String resource) {
         try {
             return Ipv6Resource.parse(resource.trim());
@@ -383,4 +393,5 @@ public class Ipv6Resource extends IpInterval<Ipv6Resource> implements Comparable
         }
         return null;
     }
+
 }

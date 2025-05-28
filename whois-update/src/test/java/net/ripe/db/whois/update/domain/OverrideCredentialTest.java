@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
-import org.junit.Test;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 

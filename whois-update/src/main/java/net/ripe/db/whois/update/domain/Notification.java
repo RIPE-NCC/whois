@@ -7,9 +7,10 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -50,6 +51,16 @@ public final class Notification {
 
     public boolean has(final Type type) {
         return !updates.get(type).isEmpty();
+    }
+
+    /**
+     * Was override used (for at least 1 update)?
+     * @return boolean
+     */
+    public boolean isOverrideUsed() {
+        return updates.values().stream()
+                .flatMap(Collection::stream)
+                .anyMatch(update -> update.getPreparedUpdate().isOverride());
     }
 
     @SuppressWarnings("UnusedDeclaration")

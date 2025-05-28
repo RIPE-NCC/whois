@@ -1,9 +1,9 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class IrtIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -133,7 +133,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /SUCCESS/
@@ -152,7 +152,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /SUCCESS/
@@ -169,7 +169,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         updateResponse =~ /SUCCESS/
@@ -188,7 +188,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /SUCCESS/
@@ -206,7 +206,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
                 password: update
                 delete: test
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         deleteResponse =~ /SUCCESS/
@@ -227,7 +227,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         response =~ /FAILED/
@@ -280,7 +280,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                     notify:       noreply@ripe.net
                     mnt-by:       TEST-MNT
                     source:       TEST
-                    """.stripIndent()
+                    """.stripIndent(true)
 
         def keycertCreate = syncUpdate(new SyncUpdate(data: keycert + "password: update"))
 
@@ -296,7 +296,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by: TEST-MNT
                 source: TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         keycertCreate =~ /Create SUCCEEDED: \[key-cert\] PGPKEY-28F6CD6C/
@@ -343,7 +343,7 @@ class IrtIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password:       update
                 delete:         test
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         delete =~ /Delete SUCCEEDED: \[key-cert\] PGPKEY-28F6CD6C/

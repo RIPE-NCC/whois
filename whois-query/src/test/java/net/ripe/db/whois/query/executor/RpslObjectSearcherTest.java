@@ -26,12 +26,12 @@ import net.ripe.db.whois.query.dao.InetnumDao;
 import net.ripe.db.whois.query.filter.AttributeFilter;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.query.support.Fixture;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Iterator;
@@ -40,15 +40,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RpslObjectSearcherTest {
     AtomicInteger rpslObjectId;
     Map<RpslObject, RpslObjectInfo> map;
@@ -66,7 +68,7 @@ public class RpslObjectSearcherTest {
     @Mock SourceContext sourceContext;
     @InjectMocks RpslObjectSearcher subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         rpslObjectId = new AtomicInteger(1);
         map = Maps.newHashMap();
@@ -156,7 +158,7 @@ public class RpslObjectSearcherTest {
     @Test
     public void inverse_lookup_never_returns_null() {
         for (final AttributeType attributeType : AttributeType.values()) {
-            assertNotNull(subject.search(Query.parse("-i " + attributeType.getName() + " query"), sourceContext));
+            assertThat(subject.search(Query.parse("-i " + attributeType.getName() + " query"), sourceContext), not(nullValue()));
         }
     }
 
@@ -177,7 +179,7 @@ public class RpslObjectSearcherTest {
         mockRpslObjects(mntner, organisation);
 
         when(rpslObjectDao.findByAttribute(AttributeType.MNT_BY, "aardvark")).thenReturn(infosFor(mntner));
-        when(rpslObjectDao.findByAttribute(AttributeType.ORG, "aardvark")).thenReturn(infosFor(organisation));
+        lenient().when(rpslObjectDao.findByAttribute(AttributeType.ORG, "aardvark")).thenReturn(infosFor(organisation));
 
         assertQueryResult("-r -i mnt-by,mnt-ref,org aardvark", mntner, organisation);
     }
@@ -190,7 +192,7 @@ public class RpslObjectSearcherTest {
         mockRpslObjects(mntner, organisation);
 
         when(rpslObjectDao.findByAttribute(AttributeType.MNT_BY, "aardvark")).thenReturn(infosFor(mntner));
-        when(rpslObjectDao.findByAttribute(AttributeType.ORG, "aardvark")).thenReturn(infosFor(organisation));
+        lenient().when(rpslObjectDao.findByAttribute(AttributeType.ORG, "aardvark")).thenReturn(infosFor(organisation));
 
         assertQueryResult("-r -T organisation -i mnt-by,mnt-ref,org aardvark", organisation);
     }
@@ -199,7 +201,7 @@ public class RpslObjectSearcherTest {
         for (final RpslObject rpslObject : rpslObjects) {
             final int id = rpslObjectId.getAndIncrement();
             final RpslObjectInfo rpslObjectInfo = new RpslObjectInfo(id, rpslObject.getType(), rpslObject.getKey());
-            when(rpslObjectDao.getById(id)).thenReturn(new RpslObject(id, rpslObject.getAttributes()));
+            lenient().when(rpslObjectDao.getById(id)).thenReturn(new RpslObject(id, rpslObject.getAttributes()));
             map.put(rpslObject, rpslObjectInfo);
         }
     }

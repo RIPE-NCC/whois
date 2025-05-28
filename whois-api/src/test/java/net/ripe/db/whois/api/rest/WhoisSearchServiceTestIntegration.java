@@ -1,7 +1,11 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -15,38 +19,35 @@ import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.common.ApplicationVersion;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
+import net.ripe.db.whois.common.domain.User;
+import net.ripe.db.whois.common.rpki.DummyRpkiDataProvider;
 import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -57,13 +58,16 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
+    public static final String VALID_TOKEN = "valid-token";
+    public static final String VALID_TOKEN_USER_NAME = "person@net.net";
+
 
     @Autowired
     private AccessControlListManager accessControlListManager;
@@ -72,7 +76,31 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private IpResourceConfiguration ipResourceConfiguration;
 
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
+    @Autowired
+    private DummyRpkiDataProvider rpkiDataProvider;
+
+    public static final String TEST_PERSON_STRING = "" +
+            "person:         Test Person\n" +
+            "address:        Singel 258\n" +
+            "phone:          +31 6 12345678\n" +
+            "nic-hdl:        TP1-TEST\n" +
+            "mnt-by:         OWNER-MNT\n" +
+            "source:         TEST\n";
+
+    public static final RpslObject TEST_PERSON = RpslObject.parse(TEST_PERSON_STRING);
+    public static final String AS102_STRING = "" +
+            "aut-num:        AS102\n" +
+            "as-name:        End-User-2\n" +
+            "descr:          description #testComment\n" +
+            "admin-c:        TP1-TEST\n" +
+            "tech-c:         TP1-TEST\n" +
+            "mnt-by:         OWNER-MNT #testComment\n" +
+            "source:         TEST\n" +
+            "created:        2017-05-16T11:18:05Z\n" +
+            "last-modified:  2017-05-16T11:18:05Z\n";
+
+    public static final RpslObject AS102 = RpslObject.parse(AS102_STRING);
+    public static final String OWNER_MNT_STRING = "" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
             "admin-c:     TP1-TEST\n" +
@@ -80,7 +108,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
             "auth:        SSO person@net.net\n" +
             "mnt-by:      OWNER-MNT\n" +
-            "source:      TEST\n");
+            "source:      TEST\n";
+
+
+    private static final RpslObject OWNER_MNT = RpslObject.parse(OWNER_MNT_STRING);
 
     private static final RpslObject RIPE_NCC_HM_MNT = RpslObject.parse("" +
             "mntner:      RIPE-NCC-HM-MNT\n" +
@@ -92,13 +123,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:      RIPE-NCC-HM-MNT\n" +
             "source:      TEST\n");
 
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
-            "person:    Test Person\n" +
-            "address:   Singel 258\n" +
-            "phone:     +31 6 12345678\n" +
-            "nic-hdl:   TP1-TEST\n" +
-            "mnt-by:    OWNER-MNT\n" +
-            "source:    TEST\n");
 
     private static final RpslObject TEST_ROLE = RpslObject.parse("" +
             "role:      Test Role\n" +
@@ -132,7 +156,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired
     private ApplicationVersion applicationVersion;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.addObject("person: Test Person\nnic-hdl: TP1-TEST");
         databaseHelper.addObject("role: Test Role\nnic-hdl: TR1-TEST");
@@ -143,7 +167,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
     }
 
-    @After
+    @AfterEach
     public void reset() {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
@@ -216,6 +240,24 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_accept_text_plain() {
+        final String rpslObject = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
+    }
+
+    @Test
+    public void search_accept_text_plain_extension() {
+        final String rpslObject = RestTest.target(getPort(), "whois/search.txt?query-string=TP1-TEST&source=TEST")
+                .request()
+                .get(String.class);
+
+        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
+    }
+
+    @Test
     public void search_json_extension() {
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=OWNER-MNT&source=TEST")
                 .request()
@@ -274,7 +316,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void search_with_short_and_long_options_together() {
+    public void search_with_invalid_flag() {
         databaseHelper.addObject("" +
                 "person:    Lo Person\n" +
                 "admin-c:   TP1-TEST\n" +
@@ -284,12 +326,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "source:    TEST\n");
 
         try {
-            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-inforG")
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=show-tag-info")
                     .request(MediaType.APPLICATION_XML)
                     .get(WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-inforG");
+            RestTest.assertOnlyErrorMessage(e, "Error", "Invalid search flag '%s' (in parameter '%s')", "h", "show-tag-info");
         }
     }
 
@@ -315,199 +357,6 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         } catch (BadRequestException e) {
             RestTest.assertOnlyErrorMessage(e, "Error", "Disallowed search flag '%s'", "q");
         }
-    }
-
-    @Test
-    public void search_tags_in_response() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-    }
-
-    @Test
-    public void search_tags_in_json_response() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final String result = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_JSON)
-                .get(String.class);
-
-        assertThat(result, containsString("" +
-                "\"tags\" : {\n" +
-                "    \"tag\" : [ {\n" +
-                "      \"id\" : \"foobar\",\n" +
-                "      \"data\" : \"description\"\n" +
-                "    }, {\n" +
-                "      \"id\" : \"other\",\n" +
-                "      \"data\" : \"other stuff\"\n" +
-                "    }, {\n" +
-                "      \"id\" : \"unref\",\n" +
-                "      \"data\" : \"28\"\n" +
-                "    } ]\n" +
-                "  }"));
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/TEST/aut-num/AS102?include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_JSON)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-    }
-
-    @Test
-    public void search_include_tag_param() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "description");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&include-tag=foobar&include-tag=unref")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "description"),
-                new WhoisTag("other", "other stuff"),
-                new WhoisTag("unref", "28")));
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("aut-num", "AS102"),
-                new Attribute("as-name", "End-User-2"),
-                new Attribute("descr", "description"),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST")
-        ));
-    }
-
-    @Test(expected = NotFoundException.class)
-    public void search_include_tag_param_no_results() {
-        databaseHelper.addObject(RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n"));
-
-        RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&include-tag=foobar")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-    }
-
-    @Test(expected = NotFoundException.class)
-    public void search_include_and_exclude_tags_params_no_results() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "other", "other stuff");
-
-        RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&exclude-tag=foobar&include-tag=unref&include-tag=other")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-    }
-
-    @Test
-    public void search_include_and_exclude_tags_params() {
-        final RpslObject autnum = RpslObject.parse("" +
-                "aut-num:        AS102\n" +
-                "as-name:        End-User-2\n" +
-                "descr:          description\n" +
-                "admin-c:        TP1-TEST\n" +
-                "tech-c:         TP1-TEST\n" +
-                "mnt-by:         OWNER-MNT\n" +
-                "source:         TEST\n");
-        Map<RpslObject, RpslObjectUpdateInfo> updateInfos = databaseHelper.addObjects(Lists.newArrayList(autnum));
-
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "unref", "28");
-        whoisTemplate.update("INSERT INTO tags VALUES (?, ?, ?)", updateInfos.get(autnum).getObjectId(), "foobar", "foobar");
-
-        final WhoisResources whoisResources = RestTest.target(getPort(),
-                "whois/search?source=TEST&query-string=AS102&exclude-tag=other&include-tag=unref&include-tag=foobar")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
-
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getLink(), is(Link.create("http://rest-test.db.ripe.net/test/aut-num/AS102")));
-        assertThat(whoisObject.getTags(), contains(
-                new WhoisTag("foobar", "foobar"),
-                new WhoisTag("unref", "28")));
-        assertThat(whoisObject.getAttributes(), contains(
-                new Attribute("aut-num", "AS102"),
-                new Attribute("as-name", "End-User-2"),
-                new Attribute("descr", "description"),
-                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
-                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST")
-        ));
     }
 
     @Test
@@ -686,6 +535,49 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void search_inverse_sponsoring_org() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "organisation: ORG-SPONSOR\n" +
+                "org-name:     Sponsoring Org Ltd\n" +
+                "org-type:     LIR\n" +
+                "descr:        test org\n" +
+                "address:      street 5\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST\n" +
+                ""));
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "sponsoring-org: ORG-SPONSOR\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=ORG-SPONSOR&inverse-attribute=sponsoring-org")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(2));
+        WhoisObject aut_num = whoisResources.getWhoisObjects().get(0);
+        assertThat(aut_num.getLink(), is(Link.create("http://rest-test.db.ripe.net/test/aut-num/AS102")));
+        assertThat(aut_num.getAttributes(), contains(
+                new Attribute("aut-num", "AS102"),
+                new Attribute("as-name", "End-User-2"),
+                new Attribute("descr", "description"),
+                new Attribute("sponsoring-org", "ORG-SPONSOR", null, "organisation", Link.create("http://rest-test.db.ripe.net/test/organisation/ORG-SPONSOR"), null),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("tech-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")
+        ));
+    }
+
+    @Test
     public void search_invalid_query_flags() {
         try {
             RestTest.target(getPort(), "whois/search?query-string=denis+walker&flags=resource")
@@ -753,7 +645,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void search_flags_json() {
-        final String str = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+        final String str = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCxG")
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
         assertThat(str, containsString("" +
@@ -766,14 +658,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "      \"value\" : \"no-irt\"\n" +
                 "    }, {\n" +
                 "      \"value\" : \"exact\"\n" +
+                "    }, {\n" +
+                "      \"value\" : \"no-grouping\"\n" +
                 "    } ]\n" +
                 "  },"));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCx")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=TP1-TEST&source=TEST&flags=BrCxG")
                 .request(MediaType.APPLICATION_JSON)
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources.getParameters().getFlags().getFlags(), hasSize(4));
+        assertThat(whoisResources.getParameters().getFlags().getFlags(), hasSize(5));
     }
 
     @Test
@@ -903,14 +797,16 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test
     public void search_illegal_character_encoding_in_query_param() throws Exception {
-        try (
-                final InputStream inputStream = new URL(
-                        String.format("http://localhost:%d/whois/search?flags=rB&source=TEST&type-filter=mntner&query-string=AA1-MNT+{+192.168.0.0/16+}",
-                                getPort())).openStream()) {
-            fail();
-        }
+        assertThrows(FileNotFoundException.class, () -> {
+            try (
+                    final InputStream inputStream = new URL(
+                            String.format("http://localhost:%d/whois/search?flags=rB&source=TEST&type-filter=mntner&query-string=AA1-MNT+{+192.168.0.0/16+}",
+                                    getPort())).openStream()) {
+                fail();
+            }
+        });
     }
 
     @Test
@@ -959,7 +855,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                             "  },\n" +
                             "  \"terms-and-conditions\" : {\n" +
                             "    \"type\" : \"locator\",\n" +
-                            "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                            "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                             "  }\n" +
                             "}", getPort()
             )));
@@ -985,9 +881,47 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                             "<args value=\"TEST\"/>" +
                             "</errormessage>" +
                             "</errormessages>" +
-                            "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>" +
+                            "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>" +
                             "</whois-resources>", getPort()
             )));
+        }
+    }
+
+    @Test
+    public void search_accept_text_plain_not_found() {
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=invalid&source=TEST")
+                    .request(MediaType.TEXT_PLAIN)
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format("http://localhost:%s/search?query-string=invalid&source=TEST\n" +
+                    "Severity: Error\n" +
+                    "Text: ERROR:101: no entries found\n" +
+                    "\n" +
+                    "No entries found in source %%s.\n" +
+                    "[TEST]\n" +
+                    "https://docs.db.ripe.net/terms-conditions.html", getPort())));
+        }
+    }
+
+    @Test
+    public void search_accept_text_plain_not_found_extension() {
+        try {
+            RestTest.target(getPort(), "whois/search.txt?query-string=invalid&source=TEST")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (NotFoundException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is(String.format("http://localhost:%s/search?query-string=invalid&source=TEST\n" +
+                    "Severity: Error\n" +
+                    "Text: ERROR:101: no entries found\n" +
+                    "\n" +
+                    "No entries found in source %%s.\n" +
+                    "[TEST]\n" +
+                    "https://docs.db.ripe.net/terms-conditions.html", getPort())));
         }
     }
 
@@ -1125,7 +1059,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                         "},\n" +
                         "\"terms-and-conditions\" : {\n" +
                         "  \"type\" : \"locator\",\n" +
-                        "  \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "  \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                         "},\n" +
                         "\"version\" : {\n" +
                         "  \"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1134,6 +1068,28 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                         "}\n" +
                         "}"
         ));
+    }
+
+    @Test
+    public void search_multiple_objects_text_plain() {
+        databaseHelper.addObject(AS102);
+
+        final String rpslObjects = RestTest.target(getPort(), "whois/search?query-string=AS102&source=TEST")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(rpslObjects, is(AS102_STRING + "\n" + TEST_PERSON_STRING +"\n"));
+    }
+
+    @Test
+    public void search_multiple_objects_text_plain_extension() {
+        databaseHelper.addObject(AS102);
+
+        final String rpslObjects = RestTest.target(getPort(), "whois/search.txt?query-string=AS102&source=TEST")
+                .request()
+                .get(String.class);
+
+        assertThat(rpslObjects, is(AS102_STRING + "\n" + TEST_PERSON_STRING +"\n"));
     }
 
     @Test
@@ -1207,7 +1163,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
@@ -1252,11 +1208,13 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response, containsString("<attribute name=\"auth\" value=\"SSO\" comment=\"Filtered\"/>"));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void search_huge_query_string() {
-        RestTest.target(getPort(), String.format("whois/search?query-string=%s&source=TEST", Strings.repeat("X", 5900)))
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+        assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), String.format("whois/search?query-string=%s&source=TEST", Strings.repeat("X", 5900)))
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -1816,16 +1774,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=AS102")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(2));
-        assertTrue(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
     }
 
     // searching for inetnum without specifying sources should return all related object even route with source: NONAUTH
@@ -1850,18 +1809,606 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "admin-c:         TP1-TEST\n" +
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
-
         ipTreeUpdater.rebuild();
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0/24")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(4));
-        assertTrue(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
+    }
+
+    @Test
+    public void search_route_non_existing_roa_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           200.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=200.4.0.0/16AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(0));
+    }
+
+    @Test
+    public void search_less_specific_route_existing_roa_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           176.223.251.0/24\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS6505\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=176.223.251.0/24AS6505&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
+                "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a less specific maximum length /%s but same origin AS%s.\n" +
+                "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
+    }
+
+    @Test
+    public void search_route_roa_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           200.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=200.4.0.0/16AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(0));
+    }
+
+    @Test
+    public void search_route6_roa_origin_mismatch_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route6:          2803:8240::/32\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=2803:8240::/32AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
+                "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a maximum length /%s but a different origin AS%s.\n" +
+                "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
+    }
+
+    @Test
+    public void search_route_roa_origin_mismatch_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
+                "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a maximum length /%s but a different origin AS%s.\n" +
+                "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
+    }
+
+    @Test
+    public void search_route_roa_mismatch_no_validation_enabled_as_json() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=193.4.0.0/16AS102&roa-check=false&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(0));
+    }
+
+    @Test
+    public void search_route_roa_origin_mismatch_validation_enabled_as_xml() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
+                "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a maximum length /%s but a different origin AS%s.\n" +
+                "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
+    }
+
+    @Test
+    public void search_route_roa_origin_and_prefix_length_mismatch_validation_enabled_as_xml() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           200.4.0.0/24\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=200.4.0.0/24AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages().get(0).getText(), is("" +
+                "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a less specific maximum length /%s and a different origin AS%s.\n" +
+                "As a result, many autonomous systems may reject an announcement even if it matches the ROUTE object. " +
+                "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.\n"));
+    }
+
+    @Test
+    public void search_route_one_invalid_one_valid_roas_makes_it_valid() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           92.38.45.0/24\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS61979\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=92.38.45.0/24AS61979&roa-check=true&flags=no-referenced")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        assertThat(whoisResources.getWhoisObjects().get(0).getObjectMessages().getMessages(), hasSize(0));
+    }
+
+    @Test
+    public void search_route6_roa_mismatch_less_specific_as_xml_strings() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route6:          2803:8240::/33\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS52511\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=2803:8240::/33AS52511&roa-check=true&flags=no-referenced")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResources, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "<service name=\"search\"/>\n" +
+                "<parameters>\n" +
+                "    <inverse-lookup/>\n" +
+                "    <type-filters/>\n" +
+                "    <flags>\n" +
+                "        <flag value=\"no-referenced\"/>\n" +
+                "    </flags>\n" +
+                "    <query-strings>\n" +
+                "        <query-string value=\"2803:8240::/33AS52511\"/>\n" +
+                "    </query-strings>\n" +
+                "    <sources/>\n" +
+                "</parameters>\n" +
+                "<objects>\n" +
+                "<object type=\"route6\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test-nonauth/route6/2803:8240::/33AS52511\"/>\n" +
+                "    <source id=\"test-nonauth\"/>\n" +
+                "    <primary-key>\n" +
+                "        <attribute name=\"route6\" value=\"2803:8240::/33\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS52511\"/>\n" +
+                "    </primary-key>\n" +
+                "    <attributes>\n" +
+                "        <attribute name=\"route6\" value=\"2803:8240::/33\"/>\n" +
+                "        <attribute name=\"descr\" value=\"Ripe test allocation\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS52511\"/>\n" +
+                "        <attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-lower\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
+                "    </attributes>\n" +
+                "    <objectmessages>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a less specific maximum length /%s but same origin AS%s.&#xA;As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.&#xA;\">\n" +
+                "            <args value=\"ROUTE6\"/>\n" +
+                "            <args value=\"2803:8240::/32\"/>\n" +
+                "            <args value=\"32\"/>\n" +
+                "            <args value=\"52511\"/>\n" +
+                "        </objectmessage>\n" +
+                "    </objectmessages>\n" +
+                "</object>\n" +
+                "</objects>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
+                "</whois-resources>\n"));
+    }
+
+    @Test
+    public void search_route6_roa_origin_mismatch_less_specific_as_xml_strings() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route6:          2803:8240::/33\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS123\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=2803:8240::/33AS123&roa-check=true&flags=no-referenced")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResources, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "<service name=\"search\"/>\n" +
+                "<parameters>\n" +
+                "    <inverse-lookup/>\n" +
+                "    <type-filters/>\n" +
+                "    <flags>\n" +
+                "        <flag value=\"no-referenced\"/>\n" +
+                "    </flags>\n" +
+                "    <query-strings>\n" +
+                "        <query-string value=\"2803:8240::/33AS123\"/>\n" +
+                "    </query-strings>\n" +
+                "    <sources/>\n" +
+                "</parameters>\n" +
+                "<objects>\n" +
+                "<object type=\"route6\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test-nonauth/route6/2803:8240::/33AS123\"/>\n" +
+                "    <source id=\"test-nonauth\"/>\n" +
+                "    <primary-key>\n" +
+                "        <attribute name=\"route6\" value=\"2803:8240::/33\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS123\"/>\n" +
+                "    </primary-key>\n" +
+                "    <attributes>\n" +
+                "        <attribute name=\"route6\" value=\"2803:8240::/33\"/>\n" +
+                "        <attribute name=\"descr\" value=\"Ripe test allocation\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS123\"/>\n" +
+                "        <attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-lower\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
+                "    </attributes>\n" +
+                "    <objectmessages>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a less specific maximum length /%s and a different origin AS%s.&#xA;As a result, many autonomous systems may reject an announcement even if it matches the ROUTE object. You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.&#xA;\">\n" +
+                "            <args value=\"ROUTE6\"/>\n" +
+                "            <args value=\"2803:8240::/32\"/>\n" +
+                "            <args value=\"32\"/>\n" +
+                "            <args value=\"52511\"/>\n" +
+                "        </objectmessage>\n" +
+                "    </objectmessages>\n" +
+                "</object>\n" +
+                "</objects>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
+                "</whois-resources>\n"));
+    }
+
+    @Test
+    public void search_route6_roa_more_specific_as_xml_strings() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route6:          2803::/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS123\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=2803::/16AS123&roa-check=true&flags=no-referenced")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResources, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "<service name=\"search\"/>\n" +
+                "<parameters>\n" +
+                "    <inverse-lookup/>\n" +
+                "    <type-filters/>\n" +
+                "    <flags>\n" +
+                "        <flag value=\"no-referenced\"/>\n" +
+                "    </flags>\n" +
+                "    <query-strings>\n" +
+                "        <query-string value=\"2803::/16AS123\"/>\n" +
+                "    </query-strings>\n" +
+                "    <sources/>\n" +
+                "</parameters>\n" +
+                "<objects>\n" +
+                "<object type=\"route6\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test-nonauth/route6/2803::/16AS123\"/>\n" +
+                "    <source id=\"test-nonauth\"/>\n" +
+                "    <primary-key>\n" +
+                "        <attribute name=\"route6\" value=\"2803::/16\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS123\"/>\n" +
+                "    </primary-key>\n" +
+                "    <attributes>\n" +
+                "        <attribute name=\"route6\" value=\"2803::/16\"/>\n" +
+                "        <attribute name=\"descr\" value=\"Ripe test allocation\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS123\"/>\n" +
+                "        <attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-lower\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
+                "    </attributes>\n" +
+                "</object>\n" +
+                "</objects>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
+                "</whois-resources>\n"));
+    }
+
+    @Test
+    public void search_route6_roa_mismatch_origin_as_xml_strings() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route6:          2803:8240::/32\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=2803:8240::/32AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResources, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "<service name=\"search\"/>\n" +
+                "<parameters>\n" +
+                "    <inverse-lookup/>\n" +
+                "    <type-filters/>\n" +
+                "    <flags>\n" +
+                "        <flag value=\"no-referenced\"/>\n" +
+                "    </flags>\n" +
+                "    <query-strings>\n" +
+                "        <query-string value=\"2803:8240::/32AS102\"/>\n" +
+                "    </query-strings>\n" +
+                "    <sources/>\n" +
+                "</parameters>\n" +
+                "<objects>\n" +
+                "<object type=\"route6\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test-nonauth/route6/2803:8240::/32AS102\"/>\n" +
+                "    <source id=\"test-nonauth\"/>\n" +
+                "    <primary-key>\n" +
+                "        <attribute name=\"route6\" value=\"2803:8240::/32\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS102\"/>\n" +
+                "    </primary-key>\n" +
+                "    <attributes>\n" +
+                "        <attribute name=\"route6\" value=\"2803:8240::/32\"/>\n" +
+                "        <attribute name=\"descr\" value=\"Ripe test allocation\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS102\"/>\n" +
+                "        <attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-lower\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
+                "    </attributes>\n" +
+                "    <objectmessages>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a maximum length /%s but a different origin AS%s.&#xA;As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.&#xA;\">\n" +
+                "            <args value=\"ROUTE6\"/>\n" +
+                "            <args value=\"2803:8240::/32\"/>\n" +
+                "            <args value=\"32\"/>\n" +
+                "            <args value=\"52511\"/>\n" +
+                "        </objectmessage>\n" +
+                "    </objectmessages>\n" +
+                "</object>\n" +
+                "</objects>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
+                "</whois-resources>\n"));
+    }
+
+    @Test
+    public void search_route_roa_mismatch_validation_enabled_as_xml_strings() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final String whoisResources = RestTest.target(getPort(), "whois/search.xml?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResources, is("" +
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<whois-resources xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+                "<service name=\"search\"/>\n" +
+                "<parameters>\n" +
+                "    <inverse-lookup/>\n" +
+                "    <type-filters/>\n" +
+                "    <flags>\n" +
+                "        <flag value=\"no-referenced\"/>\n" +
+                "    </flags>\n" +
+                "    <query-strings>\n" +
+                "        <query-string value=\"193.4.0.0/16AS102\"/>\n" +
+                "    </query-strings>\n" +
+                "    <sources/>\n" +
+                "</parameters>\n" +
+                "<objects>\n" +
+                "<object type=\"route\">\n" +
+                "    <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test-nonauth/route/193.4.0.0/16AS102\"/>\n" +
+                "    <source id=\"test-nonauth\"/>\n" +
+                "    <primary-key>\n" +
+                "        <attribute name=\"route\" value=\"193.4.0.0/16\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS102\"/>\n" +
+                "    </primary-key>\n" +
+                "    <attributes>\n" +
+                "        <attribute name=\"route\" value=\"193.4.0.0/16\"/>\n" +
+                "        <attribute name=\"descr\" value=\"Ripe test allocation\"/>\n" +
+                "        <attribute name=\"origin\" value=\"AS102\"/>\n" +
+                "        <attribute name=\"admin-c\" value=\"TP1-TEST\" referenced-type=\"person\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/person/TP1-TEST\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-by\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"mnt-lower\" value=\"OWNER-MNT\" referenced-type=\"mntner\">\n" +
+                "            <link xlink:type=\"locator\" xlink:href=\"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"/>\n" +
+                "        </attribute>\n" +
+                "        <attribute name=\"source\" value=\"TEST-NONAUTH\"/>\n" +
+                "    </attributes>\n" +
+                "    <objectmessages>\n" +
+                "        <objectmessage severity=\"Warning\" text=\"Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a maximum length /%s but a different origin AS%s.&#xA;As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.&#xA;\">\n" +
+                "            <args value=\"ROUTE\"/>\n" +
+                "            <args value=\"193.4.0.0/16\"/>\n" +
+                "            <args value=\"16\"/>\n" +
+                "            <args value=\"6505\"/>\n" +
+                "        </objectmessage>\n" +
+                "    </objectmessages>\n" +
+                "</object>\n" +
+                "</objects>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
+                "<version " +
+                "version=\"" + applicationVersion.getVersion() + "\" " +
+                "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
+                "commit-id=\"" + applicationVersion.getCommitId() + "\"/>\n" +
+                "</whois-resources>\n"));
+    }
+
+    @Test
+    public void search_route_roa_mismatch_validation_enabled_as_txt() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "route:           193.4.0.0/16\n" +
+                "descr:           Ripe test allocation\n" +
+                "origin:          AS102\n" +
+                "admin-c:         TP1-TEST\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-lower:       OWNER-MNT\n" +
+                "source:          TEST-NONAUTH\n"));
+        ipTreeUpdater.rebuild();
+
+        final String whoisResources = RestTest.target(getPort(), "whois/search.txt?query-string=193.4.0.0/16AS102&roa-check=true&flags=no-referenced")
+                .request()
+                .get(String.class);
+
+        // txt must show just the war object - Jira DB-3867, no including comments
+        assertThat(whoisResources, is(""+
+                "route:          193.4.0.0/16\n" +
+                "descr:          Ripe test allocation\n" +
+                "origin:         AS102\n" +
+                "admin-c:        TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "mnt-lower:      OWNER-MNT\n" +
+                "source:         TEST-NONAUTH\n" +
+                "\n"));
     }
 
     @Test
@@ -1875,16 +2422,17 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102")
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(2));
-        assertTrue(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
     }
 
     //  If "sources" is used in queries out-of-region resources will be shown only if ‘RIPE-NONAUTH’ is included explicitly.
@@ -1988,7 +2536,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         ));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void search_route_by_sources_auth_given() {
         databaseHelper.addObject(RpslObject.parse("" +
                 "route:           193.4.0.0/16\n" +
@@ -1999,9 +2547,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-lower:       OWNER-MNT\n" +
                 "source:          TEST-NONAUTH\n"));
         ipTreeUpdater.rebuild();
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST")
-                .request(MediaType.APPLICATION_XML)
-                .get(WhoisResources.class);
+
+        assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/search?query-string=193.4.0.0/16AS102&source=TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(WhoisResources.class);
+        });
     }
 
     @Test
@@ -2031,12 +2582,12 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 .request(MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
-        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
-        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(4));
-        assertTrue(hasSourceTestNonAuth);
-        assertTrue(hasSourceTest);
+        boolean hasSourceTestNonAuth = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST-NONAUTH");
+        assertThat(hasSourceTestNonAuth, is(true));
+        boolean hasSourceTest = hasObjectWithSpecifiedSource(whoisResources.getWhoisObjects(), "TEST");
+        assertThat(hasSourceTest, is(true));
     }
 
     @Test
@@ -2062,8 +2613,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_person_with_client_flag_no_proxy() throws Exception {
-        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+    public void lookup_person_with_proxy_not_allowed_using_sso() {
 
         databaseHelper.addObject("" +
                 "person:    Lo Person\n" +
@@ -2073,7 +2623,34 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n");
 
-        final int limit = accessControlListManager.getPersonalObjects(localhost);
+        try {
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&client=testId,10.1.2.3")
+                    .request(MediaType.APPLICATION_XML)
+                    .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                    .get(WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().getStatus(), is(400));
+            assertThat(e.getResponse().readEntity(String.class), containsString("ERROR:203: you are not allowed to act as a proxy"));
+        }
+    }
+
+
+    @Test
+    public void lookup_person_with_client_flag_no_proxy() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
+
+
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
                 .request(MediaType.APPLICATION_XML)
@@ -2083,8 +2660,48 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
 
         //ACL is accounted for as there is no proxy ip specified
-        final int remaining = accessControlListManager.getPersonalObjects(localhost);
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
         assertThat(remaining, is(limit - 1));
+
+        assertThat(whoisResources.getParameters().getClient(), is("testId"));
+    }
+
+    @Test
+    public void lookup_person_with_client_flag_no_proxy_using_sso() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+
+        databaseHelper.addObject("" +
+                "mntner:      NOT-OWNER-MNT\n" +
+                "descr:       Hostmaster\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$tnG/zrDw$nps8tg76q4jgg5zg5o6os. # hm\n" +
+                "mnt-by:      NOT-OWNER-MNT\n" +
+                "source:      TEST\n");
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    NOT-OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final int countBeforeQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countBeforeQuesrySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId")
+                .request(MediaType.APPLICATION_XML)
+                .cookie(AuthServiceClient.TOKEN_KEY, VALID_TOKEN)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        //ACL is accounted for as there is no proxy ip specified
+        final int countAfterQueryIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int countAfterQuerySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(countAfterQueryIp, is(countBeforeQueryIp));
+        assertThat(countAfterQuerySSO, is(countBeforeQuesrySSO + 1));
 
         assertThat(whoisResources.getParameters().getClient(), is("testId"));
     }
@@ -2107,8 +2724,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         databaseHelper.insertAclIpProxy(LOCALHOST);
         ipResourceConfiguration.reload();
 
-        final int limit = accessControlListManager.getPersonalObjects(localhost);
-        final int proxylLimit = accessControlListManager.getPersonalObjects(proxyHost);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
+        final AccountingIdentifier accountingIdentifierProxy = accessControlListManager.getAccountingIdentifier(InetAddresses.forString("10.1.2.3"), null);
+
+        final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
+        final int proxylLimit = accessControlListManager.getPersonalObjects( accountingIdentifierProxy);
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&source=TEST&flags=no-filtering&flags=rB&client=testId,10.1.2.3")
                 .request(MediaType.APPLICATION_XML)
@@ -2119,10 +2739,10 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getParameters().getClient(), is("testId,10.1.2.3"));
 
         //only proxy ip is counted for ACL
-        final int remaining = accessControlListManager.getPersonalObjects(localhost);
+        final int remaining = accessControlListManager.getPersonalObjects(accountingIdentifier);
         assertThat(remaining, is(limit));
 
-        final int proxyRemaining = accessControlListManager.getPersonalObjects(proxyHost);
+        final int proxyRemaining = accessControlListManager.getPersonalObjects(accountingIdentifierProxy);
         assertThat(proxyRemaining, is(proxylLimit - 1));
 
 
@@ -2139,9 +2759,221 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
             // ensure no stack trace in response
             assertThat(e.getResponse().readEntity(String.class), not(containsString("Caused by:")));
         }
-
     }
 
+    @Test
+    public void search_inetnum_without_grouping_flag() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   FIRST-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        databaseHelper.addObject(
+                "inetnum:   10.1.0.0 - 10.1.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   SECOND-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.255.255.255&flags=M")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(6));
+        assertThat(response.getWhoisObjects().get(0).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(1).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(2).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(2).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+        assertThat(response.getWhoisObjects().get(3).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(3).getPrimaryKey().get(0).getValue(), is("10.1.0.0 - 10.1.0.255"));
+        assertThat(response.getWhoisObjects().get(4).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(4).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(5).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(5).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+    }
+
+    @Test
+    public void search_inetnum_with_grouping_flag() {
+        databaseHelper.addObject(TEST_LIR_ORGANISATION);
+        databaseHelper.addObject(
+                "inetnum:   10.0.0.0 - 10.0.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   FIRST-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        databaseHelper.addObject(
+                "inetnum:   10.1.0.0 - 10.1.0.255\n" +
+                        "org:       ORG-TO2-TEST\n" +
+                        "netname:   SECOND-NET\n" +
+                        "country:   NL\n" +
+                        "admin-c:   TP1-TEST\n" +
+                        "tech-c:    TP1-TEST\n" +
+                        "status:    ALLOCATED PA\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "source:    TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/search?query-string=10.0.0.0%20-%2010.255.255.255&flags=MG")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+
+        assertThat(response.getWhoisObjects(), hasSize(4));
+        assertThat(response.getWhoisObjects().get(0).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("10.0.0.0 - 10.0.0.255"));
+        assertThat(response.getWhoisObjects().get(1).getType(), is("inetnum"));
+        assertThat(response.getWhoisObjects().get(1).getPrimaryKey().get(0).getValue(), is("10.1.0.0 - 10.1.0.255"));
+        assertThat(response.getWhoisObjects().get(2).getType(), is("organisation"));
+        assertThat(response.getWhoisObjects().get(2).getPrimaryKey().get(0).getValue(), is("ORG-TO2-TEST"));
+        assertThat(response.getWhoisObjects().get(3).getType(), is("person"));
+        assertThat(response.getWhoisObjects().get(3).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
+    }
+
+
+    @Test
+    public void search_encoding_flag_error() {
+        databaseHelper.addObject("" +
+                "person:    Lo Person\n" +
+                "admin-c:   TP1-TEST\n" +
+                "tech-c:    TP1-TEST\n" +
+                "nic-hdl:   LP1-TEST\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "source:    TEST\n");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/search?query-string=LP1-TEST&flags=Z")
+                .request(MediaType.APPLICATION_XML_TYPE)
+                .get(WhoisResources.class);
+        });
+        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("Disallowed search flag 'charset'"));
+    }
+
+
+    @Test
+    public void search_with_override_succeeds() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("mherran", "zoh", ObjectType.MNTNER));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?flags=rB&type-filter=mntner&query-string=OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("mherran,zoh,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "SSO person@net.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void search_with_multiple_override_succeeds() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("mherran", "zoh", ObjectType.MNTNER));
+
+        // Just the first override is taken into consideration
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?flags=rB&type-filter=mntner&query-string=OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("mherran,zoh,reason {notify=false}"))
+                .queryParam("override", encode("mherran,zohadfasfd,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "SSO person@net.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void search_with_override_non_trusted_ip_with_sso_succeeds() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.MNTNER));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?flags=rB&type-filter=mntner&query-string=OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .queryParam("clientIp", "2001:fff:001::")
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "db_e2e_1")
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "SSO person@net.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void search_with_override_non_trusted_ip_without_sso_then_filtered() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.MNTNER));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?flags=rB&type-filter=mntner&query-string=OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .queryParam("clientIp", "2001:fff:001::")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST", "Filtered", null, null, null)));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
     // helper methods
 
     private boolean hasObjectWithSpecifiedSource(List<WhoisObject> whoisObjects, String source) {

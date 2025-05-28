@@ -42,7 +42,7 @@ public class TimestampAttributeGenerator extends AttributeGenerator {
 
     private void generateTimestampAttributes(final RpslObjectBuilder builder, final RpslObject originalObject, final RpslObject updatedObject, final Update update, final UpdateContext updateContext, final boolean addWarningsFlag) {
         final Action action = updateContext.getAction(update);
-        final String currentDateTime = FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentDateTimeUtc());
+        final String currentDateTime = FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentZonedDateTime());
 
         RpslAttribute generatedCreatedAttribute = null;
         RpslAttribute generatedLastModifiedAttribute = null;

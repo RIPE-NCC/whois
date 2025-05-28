@@ -1,18 +1,17 @@
 package net.ripe.db.whois.update.autokey.dao;
 
 
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
 import net.ripe.db.whois.update.domain.X509KeycertId;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 @Transactional
 public class X509RepositoryJdbcIntegrationTest extends AbstractUpdateDaoIntegrationTest {
     @Autowired X509Repository subject;

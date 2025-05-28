@@ -1,17 +1,19 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import net.ripe.db.whois.common.credentials.Credential;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ContentWithCredentialsTest {
     @Mock Credential credential;
 
@@ -29,9 +31,11 @@ public class ContentWithCredentialsTest {
         assertThat(subject.getCredentials(), hasSize(1));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void credentials_are_immutable() {
-        final ContentWithCredentials subject = new ContentWithCredentials("test", Lists.newArrayList(credential));
-        subject.getCredentials().add(mock(Credential.class));
+        assertThrows(UnsupportedOperationException.class, () -> {
+            final ContentWithCredentials subject = new ContentWithCredentials("test", Lists.newArrayList(credential));
+            subject.getCredentials().add(mock(Credential.class));
+        });
     }
 }

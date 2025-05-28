@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.domain;
 
 import net.ripe.db.whois.common.ip.IpInterval;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -14,7 +14,7 @@ public class IpResourceTreeTest {
     private IpInterval<?> ipv4Resource, ipv4ResourceMoreSpecific, ipv4ResourceUnknown;
     private IpInterval<?> ipv6Resource, ipv6ResourceMoreSpecific, ipv6ResourceUnknown;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new IpResourceTree<>();
 

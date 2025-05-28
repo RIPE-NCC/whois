@@ -47,6 +47,8 @@ public class ResponseFactory {
         velocityEngine.setProperty(RuntimeConstants.SPACE_GOBBLING, "bc");
         velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
         velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+        velocityEngine.setProperty("classpath.resource.loader.cache", "true");
+        velocityEngine.setProperty("classpath.resource.loader.modificationCheckInterval", "0");
         velocityEngine.init();
     }
 
@@ -71,7 +73,8 @@ public class ResponseFactory {
     }
 
     public ResponseMessage createNotification(final UpdateContext updateContext, final Origin origin, final Notification notification) {
-        final String ssoUserEmail = updateContext.getUserSession() != null ? updateContext.getUserSession().getUsername() : "";
+        final String ssoUserEmail = getSsoUserEmail(updateContext, notification);
+
         final VelocityContext velocityContext = new VelocityContext();
 
         velocityContext.put("failedAuthentication", notification.getUpdates(Notification.Type.FAILED_AUTHENTICATION));
@@ -89,13 +92,18 @@ public class ResponseFactory {
         return new ResponseMessage(subject, createResponse(TEMPLATE_NOTIFICATION, updateContext, velocityContext, origin), ssoUserEmail);
     }
 
+    private static String getSsoUserEmail(final UpdateContext updateContext, final Notification notification) {
+        return updateContext.getUserSession() != null && !notification.isOverrideUsed() ?
+                updateContext.getUserSession().getUsername() : "";
+    }
+
     private String createResponse(final String templateName, final UpdateContext updateContext, final VelocityContext velocityContext, final Origin origin) {
         velocityContext.put("globalMessages", updateContext.printGlobalMessages());
         velocityContext.put("origin", origin);
         velocityContext.put("version", applicationVersion.getVersion());
         velocityContext.put("hostName", Hosts.getInstanceName());
         velocityContext.put("source", source);
-        velocityContext.put("timestamp", FormatHelper.dateTimeToString(dateTimeProvider.getCurrentDateTime()));
+        velocityContext.put("timestamp", FormatHelper.dateTimeToUtcString(dateTimeProvider.getCurrentDateTime()));
 
         final Template template = velocityEngine.getTemplate(templateName);
         final StringWriter writer = new StringWriter();

@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,10 +39,9 @@ class GrsSourceImporter {
     private static final int LOG_EVERY_NR_HANDLED = 100000;
 
     private final AttributeSanitizer sanitizer;
-    private final ResourceTagger resourceTagger;
     private final SourceContext sourceContext;
 
-    private Path downloadDir;
+    private final Path downloadDir;
 
     private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
 
@@ -49,12 +49,10 @@ class GrsSourceImporter {
     public GrsSourceImporter(
             @Value("${dir.grs.import.download}") final String downloadDir,
             final AttributeSanitizer sanitizer,
-            final ResourceTagger resourceTagger,
             final SourceContext sourceContext) {
         this.sourceContext = sourceContext;
         this.downloadDir = Paths.get(downloadDir);
         this.sanitizer = sanitizer;
-        this.resourceTagger = resourceTagger;
 
         try {
             Files.createDirectories(this.downloadDir);
@@ -71,201 +69,254 @@ class GrsSourceImporter {
         } else {
             acquireAndUpdateGrsData(grsSource, rebuild, authoritativeResource);
         }
-
-        resourceTagger.tagObjects(grsSource);
     }
 
     private void acquireAndUpdateGrsData(final GrsSource grsSource, final boolean rebuild, final AuthoritativeResource authoritativeData) {
-        final Logger logger = grsSource.getLogger();
+        new GrsSourceImporterWorker(grsSource, rebuild, authoritativeData).run();
+    }
 
-        new Runnable() {
-            private final RpslAttribute sourceAttribute = new RpslAttribute(AttributeType.SOURCE, grsSource.getName().toUpperCase());
+    private class GrsSourceImporterWorker implements Runnable {
 
-            private int nrCreated;
-            private int nrUpdated;
-            private int nrDeleted;
-            private int nrIgnored;
+        private int nrCreated;
+        private int nrUpdated;
+        private int nrDeleted;
+        private int nrIgnored;
 
-            private Set<Integer> currentObjectIds;
-            private Set<Integer> incompletelyIndexedObjectIds = Sets.newHashSet();
+        private Set<Integer> currentObjectIds;
+        private final Set<Integer> incompletelyIndexedObjectIds = Sets.newHashSet();
+        private final GrsSource grsSource;
+        private final boolean rebuild;
+        private final Logger logger;
+        private final AuthoritativeResource authoritativeData;
+        private final RpslAttribute sourceAttribute;
 
-            @Override
-            public void run() {
-                final Path dump = downloadDir.resolve(String.format("%s-DMP", grsSource.getName().toUpperCase()));
+        public GrsSourceImporterWorker(final GrsSource grsSource, final boolean rebuild, final AuthoritativeResource authoritativeResource) {
+            this.grsSource = grsSource;
+            this.logger = grsSource.getLogger();
+            this.rebuild = rebuild;
+            this.authoritativeData = authoritativeResource;
+            this.sourceAttribute = new RpslAttribute(AttributeType.SOURCE, grsSource.getName().toUpperCase());
+        }
 
-                try {
-                    grsSource.acquireDump(dump);
-                } catch (IOException e) {
-                    throw new RuntimeException("Unable to acquire dump", e);
-                }
-
-                final Stopwatch stopwatch = Stopwatch.createStarted();
-
-                if (rebuild) {
-                    grsSource.getDao().cleanDatabase();
-                    currentObjectIds = Collections.emptySet();
-                    logger.info("Rebuilding database");
-                } else {
-                    currentObjectIds = Sets.newHashSet(grsSource.getDao().getCurrentObjectIds());
-                    logger.info("Updating {} current objects in database", currentObjectIds.size());
-                }
-
-                try {
-                    // TODO: [AH] continue from here to switch File to Path
-                    importObjects(dump.toFile());
-                    deleteNotFoundInImport();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    logger.info("created {} / updated {} / deleted {} / ignored {} in {}", nrCreated, nrUpdated, nrDeleted, nrIgnored, stopwatch.stop());
-                }
-
-                updateIndexes();
+        @Override
+        public void run() {
+            final Path dump = downloadDir.resolve(String.format("%s-DMP", grsSource.getName().toUpperCase()));
+            try {
+                grsSource.acquireDump(dump);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to acquire GRS dump", e);
             }
 
-            private void importObjects(final File dumpFile) throws IOException {
-                grsSource.handleObjects(dumpFile, new ObjectHandler() {
-                    @Override
-                    public void handle(final List<String> lines) {
-                        final String rpslObjectString = LINE_JOINER.join(lines);
+            final Path irrDump = downloadDir.resolve(String.format("%s-IRR-DMP", grsSource.getName().toUpperCase()));
+            try {
+                grsSource.acquireIrrDump(irrDump);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to acquire IRR dump", e);
+            }
 
-                        final RpslObject rpslObject;
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+
+            if (rebuild) {
+                grsSource.getDao().cleanDatabase();
+                currentObjectIds = Collections.emptySet();
+                logger.info("Rebuilding database");
+            } else {
+                currentObjectIds = Sets.newHashSet(grsSource.getDao().getCurrentObjectIds());
+                logger.info("Updating {} current objects in database", currentObjectIds.size());
+            }
+
+            try {
+                importObjects(dump.toFile());
+                importIrrObjects(irrDump.toFile());
+                deleteNotFoundInImport();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                logger.info("created {} / updated {} / deleted {} / ignored {} in {}", nrCreated, nrUpdated, nrDeleted, nrIgnored, stopwatch.stop());
+            }
+
+            updateIndexes();
+        }
+
+        private void importIrrObjects(final File irrDumpFile) throws IOException {
+            if (!irrDumpFile.exists()) {
+                return;
+            }
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    try {
+                        grsSource.handleIrrObjects(irrDumpFile, new GrsSourceObjectHandler());
+                    } catch (IOException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            });
+        }
+
+        private void importObjects(final File dumpFile) throws IOException {
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    try {
+                        grsSource.handleObjects(dumpFile, new GrsSourceObjectHandler());
+                    } catch (IOException e) {
+                        logger.error(e.getClass().getName(), e);
+                        throw new IllegalStateException(e);
+                    }
+                }
+            });
+        }
+
+        private void deleteNotFoundInImport() {
+            if (nrCreated == 0 && nrUpdated == 0) {
+                logger.info("Skipping deletion since there were no other updates");
+                return;
+            }
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    logger.info("Cleaning up {} currently unreferenced objects", currentObjectIds.size());
+                    for (final Integer objectId : currentObjectIds) {
                         try {
-                            rpslObject = RpslObject.parse(rpslObjectString);
+                            grsSource.getDao().deleteObject(objectId);
+                            nrDeleted++;
                         } catch (RuntimeException e) {
-                            logger.info("Unable to parse input as object: {}\n\n{}\n", e.getMessage(), rpslObjectString);
-                            return;
-                        }
-
-                        handle(FILTER_CHANGED_FUNCTION.apply(rpslObject));
-                    }
-
-                    @Override
-                    public void handle(final RpslObject rpslObject) {
-                        if (rpslObject.getType() == null) {
-                            logger.debug("Unknown type: \n\n{}\n", rpslObject);
-                            nrIgnored++;
-                        } else {
-                            final ObjectMessages messages = new ObjectMessages();
-                            final RpslObject filteredObject = filterObject(rpslObject);
-                            final RpslObject cleanObject = sanitizer.sanitize(filteredObject, messages);
-                            final RpslAttribute typeAttribute = cleanObject.getTypeAttribute();
-                            typeAttribute.validateSyntax(cleanObject.getType(), messages);
-                            if (messages.hasErrors()) {
-                                logger.debug("Errors for object with key {}: {}", typeAttribute, messages);
-                                nrIgnored++;
-                            } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
-                                createOrUpdate(cleanObject);
-                            }
+                            logger.error("Deleting object with id: {}", objectId, e);
                         }
                     }
+                }
+            });
+        }
 
-                    private RpslObject filterObject(final RpslObject rpslObject) {
-                        final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
-
-                        final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
-
-                        for (int i = 0; i < builder.size(); i++) {
-                            final RpslAttribute rpslAttribute = builder.get(i);
-                            final AttributeType attributeType = rpslAttribute.getType();
-
-                            if (attributeType == null || !objectTemplate.hasAttribute(attributeType)) {
-                                logger.debug("Ignoring attribute in object {}: {}", rpslObject.getFormattedKey(), rpslAttribute);
-                                builder.remove(i--);
-
-                            } else  if (attributeType.equals(AttributeType.SOURCE)) {
-                                builder.remove(i--);
-                            }
+        private void updateIndexes() {
+            grsSource.getDao().transactionTemplate().execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    logger.info("Updating indexes for {} changed objects with missing references", incompletelyIndexedObjectIds.size());
+                    int nrUpdated = 0;
+                    for (final Integer objectId : incompletelyIndexedObjectIds) {
+                        try {
+                            grsSource.getDao().updateIndexes(objectId);
+                        } catch (RuntimeException e) {
+                            logger.error("Updating index for object with id: {}", objectId, e);
                         }
 
-                        // best not to sort to avoid reordering remarks: attributes
-                        builder.append(sourceAttribute);
-
-                        return builder.get();
-                    }
-
-                    @Transactional
-                    private void createOrUpdate(final RpslObject importedObject) {
-                        final String pkey = importedObject.getKey().toString();
-                        final ObjectType type = importedObject.getType();
-                        final GrsObjectInfo grsObjectInfo = grsSource.getDao().find(pkey, type);
-
-                        if (grsObjectInfo == null) {
-                            if (type == ObjectType.PERSON && grsSource.getDao().find(pkey, ObjectType.ROLE) != null) {
-                                return;
-                            }
-
-                            if (type == ObjectType.ROLE && grsSource.getDao().find(pkey, ObjectType.PERSON) != null) {
-                                return;
-                            }
-
-                            create(importedObject);
-                        } else {
-                            currentObjectIds.remove(grsObjectInfo.getObjectId());
-                            if (!grsObjectInfo.getRpslObject().equals(importedObject)) {
-                                update(importedObject, grsObjectInfo);
-                            }
-                        }
-
-                        final int nrImported = nrCreated + nrUpdated;
-                        if ((nrImported % LOG_EVERY_NR_HANDLED == 0) && (nrImported > 0)) {
-                            logger.info("Imported {} objects", nrImported);
-                        }
-                    }
-
-                    private void create(final RpslObject importedObject) {
-                        final GrsDao.UpdateResult updateResult = grsSource.getDao().createObject(importedObject);
-                        if (updateResult.hasMissingReferences()) {
-                            incompletelyIndexedObjectIds.add(updateResult.getObjectId());
-                        }
-                        nrCreated++;
-                    }
-
-                    private void update(final RpslObject importedObject, final GrsObjectInfo grsObjectInfo) {
-                        final GrsDao.UpdateResult updateResult = grsSource.getDao().updateObject(grsObjectInfo, importedObject);
-                        if (updateResult.hasMissingReferences()) {
-                            incompletelyIndexedObjectIds.add(updateResult.getObjectId());
-                        }
                         nrUpdated++;
+                        if (nrUpdated % LOG_EVERY_NR_HANDLED == 0) {
+                            logger.info("Updated {} indexes", nrUpdated);
+                        }
                     }
-                });
-            }
+                }
+            });
+        }
 
-            private void deleteNotFoundInImport() {
-                if (nrCreated == 0 && nrUpdated == 0) {
-                    logger.info("Skipping deletion since there were no other updates");
+        private class GrsSourceObjectHandler implements ObjectHandler {
+            @Override
+            public void handle(final List<String> lines) {
+                final String rpslObjectString = LINE_JOINER.join(lines);
+                final RpslObject rpslObject;
+                try {
+                    rpslObject = RpslObject.parse(rpslObjectString);
+                } catch (RuntimeException e) {
+                    logger.info("Unable to parse input as object: {}\n\n{}\n", e.getMessage(), rpslObjectString);
                     return;
                 }
 
-                logger.info("Cleaning up {} currently unreferenced objects", currentObjectIds.size());
-                for (final Integer objectId : currentObjectIds) {
-                    try {
-                        grsSource.getDao().deleteObject(objectId);
-                        nrDeleted++;
-                    } catch (RuntimeException e) {
-                        logger.error("Deleting object with id: {}", objectId, e);
+                handle(FILTER_CHANGED_FUNCTION.apply(rpslObject));
+            }
+
+            @Override
+            public void handle(final RpslObject rpslObject) {
+                if (rpslObject.getType() == null) {
+                    logger.debug("Unknown type: \n\n{}\n", rpslObject);
+                    nrIgnored++;
+                } else {
+                    final ObjectMessages messages = new ObjectMessages();
+                    final RpslObject filteredObject = filterObject(rpslObject);
+                    final RpslObject cleanObject = sanitizer.sanitize(filteredObject, messages);
+                    final RpslAttribute typeAttribute = cleanObject.getTypeAttribute();
+                    typeAttribute.validateSyntax(cleanObject.getType(), messages);
+                    if (messages.hasErrors()) {
+                        logger.info("Errors for object with key {}: {}", typeAttribute, messages);
+                        nrIgnored++;
+                    } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
+                        createOrUpdate(cleanObject);
                     }
                 }
             }
 
-            private void updateIndexes() {
-                logger.info("Updating indexes for {} changed objects with missing references", incompletelyIndexedObjectIds.size());
+            private RpslObject filterObject(final RpslObject rpslObject) {
+                final ObjectTemplate objectTemplate = ObjectTemplate.getTemplate(rpslObject.getType());
 
-                int nrUpdated = 0;
+                final RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
 
-                for (final Integer objectId : incompletelyIndexedObjectIds) {
-                    try {
-                        grsSource.getDao().updateIndexes(objectId);
-                    } catch (RuntimeException e) {
-                        logger.error("Updating index for object with id: {}", objectId, e);
-                    }
+                for (int i = 0; i < builder.size(); i++) {
+                    final RpslAttribute rpslAttribute = builder.get(i);
+                    final AttributeType attributeType = rpslAttribute.getType();
 
-                    nrUpdated++;
-                    if (nrUpdated % LOG_EVERY_NR_HANDLED == 0) {
-                        logger.info("Updated {} indexes", nrUpdated);
+                    if (attributeType == null || !objectTemplate.hasAttribute(attributeType)) {
+                        logger.debug("Ignoring attribute in object {}: {}", rpslObject.getFormattedKey(), rpslAttribute);
+                        builder.remove(i--);
+
+                    } else  if (attributeType.equals(AttributeType.SOURCE)) {
+                        builder.remove(i--);
                     }
                 }
+
+                // best not to sort to avoid reordering remarks: attributes
+                builder.append(sourceAttribute);
+
+                return builder.get();
             }
-        }.run();
+
+            private void createOrUpdate(final RpslObject importedObject) {
+                final String pkey = importedObject.getKey().toString();
+                final ObjectType type = importedObject.getType();
+                final GrsObjectInfo grsObjectInfo = grsSource.getDao().find(pkey, type);
+
+                if (grsObjectInfo == null) {
+                    if (type == ObjectType.PERSON && grsSource.getDao().find(pkey, ObjectType.ROLE) != null) {
+                        logger.info("Errors for object with key {}: There is already an existing ROLE object with same pkey", pkey);
+                        return;
+                    }
+
+                    if (type == ObjectType.ROLE && grsSource.getDao().find(pkey, ObjectType.PERSON) != null) {
+                        logger.info("Errors for object with key {}: There is already an existing PERSON object with same pkey", pkey);
+                        return;
+                    }
+
+                    create(importedObject);
+                } else {
+                    currentObjectIds.remove(grsObjectInfo.getObjectId());
+                    if (!grsObjectInfo.getRpslObject().equals(importedObject)) {
+                        update(importedObject, grsObjectInfo);
+                    }
+                }
+
+                final int nrImported = nrCreated + nrUpdated;
+                if ((nrImported % LOG_EVERY_NR_HANDLED == 0) && (nrImported > 0)) {
+                    logger.info("Imported {} objects", nrImported);
+                }
+            }
+
+            private void create(final RpslObject importedObject) {
+                final GrsDao.UpdateResult updateResult = grsSource.getDao().createObject(importedObject);
+                if (updateResult.hasMissingReferences()) {
+                    incompletelyIndexedObjectIds.add(updateResult.getObjectId());
+                }
+                nrCreated++;
+            }
+
+            private void update(final RpslObject importedObject, final GrsObjectInfo grsObjectInfo) {
+                final GrsDao.UpdateResult updateResult = grsSource.getDao().updateObject(grsObjectInfo, importedObject);
+                if (updateResult.hasMissingReferences()) {
+                    incompletelyIndexedObjectIds.add(updateResult.getObjectId());
+                }
+                nrUpdated++;
+            }
+        }
+
     }
+
 }

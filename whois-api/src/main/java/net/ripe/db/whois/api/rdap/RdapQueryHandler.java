@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.rdap;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.mchange.v1.util.UnexpectedException;
+import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.api.rest.ApiResponseHandler;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -11,16 +12,15 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 public class RdapQueryHandler {
@@ -33,17 +33,15 @@ public class RdapQueryHandler {
         this.queryHandler = queryHandler;
     }
 
-    public List<RpslObject> handleQuery(final Query query, final HttpServletRequest request) {
-
+    public Stream<RpslObject> handleQueryStream(final Query query, final HttpServletRequest request) {
+        final Stream.Builder<RpslObject> out = Stream.builder();
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-        final List<RpslObject> result = Lists.newArrayList();
-
         try {
             queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
-                        ObjectType objectType = ((RpslObject) responseObject).getType();
+                        final ObjectType objectType = ((RpslObject) responseObject).getType();
 
                         switch (objectType) {
                             case PERSON:
@@ -53,39 +51,33 @@ public class RdapQueryHandler {
                                 break;
                             }
                             default: {
-                                result.add((RpslObject) responseObject);
+                                out.add((RpslObject) responseObject);
                             }
                         }
                     }
                 }
-
                 private void addIfPrimaryObject(final RpslObject responseObject) {
                     if(responseObject.getKey().equals(query.getSearchValue())) {
-                        result.add(responseObject);
+                        out.add(responseObject);
                     }
                 }
             });
-
-            return result;
         } catch (final QueryException e) {
-            return handleQueryException(e);
+            return handleQueryException(e).stream();
         }
+        return out.build();
     }
 
     public List<RpslObject> handleAutNumQuery(final Query query, final HttpServletRequest request) {
-
         final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
-
         final List<RpslObject> resultAutNum = Lists.newArrayList();
         final List<RpslObject> resultAsBlock = Lists.newArrayList();
-
         try {
             queryHandler.streamResults(query, remoteAddress, 0, new ApiResponseHandler() {
                 @Override
                 public void handle(final ResponseObject responseObject) {
                     if (responseObject instanceof RpslObject) {
-                        ObjectType objectType = ((RpslObject) responseObject).getType();
-
+                        final ObjectType objectType = ((RpslObject) responseObject).getType();
                         switch (objectType) {
                             case AUT_NUM: {
                                 resultAutNum.add((RpslObject) responseObject);
@@ -114,11 +106,11 @@ public class RdapQueryHandler {
             throw tooManyRequests(e.getMessage());
         } else {
             LOGGER.error(e.getMessage(), e);
-            throw new IllegalStateException(e.getMessage());
+            throw new RdapException("500 Internal Server Error", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
     }
 
-    private WebApplicationException tooManyRequests(final String message) {
-        return new WebApplicationException(message, Response.Status.TOO_MANY_REQUESTS);
+    private RdapException tooManyRequests(final String message) {
+        return new RdapException("429 Too Many Requests", message, HttpStatus.TOO_MANY_REQUESTS_429);
     }
 }

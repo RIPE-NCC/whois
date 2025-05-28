@@ -3,33 +3,31 @@ package net.ripe.db.whois.update.authentication;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.dao.UserDao;
+import net.ripe.db.whois.common.credentials.Credential;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.Interval;
-import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
-import net.ripe.db.whois.update.domain.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.OverrideCredential;
-import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Collections;
@@ -41,16 +39,16 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticatorPrincipalTest {
     @Mock IpRanges ipRanges;
-    @Mock UserDao userDao;
     @Mock Origin origin;
     @Mock PreparedUpdate update;
     @Mock UpdateContext updateContext;
@@ -59,22 +57,23 @@ public class AuthenticatorPrincipalTest {
     @Mock Maintainers maintainers;
     @Mock LoggerContext loggerContext;
 
+    @Mock
+    OverrideCredentialValidator overrideCredentialValidator;
+
     Authenticator subject;
     ArgumentCaptor<Subject> subjectCapture;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(authenticationStrategy1.getName()).thenReturn("authenticationStrategy1");
-        when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
         when(authenticationStrategy2.compareTo(authenticationStrategy1)).thenReturn(1);
 
         when(maintainers.getEnduserMaintainers()).thenReturn(ciSet("RIPE-NCC-END-MNT"));
         when(maintainers.getAllocMaintainers()).thenReturn(ciSet("RIPE-NCC-HM-MNT", "AARDVARK-MNT"));
         when(maintainers.getLegacyMaintainers()).thenReturn(ciSet("RIPE-NCC-LEGACY-MNT"));
-        when(update.getCredentials()).thenReturn(new Credentials());
+        lenient().when(update.getCredentials()).thenReturn(new Credentials());
 
         subjectCapture = ArgumentCaptor.forClass(Subject.class);
-        subject = new Authenticator(ipRanges, userDao, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2});
+        subject = new Authenticator(ipRanges, maintainers, loggerContext, new AuthenticationStrategy[]{authenticationStrategy1, authenticationStrategy2}, overrideCredentialValidator);
     }
 
     @Test
@@ -123,6 +122,7 @@ public class AuthenticatorPrincipalTest {
 
     @Test
     public void authentication_fails() {
+        when(authenticationStrategy2.getName()).thenReturn("authenticationStrategy2");
         when(authenticationStrategy1.supports(update)).thenReturn(false);
         when(authenticationStrategy2.supports(update)).thenReturn(true);
         when(authenticationStrategy2.authenticate(update, updateContext)).thenThrow(new AuthenticationFailedException(UpdateMessages.unexpectedError(), Collections.<RpslObject>emptyList()));
@@ -206,9 +206,9 @@ public class AuthenticatorPrincipalTest {
         when(origin.getFrom()).thenReturn("193.0.0.10");
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
-        when(ipRanges.isTrusted(IpInterval.parse("193.0.0.10"))).thenReturn(true);
 
-        when(userDao.getOverrideUser("user")).thenThrow(EmptyResultDataAccessException.class);
+        when(overrideCredentialValidator.isAllowedToUseOverride("193.0.0.10", null, "user")).thenReturn(true);
+        when(overrideCredentialValidator.isValidOverride(new OverrideCredential.OverrideValues("user","password", ""), null)).thenThrow(EmptyResultDataAccessException.class);
 
         subject.authenticate(origin, update, updateContext);
 
@@ -225,9 +225,10 @@ public class AuthenticatorPrincipalTest {
         when(origin.getFrom()).thenReturn("193.0.0.10");
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
-        when(ipRanges.isTrusted(IpInterval.parse("193.0.0.10"))).thenReturn(true);
 
-        when(userDao.getOverrideUser("user")).thenThrow(EmptyResultDataAccessException.class);
+        when(overrideCredentialValidator.isAllowedToUseOverride("193.0.0.10", null, "user")).thenReturn(true);
+        when(overrideCredentialValidator.isValidOverride(new OverrideCredential.OverrideValues("user", "invalid", ""), null))
+                .thenThrow(EmptyResultDataAccessException.class);
 
         subject.authenticate(origin, update, updateContext);
 
@@ -290,7 +291,7 @@ public class AuthenticatorPrincipalTest {
         subject.authenticate(origin, update, updateContext);
         verifySubject(updateContext, new Subject(Principal.OVERRIDE_MAINTAINER));
         verify(update).getUpdate();
-        verifyNoMoreInteractions(userDao, update, updateContext);
+        verifyNoMoreInteractions(overrideCredentialValidator, update, updateContext);
     }
 
     @Test
@@ -303,9 +304,9 @@ public class AuthenticatorPrincipalTest {
         when(update.getType()).thenReturn(ObjectType.INETNUM);
         when(update.isOverride()).thenReturn(true);
         when(update.getCredentials()).thenReturn(new Credentials(credentialSet));
-        when(ipRanges.isTrusted(IpInterval.parse("193.0.0.10"))).thenReturn(true);
 
-        when(userDao.getOverrideUser("user")).thenReturn(User.createWithPlainTextPassword("user", "password", ObjectType.INETNUM));
+        when(overrideCredentialValidator.isAllowedToUseOverride("193.0.0.10", null, "user")).thenReturn(true);
+        when(overrideCredentialValidator.isValidOverride(new OverrideCredential.OverrideValues("user","password", ""), ObjectType.INETNUM)).thenReturn(true);
 
         subject.authenticate(origin, update, updateContext);
 

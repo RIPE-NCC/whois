@@ -1,8 +1,9 @@
 package net.ripe.db.whois.spec.update.lireditable
 
-import net.ripe.db.whois.common.IntegrationTest
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+
+@Tag("IntegrationTest")
 class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditableAttributeValidation {
 
     // data for tests
@@ -82,7 +83,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -123,14 +124,13 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 mnt-by:       LIR-MNT
                 remarks:      a different remark# changed
                 notify:       other@ripe.net    # changed
-                mnt-lower:    LIR-MNT
                 mnt-routes:   OWNER2-MNT        # changed
                 mnt-domains:  DOMAINS-MNT       # changed
                 mnt-irt:      IRT-2-TEST        # changed
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -162,13 +162,12 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}
                 mnt-routes:   LIR2-MNT          # changed
                 mnt-domains:  ${resourceRipeMntner}
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -203,14 +202,13 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}
                 mnt-routes:   ${resourceRipeMntner}
                 mnt-routes:   ${differentRipeMntner} # added
                 mnt-domains:  ${resourceRipeMntner}
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -246,15 +244,13 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}  # ripe-ncc-mnt
-                mnt-lower:    LIR-MNT          # extra
                 mnt-routes:   OWNER-MNT        # extra
                 mnt-domains:  ${resourceRipeMntner}  # ripe-ncc-mnt
                 mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -289,13 +285,12 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}
                 mnt-routes:   ${resourceRipeMntner}
                 mnt-domains:  LIR2-MNT          # changed
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -330,14 +325,13 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}
                 mnt-routes:   ${resourceRipeMntner}
                 mnt-domains:  ${resourceRipeMntner}
                 mnt-domains:  ${differentRipeMntner} # added
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -373,15 +367,13 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 status:       ${resourceStatus}
                 mnt-by:       ${resourceRipeMntner}
                 mnt-by:       LIR-MNT
-                mnt-lower:    ${resourceRipeMntner}  # ripe-ncc-mnt
-                mnt-lower:    LIR-MNT          # extra
                 mnt-routes:   ${resourceRipeMntner}  # ripe-ncc-mnt
                 mnt-routes:   OWNER-MNT        # extra
                 mnt-domains:  DOMAINS-MNT      # extra
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -419,7 +411,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -455,16 +447,19 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
-        ack.success
+        ack.errors
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\" status"
+        ]
     }
 
     def "modify resource, change (mnt-lower) lir-unlocked attributes by lir"() {
@@ -499,16 +494,19 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
-        ack.success
+        ack.errors
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
+        ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\" status"
+        ]
     }
 
     def "modify resource, can change net-name and mnt-by (lir-locked) attributes by lir"() {
@@ -532,7 +530,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -566,7 +564,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -574,10 +572,11 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\""
+                "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\"",
+                "The \"sponsoring-org\" attribute can only be added by the RIPE NCC"
         ]
     }
 
@@ -607,7 +606,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -615,11 +614,13 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\" status"
         ]
+
     }
 
     def "modify resource, cannot add ripe-ncc mntner (mnt-lower) by lir"() {
@@ -649,7 +650,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -657,10 +658,11 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\" status"
         ]
     }
 
@@ -693,7 +695,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 password: lir
                 password: irt
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -701,10 +703,11 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
-                "You cannot add or remove a RIPE NCC maintainer"
+                "You cannot add or remove a RIPE NCC maintainer",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\" status"
         ]
     }
 
@@ -741,7 +744,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -773,7 +776,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -810,7 +813,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 mnt-by:       LIR-MNT
                 source:       TEST
                 password: ${resourceRipeMntnerPassword}
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -848,7 +851,7 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
                 source:       TEST
                 delete: some reason
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -861,5 +864,39 @@ class LirEditableInet6numAssignedAttributeValidationSpec extends BaseLirEditable
         ack.errorMessagesFor("Delete", "[${resourceType}] ${resourceValue}") == [
                 "Deleting this object requires administrative authorisation"
         ]
+    }
+
+    //  MODIFY resource attributes WITH OVERRIDE
+
+    def "modify resource, change lir-locked attributes with override"() {
+        given:
+        dbfixture(getTransient("RSC-MANDATORY"))
+
+        expect:
+        queryObject("-GBr -T ${resourceType} ${resourceValue}", resourceType, resourceValue)
+
+        when:
+        def ack = syncUpdateWithResponse("""
+                ${resourceType}: ${resourceValue}
+                netname:      TEST-NET-NAME-CHANGED # changed
+                country:      NL
+                org:          ORG-LIRA-TEST         # changed
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ${differentStatus}    # changed
+                mnt-by:       ${resourceRipeMntner}
+                mnt-by:       LIR2-MNT              # changed
+                source:       TEST
+                override:     denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.countErrorWarnInfo(0, 4, 1)
+        ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
     }
 }

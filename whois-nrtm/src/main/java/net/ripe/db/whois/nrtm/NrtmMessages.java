@@ -12,7 +12,7 @@ public class NrtmMessages {
     public static Message termsAndConditions() {
         return new Message(Messages.Type.INFO,
             "% The RIPE Database is subject to Terms and Conditions.\n" +
-                "% See http://www.ripe.net/db/support/db-terms-conditions.pdf");
+                "% See https://docs.db.ripe.net/terms-conditions.html");
     }
 
     public static Message version(final String applicationVersion) {
@@ -29,6 +29,10 @@ public class NrtmMessages {
 
     public static Message deprecatedVersion(final int version) {
         return new Message(Messages.Type.WARNING, "%%WARNING: NRTM version %d is deprecated, please consider migrating to version %d!", version, NrtmServer.NRTM_VERSION);
+    }
+
+    public static Message internalError() {
+        return new Message(Messages.Type.ERROR, "internal error occurred.");
     }
 
     public static Message notAuthorised(final String remoteAddress) {

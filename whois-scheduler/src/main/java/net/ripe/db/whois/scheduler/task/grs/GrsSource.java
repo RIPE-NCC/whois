@@ -7,7 +7,7 @@ import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -54,7 +54,11 @@ abstract class GrsSource implements InitializingBean {
 
     abstract void acquireDump(Path path) throws IOException;
 
+    public void acquireIrrDump(Path path) throws IOException {};
+
     abstract void handleObjects(File file, ObjectHandler handler) throws IOException;
+
+    public void handleIrrObjects(File file, ObjectHandler handler) throws IOException {};
 
     public Logger getLogger() {
         return logger;
@@ -78,7 +82,7 @@ abstract class GrsSource implements InitializingBean {
 
         StringBuilder lineBuilder = new StringBuilder();
         for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            if (line.length() == 0) {
+            if (line.isEmpty()) {
                 lineBuilder = addLine(lines, lineBuilder);
                 handleLines(lineHandler, lines);
                 lines = Lists.newArrayList();
@@ -106,7 +110,7 @@ abstract class GrsSource implements InitializingBean {
             try {
                 lineHandler.handleLines(lines);
             } catch (RuntimeException e) {
-                logger.warn("Unexpected error handling lines starting with {}: {}", lines.isEmpty() ? "" : lines.get(0), e.getMessage(), e);
+                logger.info("Unexpected {} handling lines starting with {}: {}", e.getClass().getName(), lines.isEmpty() ? "" : lines.getFirst(), e.getMessage());
             }
         }
     }

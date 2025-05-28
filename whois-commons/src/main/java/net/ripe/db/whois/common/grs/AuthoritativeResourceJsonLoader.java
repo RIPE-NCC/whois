@@ -3,6 +3,11 @@ package net.ripe.db.whois.common.grs;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.ALLOCATED;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.ASSIGNED;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.AVAILABLE;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.RESERVED;
+
 public class AuthoritativeResourceJsonLoader extends AbstractAuthoritativeResourceLoader {
 
     AuthoritativeResourceJsonLoader(final Logger logger) {
@@ -29,25 +34,25 @@ public class AuthoritativeResourceJsonLoader extends AbstractAuthoritativeResour
 
     private void handleAllocations(final JsonNode parent, final String type) {
         parent.get("allocations").forEach(allocation -> {
-            handleResource("ripe", allocation.get("countryCode").asText(), type, allocation.get("start").asText(), allocation.get("value").asText(), "allocated", "ripe");
+            handleResource("ripe", allocation.get("countryCode").asText(), type, allocation.get("start").asText(), allocation.get("value").asText(), ALLOCATED, "ripe");
         });
     }
 
     private void handleFreeResources(final JsonNode parent, final String type) {
         parent.get("freeResources").forEach(allocation -> {
-            handleResource("ripe", "", type, allocation.get("start").asText(), allocation.get("value").asText(), "available", "ripe");
+            handleResource("ripe", "", type, allocation.get("start").asText(), allocation.get("value").asText(), AVAILABLE, "ripe");
         });
     }
 
     private void handleReservedResources(final JsonNode parent, final String type) {
         parent.get("reservedResources").forEach(allocation -> {
-            handleResource("ripe", "", type, allocation.get("start").asText(), allocation.get("value").asText(), "reserved", "ripe");
+            handleResource("ripe", "", type, allocation.get("start").asText(), allocation.get("value").asText(), RESERVED, "ripe");
         });
     }
 
     private void handleAssignments(final JsonNode parent, final String type) {
         parent.get("assignments").forEach(allocation -> {
-            handleResource("ripe", allocation.get("countryCode").asText(), type, allocation.get("start").asText(), allocation.get("value").asText(), "assigned", "ripe");
+            handleResource("ripe", allocation.get("countryCode").asText(), type, allocation.get("start").asText(), allocation.get("value").asText(), ASSIGNED, "ripe");
         });
     }
 

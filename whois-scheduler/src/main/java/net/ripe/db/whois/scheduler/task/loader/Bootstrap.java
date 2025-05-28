@@ -1,16 +1,19 @@
 package net.ripe.db.whois.scheduler.task.loader;
 
 import com.google.common.util.concurrent.Uninterruptibles;
-import net.javacrumbs.shedlock.core.SchedulerLock;
-import net.ripe.db.whois.api.fulltextsearch.FullTextIndex;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import net.ripe.db.nrtm4.Nrtmv4Condition;
+import net.ripe.db.nrtm4.scheduler.NrtmV4Jmx;
+import net.ripe.db.whois.api.fulltextsearch.ElasticFullTextRebuild;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,19 +26,20 @@ public class Bootstrap implements DailyScheduledTask {
     private final LoaderRisky loaderRisky;
     private final LoaderSafe loaderSafe;
     private final SourceContext sourceContext;
-
-    private final FullTextIndex fullTextIndex;
+    private final ElasticFullTextRebuild elasticFullTextRebuild;
+    private NrtmV4Jmx nrtmV4Jmx;
 
     @Value("${bootstrap.dumpfile:}")
     private String[] dumpFileLocation;
 
     @Autowired
     public Bootstrap(final LoaderRisky loaderRisky, final LoaderSafe loaderSafe,
-                     final SourceContext sourceContext, final FullTextIndex fullTextIndex) {
+                     final ElasticFullTextRebuild elasticFullTextRebuild,
+                     final SourceContext sourceContext) {
         this.loaderRisky = loaderRisky;
         this.loaderSafe = loaderSafe;
         this.sourceContext = sourceContext;
-        this.fullTextIndex = fullTextIndex;
+        this.elasticFullTextRebuild = elasticFullTextRebuild;
     }
 
     public void setDumpFileLocation(final String... testDumpFileLocation) {
@@ -54,13 +58,34 @@ public class Bootstrap implements DailyScheduledTask {
             // treeupdaters not recognising rebuild is needed
             Uninterruptibles.sleepUninterruptibly(IpTreeUpdater.TREE_UPDATE_IN_SECONDS, TimeUnit.SECONDS);
 
-            final String result = loaderRisky.loadSplitFiles(dumpFileLocation);
+            final String result =  loaderRisky.loadSplitFiles(dumpFileLocation);
 
-            fullTextIndex.rebuild();
+            buildFullTextIndexes();
+            initializeNrtmv4();
 
             return result;
         } finally {
             sourceContext.removeCurrentSource();
+        }
+    }
+
+    private void buildFullTextIndexes() {
+        try {
+            elasticFullTextRebuild.run();
+        } catch (Exception e) {
+            LOGGER.error("Failed to rebuild ElasticFullTextRebuild ", e);
+        }
+    }
+
+    private void initializeNrtmv4() {
+        if(nrtmV4Jmx == null) {
+            return;
+        }
+
+        try {
+            nrtmV4Jmx.runInitializerTask("Bootstrap");
+        } catch (Exception e) {
+            LOGGER.error("Failed to initialize Nrtmv4 ", e);
         }
     }
 
@@ -82,7 +107,7 @@ public class Bootstrap implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "Bootstrap")
     public void run() {
         try {
@@ -93,5 +118,11 @@ public class Bootstrap implements DailyScheduledTask {
         } catch (Exception e) {
             LOGGER.error("Exception caught", e);
         }
+    }
+
+    @Autowired(required = false)
+    @Conditional(Nrtmv4Condition.class)
+    public void setNrtmV4Jmx(final NrtmV4Jmx nrtmV4Jmx) {
+        this.nrtmV4Jmx = nrtmV4Jmx;
     }
 }

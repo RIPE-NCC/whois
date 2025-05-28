@@ -3,6 +3,10 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.net.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -13,23 +17,23 @@ import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.RegularSuppressChangedAttributeMapper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.http.HttpScheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import static jakarta.servlet.http.HttpServletRequest.BASIC_AUTH;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class RestServiceHelper {
 
@@ -40,7 +44,7 @@ public class RestServiceHelper {
     private static final String OVERRIDE_STRING = "override";
 
     private static final Set<Class> SKIP_STACK_TRACE = Sets.newHashSet(
-                                                        CrowdClientException.class,
+                                                        AuthServiceClientException.class,
                                                         CannotGetJdbcConnectionException.class,
                                                         PreparedStatementCallback.class);
 
@@ -57,7 +61,7 @@ public class RestServiceHelper {
     }
 
     private static String filter(final String queryString) {
-        if (StringUtils.isEmpty(queryString)) {
+        if (isEmpty(queryString)) {
             return "";
         }
 
@@ -68,7 +72,7 @@ public class RestServiceHelper {
             builder.append(separator).append(PasswordFilter.filterPasswordsInUrl(queryString));
         } else {
             String removedPasswordsInQueryString = PasswordFilter.removePasswordsInUrl(queryString);
-            if (!StringUtils.isEmpty(removedPasswordsInQueryString)) {
+            if (!isEmpty(removedPasswordsInQueryString)) {
                 builder.append(separator).append(removedPasswordsInQueryString);
             }
         }
@@ -172,7 +176,17 @@ public class RestServiceHelper {
         return new WebApplicationException(responseBuilder.build());
     }
 
+    public static boolean isHttpProtocol(final HttpServletRequest request) {
+        return HttpScheme.HTTP.is(request.getScheme());
+    }
+
     private static boolean skipStackTrace(final Exception exception) {
         return SKIP_STACK_TRACE.contains(exception.getClass());
     }
+
+    public static boolean isBasicAuth(final HttpServletRequest request) {
+        final String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        return authorization != null && authorization.toUpperCase().startsWith(BASIC_AUTH);
+    }
+
 }

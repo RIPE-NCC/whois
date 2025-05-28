@@ -1,18 +1,18 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import net.ripe.db.whois.common.AbstractJUnit5SpringContextTests;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 import java.io.ByteArrayInputStream;
@@ -24,18 +24,19 @@ import java.util.Properties;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles(WhoisProfile.TEST)
 @TestExecutionListeners(listeners = {TransactionalTestExecutionListener.class})
-public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUnit4SpringContextTests {
+public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUnit5SpringContextTests {
     @Autowired protected TestDateTimeProvider testDateTimeProvider;
     @Autowired protected List<Stub> stubs;
 
     protected JdbcTemplate whoisTemplate;
     protected JdbcTemplate internalsTemplate;
+    protected JdbcTemplate mailupdatesTemplate;
     protected DatabaseHelper databaseHelper;
 
     private static byte[] propertyStore = null;
 
-    @BeforeClass
-    public synchronized static void setupAbstractDatabaseHelperTest() throws Exception {
+    @BeforeAll
+    public static synchronized void setupAbstractDatabaseHelperTest() throws Exception {
         DatabaseHelper.setupDatabase();
         Slf4JLogConfiguration.init();
 
@@ -50,6 +51,7 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
         System.setProperty("api.rest.baseurl", "http://rest-test.db.ripe.net");
+        System.setProperty("whois.environment", "localhost");
 
         // default commit-id
         System.setProperty("git.commit.id.abbrev", "0");
@@ -58,20 +60,20 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }
 
-    @AfterClass
-    public synchronized static void resetAbstractDatabaseHelperTest() throws Exception {
-        Properties properties = new Properties();
+    @AfterAll
+    public static synchronized void resetAbstractDatabaseHelperTest() throws Exception {
+        final Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(propertyStore));
         System.setProperties(properties);
         propertyStore = null;
     }
 
-    @Before
+    @BeforeEach
     public void resetDatabaseHelper() throws Exception {
         databaseHelper.setup();
     }
 
-    @Before
+    @BeforeEach
     public void resetStubs() {
         for (final Stub stub : stubs) {
             stub.reset();
@@ -83,5 +85,6 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
         this.databaseHelper = databaseHelper;
         this.whoisTemplate = databaseHelper.getWhoisTemplate();
         this.internalsTemplate = databaseHelper.getInternalsTemplate();
+        this.mailupdatesTemplate = databaseHelper.getMailupdatesTemplate();
     }
 }

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 
 public class Fixture {
 
@@ -31,7 +31,7 @@ public class Fixture {
     }
 
     public static void mockRpslObjectDaoLoadingBehavior(final RpslObjectDao rpslObjectDao) {
-        doAnswer(new Answer() {
+        lenient().doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();

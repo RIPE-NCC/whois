@@ -8,21 +8,22 @@ import net.ripe.db.whois.update.autokey.dao.NicHandleRepository;
 import net.ripe.db.whois.update.dao.CountryCodeRepository;
 import net.ripe.db.whois.update.domain.NicHandle;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NicHandleFactoryTest {
     private static final String SOURCE = "RIPE";
 
@@ -30,11 +31,9 @@ public class NicHandleFactoryTest {
     @Mock CountryCodeRepository countryCodeRepository;
     @InjectMocks NicHandleFactory subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject.setSource(SOURCE);
-
-        when(countryCodeRepository.getCountryCodes()).thenReturn(Collections.<CIString>emptySet());
     }
 
     @Test
@@ -67,9 +66,11 @@ public class NicHandleFactoryTest {
         assertThat(subject.isKeyPlaceHolder("AUTO-100-NL"), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void generate_invalid_placeHolder() {
-        subject.generate("AUTO", RpslObject.parse("person: name"));
+        assertThrows(IllegalArgumentException.class, () -> {
+            subject.generate("AUTO", RpslObject.parse("person: name"));
+        });
     }
 
     @Test
@@ -111,6 +112,8 @@ public class NicHandleFactoryTest {
 
     @Test
     public void claim() throws Exception {
+        when(countryCodeRepository.getCountryCodes()).thenReturn(Collections.<CIString>emptySet());
+
         final NicHandle nicHandle = new NicHandle("DW", 10, "RIPE");
         when(nicHandleRepository.claimSpecified(nicHandle)).thenReturn(true);
         assertThat(subject.claim("DW10-RIPE"), is(nicHandle));
@@ -118,6 +121,7 @@ public class NicHandleFactoryTest {
 
     @Test
     public void claim_not_available() {
+        when(countryCodeRepository.getCountryCodes()).thenReturn(Collections.<CIString>emptySet());
         when(nicHandleRepository.claimSpecified(new NicHandle("DW", 10, "RIPE"))).thenReturn(false);
         try {
             subject.claim("DW10-RIPE");
@@ -129,6 +133,8 @@ public class NicHandleFactoryTest {
 
     @Test
     public void claim_invalid_handle() {
+        when(countryCodeRepository.getCountryCodes()).thenReturn(Collections.<CIString>emptySet());
+
         try {
             subject.claim("INVALID_HANDLE");
             fail("Claim succeeded?");

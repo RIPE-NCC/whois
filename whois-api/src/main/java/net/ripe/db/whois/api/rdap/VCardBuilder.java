@@ -5,25 +5,26 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCardKind;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.EMAIL;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.ADDRESS;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.KIND;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.FN;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.GEO;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.TELEPHONE;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.VERSION;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.ORG;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.TEXT;
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.URI;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCardName;
-import net.ripe.db.whois.api.rdap.domain.vcard.VCardType;
 import net.ripe.db.whois.api.rdap.domain.vcard.VCardProperty;
+import net.ripe.db.whois.api.rdap.domain.vcard.VCardType;
 import net.ripe.db.whois.common.domain.CIString;
-import static java.util.Collections.nCopies;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static java.util.Collections.nCopies;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.ADDRESS;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.EMAIL;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.FN;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.GEO;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.KIND;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.ORG;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.TELEPHONE;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardName.VERSION;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.TEXT;
+import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.URI;
 
 public class VCardBuilder {
 
@@ -32,8 +33,8 @@ public class VCardBuilder {
 
     private static final String PARAMETER_KEY = "type";
     private static final Map ABUSE_MAP = ImmutableMap.of(PARAMETER_KEY,"abuse");
-    private static final Map EMAIL_MAP = ImmutableMap.of(PARAMETER_KEY,"email");
     private static final Map PHONE_MAP = ImmutableMap.of(PARAMETER_KEY, "voice");
+    private static final Map EMAIL_MAP = ImmutableMap.of(PARAMETER_KEY,"email");
     private static final Map FAX_MAP = ImmutableMap.of(PARAMETER_KEY, "fax");
     private static final Map EMPTY_MAP = ImmutableMap.of();
 
@@ -45,9 +46,8 @@ public class VCardBuilder {
         return this;
     }
 
-    public VCardBuilder addEmail(final Set<CIString> emails) {
+    public void addEmail(final Set<CIString> emails) {
         emails.forEach( email -> addProperty(EMAIL, EMAIL_MAP, TEXT, email));
-        return this;
     }
 
     public VCardBuilder addAbuseMailBox(final CIString abuseMail) {

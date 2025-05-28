@@ -5,24 +5,21 @@ import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UpdateResultTest {
     @Mock Update update;
 
     @Test
     public void string_representation() {
         final RpslObject updatedObject = RpslObject.parse("mntner: DEV-ROOT-MNT\nsource: RIPE #Filtered\ninvalid: invalid\nmnt-by: MNT2");
-        when(update.getType()).thenReturn(ObjectType.MNTNER);
-        when(update.getSubmittedObject()).thenReturn(updatedObject);
 
         final ObjectMessages objectMessages = new ObjectMessages();
         objectMessages.addMessage(UpdateMessages.filteredNotAllowed());

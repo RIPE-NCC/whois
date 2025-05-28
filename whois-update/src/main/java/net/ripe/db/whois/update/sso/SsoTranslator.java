@@ -2,9 +2,9 @@ package net.ripe.db.whois.update.sso;
 
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthTranslator;
-import net.ripe.db.whois.common.sso.CrowdClient;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -16,11 +16,11 @@ import javax.annotation.CheckForNull;
 
 @Component
 public class SsoTranslator {
-    private final CrowdClient crowdClient;
+    private final AuthServiceClient authServiceClient;
 
     @Autowired
-    public SsoTranslator(final CrowdClient crowdClient) {
-        this.crowdClient = crowdClient;
+    public SsoTranslator(final AuthServiceClient authServiceClient) {
+        this.authServiceClient = authServiceClient;
     }
 
     public void populateCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {
@@ -31,9 +31,9 @@ public class SsoTranslator {
                 if (authType.equals("SSO")) {
                     if (!updateContext.hasSsoTranslationResult(authToken)) {
                         try {
-                            final String username = crowdClient.getUsername(authToken);
+                            final String username = authServiceClient.getUsername(authToken);
                             updateContext.addSsoTranslationResult(authToken, username);
-                        } catch (CrowdClientException e) {
+                        } catch (AuthServiceClientException e) {
                             if (!updateContext.getGlobalMessages().getErrors().contains(UpdateMessages.ripeAccessServerUnavailable())) {
                                 updateContext.addGlobalMessage(UpdateMessages.ripeAccessServerUnavailable());
                             }
@@ -54,9 +54,9 @@ public class SsoTranslator {
                 if (authType.equals("SSO")) {
                     if (!updateContext.hasSsoTranslationResult(authToken)) {
                         try {
-                            final String uuid = crowdClient.getUuid(authToken);
+                            final String uuid = authServiceClient.getUuid(authToken);
                             updateContext.addSsoTranslationResult(authToken, uuid);
-                        } catch (CrowdClientException e) {
+                        } catch (AuthServiceClientException e) {
                             updateContext.addMessage(update, originalAttribute, UpdateMessages.ripeAccessAccountUnavailable(authToken));
                         }
                     }

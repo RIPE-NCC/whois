@@ -7,6 +7,7 @@ import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6;
 import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.commons.ip.SortedRangeSet;
+import net.ripe.db.whois.common.TransactionConfiguration;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.grs.AuthoritativeResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
@@ -33,7 +34,7 @@ import java.util.Objects;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
-@Transactional(isolation = Isolation.READ_COMMITTED)
+@Transactional(transactionManager = TransactionConfiguration.INTERNALS_UPDATE_TRANSACTION, isolation = Isolation.READ_COMMITTED)
 public class ResourceDataDao {
 
     private static TransactionTemplate transactionTemplate;
@@ -68,9 +69,9 @@ public class ResourceDataDao {
     }
 
     public void store(final String source, final AuthoritativeResource authoritativeResource) {
-        transactionTemplate.execute(new TransactionCallback() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
-            public Object doInTransaction(final TransactionStatus status) {
+            protected void doInTransactionWithoutResult(final TransactionStatus status) {
                 jdbcTemplate.update("DELETE FROM authoritative_resource WHERE source = ?", source);
 
                 final List<String> resources = authoritativeResource.getResources();
@@ -87,8 +88,6 @@ public class ResourceDataDao {
                         return resources.size();
                     }
                 });
-
-                return null;
             }
         });
     }

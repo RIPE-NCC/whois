@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.inetnum;
 
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -19,6 +20,10 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 @Component
 public class LirMntByValidator implements BusinessRuleValidator {
 
@@ -33,20 +38,27 @@ public class LirMntByValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
+        }
+
         final RpslObject originalObject = update.getReferenceObject();
         final RpslObject updatedObject = update.getUpdatedObject();
 
         final boolean rsMaintained = maintainers.isRsMaintainer(originalObject.getValuesForAttribute(AttributeType.MNT_BY));
 
         if (mntByChanged(originalObject, updatedObject) && rsMaintained && isAllocation(originalObject)) {
-            if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER) || subject.hasPrincipal(Principal.RS_MAINTAINER)) {
-                return;
-            } else {
-                updateContext.addMessage(update, UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.MNT_BY));
-            }
+                return Arrays.asList(UpdateMessages.canOnlyBeChangedinLirPortal(AttributeType.MNT_BY));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     private boolean mntByChanged(final RpslObject originalObject, final RpslObject updatedObject) {
@@ -65,7 +77,9 @@ public class LirMntByValidator implements BusinessRuleValidator {
 
         // TODO - To make it consistent, we can check for RIPE-NCC-HM-MNT
         return InetnumStatus.ALLOCATED_PA.equals(status) ||
-                InetnumStatus.ALLOCATED_UNSPECIFIED.equals(status) || Inet6numStatus.ALLOCATED_BY_RIR.equals(status);
+                InetnumStatus.ALLOCATED_UNSPECIFIED.equals(status) ||
+                InetnumStatus.ALLOCATED_ASSIGNED_PA.equals(status) ||
+                Inet6numStatus.ALLOCATED_BY_RIR.equals(status);
     }
 
     @Override

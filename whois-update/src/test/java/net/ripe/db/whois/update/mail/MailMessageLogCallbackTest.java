@@ -1,17 +1,17 @@
 package net.ripe.db.whois.update.mail;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import jakarta.mail.Message;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.mail.Message;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MailMessageLogCallbackTest {
     @Mock Message message;
     @Mock OutputStream outputStream;

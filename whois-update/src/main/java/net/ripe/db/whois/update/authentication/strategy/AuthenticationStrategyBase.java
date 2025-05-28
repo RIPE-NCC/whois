@@ -10,4 +10,5 @@ abstract class AuthenticationStrategyBase implements AuthenticationStrategy {
     public int compareTo(AuthenticationStrategy other) {
         return getName().compareTo(other.getName());
     }
+
 }

@@ -2,14 +2,14 @@ package net.ripe.db.whois.spec.update
 
 import com.google.common.collect.Lists
 import net.ripe.db.whois.api.rest.domain.ErrorMessage
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
     private static final String PERSON_WITHOUT_CHANGED = "PERSON_WITHOUT_CHANGED";
     private static final String PERSON_WITHOUT_CHANGED_ADJUSTED = "PERSON_WITHOUT_CHANGED_ADJUSTED";
@@ -122,7 +122,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyCreateSuccess(PERSON_WITHOUT_CHANGED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasWarnings(response, 1)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
@@ -400,7 +400,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyModifySuccess(PERSON_WITHOUT_CHANGED_ADJUSTED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasWarnings(response, 1)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED_ADJUSTED)
     }
 
@@ -447,7 +447,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITH_CHANGED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasWarnings(response, 1)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 
@@ -584,7 +584,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITHOUT_CHANGED,response)
-        mailVerifyHasNoWarnings(response)
+        mailVerifyHasWarnings(response, 1)
         doesNotExist(PERSON_WITHOUT_CHANGED)
     }
 
@@ -852,6 +852,12 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
     def mailVerifyHasNoWarnings(final AckResponse response ) {
         def warnings = response.allWarnings
         assert warnings.isEmpty()
+        return true
+    }
+
+    def mailVerifyHasWarnings(final AckResponse response, final int number ) {
+        def warnings = response.allWarnings
+        assert warnings.size() == number
         return true
     }
 

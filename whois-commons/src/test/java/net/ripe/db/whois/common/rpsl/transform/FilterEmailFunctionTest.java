@@ -1,8 +1,8 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -10,7 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class FilterEmailFunctionTest {
     FilterEmailFunction subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new FilterEmailFunction();
     }

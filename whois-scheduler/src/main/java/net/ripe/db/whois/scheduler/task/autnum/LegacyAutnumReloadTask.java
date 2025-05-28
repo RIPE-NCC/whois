@@ -22,10 +22,10 @@ public class LegacyAutnumReloadTask implements DailyScheduledTask {
     @Override
     @Scheduled(cron = "0 1/15 * * * *")
     public void run() {
-        LOGGER.info("Reloading legacy autnums");
+        LOGGER.debug("Reloading legacy autnums");
         final int previousTotal = legacyAutnum.getTotal();
         legacyAutnum.init();
-        LOGGER.info("Loaded {} legacy autnums (was {})", legacyAutnum.getTotal(), previousTotal);
+        LOGGER.debug("Loaded {} legacy autnums (was {})", legacyAutnum.getTotal(), previousTotal);
     }
 
 }

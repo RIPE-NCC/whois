@@ -7,7 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Profile({WhoisProfile.RIPE_DEPLOYED, WhoisProfile.AWS_DEPLOYED})
+@Profile(WhoisProfile.DEPLOYED)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface DeployedProfile {

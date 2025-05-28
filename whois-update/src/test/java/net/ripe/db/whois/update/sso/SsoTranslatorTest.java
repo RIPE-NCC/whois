@@ -1,14 +1,15 @@
 package net.ripe.db.whois.update.sso;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClient;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -19,19 +20,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SsoTranslatorTest {
 
     @Mock UpdateContext updateContext;
     @Mock Update update;
-    @Mock CrowdClient crowdClient;
+    @Mock AuthServiceClient authServiceClient;
 
 
     private SsoTranslator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        subject = new SsoTranslator(crowdClient);
+        subject = new SsoTranslator(authServiceClient);
     }
 
     @Test

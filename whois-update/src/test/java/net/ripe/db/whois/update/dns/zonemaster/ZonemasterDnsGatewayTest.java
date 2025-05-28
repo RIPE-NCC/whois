@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.dns.zonemaster;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -12,14 +13,15 @@ import net.ripe.db.whois.update.dns.zonemaster.domain.StartDomainTestResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.TestProgressResponse;
 import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
 import net.ripe.db.whois.update.domain.Update;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 // TODO: [ES] slow unit tests (takes ~30s)
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ZonemasterDnsGatewayTest {
 
     @Mock
@@ -50,10 +52,12 @@ public class ZonemasterDnsGatewayTest {
     private GetTestResultsResponse.Result result;
     @Mock
     private GetTestResultsResponse.Result.Message message;
+    @Mock
+    private ApplicationVersion applicationVersion;
     @InjectMocks
     private ZonemasterDnsGateway subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(restClient.sendRequest(any(ZonemasterRequest.class))).thenReturn(response);
         when(response.readEntity(StartDomainTestResponse.class)).thenReturn(startDomainTestResponse);
@@ -61,6 +65,7 @@ public class ZonemasterDnsGatewayTest {
         when(response.readEntity(GetTestResultsResponse.class)).thenReturn(getTestResultsResponse);
         when(getTestResultsResponse.getResult()).thenReturn(result);
         when(result.getResults()).thenReturn(Lists.newArrayList());
+        when(applicationVersion.getVersion()).thenReturn("1.0");
     }
 
     @Test

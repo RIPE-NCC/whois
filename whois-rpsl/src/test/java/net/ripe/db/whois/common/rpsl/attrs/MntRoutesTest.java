@@ -1,18 +1,19 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
-import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MntRoutesTest {
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void empty() {
-        MntRoutes.parse("");
+        assertThrows(AttributeParseException.class, () -> {
+            MntRoutes.parse("");
+        });
     }
 
     @Test
@@ -33,9 +34,11 @@ public class MntRoutesTest {
         assertThat(subject.getAddressPrefixRanges(), hasSize(0));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void maintainer_with_any_and_range() {
-        MntRoutes.parse("RIPE-NCC-RPSL-MNT { ANY,194.104.182.0/24^+ }");
+        assertThrows(AttributeParseException.class, () -> {
+            MntRoutes.parse("RIPE-NCC-RPSL-MNT { ANY,194.104.182.0/24^+ }");
+        });
     }
 
     @Test
@@ -59,13 +62,17 @@ public class MntRoutesTest {
         assertThat(subject.getAddressPrefixRanges().get(1).getIpInterval().toString(), is("194.9.241.0/24"));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void maintainer_with_any_inside_brackets() {
-        MntRoutes.parse("TEST-MNT { ANY }");
+        assertThrows(AttributeParseException.class, () -> {
+            MntRoutes.parse("TEST-MNT { ANY }");
+        });
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void maintainer_with_any_inside_brackets_no_padding_space() {
-        MntRoutes.parse("TEST-MNT {ANY}");
+        assertThrows(AttributeParseException.class, () -> {
+            MntRoutes.parse("TEST-MNT {ANY}");
+        });
     }
 }

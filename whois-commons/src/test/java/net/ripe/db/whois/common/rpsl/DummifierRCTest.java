@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -10,7 +10,7 @@ public class DummifierRCTest {
 
     private DummifierRC subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new DummifierRC();
     }
@@ -40,7 +40,7 @@ public class DummifierRCTest {
 
         assertThat(after.toString(), is(
             "organisation:   ORG-RIEN1-TEST\n" +
-            "org-name:       Dummy org-name for ORG-RIEN1-TEST\n" +
+            "org-name:       Romeo India Echo November\n" +
             "org-type:       LIR\n" +
             "descr:          ***\n" +
             "address:        ***\n" +
@@ -103,6 +103,10 @@ public class DummifierRCTest {
             "as-name:        RIPE_NCC_AS_NAME\n" +
             "admin-c:        AC1-TEST\n" +
             "tech-c:         TC1-TEST\n" +
+            "notify:         test@ripe.net\n" +
+            "notify:         test@ripe.net, noreply@ripe.net\n" +
+            "notify:         Test User <test@ripe.net>\n" +
+            "notify:         Invalid invalid@ripe.net>\n" +
             "mnt-by:         TEST-MNT\n" +
             "created:        1970-01-01T00:00:00Z\n" +
             "last-modified:  2020-09-22T09:00:00Z\n" +
@@ -116,6 +120,10 @@ public class DummifierRCTest {
             "as-name:        RIPE_NCC_AS_NAME\n" +
             "admin-c:        AC1-TEST\n" +
             "tech-c:         TC1-TEST\n" +
+            "notify:         ***@ripe.net\n" +
+            "notify:         ***\n" +
+            "notify:         ***@ripe.net\n" +
+            "notify:         ***\n" +
             "mnt-by:         TEST-MNT\n" +
             "created:        1970-01-01T00:00:00Z\n" +
             "last-modified:  2020-09-22T09:00:00Z\n" +

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.compare.rest;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -57,7 +57,7 @@ public class RestExecutorTest {
                 "      </attributes>\n" +
                 "    </object>\n" +
                 "  </objects>\n" +
-                "  <terms-and-conditions xmlns=\"\" xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"></terms-and-conditions>\n" +
+                "  <terms-and-conditions xmlns=\"\" xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"></terms-and-conditions>\n" +
                 "</whois-resources>";
 
 

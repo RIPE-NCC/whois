@@ -10,18 +10,19 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.source.IllegalSourceException;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
+import org.glassfish.jersey.server.internal.LocalizationMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXParseException;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
-import javax.xml.bind.UnmarshalException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
+import jakarta.xml.bind.UnmarshalException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,6 +68,12 @@ public class DefaultExceptionMapper implements ExceptionMapper<Exception> {
             }
 
             return Response.status(Response.Status.BAD_REQUEST).entity(createErrorEntity(((QueryException) exception).getMessages())).build();
+        }
+
+        if (exception instanceof IllegalStateException) {
+            if (LocalizationMessages.FORM_PARAM_CONTENT_TYPE_ERROR().equals(exception.getMessage())) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
         }
 
         LOGGER.error("Unexpected", exception);

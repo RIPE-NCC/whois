@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -16,10 +16,10 @@ import java.net.UnknownHostException;
 
 @Configuration
 @PropertySources({
-        @PropertySource(value = "classpath:version.properties", ignoreResourceNotFound = true),
+        @PropertySource(value = "classpath:whois.version.properties", ignoreResourceNotFound = true),
         @PropertySource(value = "file:${whois.config}", ignoreResourceNotFound = true),
 })
-@Profile({WhoisProfile.RIPE_DEPLOYED, WhoisProfile.TEST})
+@Profile({WhoisProfile.DEPLOYED, WhoisProfile.TEST})
 public class WhoisRipePropertyResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisRipePropertyResolver.class);

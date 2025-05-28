@@ -7,69 +7,82 @@ import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GrsSourceImporterTest {
 
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
+    @TempDir
+    public File folder;
 
     @Mock AttributeSanitizer sanitizer;
-    @Mock ResourceTagger resourceTagger;
     @Mock GrsSource grsSource;
     @Mock GrsDao grsDao;
     @Mock GrsDao.UpdateResult updateResultCreate;
     @Mock GrsDao.UpdateResult updateResultUpdate;
     @Mock AuthoritativeResource authoritativeResource;
     @Mock SourceContext sourceContext;
+    @Mock PlatformTransactionManager transactionManager;
+    @Mock TransactionDefinition transactionDefinition;
+    @Mock TransactionStatus transactionStatus;
+    @InjectMocks TransactionTemplate transactionTemplate;
 
     Logger logger = LoggerFactory.getLogger(GrsSourceImporter.class);
 
     GrsSourceImporter subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        when(grsSource.getDao()).thenReturn(grsDao);
+
+
+        lenient().when(grsSource.getDao()).thenReturn(grsDao);
         when(grsSource.getLogger()).thenReturn(logger);
         when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
 
-        when(sanitizer.sanitize(any(RpslObject.class), any(ObjectMessages.class))).thenAnswer(new Answer<RpslObject>() {
+        lenient().when(sanitizer.sanitize(any(RpslObject.class), any(ObjectMessages.class))).thenAnswer(new Answer<RpslObject>() {
             @Override
             public RpslObject answer(InvocationOnMock invocation) throws Throwable {
                 return (RpslObject) invocation.getArguments()[0];
             }
         });
 
-        when(grsDao.createObject(any(RpslObject.class))).thenReturn(updateResultCreate);
-        when(grsDao.updateObject(any(GrsObjectInfo.class), any(RpslObject.class))).thenReturn(updateResultUpdate);
+        lenient().when(grsDao.createObject(any(RpslObject.class))).thenReturn(updateResultCreate);
+        lenient().when(grsDao.updateObject(any(GrsObjectInfo.class), any(RpslObject.class))).thenReturn(updateResultUpdate);
+        lenient().when(grsDao.transactionTemplate()).thenReturn(transactionTemplate);
+        lenient().when(transactionManager.getTransaction(any(TransactionDefinition.class))).thenReturn(transactionStatus);
 
-        subject = new GrsSourceImporter(folder.getRoot().getAbsolutePath(), sanitizer, resourceTagger, sourceContext);
+        subject = new GrsSourceImporter(folder.getAbsolutePath(), sanitizer, sourceContext);
     }
 
     @Test
@@ -116,7 +129,7 @@ public class GrsSourceImporterTest {
 
         subject.grsImport(grsSource, false);
 
-        final Path dumpFile = folder.getRoot().toPath().resolve("APNIC-GRS-DMP");
+        final Path dumpFile = folder.toPath().resolve("APNIC-GRS-DMP");
         verify(grsSource).acquireDump(dumpFile);
         verify(grsSource).handleObjects(eq(dumpFile.toFile()), any(ObjectHandler.class));
     }
@@ -343,7 +356,7 @@ public class GrsSourceImporterTest {
         when(grsDao.find("MODIFY-MNT", ObjectType.MNTNER)).thenReturn(grsObjectInfo1);
 
         final GrsObjectInfo grsObjectInfo2 = new GrsObjectInfo(2, 2, RpslObject.parse("mntner:         NOOP-MNT\nsource:         APNIC-GRS"));
-        when(grsDao.find("NOOP-MNT", ObjectType.MNTNER)).thenReturn(grsObjectInfo2);
+        lenient().when(grsDao.find("NOOP-MNT", ObjectType.MNTNER)).thenReturn(grsObjectInfo2);
 
         subject.grsImport(grsSource, false);
 

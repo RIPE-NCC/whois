@@ -13,6 +13,8 @@ import io.netty.util.concurrent.EventExecutorGroup;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.pipeline.MaintenanceHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WhoisServerChannelInitializer.class);
 
     private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
 
@@ -44,6 +48,7 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
     private final QueryDecoder queryDecoder;
     private final QueryHandler queryHandler;
     private final ApplicationVersion applicationVersion;
+    private final boolean proxyProtocolEnabled;
 
     @Autowired
     public WhoisServerChannelInitializer(final MaintenanceHandler maintenanceHandler,
@@ -53,7 +58,8 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
                                          final WhoisEncoder whoisEncoder,
                                          final ConnectionPerIpLimitHandler connectionPerIpLimitHandler,
                                          final QueryHandler queryHandler,
-                                         final ApplicationVersion applicationVersion) {
+                                         final ApplicationVersion applicationVersion,
+                                         final @Value("${proxy.protocol.enabled:false}") boolean proxyProtocolEnabled) {
         this.maintenanceHandler = maintenanceHandler;
         this.queryChannelsRegistry = queryChannelsRegistry;
         this.termsAndConditionsHandler = termsAndConditionsHandler;
@@ -62,6 +68,11 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         this.connectionPerIpLimitHandler = connectionPerIpLimitHandler;
         this.queryHandler = queryHandler;
         this.applicationVersion = applicationVersion;
+        this.proxyProtocolEnabled = proxyProtocolEnabled;
+
+        if (proxyProtocolEnabled) {
+            LOGGER.info("Proxy protocol handler enabled");
+        }
     }
 
     @Override
@@ -76,6 +87,10 @@ public class WhoisServerChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast("write-timeout", new WriteTimeoutHandler(TIMEOUT_SECONDS, TimeUnit.SECONDS));
 
         pipeline.addLast("terms-conditions", termsAndConditionsHandler);
+
+        if (proxyProtocolEnabled) {
+            pipeline.addLast(ProxyProtocolChannelHandler.NAME, new ProxyProtocolChannelHandler());
+        }
 
         pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(1024, LINE_DELIMITER, INTERRUPT_DELIMITER));
 

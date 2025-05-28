@@ -1,13 +1,14 @@
 package net.ripe.db.whois.nrtm;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.domain.QueryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,20 +36,26 @@ public class NrtmAclLimitHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) {
         final Channel channel = ctx.channel();
         final InetAddress remoteAddress = ChannelUtil.getRemoteAddress(channel);
+        final AccountingIdentifier accountingIdentifier = getAccountingIdentifier(remoteAddress);
 
-        if (accessControlListManager.isDenied(remoteAddress)) {
-            channel.write(QueryMessages.accessDeniedPermanently(remoteAddress)).addListener(ChannelFutureListener.CLOSE);
-            nrtmLog.log(remoteAddress, REJECTED);
-            return;
-        }
+       try {
+           accessControlListManager.checkBlocked(accountingIdentifier);
+       } catch (QueryException e) {
+           nrtmLog.log(remoteAddress, REJECTED);
+           throw new NrtmException(e.getMessage());
 
-        if (!accessControlListManager.canQueryPersonalObjects(remoteAddress)) {
-            channel.write(QueryMessages.accessDeniedTemporarily(remoteAddress)).addListener(ChannelFutureListener.CLOSE);
+       }
+
+        if (!accessControlListManager.canQueryPersonalObjects(accountingIdentifier)) {
             nrtmLog.log(remoteAddress, REJECTED);
-            return;
+            throw new NrtmException(QueryMessages.accessDeniedTemporarily(remoteAddress.getHostAddress()));
         }
 
         ctx.fireChannelActive();
+    }
+
+    private AccountingIdentifier getAccountingIdentifier(final InetAddress remoteAddress) {
+        return accessControlListManager.getAccountingIdentifier(remoteAddress, null);
     }
 
     @Override

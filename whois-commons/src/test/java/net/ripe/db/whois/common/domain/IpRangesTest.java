@@ -1,18 +1,17 @@
 package net.ripe.db.whois.common.domain;
 
 import net.ripe.db.whois.common.ip.IpInterval;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class IpRangesTest {
 
     private IpRanges subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new IpRanges();
     }
@@ -45,6 +44,6 @@ public class IpRangesTest {
     public void empty_file() throws Exception {
         subject.setTrusted();
 
-        assertFalse(subject.isTrusted(IpInterval.parse("127.0.0.1")));
+        assertThat(subject.isTrusted(IpInterval.parse("127.0.0.1")), is(false));
     }
 }

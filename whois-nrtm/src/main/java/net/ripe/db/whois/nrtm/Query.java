@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Iterator;
@@ -49,15 +49,15 @@ public class Query {
 
     private void validateAndParseQuery() {
         if (!options.hasOptions()) {
-            throw new IllegalArgumentException("%ERROR:405: no flags passed");
+            throw new NrtmException("%ERROR:405: no flags passed");
         }
 
         if (options.has("q") && (options.has("g") || options.has("k"))) {
-            throw new IllegalArgumentException("%ERROR:405: -q cannot be used with any other options");
+            throw new NrtmException("%ERROR:405: -q cannot be used with any other options");
         }
 
         if (options.has("k") && !options.has("g")) {
-            throw new IllegalArgumentException("%ERROR:405: -k cannot be used with out -g");
+            throw new NrtmException("%ERROR:405: -k cannot be used with out -g");
         }
 
         if (options.has("g")) {
@@ -68,7 +68,7 @@ public class Query {
             try {
                 queryArgument = QueryArgument.valueOf(options.valueOf("q").toString().toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("%ERROR:405: unsupported option for -q flag.");
+                throw new NrtmException("%ERROR:405: unsupported option for -q flag.");
             }
         }
     }
@@ -81,12 +81,12 @@ public class Query {
             if (!supportedSource.equalsIgnoreCase(source) &&
                     (StringUtils.isNotEmpty(supportedNonAuthSource) &&
                         !supportedNonAuthSource.equalsIgnoreCase(source))) {
-                throw new IllegalArgumentException("%ERROR:403: unknown source " + source);
+                throw new NrtmException("%ERROR:403: unknown source " + source);
             }
 
             version = Integer.parseInt(streamInfo.next());
             if (version < 1 || version > NrtmServer.NRTM_VERSION) {
-                throw new IllegalArgumentException("%ERROR:406: NRTM version mismatch");
+                throw new NrtmException("%ERROR:406: NRTM version mismatch");
             }
 
             Iterator<String> serialRange = DASH_SPLITTER.split(streamInfo.next()).iterator();
@@ -100,13 +100,13 @@ public class Query {
             } else {
                 this.serialEnd = Integer.parseInt(nextSerialEnd);
                 if (this.serialEnd < this.serialBegin) {
-                    throw new IllegalArgumentException("%ERROR:405: syntax error");
+                    throw new NrtmException("%ERROR:405: syntax error");
                 }
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("%ERROR:405: syntax error", e);
+            throw new NrtmException("%ERROR:405: syntax error");
         } catch (NoSuchElementException e) {
-            throw new IllegalArgumentException("%ERROR:405: syntax error", e);
+            throw new NrtmException("%ERROR:405: syntax error");
         }
     }
 

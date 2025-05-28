@@ -2,31 +2,42 @@ package net.ripe.db.whois.common.rpsl.attrs;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AddressPrefixRangeTest {
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void empty() {
-        AddressPrefixRange.parse("");
+        assertThrows(AttributeParseException.class, () -> {
+            AddressPrefixRange.parse("");
+        });
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void invalid_address() {
-        AddressPrefixRange.parse("300.104.182.0/12");
+        assertThrows(AttributeParseException.class, () -> {
+            AddressPrefixRange.parse("300.104.182.0/12");
+        });
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void range_too_long() {
-        AddressPrefixRange.parse("194.104.182.0/33");
+
+        assertThrows(AttributeParseException.class, () -> {
+            AddressPrefixRange.parse("194.104.182.0/33");
+        });
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void range_too_long_ipv6() {
-        AddressPrefixRange.parse("2a00:c00::/129");
+        assertThrows(AttributeParseException.class, () -> {
+            AddressPrefixRange.parse("2a00:c00::/129");
+        });
+
     }
 
     @Test
@@ -92,14 +103,20 @@ public class AddressPrefixRangeTest {
         assertThat(subject.getRangeOperation().getM(), is(24));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void operation_range_ipv4_too_long() {
-        AddressPrefixRange.parse("193.151.47.0/24^24-33");
+        assertThrows(AttributeParseException.class, () -> {
+            AddressPrefixRange.parse("193.151.47.0/24^24-33");
+        });
+
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void operation_range_ipv4_invalid_order() {
-        AddressPrefixRange.parse("193.151.47.0/24^24-12");
+        assertThrows(AttributeParseException.class, () -> {
+            AddressPrefixRange.parse("193.151.47.0/24^24-12");
+        });
+
     }
 
     @Test
@@ -111,14 +128,19 @@ public class AddressPrefixRangeTest {
         assertThat(subject.getRangeOperation().getM(), is(23));
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void operation_length_too_long() {
-        AddressPrefixRange.parse("77.74.152.0/23^33");
+        assertThrows(AttributeParseException.class, () -> {
+            AddressPrefixRange.parse("77.74.152.0/23^33");
+        });
+
     }
 
-    @Test(expected = AttributeParseException.class)
+    @Test
     public void n_lower_than_prefix_range() {
-        AddressPrefixRange.parse("77.74.152.0/23^22");
+        assertThrows(AttributeParseException.class, () -> {
+            AddressPrefixRange.parse("77.74.152.0/23^22");
+        });
     }
 
     @Test

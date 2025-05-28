@@ -11,12 +11,12 @@ import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,12 +24,12 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FilterPlaceholderDecoratorTest {
 
     @Mock
@@ -44,11 +44,11 @@ public class FilterPlaceholderDecoratorTest {
     @InjectMocks
     FilterPlaceholdersDecorator subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         source = Source.slave("TEST-GRS");
-        when(sourceContext.getCurrentSource()).thenReturn(source);
-        when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
+        lenient().when(sourceContext.getCurrentSource()).thenReturn(source);
+        lenient().when(authoritativeResourceData.getAuthoritativeResource(any(CIString.class))).thenReturn(authoritativeResource);
         subject = new FilterPlaceholdersDecorator(sourceContext, authoritativeResourceData);
     }
 
@@ -56,24 +56,24 @@ public class FilterPlaceholderDecoratorTest {
     public void filter_works() {
         when(sourceContext.isVirtual()).thenReturn(true);
 
-        List<? extends ResponseObject> toFilter = Lists.newArrayList(
+        final List<? extends ResponseObject> toFilter = Lists.newArrayList(
                 RpslObject.parse("inetnum: 10.0.0.0 - 10.255.255.255"),
                 RpslObject.parse("inetnum: 10.0.0.0 - 10.0.255.255"),
                 RpslObject.parse("inetnum: 10.0.0.0 - 10.0.0.255"));
 
         when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(false, true, true);
 
-        Iterator<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter).iterator();
+        final Iterator<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter).iterator();
 
-        assertSame(result.next(), toFilter.get(1));
-        assertSame(result.next(), toFilter.get(2));
+        assertThat(result.next(), is(toFilter.get(1)));
+        assertThat(result.next(), is(toFilter.get(2)));
         assertThat(result.hasNext(), is(false));
     }
 
     @Test
     public void messagesAreLeftAlone() {
         when(sourceContext.isVirtual()).thenReturn(true);
-        List<? extends ResponseObject> toFilter = Lists.newArrayList(
+        final List<? extends ResponseObject> toFilter = Lists.newArrayList(
                 new MessageObject(QueryMessages.duplicateIpFlagsPassed()),
                 RpslObject.parse("inetnum: 10.0.0.0 - 10.255.255.255"),
                 RpslObject.parse("inetnum: 10.0.0.0 - 10.0.255.255"),
@@ -81,30 +81,30 @@ public class FilterPlaceholderDecoratorTest {
 
         when(authoritativeResource.isMaintainedInRirSpace(any(RpslObject.class))).thenReturn(false, false, true);
 
-        Iterator<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter).iterator();
+        final Iterator<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter).iterator();
 
-        assertSame(result.next(), toFilter.get(0));
-        assertSame(result.next(), toFilter.get(3));
+        assertThat(result.next(), is(toFilter.get(0)));
+        assertThat(result.next(), is(toFilter.get(3)));
         assertThat(result.hasNext(), is(false));
     }
 
     @Test
     public void nonResourceQueriesAreFilteredAlone() {
         when(sourceContext.isVirtual()).thenReturn(true);
-        List<? extends ResponseObject> toFilter = Collections.emptyList();
+        final List<? extends ResponseObject> toFilter = Collections.emptyList();
 
-        Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("10.10.10.10"), toFilter);
+        final Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("10.10.10.10"), toFilter);
 
-        assertNotSame(result, toFilter);
+        assertThat(result, is(not(toFilter)));
     }
 
     @Test
     public void nonVirtualSourcesAreLeftAlone() {
         when(sourceContext.isVirtual()).thenReturn(false);
-        List<? extends ResponseObject> toFilter = Collections.emptyList();
+        final List<? extends ResponseObject> toFilter = Collections.emptyList();
 
-        Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter);
+        final Iterable<? extends ResponseObject> result = subject.decorate(Query.parse("--resource 10.10.10.10"), toFilter);
 
-        assertSame(result, toFilter);
+        assertThat(result, is(toFilter));
     }
 }

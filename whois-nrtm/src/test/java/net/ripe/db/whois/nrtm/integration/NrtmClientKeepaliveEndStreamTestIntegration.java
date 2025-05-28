@@ -1,22 +1,22 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientKeepaliveEndStreamTestIntegration extends NrtmClientTestIntegration {
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeKeepaliveClass() {
         System.setProperty("nrtm.keepalive.end.of.stream", "true");
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterKeepaliveClass() {
         System.clearProperty("nrtm.keepalive.end.of.stream");
     }

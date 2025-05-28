@@ -10,14 +10,14 @@ import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.handler.WhoisLog;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -26,12 +26,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConnectionPerIpLimitHandlerTest {
     private static final int MAX_CONNECTIONS_PER_IP = 2;
 
@@ -45,20 +46,19 @@ public class ConnectionPerIpLimitHandlerTest {
 
     private ConnectionPerIpLimitHandler subject;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         System.setProperty("instance.name", "10.0.0.0");
         this.subject = new ConnectionPerIpLimitHandler(ipResourceConfiguration, whoisLog, MAX_CONNECTIONS_PER_IP, applicationVersion);
 
         when(ctx.channel()).thenReturn(channel);
 
-        when(ipResourceConfiguration.isUnlimitedConnections(any(InetAddress.class))).thenReturn(false);
-        when(ipResourceConfiguration.isProxy(any(InetAddress.class))).thenReturn(false);
+        lenient().when(ipResourceConfiguration.isUnlimitedConnections(any(InetAddress.class))).thenReturn(false);
+        lenient().when(ipResourceConfiguration.isProxy(any(InetAddress.class))).thenReturn(false);
         when(channel.write(any())).thenReturn(channelFuture);
-        when(applicationVersion.getVersion()).thenReturn("1.0");
     }
 
-    @After
+    @AfterEach
     public void after() {
         System.clearProperty("instance.name");
     }
@@ -81,6 +81,8 @@ public class ConnectionPerIpLimitHandlerTest {
 
     @Test
     public void multiple_connected_same_ip() {
+        when(applicationVersion.getVersion()).thenReturn("1.0");
+
         final InetSocketAddress remoteAddress = new InetSocketAddress("10.0.0.0", 43);
         when(channel.remoteAddress()).thenReturn(remoteAddress);
         when(channel.id()).thenReturn(channelId);

@@ -1,10 +1,9 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
-import net.ripe.db.whois.spec.BaseQueryUpdateSpec
-import org.junit.experimental.categories.Category
 
-@Category(IntegrationTest.class)
+import net.ripe.db.whois.spec.BaseQueryUpdateSpec
+
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -183,7 +182,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -215,7 +214,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -251,7 +250,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -285,7 +284,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -318,7 +317,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -354,7 +353,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -387,16 +386,17 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
+                ["\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"]
     }
 
     def "modify inetnum (assigned pi and ripe maintained): add mnt-lower of lir mnt by lir"() {
@@ -419,18 +419,19 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
-        ack.errors
+        ack.failed
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
-                "Authorisation for [inetnum] 192.168.0.0 - 192.168.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT"
+                "Authorisation for [inetnum] 192.168.0.0 - 192.168.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-END-MNT",
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
         ]
     }
 
@@ -454,16 +455,18 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
-        ack.success
+        ack.failed
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 0, 1, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
+                "\"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\" status"
+        ]
     }
 
     def "modify inet6num (allocated-by-rir and co-maintained): add mnt-lower of lir mnt by lir"() {
@@ -487,7 +490,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -519,7 +522,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -555,7 +558,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -590,7 +593,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -622,7 +625,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -655,7 +658,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -693,7 +696,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -726,7 +729,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -760,7 +763,7 @@ class MntLowerAttributeValidationSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT         # added
                 source:       TEST
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_PA;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
@@ -28,7 +28,7 @@ public class InetnumStatusTest {
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PA, true), is(true));
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(true));
-        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(true));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(false));
 
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(LEGACY, true), is(false));
@@ -53,7 +53,7 @@ public class InetnumStatusTest {
     public void allowedOrgTypesChecks() {
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.LIR), is(true));
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.RIR), is(true));
-        assertThat(ALLOCATED_PA.isValidOrgType(OrgType.IANA), is(true));
+        assertThat(ALLOCATED_PA.isValidOrgType(OrgType.IANA), is(false));
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.DIRECT_ASSIGNMENT), is(false));
 
         assertThat(ALLOCATED_UNSPECIFIED.isValidOrgType(OrgType.LIR), is(true));
@@ -70,7 +70,6 @@ public class InetnumStatusTest {
 
         assertThat(ASSIGNED_PA.isValidOrgType(OrgType.OTHER), is(true));
         assertThat(ASSIGNED_PA.isValidOrgType(OrgType.LIR), is(true));
-        assertThat(ASSIGNED_PA.isValidOrgType(OrgType.WHITEPAGES), is(false));
 
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(OrgType.OTHER), is(true));
         assertThat(ASSIGNED_ANYCAST.isValidOrgType(OrgType.LIR), is(true));

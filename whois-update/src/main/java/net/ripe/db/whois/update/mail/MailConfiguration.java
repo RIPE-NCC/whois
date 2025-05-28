@@ -1,12 +1,12 @@
 package net.ripe.db.whois.update.mail;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.mail.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.mail.Session;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -15,15 +15,19 @@ public class MailConfiguration {
 
     @Value("${mail.smtp.host:localhost}")
     private String smtpHost;
-
     @Value("${mail.smtp.port:25}")
     private String smtpPort;
-
+    @Value("${mail.smtp.from:}")
+    private String smtpFrom;
     @Value("${mail.from}")
     private String from;
-
     @Value("${mail.smtp.debug:false}")
     private boolean debug;
+    @Value("${mail.smtp.enabled:false}")
+    private boolean outgoingMailEnabled;
+    @Value("${mail.smtp.retrySending:true}")
+    private boolean retrySending;
+
 
     @Autowired
     private PropertiesFactoryBean javaMailProperties;
@@ -52,11 +56,25 @@ public class MailConfiguration {
         session.setDebug(debug);
     }
 
+    public boolean isEnabled() {
+        return outgoingMailEnabled;
+    }
+
+    public boolean retrySending() {
+        return retrySending;
+    }
+
+
     public Session getSession() {
         return session;
     }
 
     public String getFrom() {
         return from;
+    }
+
+    // return envelope return address
+    public String getSmtpFrom() {
+        return smtpFrom;
     }
 }

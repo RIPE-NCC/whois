@@ -20,13 +20,13 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateResult;
 import net.ripe.db.whois.update.domain.UpdateStatus;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
@@ -35,13 +35,14 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ResponseFactoryTest {
     public static final String SKIPPED_PARAGRAPH = "" +
             "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
@@ -61,7 +62,7 @@ public class ResponseFactoryTest {
     private List<UpdateResult> updateResults;
     private List<Paragraph> ignoredParagraphs;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         System.setProperty("instance.name", "10.0.0.0");
         origin = new Origin() {
@@ -110,14 +111,14 @@ public class ResponseFactoryTest {
         ignoredParagraphs = Lists.newArrayList();
 
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC));
-        when(updateContext.printGlobalMessages()).thenReturn("");
-        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+        lenient().when(updateContext.printGlobalMessages()).thenReturn("");
+        lenient().when(updateContext.getUserSession()).thenReturn(new UserSession("offereduuid","test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
         when(applicationVersion.getVersion()).thenReturn("1.2.3");
 
         ReflectionTestUtils.setField(subject, "source", "TEST");
     }
 
-    @After
+    @AfterEach
     public void after() {
         System.clearProperty("instance.name");
     }
@@ -137,7 +138,7 @@ public class ResponseFactoryTest {
                 "\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -197,7 +198,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n\n"));
@@ -255,7 +256,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -327,7 +328,7 @@ public class ResponseFactoryTest {
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -353,10 +354,6 @@ public class ResponseFactoryTest {
                 "\n" +
                 "http://www.ripe.net/data-tools/support/documentation\n" +
                 "\n" +
-                "RIPE Database FAQ is available at\n" +
-                "\n" +
-                "http://www.ripe.net/data-tools/db/faq\n" +
-                "\n" +
                 "RPSL RFCs are available at\n" +
                 "\n" +
                 "ftp://ftp.ripe.net/rfc/rfc2622.txt\n" +
@@ -364,7 +361,7 @@ public class ResponseFactoryTest {
                 "ftp://ftp.ripe.net/rfc/rfc4012.txt\n" +
                 "\n" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n"));
@@ -412,7 +409,7 @@ public class ResponseFactoryTest {
 
     @Test
     public void notification_success_with_user_in_the_session() {
-        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+        when(updateContext.getUserSession()).thenReturn(new UserSession("offereduuid","test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
@@ -431,7 +428,7 @@ public class ResponseFactoryTest {
     @Test
     public void notification_success_with_effective_sso_credentials() {
 
-        when(updateContext.getUserSession()).thenReturn(new UserSession("test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
+        when(updateContext.getUserSession()).thenReturn(new UserSession("offereduuid","test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
         final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
@@ -480,9 +477,87 @@ public class ResponseFactoryTest {
                 "mntner:         DEV-ROOT1-MNT\n" +
                 "\n" +
                 "Changed by PGP-KEY-123. You can find contact details for this key here:\n" +
-                "https://apps.db.ripe.net/search/lookup.html?source=ripe&key=PGP-KEY-123&type=key-cert\n"+
+                "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=PGP-KEY-123&types=key-cert\n"+
                 "\n" ));
 
+    }
+
+    @Test
+    public void notification_success_with_effective_apiKey_credentials() {
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("test@ripe.net (f60ee0fc)", Update.EffectiveCredentialType.APIKEY);
+
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by SSO account using API Key id: test@ripe.net (f60ee0fc)\n"+
+                "\n" ));
+
+    }
+
+    @Test
+    public void notification_success_with_effective_password_credentials() {
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("MD5-PW", Update.EffectiveCredentialType.PASSWORD);
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by password.\n" +
+                "\n" ));
+    }
+
+    @Test
+    public void notification_success_with_effective_x509_credentials() {
+
+        final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update1 = new Update(new Paragraph(object1.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object1);
+        final PreparedUpdate create1 = new PreparedUpdate(update1, null, object1, Action.CREATE);
+        update1.setEffectiveCredential("X509-1", Update.EffectiveCredentialType.X509);
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create1, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by X509-1. You can find contact details for this key here:\n" +
+                "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=X509-1&types=key-cert\n"+
+                "\n" ));
     }
 
     @Test
@@ -610,7 +685,7 @@ public class ResponseFactoryTest {
 
         assertThat(message, containsString("" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please visit https://www.ripe.net/s/notify."));
     }
@@ -618,13 +693,13 @@ public class ResponseFactoryTest {
     private void assertVersion(final String response) {
         assertThat(response, stringMatchesRegexp("(?is).*" +
                 "The RIPE Database is subject to Terms and Conditions:\n" +
-                "http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "https://docs.db.ripe.net/terms-conditions.html\n" +
                 "\n" +
                 "For assistance or clarification please contact:\n" +
                 "RIPE Database Administration <ripe-dbm@ripe.net>\n" +
                 "\n" +
                 "Generated by RIPE WHOIS Update version 1.2.3 on .*\n" +
-                "Handled mail update \\(TEST, 1970-01-01 00:00:00\\)\n" +
+                "Handled mail update \\(TEST, 1970-01-01T00:00:00Z\\)\n" +
                 ".*"));
     }
 }

@@ -17,12 +17,11 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.hamcrest.core.Is;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.nio.charset.Charset;
@@ -31,15 +30,15 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PgpCredentialValidatorTest {
     @Mock private PreparedUpdate preparedUpdate;
     @Mock private Update update;
@@ -88,14 +87,11 @@ public class PgpCredentialValidatorTest {
             "mnt-by:         TEST-MNT\n" +
             "source:         RIPE\n");
 
-    @Before
-    public void setup() {
+    @Test
+    public void authenticateExistingRpslObject() {
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(preparedUpdate.getUpdate()).thenReturn(update);
-    }
 
-    @Test
-    public void authenticateExistingRpslObject() throws Exception {
         final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
@@ -129,12 +125,15 @@ public class PgpCredentialValidatorTest {
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
         when(preparedUpdate.getUpdate()).thenReturn(createUpdate());
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 
     @Test
     public void authenticateExistingRpslObjectGreekEncoding() throws Exception {
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        when(preparedUpdate.getUpdate()).thenReturn(update);
+
         final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
@@ -164,13 +163,16 @@ public class PgpCredentialValidatorTest {
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
         when(preparedUpdate.getUpdate()).thenReturn(createUpdate());
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(true));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(true));
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }
 
 
     @Test
     public void setsEffectiveCredential() {
+        when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
+        when(preparedUpdate.getUpdate()).thenReturn(update);
+
         final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                         "Hash: SHA1\n" +
@@ -205,7 +207,7 @@ public class PgpCredentialValidatorTest {
         when(preparedUpdate.getUpdate()).thenReturn(update);
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
 
-        subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(update.getEffectiveCredential(), Is.is(knownCredential.getKeyId()));
         assertThat(update.getEffectiveCredentialType(), Is.is(Update.EffectiveCredentialType.PGP));
@@ -228,7 +230,7 @@ public class PgpCredentialValidatorTest {
 
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenReturn(KEYCERT_OBJECT);
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(false));
     }
 
     @Test
@@ -265,7 +267,7 @@ public class PgpCredentialValidatorTest {
         final PgpCredential knownCredential = PgpCredential.createKnownCredential("PGPKEY-5763950D");
 
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, KEYCERT_OBJECT.getKey().toString())).thenThrow(new EmptyResultDataAccessException(1));
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(false));
     }
 
     @Test
@@ -303,7 +305,7 @@ public class PgpCredentialValidatorTest {
 
         final RpslObject emptyKeycertObject = new RpslObjectBuilder(KEYCERT_OBJECT).removeAttributeType(AttributeType.CERTIF).get();
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, emptyKeycertObject.getKey().toString())).thenReturn(emptyKeycertObject);
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(false));
     }
 
     @Test
@@ -311,11 +313,11 @@ public class PgpCredentialValidatorTest {
         final PgpCredential first = PgpCredential.createKnownCredential("PGPKEY-AAAAAAAA");
         final PgpCredential second = PgpCredential.createKnownCredential("PGPKEY-BBBBBBBB");
 
-        assertTrue(first.equals(first));
-        assertFalse(first.equals(second));
+        assertThat(first, equalTo(first));
+        assertThat(first, not(equalTo(second)));
 
-        assertFalse(first.hashCode() == second.hashCode());
-        assertTrue(first.hashCode() == first.hashCode());
+        assertThat((first.hashCode() == second.hashCode()), is(false));
+        assertThat((first.hashCode() == first.hashCode()), is(true));
     }
 
     @Test
@@ -323,11 +325,11 @@ public class PgpCredentialValidatorTest {
         final PgpCredential first = PgpCredential.createOfferedCredential("signedData1", "signature1", StandardCharsets.ISO_8859_1);
         final PgpCredential second = PgpCredential.createOfferedCredential("signedData2", "signature2", StandardCharsets.ISO_8859_1);
 
-        assertTrue(first.equals(first));
-        assertFalse(first.equals(second));
+        assertThat(first, equalTo(first));
+        assertThat(first, not(equalTo(second)));
 
-        assertFalse(first.hashCode() == second.hashCode());
-        assertTrue(first.hashCode() == first.hashCode());
+        assertThat((first.hashCode() == second.hashCode()), is(false));
+        assertThat((first.hashCode() == first.hashCode()), is(true));
     }
 
     @Test
@@ -335,12 +337,14 @@ public class PgpCredentialValidatorTest {
         final PgpCredential known = PgpCredential.createKnownCredential("X509-1");
         final PgpCredential offered = PgpCredential.createOfferedCredential("signedData", "signature", StandardCharsets.ISO_8859_1);
 
-        assertFalse(known.equals(offered));
-        assertFalse(known.hashCode() == offered.hashCode());
+        assertThat(known, not(equalTo(offered)));
+        assertThat((known.hashCode() == offered.hashCode()), is(false));
     }
 
     @Test
     public void knownCredentialIsInvalid() {
+        when(preparedUpdate.getUpdate()).thenReturn(update);
+
         final String message =
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +
@@ -375,7 +379,7 @@ public class PgpCredentialValidatorTest {
         final RpslObject keycertObject = RpslObject.parse("key-cert: PGPKEY-5763950D");
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, keycertObject.getKey().toString())).thenReturn(keycertObject);
 
-        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential), is(false));
+        assertThat(subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null), is(false));
 
         verify(loggerContext).logString(any(Update.class), anyString(), anyString());
     }

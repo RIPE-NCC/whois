@@ -1,21 +1,21 @@
 package net.ripe.db.whois.update.database;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.update.dao.AbstractUpdateDaoIntegrationTest;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class UpdateLockTestIntegration extends AbstractUpdateDaoIntegrationTest {
 
     private static final String MNTNER = "Dot: ";
@@ -23,7 +23,7 @@ public class UpdateLockTestIntegration extends AbstractUpdateDaoIntegrationTest 
     @Autowired
     private UpdateLockHelper updateLockHelper;
 
-    @Before
+    @BeforeEach
     public void setup() {
         whoisTemplate.update("INSERT INTO mntner (object_id, mntner) VALUES (1, ?)", MNTNER);
     }

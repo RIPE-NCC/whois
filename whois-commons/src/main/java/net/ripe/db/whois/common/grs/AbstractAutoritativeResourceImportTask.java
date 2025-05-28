@@ -33,7 +33,9 @@ public abstract class AbstractAutoritativeResourceImportTask {
         for (final String sourceName : sourceNames) {
             try {
                 final AuthoritativeResource authoritativeResource = fetchAuthoritativeResource(sourceName);
-                resourceDataDao.store(sourceName, authoritativeResource);
+                if (authoritativeResource != null) {
+                    resourceDataDao.store(sourceName, authoritativeResource);
+                }
             } catch (Exception e) {
                 LOGGER.warn("Exception processing {} due to {}: {}", sourceName, e.getClass().getName(), e.getMessage());
             }

@@ -11,30 +11,30 @@ import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WhoisServerHandlerTest {
     @Mock
     ChannelHandlerContext ctx;
@@ -51,14 +51,14 @@ public class WhoisServerHandlerTest {
     InetAddress inetAddress = InetAddresses.forString("10.0.0.1");
     ResponseObject responseObject = RpslObject.parse("inetnum: 10.0.0.0");
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(ctx.channel()).thenReturn(channel);
-        when(ctx.pipeline()).thenReturn(pipeline);
+        lenient().when(ctx.pipeline()).thenReturn(pipeline);
         when(channel.remoteAddress()).thenReturn(new InetSocketAddress(inetAddress, 80));
         when(channel.id()).thenReturn(channelId);
 
-        doNothing().when(queryHandler).streamResults(
+        lenient().doNothing().when(queryHandler).streamResults(
             any(Query.class),
             eq(inetAddress),
             any(Integer.class),
@@ -78,7 +78,7 @@ public class WhoisServerHandlerTest {
 
         final ArgumentCaptor<QueryCompletedEvent> channelEventCapture = ArgumentCaptor.forClass(QueryCompletedEvent.class);
         verify(pipeline).write(channelEventCapture.capture());
-        assertNull(channelEventCapture.getValue().getCompletionInfo());
+        assertThat(channelEventCapture.getValue().getCompletionInfo(), is(nullValue()));
     }
 
     @Test

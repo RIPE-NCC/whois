@@ -3,9 +3,6 @@ package net.ripe.db.whois.update.keycert;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
 import org.bouncycastle.bcpg.ArmoredInputStream;
-import org.bouncycastle.bcpg.EdDSAPublicBCPGKey;
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
-import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSignature;
@@ -18,7 +15,6 @@ import org.springframework.util.FileCopyUtils;
 import javax.annotation.concurrent.Immutable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -77,7 +73,7 @@ public final class PgpSignedMessage {
 
             final byte[] signatureBytes = FileCopyUtils.copyToByteArray(signatureIn);
             return new PgpSignedMessage(content, signatureBytes, false);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -133,7 +129,7 @@ public final class PgpSignedMessage {
 
             return new PgpSignedMessage(signedSectionOut.toByteArray(), signatureOut.toByteArray(), true);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -209,9 +205,8 @@ public final class PgpSignedMessage {
             if ((signatureList == null) || (signatureList.size() != 1)) {
                 throw new IllegalArgumentException("Couldn't read PGP signature");
             }
-
             return signatureList.get(0);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }

@@ -2,12 +2,13 @@ package net.ripe.db.whois.query.acl;
 
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -15,25 +16,25 @@ import java.net.InetAddress;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HazelcastPersonalObjectAccountingTest {
     private InetAddress ipv4Address;
 
     private static HazelcastPersonalObjectAccounting subject;
     private static HazelcastInstance instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void startHazelcast() {
        instance = Hazelcast.newHazelcastInstance(null);
        subject = new HazelcastPersonalObjectAccounting(instance);
     }
 
-    @AfterClass
+    @AfterAll
     public static void shutdownHazelcast() {
         instance.getLifecycleService().shutdown();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject.resetAccounting();
 

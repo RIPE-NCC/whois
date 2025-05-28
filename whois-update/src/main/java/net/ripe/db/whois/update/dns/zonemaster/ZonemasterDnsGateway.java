@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.dns.zonemaster;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.profiles.DeployedProfile;
 import net.ripe.db.whois.update.dns.DnsCheckRequest;
@@ -19,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.ProcessingException;
+import jakarta.ws.rs.ProcessingException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,16 +37,18 @@ public class ZonemasterDnsGateway implements DnsGateway {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDnsGateway.class);
 
     private static final int TEST_PROGRESS_SLEEP_SECONDS = 5;
-    private static final int TEST_PROGRESS_MAXIMUM_RETRIES = ((60 * 5) / TEST_PROGRESS_SLEEP_SECONDS);
+    private static final int TEST_PROGRESS_MAXIMUM_RETRIES = ((60 * 10) / TEST_PROGRESS_SLEEP_SECONDS);
 
     private static final String PERCENTAGE_COMPLETE = "100";
 
     private static final ImmutableList<String> ERROR_LEVELS = ImmutableList.of("CRITICAL", "ERROR");
 
     private final ZonemasterRestClient zonemasterRestClient;
+    private final ApplicationVersion applicationVersion;
 
-    public ZonemasterDnsGateway(final ZonemasterRestClient zonemasterRestClient) {
+    public ZonemasterDnsGateway(final ZonemasterRestClient zonemasterRestClient, final ApplicationVersion applicationVersion) {
         this.zonemasterRestClient = zonemasterRestClient;
+        this.applicationVersion = applicationVersion;
     }
 
     @Override
@@ -87,6 +90,7 @@ public class ZonemasterDnsGateway implements DnsGateway {
          */
         private String makeRequest(final DnsCheckRequest dnsCheckRequest) {
             final StartDomainTestRequest request = new StartDomainTestRequest(dnsCheckRequest);
+            request.setClientVersion(applicationVersion.getVersion());
 
             final StartDomainTestResponse response = zonemasterRestClient
                 .sendRequest(request)

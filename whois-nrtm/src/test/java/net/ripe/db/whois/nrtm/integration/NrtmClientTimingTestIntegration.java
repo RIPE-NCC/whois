@@ -1,22 +1,23 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.SerialDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
-import java.time.LocalDateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-@Category(IntegrationTest.class)
+import java.time.LocalDateTime;
+
+@Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase {
 
@@ -46,7 +47,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
             "description: second\n" +
             "source: TEST");
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         DatabaseHelper.addGrsDatabases("1-GRS");
         System.setProperty("nrtm.update.interval", "1");
@@ -55,7 +56,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
         System.setProperty("nrtm.import.enabled", "true");
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         databaseHelper.addObject(MNTNER);
         databaseHelper.updateObject(MNTNER_UPDATED);
@@ -68,11 +69,11 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
     private void startNrtmImporter() {
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
         nrtmImporter.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         nrtmImporter.stop(true);
         nrtmServer.stop(true);

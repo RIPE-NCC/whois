@@ -2,11 +2,12 @@ package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Set;
 
@@ -15,13 +16,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NotificationTest {
     @Mock Update update;
     @Mock UpdateContext updateContext;
     Notification subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new Notification("test@me.now");
     }

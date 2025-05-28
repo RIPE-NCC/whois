@@ -1,0 +1,71 @@
+Return-path: <>
+Envelope-to: test-dbm@ripe.net
+Delivery-date: Mon, 26 Feb 2024 18:17:52 +0000
+Received: from exim by mailserver.ripe.net with local (Exim 4.96)
+	id xxxxxx-0001tm-26
+	for test-dbm@ripe.net;
+	Mon, 26 Feb 2024 18:17:52 +0000
+Auto-Submitted: auto-replied
+From: Mail Delivery System <Mailer-Daemon@ripe.net>
+To: test-dbm@ripe.net
+References: <XXXXXXXX-734E-496B-AD3F-84D3425A7F27@ripe.net>
+Content-Type: multipart/report; report-type=delivery-status; boundary=1670955472-eximdsn-558974668
+MIME-Version: 1.0
+Subject: Warning: message xxxxxx-00025j-1r delayed 4 hours
+Message-Id: <Exxxxxx-0001tm-26@mailserver.ripe.net>
+Date: Mon, 26 Feb 2024 18:17:52 +0000
+Delivered-To: test-dbm@ripe.net
+
+--1670955472-eximdsn-558974668
+Content-type: text/plain; charset=us-ascii
+
+This message was created automatically by mail delivery software.
+A message that you sent has not yet been delivered to one or more of its
+recipients after more than 4 hours on the queue on testserver.ripe.net.
+
+The message identifier is:     xxxxxx-00025j-1r
+The subject of the message is: HELP
+The date of the message is:    Mon, 26 Feb 2024 13:45:45 +0100
+
+The address to which the message has not yet been delivered is:
+
+  enduser@host.org
+    (generated from enduser@host.org)
+
+No action is required on your part. Delivery attempts will continue for
+some time, and this warning may be repeated at intervals if the message
+remains undelivered. Eventually the mail delivery software will give up,
+and when that happens, the message will be returned to you.
+
+--1670955472-eximdsn-558974668
+Content-type: message/delivery-status
+
+Reporting-MTA: dns; mailserver.ripe.net
+
+Action: delayed
+Final-Recipient: rfc822;enduser@host.org
+Status: 4.0.0
+
+--1670955472-eximdsn-558974668
+Content-type: text/rfc822-headers
+
+Return-path: <test-dbm@ripe.net>
+Received: from whois.ipv6.ripe.net ([2001:67c:2e8::1234] helo=smtpclient.whois)
+	by mailserver.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <test-dbm@ripe.net>)
+	id xxxxxx-00025j-1r
+	for enduser@host.org;
+	Mon, 26 Feb 2024 12:45:50 +0000
+From: Test DBM <test-dbm@ripe.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3696.120.41.1.1\))
+Subject: Notification of RIPE Database changes
+Message-Id: <XXXXXXXX-734E-496B-AD3F-84D3425A7F27@ripe.net>
+Date: Mon, 26 Feb 2024 13:45:45 +0100
+To: enduser@host.org
+X-Mailer: Apple Mail (2.3696.120.41.1.1)
+
+
+--1670955472-eximdsn-558974668--

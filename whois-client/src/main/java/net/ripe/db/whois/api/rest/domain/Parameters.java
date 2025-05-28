@@ -1,13 +1,12 @@
 package net.ripe.db.whois.api.rest.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(
@@ -58,6 +57,9 @@ public class Parameters {
     @XmlTransient
     private Boolean unformatted;
 
+    @XmlTransient
+    private Boolean roaCheck;
+
     public Parameters(
             final InverseAttributes inverseAttributes,
             final String client,
@@ -71,7 +73,8 @@ public class Parameters {
             final Boolean abuseContact,
             final Integer limit,
             final Integer offset,
-            final Boolean unformatted) {
+            final Boolean unformatted,
+            final Boolean roaCheck) {
         this.inverseAttributes = inverseAttributes;
         this.typeFilters = typeFilters;
         this.flags = flags;
@@ -85,6 +88,7 @@ public class Parameters {
         this.offset = offset;
         this.unformatted = unformatted;
         this.client = client;
+        this.roaCheck = roaCheck;
     }
 
     public Parameters() {
@@ -141,6 +145,10 @@ public class Parameters {
 
     public String getClient() { return client; }
 
+    public Boolean getRoaCheck() {
+        return roaCheck;
+    }
+
     public static class Builder {
 
         private InverseAttributes inverseAttributes;
@@ -156,6 +164,7 @@ public class Parameters {
         private Integer limit;
         private Integer offset;
         private Boolean unformatted;
+        private Boolean roaCheck;
 
         public Builder inverseAttributes(final InverseAttributes inverseAttributes) {
             this.inverseAttributes = inverseAttributes;
@@ -222,6 +231,11 @@ public class Parameters {
             return this;
         }
 
+        public Builder roaCheck(final Boolean roaCheck) {
+            this.roaCheck = roaCheck;
+            return this;
+        }
+
         public Parameters build() {
             return new Parameters(
                     inverseAttributes,
@@ -236,7 +250,8 @@ public class Parameters {
                     abuseContact,
                     limit,
                     offset,
-                    unformatted);
+                    unformatted,
+                    roaCheck);
         }
     }
 }

@@ -6,28 +6,26 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.TestWhoisLog;
-import java.time.LocalDateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class QueryLogTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -50,7 +48,7 @@ public class QueryLogTestIntegration extends AbstractIntegrationTest {
     @Autowired private TestWhoisLog queryLog;
     @Autowired private RestClient restClient;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T17:00:00"));
         databaseHelper.addObjects(OWNER_MNT, TEST_PERSON);
@@ -81,7 +79,7 @@ public class QueryLogTestIntegration extends AbstractIntegrationTest {
 
         assertThat(objects, hasSize(2));
 
-        assertThat(queryLog.getMessages().size(), is(1));
+        assertThat(queryLog.getMessages(), hasSize(1));
         assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+1+0> "));
         assertThat(queryLog.getMessage(0), containsString("ms [10.20.30.40] -- "));
     }
@@ -99,7 +97,7 @@ public class QueryLogTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisObjects, hasSize(2));
 
-        assertThat(queryLog.getMessages().size(), is(1));
+        assertThat(queryLog.getMessages(), hasSize(1));
         assertThat(queryLog.getMessage(0), containsString(" PW-API-INFO <1+1+0> "));
         assertThat(queryLog.getMessage(0), containsString("ms [10.20.30.40] -- "));
     }

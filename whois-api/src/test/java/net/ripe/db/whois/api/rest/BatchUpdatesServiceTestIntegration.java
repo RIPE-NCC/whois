@@ -6,38 +6,39 @@ import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.IntegrationTest;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
 
-    @Before
+    @BeforeEach
     public void setup() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", "secret", ObjectType.values()));
 
@@ -206,9 +207,9 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(response.getWhoisObjects(), hasSize(1));
         assertThat(response.getErrorMessages(), hasSize(1));
 
-        RpslObject inetnum = databaseHelper.lookupObject(ObjectType.INETNUM, "192.0.0.0 - 192.255.255.255");
-        assertNotNull(inetnum);
-        assertEquals(ciString("BE"), inetnum.getValueForAttribute(AttributeType.COUNTRY)); // object should have been updated
+        final RpslObject inetnum = databaseHelper.lookupObject(ObjectType.INETNUM, "192.0.0.0 - 192.255.255.255");
+        assertThat(inetnum, not(nullValue()));
+        assertThat(inetnum.getValueForAttribute(AttributeType.COUNTRY), equalTo(ciString("BE"))); // object should have been updated
     }
 
     @Test
@@ -250,9 +251,9 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             assertThat(response.getWhoisObjects(), hasSize(2));
             assertThat(response.getErrorMessages().stream().filter((errorMessage) -> "Error".equals(errorMessage.getSeverity())).collect(Collectors.toList()), hasSize(2));
 
-            RpslObject inetnum = databaseHelper.lookupObject(ObjectType.INETNUM, "192.0.0.0 - 192.255.255.255");
-            assertNotNull(inetnum);
-            assertEquals(ciString("NL"), inetnum.getValueForAttribute(AttributeType.COUNTRY)); // object should not have been updated
+            final RpslObject inetnum = databaseHelper.lookupObject(ObjectType.INETNUM, "192.0.0.0 - 192.255.255.255");
+            assertThat(inetnum, not(nullValue()));
+            assertThat(inetnum.getValueForAttribute(AttributeType.COUNTRY), equalTo(ciString("NL"))); // object should not have been updated
 
             try {
                 databaseHelper.lookupObject(ObjectType.PERSON, "NX-TEST");
@@ -298,12 +299,12 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(response.getWhoisObjects(), hasSize(2));
 
         RpslObject owner2mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER2-MNT");
-        assertNotNull(owner2mnt);
-        assertEquals(ciString("different_email@ripe.net"), owner2mnt.getValueForAttribute(AttributeType.UPD_TO));
+        assertThat(owner2mnt, not(nullValue()));
+        assertThat(owner2mnt.getValueForAttribute(AttributeType.UPD_TO), equalTo(ciString("different_email@ripe.net")));
 
         RpslObject owner3mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER3-MNT");
-        assertNotNull(owner3mnt);
-        assertEquals(ciString("used for lots of things"), owner3mnt.getValueForAttribute(AttributeType.DESCR));
+        assertThat(owner3mnt, not(nullValue()));
+        assertThat(owner3mnt.getValueForAttribute(AttributeType.DESCR), equalTo(ciString("used for lots of things")));
     }
 
     @Test
@@ -344,12 +345,12 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(response.getErrorMessages().get(2).getText(), is("Dry-run performed, no changes to the database have been made"));
 
         RpslObject owner2mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER2-MNT");
-        assertNotNull(owner2mnt);
-        assertEquals(ciString("updto_owner2@ripe.net"), owner2mnt.getValueForAttribute(AttributeType.UPD_TO));
+        assertThat(owner2mnt, not(nullValue()));
+        assertThat(owner2mnt.getValueForAttribute(AttributeType.UPD_TO), equalTo(ciString("updto_owner2@ripe.net")));
 
         RpslObject owner3mnt = databaseHelper.lookupObject(ObjectType.MNTNER, "OWNER3-MNT");
-        assertNotNull(owner3mnt);
-        assertEquals(ciString("used to maintain other MNTNERs"), owner3mnt.getValueForAttribute(AttributeType.DESCR));
+        assertThat(owner3mnt, not(nullValue()));
+        assertThat(owner3mnt.getValueForAttribute(AttributeType.DESCR), equalTo(ciString("used to maintain other MNTNERs")));
 
     }
 
@@ -391,34 +392,38 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(2));
-        assertThat(response.getErrorMessages(), hasSize(2));
+        assertThat(response.getErrorMessages().stream().filter((message) -> message.getSeverity().equals("Info")).collect(Collectors.toList()), hasSize(2));
+        assertThat(response.getErrorMessages().stream().filter((message) -> message.getSeverity().equals("Warning")).collect(Collectors.toList()), hasSize(3));
 
         RpslObject inetnum = databaseHelper.lookupObject(ObjectType.INETNUM, "192.0.0.0 - 192.255.255.255");
-        assertNotNull(inetnum);
-        assertEquals(ciString("BE"), inetnum.getValueForAttribute(AttributeType.COUNTRY));
+        assertThat(inetnum, not(nullValue()));
+        assertThat(inetnum.getValueForAttribute(AttributeType.COUNTRY), equalTo(ciString("BE")));
     }
 
-    @Test(expected = NotAuthorizedException.class)
+    @Test
     public void batch_update_no_valid_authentication() {
-        final WhoisResources whoisResources =
-                mapRpslObjects(
-                        RpslObject.parse(
-                                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
-                                        "netname:      TEST-NET-NAME\n" +
-                                        "descr:        TEST network\n" +
-                                        "country:      BE\n" +
-                                        "org:          ORG-LIR1-TEST\n" +
-                                        "admin-c:      TP1-TEST\n" +
-                                        "tech-c:       TP1-TEST\n" +
-                                        "status:       ALLOCATED UNSPECIFIED\n" +
-                                        "mnt-by:       RIPE-NCC-HM-MNT\n" +
-                                        "mnt-lower:    LIR-mnt\n" +
-                                        "source:       TEST")
-                );
+        assertThrows(NotAuthorizedException.class, () -> {
+            final WhoisResources whoisResources =
+                    mapRpslObjects(
+                            RpslObject.parse(
+                                    "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                                            "netname:      TEST-NET-NAME\n" +
+                                            "descr:        TEST network\n" +
+                                            "country:      BE\n" +
+                                            "org:          ORG-LIR1-TEST\n" +
+                                            "admin-c:      TP1-TEST\n" +
+                                            "tech-c:       TP1-TEST\n" +
+                                            "status:       ALLOCATED UNSPECIFIED\n" +
+                                            "mnt-by:       RIPE-NCC-HM-MNT\n" +
+                                            "mnt-lower:    LIR-mnt\n" +
+                                            "source:       TEST")
+                    );
 
-        RestTest.target(getPort(), "whois/batch/TEST")
-                .request()
-                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            RestTest.target(getPort(), "whois/batch/TEST")
+                    .request()
+                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+
+        });
     }
 
     @Test
@@ -442,7 +447,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
-        assertNotNull(databaseHelper.lookupObject(ObjectType.INETNUM, "19.0.0.0 - 19.1.255.255"));
+        assertThat(databaseHelper.lookupObject(ObjectType.INETNUM, "19.0.0.0 - 19.1.255.255"), not(nullValue()));
     }
 
     @Test
@@ -461,7 +466,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                 .cookie("crowd.token_key", "valid-token")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
-        assertNotNull(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT"));
+        assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT"), not(nullValue()));
     }
 
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {

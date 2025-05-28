@@ -1,12 +1,11 @@
 package net.ripe.db.whois.query;
 
-import net.ripe.db.whois.query.QueryFlag;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 
 public class QueryFlagTest {
     @Test
@@ -23,7 +22,7 @@ public class QueryFlagTest {
     public void getLongFlag() {
         for (QueryFlag queryFlag : QueryFlag.values()) {
             final String longFlag = queryFlag.getLongFlag();
-            assertNotNull(queryFlag.toString(), longFlag);
+            assertThat(queryFlag.toString(), longFlag, not(nullValue()));
             assertThat(queryFlag.toString(), longFlag, startsWith("-"));
         }
     }

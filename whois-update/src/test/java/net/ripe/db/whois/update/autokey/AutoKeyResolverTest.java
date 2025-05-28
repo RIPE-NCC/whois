@@ -10,11 +10,11 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.log.LoggerContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,12 +23,13 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AutoKeyResolverTest {
     @Mock AutoKeyFactory autoKeyFactory;
     @Mock CountryCodeRepository countryCodeRepository;
@@ -41,15 +42,15 @@ public class AutoKeyResolverTest {
     UpdateContext updateContext;
     int index;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         updateContext = new UpdateContext(loggerContext);
-        when(update.getUpdate()).thenReturn(update);
+        lenient().when(update.getUpdate()).thenReturn(update);
 
         index = 1;
 
-        when(autoKeyFactory.getAttributeType()).thenReturn(AttributeType.NIC_HDL);
-        when(autoKeyFactory.isApplicableFor(any(RpslObject.class))).thenReturn(true);
+        lenient().when(autoKeyFactory.getAttributeType()).thenReturn(AttributeType.NIC_HDL);
+        lenient().when(autoKeyFactory.isApplicableFor(any(RpslObject.class))).thenReturn(true);
 
         subject = new AutoKeyResolver(autoKeyFactory);
 
@@ -57,8 +58,8 @@ public class AutoKeyResolverTest {
     }
 
     private void primaryKeyGeneratorSuccessBehavior() {
-        when(autoKeyFactory.isKeyPlaceHolder(argThat(argument -> argument.toString().startsWith("AUTO")))).thenReturn(true);
-        when(autoKeyFactory.generate(anyString(), any(RpslObject.class))).thenAnswer(invocation -> {
+        lenient().when(autoKeyFactory.isKeyPlaceHolder(argThat(argument -> argument.toString().startsWith("AUTO")))).thenReturn(true);
+        lenient().when(autoKeyFactory.generate(anyString(), any(RpslObject.class))).thenAnswer(invocation -> {
             final RpslObject rpslObject = (RpslObject) invocation.getArguments()[1];
             return new NicHandle(rpslObject.getTypeAttribute().getCleanValue().toString().substring(0, 1), index++, "RIPE");
         });

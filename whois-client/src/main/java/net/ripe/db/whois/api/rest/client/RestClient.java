@@ -1,16 +1,15 @@
 package net.ripe.db.whois.api.rest.client;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 
 @Component
 public class RestClient {
@@ -56,7 +55,7 @@ public class RestClient {
     }
 
     private static Client createClient() {
-        final JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
+        final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
         jsonProvider.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
         jsonProvider.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         return ClientBuilder.newBuilder()

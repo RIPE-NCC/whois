@@ -5,11 +5,12 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.source.SourceContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,9 +27,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DateTimeProvider dateTimeProvider;
@@ -37,7 +37,7 @@ public class GrsSourceTest {
     @Mock Downloader downloader;
     GrsSource subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new GrsSource("SOME-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader) {
             @Override

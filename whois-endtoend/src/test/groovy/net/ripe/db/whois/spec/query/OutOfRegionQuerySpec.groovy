@@ -1,13 +1,13 @@
 package net.ripe.db.whois.spec.query
 
 import com.google.common.collect.Sets
-import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
 import net.ripe.db.whois.spec.BasicFixtures
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 class OutOfRegionQuerySpec extends BaseEndToEndSpec {
 
     def setupSpec() {
@@ -18,7 +18,7 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
 
     def setup () {
         def rpslObjects = Sets.newHashSet();
-        rpslObjects.addAll(BasicFixtures.basicFixtures.values().collect { RpslObject.parse(it.stripIndent()) })
+        rpslObjects.addAll(BasicFixtures.basicFixtures.values().collect { RpslObject.parse(it.stripIndent(true)) })
         getDatabaseHelper().addObjects(rpslObjects)
     }
 
@@ -128,7 +128,7 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
         def response = query("-source TEST-NONAUTH AS100")
         then:
         response.contains("% Information related to 'AS100'")
-        response.contains("% No abuse contact registered for AS100")
+        response.contains("% Abuse contact for 'AS100' is 'abuse@lir.net'")
         response.contains("organisation:   ORG-OTO1-TEST")
         response.contains("person:         Test Person")
     }
@@ -150,7 +150,7 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
         def response = query("AS100")
         then:
         response.contains("% Information related to 'AS100'")
-        response.contains("% No abuse contact registered for AS100")
+        response.contains("% Abuse contact for 'AS100' is 'abuse@lir.net'")
         response.contains("aut-num:        AS100")
         response.contains("organisation:   ORG-OTO1-TEST")
         response.contains("person:         Test Person")
@@ -173,7 +173,7 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
         def response = query("AS100")
         then:
         response.contains("% Information related to 'AS100'")
-        response.contains("% No abuse contact registered for AS100")
+        response.contains("% Abuse contact for 'AS100' is 'abuse@lir.net'")
         response.contains("aut-num:        AS100")
         response.contains("organisation:   ORG-OTO1-TEST")
         response.contains("person:         Test Person")

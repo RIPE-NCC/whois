@@ -8,24 +8,25 @@ import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.anyCollection;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AutnumAuthenticationTest {
 
     @Mock private RpslObjectDao objectDao;
@@ -96,7 +97,7 @@ public class AutnumAuthenticationTest {
         verifyNoMoreInteractions(updateContext);
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test
     public void authenticated_by_mntlower_fails() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("aut-num: AS3333"));
         when(objectDao.findAsBlock(3333, 3333)).thenReturn(RpslObject.parse("as-block: AS3209 - AS3353\nmnt-by: TEST-MNT\nmnt-lower: LOW-MNT"));
@@ -105,15 +106,19 @@ public class AutnumAuthenticationTest {
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
         when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
-        subject.authenticate(update, updateContext);
+        assertThrows(AuthenticationFailedException.class, () -> {
+            subject.authenticate(update, updateContext);
+        });
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test
     public void cant_find_asblock() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("aut-num: AS3333"));
         when(objectDao.findAsBlock(3333, 3333)).thenReturn(null);
 
-        subject.authenticate(update, updateContext);
+        assertThrows(AuthenticationFailedException.class, () -> {
+            subject.authenticate(update, updateContext);
+        });
     }
 
     @Test
@@ -131,7 +136,7 @@ public class AutnumAuthenticationTest {
         verifyNoMoreInteractions(updateContext);
     }
 
-    @Test(expected = AuthenticationFailedException.class)
+    @Test
     public void authenticated_by_mntby_fails() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("aut-num: AS3333"));
         when(objectDao.findAsBlock(3333, 3333)).thenReturn(RpslObject.parse("as-block: AS3209 - AS3353\nmnt-by: TEST-MNT"));
@@ -140,7 +145,9 @@ public class AutnumAuthenticationTest {
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
         when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
-        subject.authenticate(update, updateContext);
+        assertThrows(AuthenticationFailedException.class, () -> {
+            subject.authenticate(update, updateContext);
+        });
     }
 
     @Test

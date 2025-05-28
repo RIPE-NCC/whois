@@ -7,7 +7,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.ChannelGroupFutureListener;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.concurrent.DefaultEventExecutor;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,7 @@ public class QueryChannelsRegistry extends ChannelInboundHandlerAdapter {
     private final ChannelGroup channels = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) {
+    public void channelActive(final ChannelHandlerContext ctx) {
         // Channel automatically removes closed channels, so no need to remove on close channels from the group on close.
         channels.add(ctx.channel());
 

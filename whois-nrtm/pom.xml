@@ -13,20 +13,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -44,14 +40,6 @@
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-        </dependency>
 
         <!-- testing -->
 
@@ -63,11 +51,6 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
     </dependencies>
@@ -90,8 +73,9 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.15.0</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>
@@ -103,6 +87,29 @@
                             <artifactId>whois-commons</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.aspectj:aspectjweaver</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-client</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.netty:netty-transport</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.netty:netty-codec</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.annotation:jakarta.annotation-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.netty:netty-common</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.netty:netty-buffer</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
                 </configuration>
             </plugin>
         </plugins>

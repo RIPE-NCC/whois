@@ -7,22 +7,33 @@
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <import resource="applicationContext-commons.xml"/>
+    <bean class="net.ripe.db.whois.common.WhoisCommonConfig" />
 
     <context:component-scan base-package="net.ripe.db.whois.update"/>
 
-    <beans profile="RIPE_DEPLOYED,AWS_DEPLOYED">
-        <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" primary="true">
+    <beans profile="DEPLOYED">
+        <bean id="mailSender" class="net.ripe.db.whois.update.mail.CustomJavaMailSender" primary="true">
             <property name="host" value="${mail.smtp.host}"/>
             <property name="port" value="${mail.smtp.port:25}"/>
             <property name="javaMailProperties" ref="javaMailProperties"/>
         </bean>
     </beans>
     <beans>
+        <!-- TODO: [ES] configure in Java component -->
         <!-- Ref. https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html -->
         <bean id="javaMailProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
             <property name="properties">
                 <props>
+                    <!-- Mail from envelope. Email that will receive the responses -->
+                    <prop key="mail.smtp.from">${mail.smtp.from:}</prop>
+                    <!-- Receive the failure messages -->
+                    <prop key="mail.smtp.dsn.notify">${mail.smtp.dsn.notify:FAILURE}</prop>
+                    <!-- Get required headers in the incoming failure message -->
+                    <prop key="mail.smtp.dsn.ret">${mail.smtp.dsn.ret:HDRS}</prop>
+                    <!-- Enable debug for mail -->
+                    <prop key="mail.debug">${mail.debug:false}</prop>
+                    <!-- Enable debug mode for smtp debug -->
+                    <prop key="mail.smtp.debug">${mail.smtp.debug:false}</prop>
                     <!-- Socket connection timeout value in milliseconds. Default is infinite timeout. -->
                     <prop key="mail.smtp.connectiontimeout">10000</prop>
                     <!-- Socket read timeout value in milliseconds. Default is infinite timeout. -->

@@ -1,25 +1,25 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class IndexWithNameAndTypePersonIntegrationTest extends IndexIntegrationTestBase {
     private IndexStrategy subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = IndexStrategies.get(AttributeType.PERSON);
     }

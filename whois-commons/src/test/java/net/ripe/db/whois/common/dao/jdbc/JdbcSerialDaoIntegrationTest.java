@@ -1,17 +1,16 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -20,22 +19,22 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class JdbcSerialDaoIntegrationTest extends AbstractDaoIntegrationTest {
 
     @Autowired JdbcSerialDao subject;
     @Value("${whois.source}") protected String source;
 
-    @Before
+    @BeforeEach
     public void setup() {
         sourceContext.setCurrent(Source.slave(source));
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         sourceContext.removeCurrentSource();
     }

@@ -1,39 +1,52 @@
 package net.ripe.db.whois.common.rpsl.transform;
 
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.sso.CrowdClient;
-import net.ripe.db.whois.common.sso.CrowdClientException;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import net.ripe.db.whois.common.x509.ClientAuthCertificateValidator;
+import org.apache.commons.compress.utils.Lists;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FilterAuthFunctionTest {
 
     @Mock
     private SsoTokenTranslator ssoTokenTranslator;
+
     @Mock
-    private CrowdClient crowdClient;
+    private AuthServiceClient authServiceClient;
     @Mock
     private RpslObjectDao rpslObjectDao;
 
+    @Mock
+    private ClientAuthCertificateValidator clientAuthCertificateValidator;
+
+    @Mock
+    private OverrideCredentialValidator overrideCredentialValidator;
+
     private FilterAuthFunction subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        subject = new FilterAuthFunction();
+        subject = new FilterAuthFunction(Lists.newArrayList(), null, null, null, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator,
+                false);
+
     }
 
     @Test
@@ -83,7 +96,9 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_md5_filtered_incorrect_password() {
-        subject = new FilterAuthFunction(Collections.singletonList("test0"), null, ssoTokenTranslator, crowdClient, rpslObjectDao);
+        subject = new FilterAuthFunction(Collections.singletonList("test0"), null, null, null, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator,
+                false);
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner:         WEIRD-MNT\n" +
                 "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
@@ -104,7 +119,9 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_md5_unfiltered() {
-        subject = new FilterAuthFunction(Collections.singletonList("test1"), null, ssoTokenTranslator, crowdClient, rpslObjectDao);
+        subject = new FilterAuthFunction(Collections.singletonList("test1"), null, null, null, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator,
+                false);
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner:         WEIRD-MNT\n" +
                 "auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
@@ -140,16 +157,15 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_sso_different_uuid_filtered() {
-        final UserSession userSession = new UserSession("noreply@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        userSession.setUuid("76cab38b73eb-ac91-4336-94f3-d06e5500");
-        when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
+        final UserSession userSession = new UserSession("76cab38b73eb-ac91-4336-94f3-d06e5500","noreply@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
 
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner: SSO-MNT\n" +
                 "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
                 "source: RIPE");
 
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, null, userSession, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator, false);
         final RpslObject result = subject.apply(rpslObject);
 
         assertThat(result.toString(), is(
@@ -160,17 +176,16 @@ public class FilterAuthFunctionTest {
 
     @Test
     public void apply_sso_unfiltered() {
-        final UserSession userSession = new UserSession("user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
-        when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
-        when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenReturn("user@host.org");
+        final UserSession userSession = new UserSession("d06e5500-ac91-4336-94f3-76cab38b73eb","user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
+        when(authServiceClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenReturn("user@host.org");
 
         final RpslObject rpslObject = RpslObject.parse("" +
                 "mntner: SSO-MNT\n" +
                 "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
                 "source: RIPE");
 
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
+        subject = new FilterAuthFunction(Collections.<String>emptyList(), null, null, userSession, authServiceClient,
+                rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator, overrideCredentialValidator, false);
         final RpslObject result = subject.apply(rpslObject);
 
         assertThat(result.toString(), is(
@@ -179,56 +194,20 @@ public class FilterAuthFunctionTest {
                 "source:         RIPE\n"));
     }
 
-    @Test(expected = CrowdClientException.class)
+    @Test
     public void crowd_client_exception() {
-        final UserSession userSession = new UserSession("user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        userSession.setUuid("d06e5500-ac91-4336-94f3-76cab38b73eb");
+        assertThrows(AuthServiceClientException.class, () -> {
+            final UserSession userSession = new UserSession("d06e5500-ac91-4336-94f3-76cab38b73eb","user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
 
-        when(ssoTokenTranslator.translateSsoToken("token")).thenReturn(userSession);
-        when(crowdClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(CrowdClientException.class);
+            when(authServiceClient.getUsername("d06e5500-ac91-4336-94f3-76cab38b73eb")).thenThrow(AuthServiceClientException.class);
 
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
-        subject.apply(RpslObject.parse("" +
-                "mntner: SSO-MNT\n" +
-                "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
-                "source: RIPE"));
-    }
-
-    @Test
-    public void crowd_client_exception_server_down() {
-        final UserSession userSession = new UserSession("user@host.org", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        userSession.setUuid("T2hOz8tlmka5lxoZQxzC1Q00");
-
-        when(ssoTokenTranslator.translateSsoToken("token")).thenThrow(CrowdClientException.class);
-        when(crowdClient.getUsername("T2hOz8tlmka5lxoZQxzC1Q00")).thenThrow(CrowdClientException.class);
-
-        subject = new FilterAuthFunction(Collections.<String>emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
-        final RpslObject result = subject.apply(
-                RpslObject.parse("" +
-                        "mntner: SSO-MNT\n" +
-                        "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
-                        "source: RIPE"));
-
-        assertThat(result.toString(), is("" +
-                "mntner:         SSO-MNT\n" +
-                "auth:           SSO # Filtered\n" +
-                "source:         RIPE # Filtered\n"));
-    }
-
-    @Test
-    public void sso_token_translator_exception() {
-        when(ssoTokenTranslator.translateSsoToken(any(String.class))).thenThrow(CrowdClientException.class);
-        subject = new FilterAuthFunction(Collections.emptyList(), "token", ssoTokenTranslator, crowdClient, rpslObjectDao);
-
-        final RpslObject result = subject.apply(
-                RpslObject.parse("" +
-                        "mntner: SSO-MNT\n" +
-                        "auth: SSO T2hOz8tlmka5lxoZQxzC1Q00\n" +
-                        "source: RIPE"));
-
-        assertThat(result.toString(), is("" +
-                "mntner:         SSO-MNT\n" +
-                "auth:           SSO # Filtered\n" +
-                "source:         RIPE # Filtered\n"));
+            subject = new FilterAuthFunction(Collections.<String>emptyList(), null, null, userSession,
+                    authServiceClient, rpslObjectDao, Lists.newArrayList(), clientAuthCertificateValidator,
+                    overrideCredentialValidator, false);
+            subject.apply(RpslObject.parse("" +
+                    "mntner: SSO-MNT\n" +
+                    "auth: SSO d06e5500-ac91-4336-94f3-76cab38b73eb\n" +
+                    "source: RIPE"));
+        });
     }
 }

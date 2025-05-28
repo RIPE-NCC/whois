@@ -2,17 +2,17 @@ package net.ripe.db.whois.common.grs;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
+import jakarta.annotation.PostConstruct;
 import net.ripe.db.whois.common.dao.ResourceDataDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.IllegalSourceException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;

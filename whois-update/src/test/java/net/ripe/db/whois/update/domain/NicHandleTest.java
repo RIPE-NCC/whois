@@ -1,25 +1,26 @@
 package net.ripe.db.whois.update.domain;
 
 import net.ripe.db.whois.common.domain.CIString;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NicHandleTest {
     CIString source;
     Set<CIString> countryCodes;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         source = ciString("RIPE");
         countryCodes = ciSet("NL", "EN");
@@ -61,18 +62,22 @@ public class NicHandleTest {
 
         assertThat(nicHandle.getSpace(), is("DW"));
         assertThat(nicHandle.getIndex(), is(0));
-        assertNull(nicHandle.getSuffix());
+        assertThat(nicHandle.getSuffix(), is(nullValue()));
         assertThat(nicHandle.toString(), is("DW"));
     }
 
-    @Test(expected = NicHandleParseException.class)
+    @Test
     public void parse_space_too_long() {
-        NicHandle.parse("SPACE", source, countryCodes);
+        assertThrows(NicHandleParseException.class, () -> {
+            NicHandle.parse("SPACE", source, countryCodes);
+        });
     }
 
-    @Test(expected = NicHandleParseException.class)
+    @Test
     public void parse_suffix_too_long() {
-        NicHandle.parse("DW-VERYLONGSUFFIX", source, countryCodes);
+        assertThrows(NicHandleParseException.class, () -> {
+            NicHandle.parse("DW-VERYLONGSUFFIX", source, countryCodes);
+        });
     }
 
     @Test
@@ -81,7 +86,7 @@ public class NicHandleTest {
 
         assertThat(nicHandle.getSpace(), is("DW"));
         assertThat(nicHandle.getIndex(), is(123));
-        assertNull(nicHandle.getSuffix());
+        assertThat(nicHandle.getSuffix(), is(nullValue()));
         assertThat(nicHandle.toString(), is("DW123"));
     }
 
@@ -124,39 +129,41 @@ public class NicHandleTest {
         assertThat(nicHandle.getSuffix(), is("apnic"));
     }
 
-    @Test(expected = NicHandleParseException.class)
+    @Test
     public void parse_suffix_invalid() {
-        NicHandle.parse("DW-SOMETHING", source, countryCodes);
+        assertThrows(NicHandleParseException.class, () -> {
+            NicHandle.parse("DW-SOMETHING", source, countryCodes);
+        });
     }
 
     @Test
     public void equal_null() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertFalse(nicHandle.equals(null));
+        assertThat(nicHandle, not(equalTo(null)));
     }
 
     @Test
     public void equal_otherClass() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertFalse(nicHandle.equals(""));
+        assertThat(nicHandle, not(equalTo("")));
     }
 
     @Test
     public void equal_self() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertTrue(nicHandle.equals(nicHandle));
+        assertThat(nicHandle, equalTo(nicHandle));
     }
 
     @Test
     public void equal_same() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertTrue(nicHandle.equals(NicHandle.parse("DW", source, countryCodes)));
+        assertThat(nicHandle, equalTo(NicHandle.parse("DW", source, countryCodes)));
     }
 
     @Test
     public void equal_different() {
         final NicHandle nicHandle = NicHandle.parse("DW", source, countryCodes);
-        assertFalse(nicHandle.equals(NicHandle.parse("AB", source, countryCodes)));
+        assertThat(nicHandle, not(equalTo(NicHandle.parse("AB", source, countryCodes))));
     }
 
     @Test

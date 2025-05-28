@@ -15,6 +15,7 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +38,7 @@ public class ResourceHolderSearch {
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
             final Maintainers maintainers,
-            final RpslObjectDao rpslObjectDao) {
+            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao) {
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
         this.maintainers = maintainers;
@@ -127,12 +128,10 @@ public class ResourceHolderSearch {
     }
 
     private List<? extends IpEntry> findParentsInTree(final IpInterval interval) {
-        if (interval instanceof Ipv4Resource) {
-            return ipv4Tree.findAllLessSpecific((Ipv4Resource)interval);
-        } else if (interval instanceof Ipv6Resource) {
-            return ipv6Tree.findAllLessSpecific((Ipv6Resource)interval);
-        } else {
-            throw new IllegalStateException();
-        }
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Tree.findAllLessSpecific(ipv4Resource);
+            case Ipv6Resource ipv6Resource -> ipv6Tree.findAllLessSpecific(ipv6Resource);
+            case null -> throw new IllegalStateException();
+        };
     }
 }

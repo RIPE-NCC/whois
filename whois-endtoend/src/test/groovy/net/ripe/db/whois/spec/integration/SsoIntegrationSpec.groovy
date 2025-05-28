@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.integration
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class SsoIntegrationSpec extends BaseWhoisSourceSpec {
 
     @Override
@@ -48,7 +48,7 @@ class SsoIntegrationSpec extends BaseWhoisSourceSpec {
                             mnt-by: TEST-MNT3
                             source: TEST
                             password: update3
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         response =~ /SUCCESS/
 
@@ -116,7 +116,7 @@ source:         TEST # Filtered/
                             mnt-by: TEST-MNT3
                             source: TEST
                             password: update3
-                            """.stripIndent()))
+                            """.stripIndent(true)))
 
         notificationFor("nfy@ripe.net")
 
@@ -130,7 +130,7 @@ source:         TEST # Filtered/
                             mnt-by: TEST-MNT3
                             source: TEST
                             password: update3
-                            """.stripIndent()))
+                            """.stripIndent(true)))
       expect:
         response =~ /SUCCESS/
 

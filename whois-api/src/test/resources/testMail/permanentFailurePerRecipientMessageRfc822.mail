@@ -1,0 +1,97 @@
+Return-path: <>
+Envelope-to: test-dbm@ripe.net
+Delivery-date: Thu, 21 Mar 2024 11:07:03 +0000
+Received: from mail-mx-1.ripe.net ([2001:67c:2e8:11::c100:1311])
+    by imap-01.ripe.net with esmtps  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+    (Exim 4.97.1)
+    id 1rnGGF-00000001MIG-2cTh
+    for test-dbm@ripe.net;
+    Thu, 21 Mar 2024 11:07:03 +0000
+Received: from exim by mail-mx-1.ripe.net with local (Exim 4.96.2)
+    id 1rnGGF-00GSnm-1q
+    for test-dbm@ripe.net;
+    Thu, 21 Mar 2024 11:07:03 +0000
+X-Failed-Recipients: nonexistant@host.org,
+  nonexistant1@host.org
+Auto-Submitted: auto-replied
+From: Mail Delivery System <Mailer-Daemon@ripe.net>
+To: test-dbm@ripe.net
+References: <XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net>
+Content-Type: multipart/report; report-type=delivery-status; boundary=1711019223-eximdsn-199286037
+MIME-Version: 1.0
+Subject: Mail delivery failed: returning message to sender
+Message-Id: <E1rnGGF-00GSnm-1q@mail-mx-1.ripe.net>
+Date: Thu, 21 Mar 2024 11:07:03 +0000
+Delivered-To: test-dbm@ripe.net
+
+--1711019223-eximdsn-199286037
+Content-type: text/plain; charset=us-ascii
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+
+  nonexistant@host.org
+    host gmail-smtp-in.l.google.com [2a00:1450:4025:402::1b]
+    SMTP error from remote mail server after RCPT TO:<nonexistant@host.org>:
+    550-5.1.1 The email account that you tried to reach does not exist. Please try
+    550-5.1.1 double-checking the recipient's email address for typos or
+    550-5.1.1 unnecessary spaces. For more information, go to
+    550 5.1.1  https://support.google.com/mail/?p=NoSuchUser b27-20020a50ccdb000000b00568c3bf9445si5213318edj.215 - gsmtp
+  nonexistant1@host.org
+    host gmail-smtp-in.l.google.com [2a00:1450:4025:402::1b]
+    SMTP error from remote mail server after RCPT TO:<nonexistant1@host.org>:
+    550-5.1.1 The email account that you tried to reach does not exist. Please try
+    550-5.1.1 double-checking the recipient's email address for typos or
+    550-5.1.1 unnecessary spaces. For more information, go to
+    550 5.1.1  https://support.google.com/mail/?p=NoSuchUser b27-20020a50ccdb000000b00568c3bf9445si5213318edj.215 - gsmtp
+
+--1711019223-eximdsn-199286037
+Content-type: message/delivery-status
+
+Reporting-MTA: dns; mail-mx-1.ripe.net
+
+Action: failed
+Final-Recipient: rfc822;nonexistant@host.org
+Status: 5.0.0
+Remote-MTA: dns; gmail-smtp-in.l.google.com
+Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does not exist. Please try
+ 550-5.1.1 double-checking the recipient's email address for typos or
+ 550-5.1.1 unnecessary spaces. For more information, go to
+ 550 5.1.1  https://support.google.com/mail/?p=NoSuchUser b27-20020a50ccdb000000b00568c3bf9445si5213318edj.215 - gsmtp
+
+Action: failed
+Final-Recipient: rfc822;nonexistant1@host.org
+Status: 5.0.0
+Remote-MTA: dns; gmail-smtp-in.l.google.com
+Diagnostic-Code: smtp; 550-5.1.1 The email account that you tried to reach does not exist. Please try
+ 550-5.1.1 double-checking the recipient's email address for typos or
+ 550-5.1.1 unnecessary spaces. For more information, go to
+ 550 5.1.1  https://support.google.com/mail/?p=NoSuchUser b27-20020a50ccdb000000b00568c3bf9445si5213318edj.215 - gsmtp
+
+--1711019223-eximdsn-199286037
+Content-type: text/rfc822-headers
+
+Return-path: <test-dbm@ripe.net>
+Received: from sslvpn.ipv6.ripe.net ([2001:67c:2e8:9::c100:14e6]:4353 helo=smtpclient.apple)
+    by mail-mx-1.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+    (Exim 4.96.2)
+    (envelope-from <test-dbm@ripe.net>)
+    id 1rnGGF-00GSnh-1P;
+    Thu, 21 Mar 2024 11:07:03 +0000
+From: Test DBM <test-dbm@ripe.net>
+Content-Type: text/plain;
+    charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3774.500.171.1.1\))
+Subject: Test
+Message-Id: <XXXXXXXX-8553-47AB-A79B-A9896A2DFBAC@ripe.net>
+Date: Thu, 21 Mar 2024 12:06:53 +0100
+To: nonexistant@host.org,
+ nonexistant1@host.org
+X-Mailer: Apple Mail (2.3774.500.171.1.1)
+X-RIPE-Signature: 3845d4b495fe518e26952f144fb12e40e249edc10652e13ebcede87ac5685a78
+
+
+--1711019223-eximdsn-199286037--

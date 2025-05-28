@@ -13,7 +13,6 @@ public enum OrgType {
     RIR("for Regional Internet Registries"),
     NIR("for National Internet Registries (there are no NIRs in the RIPE NCC service region)"),
     LIR("for Local Internet Registries"),
-    WHITEPAGES("for special links to industry people"),
     DIRECT_ASSIGNMENT("for direct contract with RIPE NCC"),
     OTHER("for all other organisations.");
 

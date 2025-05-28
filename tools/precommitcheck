@@ -21,7 +21,7 @@ do
 
      #  check only allowed property files are being committed
      if [[ "$line" != *"whois-commons/src/test/resources/whois.properties"*  ]] &&
-        [[ "$line" != *"whois-commons/src/main/resources/version.properties"* ]] &&
+        [[ "$line" != *"whois-commons/src/main/resources/whois.version.properties"* ]] &&
         [[ "$line" != *"sonar-project.properties"* ]]; then
           echo "Attempt to commit property file: $line disallowed" &&
           exit 1

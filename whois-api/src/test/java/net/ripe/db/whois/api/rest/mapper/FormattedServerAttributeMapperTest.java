@@ -7,11 +7,11 @@ import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
 
@@ -22,9 +22,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FormattedServerAttributeMapperTest {
 
     private static final String BASE_URL = "http://localhost/lookup";
@@ -36,10 +37,10 @@ public class FormattedServerAttributeMapperTest {
 
     private FormattedServerAttributeMapper subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new FormattedServerAttributeMapper(referencedTypeResolver, sourceResolver, BASE_URL);
-        when(sourceResolver.getSource(anyString(), any(CIString.class), anyString())).thenReturn("TEST");
+        lenient().when(sourceResolver.getSource(anyString(), any(CIString.class), anyString())).thenReturn("TEST");
     }
 
     @Test

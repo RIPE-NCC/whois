@@ -7,11 +7,12 @@ import net.ripe.db.whois.common.jdbc.DataSourceFactory;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.support.FileHelper;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 
@@ -19,7 +20,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ArinGrsSourceTest {
     @Mock SourceContext sourceContext;
     @Mock DataSourceFactory dataSourceFactory;
@@ -30,10 +31,10 @@ public class ArinGrsSourceTest {
     ArinGrsSource subject;
     CaptureInputObjectHandler objectHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         objectHandler = new CaptureInputObjectHandler();
-        subject = new ArinGrsSource("ARIN-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "", "arin_db.txt");
+        subject = new ArinGrsSource("ARIN-GRS", sourceContext, dateTimeProvider, authoritativeResourceData, downloader, "", "", "arin_db.txt");
     }
 
     @Test

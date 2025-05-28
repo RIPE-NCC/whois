@@ -13,12 +13,12 @@ import net.ripe.db.whois.common.iptree.Ipv6Tree;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.dao.AbuseValidationStatusDao;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -30,10 +30,9 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AbuseCFinderTest {
 
     @Mock Ipv4Tree ipv4Tree;
@@ -44,12 +43,9 @@ public class AbuseCFinderTest {
 
     @InjectMocks AbuseCFinder subject;
 
-    @Before
+    @BeforeEach
     public void setup() {
         ReflectionTestUtils.setField(subject, "mainSources", ImmutableSet.of(CIString.ciString("RIPE")));
-        when(maintainers.isRsMaintainer(ciSet())).thenReturn(false);
-        when(maintainers.isRsMaintainer(ciSet("RS2-MNT"))).thenReturn(true);
-        when(abuseValidationStatusDao.isSuspect(any(CIString.class))).thenReturn(false);
     }
 
     @Test

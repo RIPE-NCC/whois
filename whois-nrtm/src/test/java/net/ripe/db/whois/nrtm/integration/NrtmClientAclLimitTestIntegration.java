@@ -1,24 +1,26 @@
 package net.ripe.db.whois.nrtm.integration;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
+
 import java.net.InetAddress;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBase {
 
@@ -39,7 +41,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         DatabaseHelper.addGrsDatabases("1-GRS");
         System.setProperty("nrtm.update.interval", "1");
@@ -48,7 +50,7 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
         System.setProperty("nrtm.import.enabled", "true");
     }
 
-    @Before
+    @BeforeEach
     public void before() throws InterruptedException {
         databaseHelper.addObject(mntner);
         ipResourceConfiguration.reload();
@@ -58,10 +60,10 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
 
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
     }
 
-    @After
+    @AfterEach
     public void reset() {
         databaseHelper.getAclTemplate().update("DELETE FROM acl_denied");
         databaseHelper.getAclTemplate().update("DELETE FROM acl_event");
@@ -73,8 +75,9 @@ public class NrtmClientAclLimitTestIntegration extends AbstractNrtmIntegrationBa
     @Test
     public void acl_blocked() throws Exception {
         final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier(localhost, null);
 
-        accessControlListManager.accountPersonalObjects(localhost, accessControlListManager.getPersonalObjects(localhost) + 1);
+        accessControlListManager.accountPersonalObjects(accountingIdentifier,accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
         nrtmImporter.start();
         objectExists(ObjectType.MNTNER, "TEST-MNT", false);
     }

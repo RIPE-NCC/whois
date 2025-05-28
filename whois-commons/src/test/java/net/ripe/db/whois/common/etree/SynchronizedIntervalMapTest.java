@@ -2,16 +2,17 @@ package net.ripe.db.whois.common.etree;
 
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.iptree.Ipv4Entry;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SynchronizedIntervalMapTest {
     @Mock private IntervalMap<Ipv4Resource, Ipv4Entry> wrapped;
 
@@ -20,7 +21,7 @@ public class SynchronizedIntervalMapTest {
     private Ipv4Resource key = Ipv4Resource.parse("127.0.0.1");
     private Ipv4Entry value = new Ipv4Entry(key, 1);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = SynchronizedIntervalMap.synchronizedMap(wrapped);
     }

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -11,6 +11,7 @@ public final class FormatHelper {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter DATE_TIME_UTC_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC);
+    private static final DateTimeFormatter DAY_DATE_UTC_FORMAT = DateTimeFormatter.ofPattern("E MMM d HH:mm:ss yyyy'Z'").withZone(ZoneOffset.UTC);
 
     private static final String SPACES = StringUtils.repeat(" ", 100);
 
@@ -45,6 +46,14 @@ public final class FormatHelper {
         }
 
         return DATE_TIME_UTC_FORMAT.format(temporalAccessor);
+    }
+
+    public static String dayDateTimeToUtcString(final TemporalAccessor temporalAccessor) {
+        if (temporalAccessor == null) {
+            return null;
+        }
+
+        return DAY_DATE_UTC_FORMAT.format(temporalAccessor);
     }
 
     public static String prettyPrint(final String prefix, final String value, final int indentation, final int maxLineLength) {

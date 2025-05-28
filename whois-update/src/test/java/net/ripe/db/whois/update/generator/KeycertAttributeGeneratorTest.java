@@ -12,12 +12,13 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.keycert.KeyWrapperFactory;
 import net.ripe.db.whois.update.keycert.PgpPublicKeyWrapper;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class KeycertAttributeGeneratorTest {
     @Mock private Update update;
     @Mock private UpdateContext updateContext;

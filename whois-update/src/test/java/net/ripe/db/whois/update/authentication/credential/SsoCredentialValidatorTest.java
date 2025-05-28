@@ -8,25 +8,25 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.hamcrest.core.Is;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.lenient;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SsoCredentialValidatorTest {
 
     @Mock UpdateContext updateContext;
@@ -36,10 +36,10 @@ public class SsoCredentialValidatorTest {
     private SsoCredentialValidator subject;
     private final Update update = getUpdate();
 
-    @Before
+    @BeforeEach
     public void setup() {
         subject = new SsoCredentialValidator(loggerContext);
-        when(preparedUpdate.getUpdate()).thenReturn(update);
+        lenient().when(preparedUpdate.getUpdate()).thenReturn(update);
     }
 
     @Test
@@ -49,8 +49,7 @@ public class SsoCredentialValidatorTest {
 
     @Test
     public void hasValidCredential() {
-        final UserSession offered = new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        offered.setUuid("testuuid");
+        final UserSession offered = new UserSession("testuuid","test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
 
         final SsoCredential offeredCredential = (SsoCredential)SsoCredential.createOfferedCredential(offered);
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
@@ -59,15 +58,14 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(hasValidCredential, is(true));
     }
 
     @Test
     public void setsEffectiveCredential() {
-        final UserSession offered = new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        offered.setUuid("testuuid");
+        final UserSession offered = new UserSession("testuuid","test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
 
         final SsoCredential offeredCredential = (SsoCredential)SsoCredential.createOfferedCredential(offered);
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
@@ -76,18 +74,16 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(update.getEffectiveCredential(), is("test@ripe.net" ));
         assertThat(update.getEffectiveCredentialType(), is(Update.EffectiveCredentialType.SSO));
 
     }
 
-
     @Test
     public void hasNoOfferedCredentials() {
-        final UserSession offered = new UserSession("test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
-        offered.setUuid("testuuid");
+        final UserSession offered = new UserSession("testuuid","test@ripe.net", "Test User", true, "2033-01-30T16:38:27.369+11:00");
 
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
 
@@ -95,15 +91,14 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.<SsoCredential>emptyList(),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(hasValidCredential, is(false));
     }
 
     @Test
     public void noCheckForUserInactivity() {
-        final UserSession offered = new UserSession("test@ripe.net", "Test User", false, "2033-01-30T16:38:27.369+11:00");
-        offered.setUuid("testuuid");
+        final UserSession offered = new UserSession("testuuid","test@ripe.net", "Test User", false, "2033-01-30T16:38:27.369+11:00");
 
         final SsoCredential offeredCredential = (SsoCredential)SsoCredential.createOfferedCredential(offered);
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
@@ -112,15 +107,15 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(hasValidCredential, is(true));
     }
 
     @Test
     public void noCorrectCredential() {
-        final UserSession offered = new UserSession("test@ripe.net", "Test User", false, "2033-01-30T16:38:27.369+11:00");
-        offered.setUuid("offereduuid");
+        final UserSession offered = new UserSession("offereduuid","test@ripe.net", "Test User", false, "2033-01-30T16:38:27.369+11:00");
+
 
         final SsoCredential offeredCredential = (SsoCredential)SsoCredential.createOfferedCredential(offered);
         final SsoCredential knownCredential = SsoCredential.createKnownCredential("testuuid");
@@ -129,7 +124,7 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(hasValidCredential, is(false));
     }

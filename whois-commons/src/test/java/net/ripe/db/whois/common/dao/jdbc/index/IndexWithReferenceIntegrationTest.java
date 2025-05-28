@@ -1,18 +1,19 @@
 package net.ripe.db.whois.common.dao.jdbc.index;
 
-import net.ripe.db.whois.common.IntegrationTest;
+
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.Is.is;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class IndexWithReferenceIntegrationTest extends IndexIntegrationTestBase {
 
     @Test
@@ -22,9 +23,9 @@ public class IndexWithReferenceIntegrationTest extends IndexIntegrationTestBase 
         final RpslObjectUpdateInfo objectInfo = rpslObjectUpdateDao.createObject(maintainer);
         whoisTemplate.update(String.format("INSERT INTO mnt_ref(object_id, mnt_id, object_type) VALUES(%s, %s, %s)", 1, objectInfo.getObjectId(), 18));
 
-        assertThat(subject.findInIndex(whoisTemplate, objectInfo.getKey()).size(), is(1));
-        assertThat(subject.findInIndex(whoisTemplate, objectInfo).size(), is(1));
-        assertThat(subject.findInIndex(whoisTemplate, objectInfo, ObjectType.ORGANISATION).size(), is(1));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo.getKey()), hasSize(1));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo), hasSize(1));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo, ObjectType.ORGANISATION), hasSize(1));
     }
 
     @Test
@@ -33,9 +34,9 @@ public class IndexWithReferenceIntegrationTest extends IndexIntegrationTestBase 
         final RpslObject maintainer = RpslObject.parse("mntner:MNT-TEST\nmnt-by:MNT-TEST");
         final RpslObjectUpdateInfo objectInfo = rpslObjectUpdateDao.createObject(maintainer);
 
-        assertThat(subject.findInIndex(whoisTemplate, objectInfo.getKey()).size(), is(0));
-        assertThat(subject.findInIndex(whoisTemplate, objectInfo).size(), is(0));
-        assertThat(subject.findInIndex(whoisTemplate, objectInfo, ObjectType.ORGANISATION).size(), is(0));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo.getKey()), hasSize(0));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo), hasSize(0));
+        assertThat(subject.findInIndex(whoisTemplate, objectInfo, ObjectType.ORGANISATION), hasSize(0));
     }
 
     @Test

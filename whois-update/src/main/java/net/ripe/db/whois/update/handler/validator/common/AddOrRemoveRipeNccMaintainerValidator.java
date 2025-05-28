@@ -1,7 +1,9 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -16,6 +18,7 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -32,18 +35,18 @@ public class AddOrRemoveRipeNccMaintainerValidator implements BusinessRuleValida
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
-            return;
-        }
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+        final List<Message> messages = Lists.newArrayList();
 
-        validateForSpecialMaintainer(Principal.RS_MAINTAINER, maintainers.getRsMaintainers(), update, updateContext);
-        validateForSpecialMaintainer(Principal.DBM_MAINTAINER, maintainers.getDbmMaintainers(), update, updateContext);
+        validateForSpecialMaintainer(Principal.RS_MAINTAINER, maintainers.getRsMaintainers(), update, updateContext, messages);
+        validateForSpecialMaintainer(Principal.DBM_MAINTAINER, maintainers.getDbmMaintainers(), update, updateContext, messages);
+
+        return messages;
     }
 
-    private void validateForSpecialMaintainer(final Principal principal, final Set<CIString> specialMaintainers, final PreparedUpdate update, final UpdateContext updateContext) {
+    private void validateForSpecialMaintainer(final Principal principal, final Set<CIString> specialMaintainers, final PreparedUpdate update, final UpdateContext updateContext, final List<Message> messages) {
         if (updateContext.getSubject(update).hasPrincipal(principal)) {
-            return;
+            return ;
         }
 
         final Set<CIString> differentMaintainers = Sets.newLinkedHashSet();
@@ -57,10 +60,14 @@ public class AddOrRemoveRipeNccMaintainerValidator implements BusinessRuleValida
         }
 
         if (!Sets.intersection(differentMaintainers, specialMaintainers).isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
+            messages.add(UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
         }
     }
 
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
     @Override
     public ImmutableList<Action> getActions() {
         return ACTIONS;

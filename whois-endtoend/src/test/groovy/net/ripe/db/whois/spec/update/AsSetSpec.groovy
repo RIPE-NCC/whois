@@ -1,11 +1,11 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
+import org.junit.jupiter.api.Tag
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 class AsSetSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -91,12 +91,51 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 """,
     ]}
 
-    def "create top level as-set object"() {
+    def "create hierarchical as-set object"() {
+      given:
+        dbfixture(getTransient("ASN123"))
       expect:
-        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
         queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
 
       when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                as-set:       AS123:AS-TEST
+                descr:        test as-set
+                members:      AS1, AS2, AS3, AS4
+                members:      AS65536, AS7775535, AS94967295
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+
+                password: owner
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
+
+        queryObject("-rBT as-set as123:As-TEst", "as-set", "AS123:AS-TEST")
+    }
+
+    def "create top level as-set object fails"() {
+        expect:
+        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T aut-num AS1", "aut-num", "AS1")
+
+        when:
         def message = send new Message(
                 subject: "",
                 body: """\
@@ -111,21 +150,19 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
-      then:
+        then:
         def ack = ackFor message
 
-        ack.success
         ack.summary.nrFound == 1
-        ack.summary.assertSuccess(1, 1, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
-
-        queryObject("-rBT as-set As-TEst", "as-set", "AS-TEST")
+        ack.errorMessagesFor("Create", "[as-set] AS-TEST") == [
+                "Cannot create AS-SET object with a short format name. Only hierarchical " +
+                        "AS-SET creation is allowed, i.e. at least one ASN must be referenced"]
     }
 
     def "create as-set objects with invalid members"() {
@@ -158,7 +195,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -169,7 +206,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(2, 2, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS-TEST") == [
                 "Syntax error in AS1.1309"]
@@ -204,7 +241,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -215,7 +252,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS7775535:AS-TEST:AS94967295"}
 
         queryObject("-rBT as-set AS7775535:AS-TEST:AS94967295", "as-set", "AS7775535:AS-TEST:AS94967295")
@@ -244,7 +281,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -254,7 +291,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS7775535:AS-TEST:AS7777777234"}
         ack.errorMessagesFor("Create", "[as-set] AS7775535:AS-TEST:AS7777777234") ==
                 ["Syntax error in AS7775535:AS-TEST:AS7777777234"]
@@ -285,7 +322,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -295,7 +332,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS7775535:AS-TEST:AS0777234"}
         ack.errorMessagesFor("Create", "[as-set] AS7775535:AS-TEST:AS0777234") ==
                 ["Syntax error in AS7775535:AS-TEST:AS0777234"]
@@ -326,7 +363,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -336,7 +373,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS7775535:AS-TEST:AS777.234"}
         ack.errorMessagesFor("Create", "[as-set] AS7775535:AS-TEST:AS777.234") ==
                 ["Syntax error in AS7775535:AS-TEST:AS777.234"]
@@ -363,7 +400,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -374,7 +411,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS7775535:AS-TEST:AS94967295"}
         ack.errorMessagesFor("Create", "[as-set] AS7775535:AS-TEST:AS94967295") == [
                 "Parent object AS7775535:AS-TEST not found"]
@@ -403,7 +440,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -414,7 +451,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
@@ -441,7 +478,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -452,7 +489,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS352:AS-TEST"}
 
         queryObject("-rBT as-set AS352:AS-TEST", "as-set", "AS352:AS-TEST")
@@ -479,7 +516,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -490,7 +527,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS352:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS352:AS-TEST") == [
                 "Authorisation for parent [aut-num] AS352 failed using \"mnt-lower:\" not authenticated by: OWNER2-MNT"]
@@ -518,7 +555,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -529,7 +566,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST") == [
                 "Authorisation for parent [aut-num] AS123 failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
@@ -554,7 +591,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -565,7 +602,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST") == [
                 "Parent object AS123 not found"]
@@ -594,7 +631,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -605,7 +642,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
 
         queryObject("-rBT as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2")
@@ -631,7 +668,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -642,7 +679,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST:AS-TEST2") == [
                 "Authorisation for parent [as-set] AS123:AS-TEST failed using \"mnt-lower:\" not authenticated by: LIR2-MNT"]
@@ -667,7 +704,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -678,7 +715,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST:AS-TEST2") == [
                 "Parent object AS123:AS-TEST not found"]
@@ -707,7 +744,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -718,7 +755,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS-TEST2"}
 
         queryObject("-rBT as-set AS-TEST:AS-TEST2", "as-set", "AS-TEST:AS-TEST2")
@@ -744,7 +781,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -755,7 +792,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS-TEST:AS-TEST2") == [
                 "Authorisation for parent [as-set] AS-TEST failed using \"mnt-lower:\" not authenticated by: LIR2-MNT"]
@@ -780,7 +817,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -791,7 +828,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS-TEST:AS-TEST2") == [
                 "Parent object AS-TEST not found"]
@@ -821,7 +858,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -832,7 +869,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST:AS-TEST2") == [
                 "Parent object AS123:AS-TEST not found"]
@@ -862,7 +899,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -901,7 +938,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -912,7 +949,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
@@ -939,7 +976,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -950,7 +987,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST") == [
                 "Parent object AS123 not found"]
@@ -989,7 +1026,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1037,7 +1074,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1076,7 +1113,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1087,7 +1124,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
 
         queryObject("-r -T as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2")
@@ -1116,7 +1153,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1127,7 +1164,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS123:AS-TEST") == [
                 "Parent object AS123:AS123 not found"]
@@ -1157,7 +1194,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1168,7 +1205,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS123"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS123") == [
                 "Syntax error in AS123:AS123"]
@@ -1198,7 +1235,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1209,7 +1246,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123"}
         ack.errorMessagesFor("Create", "[as-set] AS123") == [
                 "Syntax error in AS123"]
@@ -1240,7 +1277,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1251,7 +1288,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS123"}
 
         queryObjectNotFound("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1280,7 +1317,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1291,7 +1328,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS-TEST"}
 
         queryObject("-r -T as-set AS-TEST:AS-TEST", "as-set", "AS-TEST:AS-TEST")
@@ -1319,7 +1356,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1330,7 +1367,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS123:AS-TEST"}
 
         query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "test as-set updated")
@@ -1357,7 +1394,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1368,7 +1405,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS123:AS-TEST"}
 
         query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "test as-set updated")
@@ -1397,7 +1434,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1408,7 +1445,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
@@ -1438,7 +1475,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1449,7 +1486,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[aut-num] AS123"}
 
         queryObjectNotFound("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1478,7 +1515,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1489,7 +1526,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
 
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
@@ -1520,7 +1557,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1531,7 +1568,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1540,14 +1577,16 @@ class AsSetSpec extends BaseQueryUpdateSpec {
     }
 
     def "create as-set object with all optional attrs"() {
+      given:
+        dbfixture(getTransient("ASN123"))
       expect:
-        queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
+        queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
 
       when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                as-set:       AS-TEST
+                as-set:       AS123:AS-TEST
                 descr:        test as-set
                 members:      AS1, AS2, AS3, AS4:AS-TEST2
                 tech-c:       TP2-TEST
@@ -1559,8 +1598,8 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
                 source:  TEST
                 admin-c:      TP3-TEST
                 notify:       unread@ripe.net
@@ -1569,7 +1608,8 @@ class AsSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: owner3
-                """.stripIndent()
+                password: owner
+                """.stripIndent(true)
         )
 
       then:
@@ -1580,10 +1620,10 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST"}
+        ack.countErrorWarnInfo(0, 1, 0)
+        ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
-        queryObject("-rBT as-set As-TEst", "as-set", "AS-TEST")
+        queryObject("-rBT as-set as123:As-TEst", "as-set", "AS123:AS-TEST")
     }
 
     def "create 3 level as-set obj, no 2 level parent set exists, grand parent ASN exists, override used"() {
@@ -1604,7 +1644,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1614,7 +1654,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-r -T as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2")
     }

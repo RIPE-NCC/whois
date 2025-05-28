@@ -7,18 +7,19 @@ import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ExcludedEmailValidatorTest {
 
     @Mock
@@ -30,7 +31,7 @@ public class ExcludedEmailValidatorTest {
 
     private ExcludedEmailValidator excludedEmailValidator;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.excludedEmailValidator = new ExcludedEmailValidator(Lists.newArrayList("ripe-dbm@ripe.net"));
 

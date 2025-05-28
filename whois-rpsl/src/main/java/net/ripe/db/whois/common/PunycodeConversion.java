@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common;
 
-import org.apache.commons.mail.util.IDNEmailAddressConverter;
+import org.apache.commons.mail2.jakarta.util.IDNEmailAddressConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class PunycodeConversion {
         return value;
     }
 
-    private static String toAscii(final String address) {
+    public static String toAscii(final String address) {
         try {
             return CONVERTER.toASCII(address);
         } catch (Exception e) {

@@ -1,15 +1,16 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RpslObjectFilterTest {
     RpslObject mntner;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         mntner = RpslObject.parse("" +
                 "mntner:          DEV-MNT\n" +
@@ -25,9 +26,12 @@ public class RpslObjectFilterTest {
         );
     }
 
-    @Test(expected = AuthenticationException.class)
+    @Test
     public void getCertificateFromKeyCert() {
-        RpslObjectFilter.getCertificateFromKeyCert(mntner);
+        assertThrows(AuthenticationException.class, () -> {
+            RpslObjectFilter.getCertificateFromKeyCert(mntner);
+        });
+
     }
 
     @Test

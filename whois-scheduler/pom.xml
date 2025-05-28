@@ -12,6 +12,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-query</artifactId>
         </dependency>
@@ -24,16 +28,27 @@
             <artifactId>whois-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm4</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
         </dependency>
-
-        <!-- testing -->
-
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <scope>test</scope>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+        </dependency>
+        <!-- testing -->
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-update</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
@@ -45,27 +60,13 @@
             <artifactId>whois-query</artifactId>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-update</artifactId>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-rpsl</artifactId>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-api</artifactId>
-            <type>test-jar</type>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.15.0</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>
@@ -77,6 +78,48 @@
                             <artifactId>whois-commons</artifactId>
                         </aspectLibrary>
                     </aspectLibraries>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
+                    <usedDependencies>
+                        <dependency>org.springframework:spring-oxm</dependency>
+                        <dependency>net.ripe.db:whois-update</dependency>
+                        <dependency>net.ripe.db:whois-api</dependency>
+                    </usedDependencies>
+
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>net.javacrumbs.shedlock:shedlock-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.aspectj:aspectjweaver</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-client</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-aop</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-servlet-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-commons</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-jdbc</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.annotation:jakarta.annotation-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.javacrumbs.shedlock:shedlock-spring</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+
+                    <!-- Ignore dependencies coming from another dependency and which we are just using in
+                    test scope in this module -->
+                    <ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependency>org.eclipse.jetty.toolchain:jetty-servlet-api</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>net.ripe.db:whois-api</ignoredNonTestScopedDependency>
+                    </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
         </plugins>

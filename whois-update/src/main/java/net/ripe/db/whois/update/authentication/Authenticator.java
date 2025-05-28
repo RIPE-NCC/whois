@@ -4,19 +4,18 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.dao.UserDao;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.Maintainers;
-import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.OverrideCredential;
-import net.ripe.db.whois.update.domain.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -40,22 +39,22 @@ public class Authenticator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Authenticator.class);
 
     private final IpRanges ipRanges;
-    private final UserDao userDao;
     private final LoggerContext loggerContext;
     private final List<AuthenticationStrategy> authenticationStrategies;
     private final Map<CIString, Set<Principal>> principalsMap;
+    private final OverrideCredentialValidator overrideCredentialValidator;
 
     @Autowired
     public Authenticator(final IpRanges ipRanges,
-                         final UserDao userDao,
                          final Maintainers maintainers,
                          final LoggerContext loggerContext,
-                         final AuthenticationStrategy[] authenticationStrategies) {
+                         final AuthenticationStrategy[] authenticationStrategies,
+                         final OverrideCredentialValidator overrideCredentialValidator) {
         this.ipRanges = ipRanges;
-        this.userDao = userDao;
         this.loggerContext = loggerContext;
         Arrays.sort(authenticationStrategies);
         this.authenticationStrategies = Arrays.asList(authenticationStrategies);
+        this.overrideCredentialValidator = overrideCredentialValidator;
 
         final Map<CIString, Set<Principal>> tempPrincipalsMap = Maps.newHashMap();
         addMaintainers(tempPrincipalsMap, maintainers.getEnduserMaintainers(), Principal.ENDUSER_MAINTAINER);
@@ -95,8 +94,6 @@ public class Authenticator {
 
         if (!origin.allowAdminOperations()) {
             authenticationMessages.add(UpdateMessages.overrideNotAllowedForOrigin(origin));
-        } else if (!ipRanges.isTrusted(IpInterval.parse(origin.getFrom()))) {
-            authenticationMessages.add(UpdateMessages.overrideOnlyAllowedByDbAdmins());
         }
 
         if (overrideCredentials.size() != 1) {
@@ -109,12 +106,18 @@ public class Authenticator {
         }
 
         final OverrideCredential overrideCredential = overrideCredentials.iterator().next();
-        if (overrideCredential.getOverrideValues().isPresent()){
+        if (overrideCredential.getOverrideValues().isPresent()) {
             OverrideCredential.OverrideValues overrideValues = overrideCredential.getOverrideValues().get();
             final String username = overrideValues.getUsername();
+
+            if (!overrideCredentialValidator.isAllowedToUseOverride(origin.getFrom(), updateContext.getUserSession(), username)) {
+                authenticationMessages.add(UpdateMessages.overrideOnlyAllowedByDbAdmins());
+                handleFailure(update, updateContext, authenticationMessages);
+                return Subject.EMPTY;
+            }
+
             try {
-                final User user = userDao.getOverrideUser(username);
-                if (user.isValidPassword(overrideValues.getPassword()) && user.getObjectTypes().contains(update.getType())) {
+                if (overrideCredentialValidator.isValidOverride(overrideValues, update.getType())) {
                     updateContext.addMessage(update, UpdateMessages.overrideAuthenticationUsed());
                     return new Subject(Principal.OVERRIDE_MAINTAINER);
                 }

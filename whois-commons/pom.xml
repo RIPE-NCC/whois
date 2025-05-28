@@ -13,39 +13,58 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-            <version>1.11.327</version>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-log4j2</artifactId>
+            <version>${sentry.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-codec-http</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-handler</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.ripe.commons</groupId>
             <artifactId>commons-ip-math</artifactId>
         </dependency>
+        <!-- bouncy castle -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpg-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcjmail-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+        <!-- TODO: [ES] are these dependencies necessary? -->
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -60,20 +79,12 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -81,7 +92,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -96,14 +107,6 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
@@ -112,21 +115,28 @@
             <artifactId>shedlock-spring</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.javacrumbs.shedlock</groupId>
-            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
         </dependency>
-
-        <!-- test -->
-
         <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-rpsl</artifactId>
-            <type>test-jar</type>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -134,11 +144,66 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
                 <!-- TODO: Including this in jacoco plugin throws Can't add different class with same name: org/apache/commons/collections/ArrayStack
                             I tried to exclude this file, package  and dependency also still from some other dependency tree it gets included
                  -->
                 <configuration>
                     <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
+                    <usedDependencies>
+                        <dependency>io.netty:netty-all</dependency>
+                        <dependency>org.glassfish.jersey.inject:jersey-hk2</dependency>
+                        <dependency>org.mariadb.jdbc:mariadb-java-client</dependency>
+                        <dependency>commons-net:commons-net</dependency>
+                        <dependency>org.elasticsearch:elasticsearch</dependency>
+                        <dependency>org.elasticsearch.client:elasticsearch-rest-high-level-client</dependency>
+                        <dependency>org.apache.logging.log4j:log4j-slf4j2-impl</dependency>
+                    </usedDependencies>
+
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>jakarta.inject:jakarta.inject-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.sentry:sentry</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.hk2.external:jakarta.inject</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-logging:commons-logging</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.netty:netty-transport</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.core:jersey-common</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.netty:netty-codec</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.annotation:jakarta.annotation-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.sf.jopt-simple:jopt-simple</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.netty:netty-common</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.netty:netty-buffer</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-jcl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcpkix-jdk18on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcutil-jdk18on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcpkix-jdk15on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcutil-jdk15on</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+
+                    <!-- Ignore dependencies coming from another dependency and which we are just using in
+                    test scope in this module -->
+                    <ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependency>io.netty:netty-codec</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>io.netty:netty-buffer</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>commons-logging:commons-logging</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.springframework:spring-jcl</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.apache.commons:commons-compress</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>commons-io:commons-io</ignoredNonTestScopedDependency>
+                    </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
         </plugins>
@@ -148,7 +213,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/version.properties</include>
+                    <include>**/whois.version.properties</include>
                 </includes>
             </resource>
             <resource>
@@ -156,7 +221,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>**/version.properties</exclude>
+                    <exclude>**/whois.version.properties</exclude>
                 </excludes>
             </resource>
         </resources>

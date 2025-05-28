@@ -1,15 +1,25 @@
 package net.ripe.db.whois.common.domain;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class Hosts {
 
     public static String getInstanceName() {
         final String instanceName = System.getProperty("instance.name");
-        final String  hostName = System.getenv("HOSTNAME");
-        if (StringUtils.isBlank(instanceName) && StringUtils.isBlank(hostName)) {
-            throw new IllegalStateException("Instance name and host name is not defined");
+        if (!StringUtils.isBlank(instanceName)) {
+            return instanceName;
         }
-        return StringUtils.isBlank(instanceName) ? hostName : instanceName;
+        final String  hostName = System.getenv("HOSTNAME");
+        if (!StringUtils.isBlank(hostName)) {
+            return hostName;
+        }
+        try {
+            return InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            return "localhost";
+        }
     }
 }

@@ -3,29 +3,41 @@ package net.ripe.db.whois.common.domain.serials;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
 public class SerialEntry {
-    final private Operation operation;
-    final private boolean atLast;
+    private final int serialId;
+    private final Operation operation;
+    private final boolean atLast;
 
-    final private int lastTimestamp;
-    final private int historyTimestamp;
+    private final int lastTimestamp;
+    private final int historyTimestamp;
+    private final String primaryKey;
 
     private RpslObject rpslObject;
 
-    public SerialEntry(final Operation operation, final boolean atLast, final int lastTimestamp, final int historyTimestamp) {
+    public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int lastTimestamp, final int historyTimestamp, final String pkey) {
+        this.serialId = serialId;
         this.operation = operation;
         this.atLast = atLast;
         this.lastTimestamp = lastTimestamp;
         this.historyTimestamp = historyTimestamp;
+        this.primaryKey = pkey;
         rpslObject = null;
     }
 
-    public SerialEntry(final Operation operation, final boolean atLast, final int objectId, final int lastTimestamp, final int historyTimestamp, final byte[] blob) {
-        this(operation, atLast, lastTimestamp, historyTimestamp);
-        rpslObject = RpslObject.parse(objectId, blob);
+    public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int objectId, final int lastTimestamp, final int historyTimestamp, final byte[] blob, final String pkey) {
+        this(serialId, operation, atLast, lastTimestamp, historyTimestamp, pkey);
+        rpslObject = blob == null ? null : RpslObject.parse(objectId, blob);
     }
 
-    public static SerialEntry createSerialEntryWithoutTimestamps(final Operation operation, final boolean atLast, final int objectId, final byte[] blob){
-        return new SerialEntry(operation, atLast, objectId, 0, 0, blob);
+    public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int objectId, final byte[] blob, final String pkey) {
+        this(serialId, operation, atLast, objectId, 0, 0, blob, pkey);
+    }
+
+    public static SerialEntry createSerialEntryWithoutTimestamps(final int serialId, final Operation operation, final boolean atLast, final int objectId, final byte[] blob, final String pkey) {
+        return new SerialEntry(serialId, operation, atLast, objectId, 0, 0, blob, pkey);
+    }
+
+    public int getSerialId() {
+        return serialId;
     }
 
     public RpslObject getRpslObject() {
@@ -47,4 +59,9 @@ public class SerialEntry {
     public int getHistoryTimestamp() {
         return historyTimestamp;
     }
+
+    public String getPrimaryKey() {
+        return primaryKey;
+    }
+
 }

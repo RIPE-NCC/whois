@@ -2,12 +2,12 @@ package net.ripe.db.whois.api.rdap.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSchemaType;
+import jakarta.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 
 
@@ -34,8 +34,6 @@ public class Autnum extends RdapObject implements Serializable {
     protected Long endAutnum;
     @XmlElement(required = true)
     protected String name;
-    @XmlElement(required = true)
-    protected String type;
     @XmlElement(required = true)
     protected String country;
 
@@ -74,14 +72,6 @@ public class Autnum extends RdapObject implements Serializable {
 
     public void setName(final String value) {
         this.name = value;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(final String value) {
-        this.type = value;
     }
 
     public String getCountry() {

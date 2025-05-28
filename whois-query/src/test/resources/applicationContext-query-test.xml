@@ -7,9 +7,9 @@
 
     <context:property-placeholder
             location="
-                classpath:version.properties,
+                classpath:whois.version.properties,
                 classpath:whois.properties"
             system-properties-mode="OVERRIDE"/>
 
-    <import resource="applicationContext-query.xml"/>
+    <bean class="net.ripe.db.whois.query.WhoisQueryConfig" />
 </beans>

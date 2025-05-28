@@ -5,26 +5,27 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.autokey.dao.OrganisationIdRepository;
 import net.ripe.db.whois.update.domain.OrganisationId;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OrganisationIdFactoryTest {
     private static final String SOURCE = "RIPE";
 
     @Mock OrganisationIdRepository organisationIdRepository;
     @InjectMocks OrganisationIdFactory subject;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject.setSource(SOURCE);
     }
@@ -59,9 +60,11 @@ public class OrganisationIdFactoryTest {
         assertThat(subject.isKeyPlaceHolder("AUTO-100-NL"), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void generate_invalid_placeHolder() {
-        subject.generate("AUTO", RpslObject.parse("organisation: AUTO\norg-name: name"));
+        assertThrows(IllegalArgumentException.class, () -> {
+            subject.generate("AUTO", RpslObject.parse("organisation: AUTO\norg-name: name"));
+        });
     }
 
     @Test

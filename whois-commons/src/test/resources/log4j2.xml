@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<Configuration  packages="org.apache.logging.log4j.core,io.sentry.log4j2">
 
-<Configuration>
-
-    <!-- Appenders -->
     <Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{ISO8601} %-5p [%c{1}] %m%n"/>
@@ -12,17 +10,7 @@
     <!-- Loggers -->
     <Loggers>
 
-        <Logger name="net.ripe" level="info"/>
-
-        <Logger name="net.ripe.db.whois.common.pipeline.EventLogger" level="debug"/>
-
-        <Logger name="net.ripe.db.whois.common.pipeline.ExceptionHandler" level="debug"/>
-
-        <!-- For debugging resourcehandler -->
-        <Logger name="org.eclipse.jetty" level="debug"/>
-
-        <!-- C3PO does A LOT of surplus logging in DEBUG -->
-        <Logger name="com.mchange" level="info"/>
+        <Logger name="com.hazelcast" level="warn"/>
 
         <Root level="info">
             <AppenderRef ref="CONSOLE"/>

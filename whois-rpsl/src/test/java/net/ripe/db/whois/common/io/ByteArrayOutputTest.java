@@ -1,16 +1,17 @@
 package net.ripe.db.whois.common.io;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ByteArrayOutputTest {
     private ByteArrayOutput subject;
     private byte[] buffer = "test".getBytes();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         subject = new ByteArrayOutput();
     }
@@ -70,9 +71,11 @@ public class ByteArrayOutputTest {
         assertThat(subject.toByteArray(), is(new byte[]{'s', 't'}));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void write_bytes_offset_out_of_bounds() {
-        subject.write(buffer, 2, buffer.length);
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            subject.write(buffer, 2, buffer.length);
+        });
     }
 
     @Test

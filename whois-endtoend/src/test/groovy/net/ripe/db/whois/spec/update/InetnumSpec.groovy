@@ -1,12 +1,12 @@
 package net.ripe.db.whois.spec.update
 
-import net.ripe.db.whois.common.IntegrationTest
+
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
 import net.ripe.db.whois.spec.domain.AckResponse
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
-@org.junit.experimental.categories.Category(IntegrationTest.class)
+@org.junit.jupiter.api.Tag("IntegrationTest")
 class InetnumSpec extends BaseQueryUpdateSpec {
 
     @Override
@@ -119,6 +119,19 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """,
+                "ALLOC-ASSIGN-PA": """\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
@@ -318,6 +331,19 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
+                "AGGREGATED-LIR": """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                """,
                 "LEGACY-USER-ONLY": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      RIPE-NET1
@@ -365,7 +391,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -381,6 +407,42 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
     }
 
+    def "create ALLOCATED UNSPECIFIED, with nonexistent org"() {
+      expect:
+        queryObjectNotFound("-r -T inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
+
+      when:
+          def ack = syncUpdateWithResponse("""
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-NULL1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED UNSPECIFIED
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    RIPE-NCC-HM-MNT
+                source:       TEST
+
+                password: hm
+                password: owner3
+                """.stripIndent(true)
+        )
+
+      then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(2, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") ==
+                ["Unknown object referenced ORG-NULL1-TEST", "Reference \"ORG-NULL1-TEST\" not found"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
     def "not create inetnum with abuse-c that references role without abuse-mailbox"() {
         given:
         dbfixture(  """\
@@ -394,7 +456,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 nic-hdl:      AH2-TEST
                 mnt-by:       LIR-MNT
                 source:       TEST
-            """.stripIndent()
+            """.stripIndent(true)
         )
 
         expect:
@@ -417,7 +479,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -444,7 +506,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
             auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
             referral-by: REFERRALBY-MNT
             source:  TEST
-            """.stripIndent()
+            """.stripIndent(true)
         )
         dbfixture(getTransient("ALLOC-PA"))
 
@@ -469,7 +531,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -512,7 +574,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -522,7 +584,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Status ALLOCATED UNSPECIFIED can only be created by the database administrator"]
@@ -550,7 +612,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -586,7 +648,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -675,7 +737,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -717,15 +779,15 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
-                mnt-by:       RIPE-NCC-HM2-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
 
-                password: hm2
+                password: hm
                 password: owner2
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -756,13 +818,14 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    LIR2-MNT
                 source:       TEST
 
                 password: lir
                 password: owner3
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -797,7 +860,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -835,7 +898,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -869,7 +932,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -907,7 +970,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -945,7 +1008,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -985,7 +1048,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -996,7 +1059,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1026,7 +1089,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1037,7 +1100,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1067,7 +1130,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1077,7 +1140,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-lower", "LIR-MNT,\\s*LIR2-MNT")
 
@@ -1107,7 +1170,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1117,7 +1180,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-by", "RIPE-NCC-HM-MNT")
 
@@ -1147,7 +1210,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1157,7 +1220,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "END-USER-MNT")
 
@@ -1187,7 +1250,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: fred
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1197,7 +1260,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-lower", "LIR-MNT")
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "END-USER-MNT")
@@ -1226,7 +1289,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1265,7 +1328,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override: fred
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1350,7 +1413,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1436,7 +1499,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1481,7 +1544,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1492,7 +1555,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Value 192.168.200/24 converted to 192.168.200.0 - 192.168.200.255"]
@@ -1525,7 +1588,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1535,7 +1598,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "LIR2-MNT")
 
@@ -1567,7 +1630,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1578,7 +1641,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1609,7 +1672,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1620,7 +1683,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
@@ -1651,7 +1714,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1661,7 +1724,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "LIR2-MNT")
 
@@ -1693,7 +1756,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1703,7 +1766,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
@@ -1733,7 +1796,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1743,7 +1806,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-lower", "LIR-MNT")
 
@@ -1774,7 +1837,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1784,7 +1847,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-by", "RIPE-NCC-HM-MNT")
 
@@ -1815,7 +1878,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1825,7 +1888,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-by", "RIPE-NCC-HM-MNT")
 
@@ -1856,7 +1919,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1867,7 +1930,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1898,7 +1961,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1909,7 +1972,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1940,7 +2003,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1951,7 +2014,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1982,7 +2045,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1993,7 +2056,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "20020101")
@@ -2024,7 +2087,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2034,7 +2097,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Modify", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "END-USER-MNT")
 
@@ -2067,7 +2130,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2077,12 +2140,83 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Value 192.168.200/24 converted to 192.168.200.0 - 192.168.200.255"]
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "updated")
+    }
+
+    def "modify resource, add comment not allowed in managed attributes by end user"() {
+        given:
+        syncUpdate(getTransient("ASSPI") + "password: hm")
+
+        expect:
+        queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PI #test comment
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       lir-MNT
+                remarks:      just added
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
+                "Comments are not allowed on RIPE NCC managed Attribute \"status:\""]
+
+    }
+
+    def "modify resource LEGACY, add comment allowed in only user maintained resource"() {
+        given:
+        syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                descr:        /16 ERX
+                country:      NL
+                org:          ORG-LIR1-TEST # test comment
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       LEGACY
+                mnt-by:       LIR-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
     }
 
     def "delete assignment, parent with mnt-lower mnt-routes mnt-domains, diff pw to mnt-by, no parent pw supplied, assignment pw supplied"() {
@@ -2110,7 +2244,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2121,7 +2255,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2156,7 +2290,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: lir2
                 password: lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2166,7 +2300,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(3, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Delete", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "END-USER-MNT")
 
@@ -2198,7 +2332,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2209,7 +2343,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2240,7 +2374,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2251,7 +2385,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2282,7 +2416,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2293,7 +2427,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "routes-mnt \\{ 192.168.200.0/24 \\}")
@@ -2324,7 +2458,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2335,7 +2469,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2367,7 +2501,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2378,7 +2512,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2410,7 +2544,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2421,7 +2555,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2452,7 +2586,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2463,7 +2597,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Syntax error in routes-mnt { 192.168.200.0/25 }, owner-mnt { 192.168.200.128/25 }"]
@@ -2500,7 +2634,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2511,7 +2645,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2542,7 +2676,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2553,7 +2687,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2584,7 +2718,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2595,7 +2729,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2626,7 +2760,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2636,7 +2770,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Syntax error in routes-mnt { ANY,192.168.200.0/24 }"]
@@ -2669,7 +2803,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2679,7 +2813,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Syntax error in routes-mnt { 192.168.200.0/24,ANY }"]
@@ -2713,7 +2847,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2723,7 +2857,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Syntax error in routes-mnt { 192.168.200.0/24 } (ANY can only occur as a single value)",
@@ -2758,7 +2892,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2768,7 +2902,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Syntax error in routes-mnt { ANY,ANY,ANY,ANY }"]
@@ -2799,7 +2933,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2810,7 +2944,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2841,7 +2975,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2851,7 +2985,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["192.168.0.0/16 is outside the range of this object"]
@@ -2884,7 +3018,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2894,7 +3028,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Syntax error in routes-mnt { 192.168.201/24 }"]
@@ -2927,7 +3061,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2937,7 +3071,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Syntax error in routes-mnt { 192.168.2.3/16 }"]
 
@@ -2969,7 +3103,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2979,7 +3113,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Syntax error in routes-mnt { 192.168.200.0/33 }"]
@@ -3012,7 +3146,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3022,7 +3156,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["200:168::/48 is not a valid IPv4 address"]
@@ -3055,7 +3189,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3065,7 +3199,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Syntax error in routes-mnt { 192.168.200.0.0/24 }"]
@@ -3098,7 +3232,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3108,7 +3242,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Syntax error in routes-mnt { 192.168.0.0/24^ }"]
@@ -3141,7 +3275,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3152,7 +3286,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3183,7 +3317,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3194,7 +3328,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3225,7 +3359,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3235,7 +3369,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Syntax error in routes-mnt { 192.168.0.0/24^16 }"]
@@ -3268,7 +3402,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3278,7 +3412,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Syntax error in routes-mnt { 192.168.0.0/16^48 }"]
@@ -3311,7 +3445,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3322,7 +3456,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3353,7 +3487,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3364,7 +3498,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3395,7 +3529,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3406,7 +3540,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3437,7 +3571,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3447,7 +3581,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Syntax error in routes-mnt { 192.168.0.0/16^24-20 }"]
@@ -3480,7 +3614,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3490,7 +3624,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Syntax error in routes-mnt { 192.168.0.0/16^15-17 }"]
@@ -3523,7 +3657,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3533,7 +3667,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Syntax error in routes-mnt { 192.168.0.0/16^24-38 }"]
@@ -3566,7 +3700,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3577,7 +3711,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3608,7 +3742,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3619,7 +3753,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3650,7 +3784,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: hm
                 password: end
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3690,7 +3824,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3730,6 +3864,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 remarks:      early comment
                 mnt-lower:    RIPE-NCC-HM-MNT, owner-mnt
                 geoloc:      10.568 158.552
+                geofeed:     https://example.com/geofeed.csv
                 mnt-irt:      irt-test
                 tech-c:       TP1-TEST
                 org:          ORG-OTO1-TEST
@@ -3748,13 +3883,17 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 tech-c:       TP3-TEST
                 admin-c:      TP2-TEST
+                abuse-c:      AH200-TEST
                 remarks:      late comment
+
+                # optional "sponsoring-org:" attribute not allowed with "ASSIGNED PA" status
+                # optional "assignment-size:" only allowed with AGGREGATED-BY-LIR status
 
                 password: hm
                 password: end
                 password: test
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3798,7 +3937,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3808,7 +3947,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Syntax error in 123TEST-NET-NAME-_"]
@@ -3842,7 +3981,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3852,7 +3991,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
                 ["Syntax error in FRED"]
@@ -3860,7 +3999,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
     }
 
-    def "create with IPv6 status"() {
+    def "create inetnum with  status AGGREGATED-BY-LIR, assignment-size optional"() {
       given:
         syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
         queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -3886,22 +4025,216 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
         def ack = ackFor message
 
+          ack.summary.nrFound == 1
+          ack.summary.assertSuccess(1, 1, 0, 0, 0)
+          ack.summary.assertErrors(0, 0, 0, 0)
+
+          ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
+
+          queryObject("-rGBT inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+    }
+
+    def "create inetnum with  status AGGREGATED-BY-LIR, with assignment-size"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 32
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
+
+        queryObject("-rGBT inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+    }
+
+    def "create inetnum with  status AGGREGATED-BY-LIR, with incorrect assignment-size"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        expect:
+        queryObjectNotFound("-r -T inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 40
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
-                ["Syntax error in AGGREGATED-BY-LIR"]
+                ["\"assignment-size:\" value must not be greater than the maximum prefix size 32"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+    }
+
+    def "modify inetnum with  status AGGREGATED-BY-LIR, add assignment-size fails"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        syncUpdate(getTransient("AGGREGATED-LIR") + "password: owner3\npassword: lir")
+        queryObject("-r -T inetnum 192.168.0.255 - 192.168.255.255", "inetnum", "192.168.0.255 - 192.168.255.255")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 32
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
+                ["\"assignment-size:\" value cannot be changed"]
+
+    }
+
+    def "modify inetnum with  status AGGREGATED-BY-LIR, can not change assignment-size"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA") + "password: owner3\npassword: hm")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+
+        def child = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.0.255 - 192.168.255.255
+                                        netname:      TEST-NET-NAME
+                                        descr:        TEST network
+                                        country:      NL
+                                        org:          ORG-LIR1-TEST
+                                        admin-c:      TP1-TEST
+                                        tech-c:       TP1-TEST
+                                        status:       AGGREGATED-BY-LIR
+                                        assignment-size: 32
+                                        mnt-by:       lir-MNT
+                                        mnt-lower:    LIR-MNT
+                                        source:       TEST
+                        
+                                        password: owner3
+                                        password: lir
+                                    """.stripIndent(true)))
+
+        expect:
+        child =~ /SUCCESS/
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inetnum:      192.168.0.255 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 28
+                mnt-by:       lir-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+
+                password: owner3
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
+                ["\"assignment-size:\" value cannot be changed"]
     }
 
     def "create ASSIGNED PA, invalid range, reversed"() {
@@ -3930,7 +4263,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3940,7 +4273,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.0.0" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.255 - 192.168.0.0") ==
                 ["Syntax error in 192.168.0.255 - 192.168.0.0"]
@@ -3974,7 +4307,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3984,7 +4317,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.266" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.255 - 192.168.255.266") ==
                 ["Syntax error in 192.168.0.255 - 192.168.255.266"]
@@ -4031,7 +4364,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4041,7 +4374,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
 
@@ -4074,7 +4407,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: owner3
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4084,7 +4417,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
 
         queryObject("-rGBT inetnum 192.168.0.100 - 192.168.0.100", "inetnum", "192.168.0.100 - 192.168.0.100")
@@ -4138,7 +4471,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4190,7 +4523,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4243,7 +4576,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4296,7 +4629,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4349,7 +4682,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4402,7 +4735,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4455,7 +4788,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4511,7 +4844,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4531,6 +4864,41 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.168.0.128", "inetnum", "192.168.0.0 - 192.168.0.128")
     }
 
+    def "modify 1 object, change status"() {
+        given:
+        syncUpdate(getTransient("ALLOC-PA-8") + "country: NL\nmnt-by: LIR-MNT\noverride: denis,override1")
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.0.0.0 - 192.255.255.255
+                netname:      TEST-NET-NAME
+                status:       SUB-ALLOCATED PA
+                country:      NL
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR-MNT
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
+        ack.errorMessagesFor("Modify", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "status value cannot be changed, you must delete and re-create the object"]
+        ack.warningMessagesFor("Modify", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
+                "inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
+
+        query_object_matches("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255", "ALLOCATED PA")
+    }
+
     def "modify 3 objects, change status"() {
       given:
         syncUpdate(getTransient("LEGACY-USER-ONLY") + "override: denis,override1")
@@ -4539,9 +4907,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255")
         syncUpdate(getTransient("ASS-END") + "password: lir\npassword: end")
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
-
-      expect:
-        queryObjectNotFound("-r -T inetnum 62.59.192.2 - 92.59.192.30", "inetnum", "62.59.192.2 - 92.59.192.30")
 
       when:
         def message = syncUpdate("""\
@@ -4582,7 +4947,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4646,7 +5011,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       SUB-ALLOCATED PA
+                status:       LIR-PARTITIONED PA
                 mnt-by:       LIR-MNT
                 mnt-lower:    LIR-MNT
                 source:       TEST
@@ -4658,12 +5023,12 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 country:      NL
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       LIR-PARTITIONED PA
+                status:       SUB-ALLOCATED PA
                 mnt-by:       END-USER-MNT
                 source:       TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4673,15 +5038,18 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 0, 3, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 3)
+        ack.countErrorWarnInfo(0, 6, 3)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
+                "You cannot add or remove a RIPE NCC maintainer",
+                "status value cannot be changed, you must delete and re-create the object",
                 "Status ALLOCATED PA not allowed when more specific object '192.168.200.0 - 192.168.255.255' has status LEGACY"]
         ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
                 "Authorisation override used"]
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.255.255") == [
-                "Status SUB-ALLOCATED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status LEGACY"]
+                "status value cannot be changed, you must delete and re-create the object",
+                "Status LIR-PARTITIONED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status LEGACY"]
         ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.255.255") == [
                 "Authorisation override used"]
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
@@ -4689,8 +5057,8 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 "Authorisation override used"]
 
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "ALLOCATED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "SUB-ALLOCATED PA")
-        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "LIR-PARTITIONED PA")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255", "LIR-PARTITIONED PA")
+        query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "SUB-ALLOCATED PA")
     }
 
     def "delete and re-create 3 objects, change status"() {
@@ -4780,7 +5148,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4819,13 +5187,14 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 source:       TEST
 
                 password: hm
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
         expect:
         queryObject("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
@@ -4842,11 +5211,13 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ALLOCATED PA
                 mnt-by:       LIR-MNT
+                mnt-by:       RIPE-NCC-HM-MNT
                 source:       TEST
                 DELETE:       changing status
 
                 password: lir
-                """.stripIndent()
+                password: hm
+                """.stripIndent(true)
         )
         then:
         queryObjectNotFound("-r -T inetnum 192.168.200.0 - 192.168.207.255", "inetnum", "192.168.200.0 - 192.168.207.255")
@@ -4877,7 +5248,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4887,7 +5258,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
@@ -4914,7 +5285,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 delete:  test override
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4924,12 +5295,125 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.infoSuccessMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
                 "Authorisation override used"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    def "delete ALLOCATED-ASSIGNED PA, override"() {
+        given:
+        syncUpdate(getTransient("ALLOC-ASSIGN-PA") + "override:  denis,override1")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                delete:  test override
+                override:  denis,override1
+
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.infoSuccessMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") == [
+                "Authorisation override used"]
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    def "delete ALLOCATED-ASSIGNED PA, rs"() {
+        given:
+        syncUpdate(getTransient("ALLOC-ASSIGN-PA") + "override:  denis,override1")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                delete:  test rs
+                password:  hm
+
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 0, 1, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+
+        queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+    }
+
+    def "delete ALLOCATED-ASSIGNED PA, user"() {
+        given:
+        syncUpdate(getTransient("ALLOC-ASSIGN-PA") + "override:  denis,override1")
+        queryObject("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
+
+        when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED-ASSIGNED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-lower:    LIR-MNT
+                source:       TEST
+                delete:  test user
+                password: lir
+
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 0, 1)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["Deleting this object requires administrative authorisation"]
+
     }
 
     def "modify assignment, joint RS & user mnt-by, remove RS mntner, user auth"() {
@@ -4954,7 +5438,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -4964,7 +5448,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["You cannot add or remove a RIPE NCC maintainer"]
@@ -4992,7 +5476,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         mnt-by:       RIPE-NCC-HM-MNT
         source:       TEST
         override:     denis,override1
-        """.stripIndent())
+        """.stripIndent(true))
 
 
       then:
@@ -5001,7 +5485,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-NCC-HM-MNT")
@@ -5031,7 +5515,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: end
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5041,7 +5525,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["You cannot add or remove a RIPE NCC maintainer"]
@@ -5071,7 +5555,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: end
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -5081,7 +5565,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["You cannot add or remove a RIPE NCC maintainer"]
@@ -5109,7 +5593,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 mnt-by:       RIPE-DBM-MNT
                 source:       TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -5118,13 +5602,13 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "RIPE-DBM-MNT")
     }
 
-    def "Remove mnt-routes, inverse lookup"() {
+    def "Remove mnt-routes by hostmaster, inverse lookup"() {
       when:
         def message = syncUpdate("""\
                 inetnum:      192.168.128.0 - 192.168.255.255
@@ -5143,7 +5627,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         def ack = new AckResponse("", message)
 
@@ -5167,10 +5651,62 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
+                """.stripIndent(true))
+      then:
+        def updateAck = new AckResponse("", update)
+        updateAck.summary.nrFound == 1
+        updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
+        updateAck.summary.assertErrors(0, 0, 0, 0)
+
+        queryObjectNotFound("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
+    }
+
+   def "Remove mnt-routes by user maintainer, inverse lookup"() {
+      when:
+        def message = syncUpdate("""\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR2-MNT
+                mnt-routes:   LIR2-MNT ANY
+                source:       TEST
+
+                password: hm
                 password: lir
                 password: end
                 password: owner3
-                """.stripIndent())
+                """.stripIndent(true))
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        queryObject("-r -i mu LIR2-MNT", "inetnum", "192.168.128.0 - 192.168.255.255")
+
+      when:
+        def update = syncUpdate("""\
+                inetnum:      192.168.128.0 - 192.168.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                org:          ORG-LIR1-TEST
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       RIPE-NCC-HM-MNT
+                mnt-by:       LIR2-MNT
+                source:       TEST
+
+                password: lir2
+                """.stripIndent(true))
       then:
         def updateAck = new AckResponse("", update)
         updateAck.summary.nrFound == 1
@@ -5203,7 +5739,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -5243,7 +5779,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5252,7 +5788,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-GBr -T inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -5280,7 +5816,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5344,7 +5880,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5353,7 +5889,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 3
         ack.summary.assertSuccess(3, 2, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 3)
+        ack.countErrorWarnInfo(0, 3, 3)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
@@ -5386,7 +5922,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 delete: splitting into 2
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5428,7 +5964,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -5438,7 +5974,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
@@ -5456,7 +5992,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
           whoisFixture.reloadTrees()
         when:
           def created = syncUpdate(new SyncUpdate(data: """\
@@ -5470,7 +6006,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password: lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
           created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
         when:
@@ -5485,7 +6021,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password: lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
           modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
@@ -5502,7 +6038,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5517,7 +6053,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
     }
@@ -5534,7 +6070,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                     tech-c:     TP1-TEST
                     mnt-by:     LIR-MNT
                     source:     TEST
-                    """.stripIndent())
+                    """.stripIndent(true))
         whoisFixture.reloadTrees()
         when:
         def created = syncUpdate(new SyncUpdate(data: """\
@@ -5549,7 +6085,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         abuse-c:    AH1-TEST
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         created =~ /Create SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
         when:
@@ -5564,9 +6100,242 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                         mnt-by:     LIR-MNT
                         source:     TEST
                         password:   lir
-                    """.stripIndent()))
+                    """.stripIndent(true)))
         then:
         modified =~ /Modify SUCCEEDED: \[inetnum\] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create and modify with geofeed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true))
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    https://www.example.com
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create SUCCEEDED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+        when:
+        def modified = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    DK
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent(true)))
+        then:
+        modified =~ /Modify SUCCEEDED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create with invalid geofeed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true))
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    not an url
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create with not secure url as geofeed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true))
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    http://unsecure.com
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create with geofeed and remarks geofeed"() {
+        given:
+        databaseHelper.addObject("""\
+                    inetnum:    192.168.0.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ALLOCATED UNSPECIFIED
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true))
+        whoisFixture.reloadTrees()
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                        inetnum:    192.168.0.0 - 192.168.0.255
+                        netname:    RIPE-NCC
+                        status:     ASSIGNED PI
+                        descr:      description
+                        country:    NL
+                        geofeed:    https://example.com
+                        remarks:    geofeed: https://example.com
+                        admin-c:    TP1-TEST
+                        tech-c:     TP1-TEST
+                        mnt-by:     LIR-MNT
+                        source:     TEST
+                        password:   lir
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.0.0 - 192.168.0.255/
+    }
+
+    def "create LIR-PARTITIONED PA child under ASSIGNED PA parent"() {
+        given:
+        syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
+
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.200.4 - 192.168.200.7
+                    netname:    RIPE-NCC
+                    status:     LIR-PARTITIONED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.200.4 - 192.168.200.7/
+        created =~ /inetnum parent has incorrect status: ASSIGNED PA/
+    }
+
+    def "create ASSIGNED PA parent above LIR-PARTITIONED PA child"() {
+        given:
+        syncUpdate(getTransient("EARLY") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("PART-PA") + "password: lir")
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.100.0 - 192.168.255.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.100.0 - 192.168.255.255/
+        created =~ /Status ASSIGNED PA not allowed when more specific object
+            '192.168.200.0 - 192.168.255.255' has status LIR-PARTITIONED PA/
+    }
+
+    def "create ASSIGNED PA child under ASSIGNED PA parent"() {
+        given:
+        syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
+
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.200.4 - 192.168.200.7
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.200.4 - 192.168.200.7/
+        created =~ /inetnum parent has incorrect status: ASSIGNED PA/
+    }
+
+    def "create ASSIGNED PA parent above ASSIGNED PA child"() {
+        given:
+        syncUpdate(getTransient("P-LOW-R-D") + "password: hm\npassword: owner3")
+        syncUpdate(getTransient("ASS") + "password: end\npassword: lir")
+
+        when:
+        def created = syncUpdate(new SyncUpdate(data: """\
+                    inetnum:    192.168.100.0 - 192.168.200.255
+                    netname:    RIPE-NCC
+                    status:     ASSIGNED PA
+                    descr:      description
+                    country:    NL
+                    admin-c:    TP1-TEST
+                    tech-c:     TP1-TEST
+                    mnt-by:     LIR-MNT
+                    source:     TEST
+                    """.stripIndent(true)))
+        then:
+        created =~ /Create FAILED: \[inetnum] 192.168.100.0 - 192.168.200.255/
+        created =~ /Status ASSIGNED PA not allowed when more specific object
+            '192.168.200.0 - 192.168.200.255' has status ASSIGNED PA/
     }
 
 }

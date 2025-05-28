@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 class RpslObjectVersions {
 
     private static Pattern LINE_PATTERN = Pattern.compile("(\\d+)\\s+(.*\\s+.*)\\s+([A-Z/]+)\\s*");
-    private static DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-dd-mm hh:MM");
+    private static DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-dd-mm'T'hh:MM:ss'Z'");
     private static Splitter LINE_SPLITTER = Splitter.on("\n");
 
     private List<Entry> versions;

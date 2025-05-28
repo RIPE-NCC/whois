@@ -1,9 +1,11 @@
 package net.ripe.db.whois.common.grs;
 
 import net.ripe.db.whois.common.jmx.JmxBase;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
@@ -16,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @Component
+@Profile({WhoisProfile.DEPLOYED})
 @ManagedResource(objectName = JmxBase.OBJECT_NAME_BASE + "AuthoritativeResources", description = "Whois authoritative resource data")
 public class AuthoritativeResourceDataJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeResourceDataJmx.class);

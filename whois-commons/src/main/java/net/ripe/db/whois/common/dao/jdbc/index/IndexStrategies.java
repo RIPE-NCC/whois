@@ -17,7 +17,7 @@ public final class IndexStrategies {
     static {
         final IndexStrategy[] indexStrategies = {
                 new IndexWithReference(AttributeType.ABUSE_C, "abuse_c", "pe_ro_id"),
-                new IndexWithValueAndType(AttributeType.ABUSE_MAILBOX, "abuse_mailbox", "abuse_mailbox"),
+                new IndexWithEmailAddressValueAndType(AttributeType.ABUSE_MAILBOX, "abuse_mailbox", "abuse_mailbox"),
                 new Unindexed(AttributeType.ADDRESS),
                 new IndexWithReference(AttributeType.ADMIN_C, "admin_c", "pe_ro_id"),
                 new Unindexed(AttributeType.AGGR_BNDRY),
@@ -43,12 +43,13 @@ public final class IndexStrategies {
                 new Unindexed(AttributeType.EXPORT),
                 new Unindexed(AttributeType.EXPORT_VIA),
                 new Unindexed(AttributeType.EXPORT_COMPS),
-                new IndexWithValueAndType(AttributeType.E_MAIL, "e_mail", "e_mail"),
+                new IndexWithEmailAddressValueAndType(AttributeType.E_MAIL, "e_mail", "e_mail"),
                 new Unindexed(AttributeType.FAX_NO),
                 new Unindexed(AttributeType.FILTER),
                 new IndexWithValue(AttributeType.FILTER_SET, "filter_set", "filter_set"),
                 new IndexWithValue(AttributeType.FINGERPR, "fingerpr", "fingerpr"),
                 new IndexWithReference(AttributeType.FORM, "form", "form_id"),
+                new Unindexed(AttributeType.GEOFEED),
                 new Unindexed(AttributeType.GEOLOC),
                 new Unindexed(AttributeType.HOLES),
                 new IndexWithIfAddr(AttributeType.IFADDR),
@@ -60,7 +61,7 @@ public final class IndexStrategies {
                 new Unindexed(AttributeType.INJECT),
                 new Unindexed(AttributeType.INTERFACE),
                 new IndexWithValue(AttributeType.IRT, "irt", "irt"),
-                new IndexWithValue(AttributeType.IRT_NFY, "irt_nfy", "irt_nfy"),
+                new IndexWithEmailAddressValue(AttributeType.IRT_NFY, "irt_nfy", "irt_nfy"),
                 new IndexWithValue(AttributeType.KEY_CERT, "key_cert", "key_cert"),
                 new Unindexed(AttributeType.LANGUAGE),
                 new Unindexed(AttributeType.LAST_MODIFIED),
@@ -74,7 +75,7 @@ public final class IndexStrategies {
                 new IndexWithReference(AttributeType.MNT_DOMAINS, "mnt_domains", "mnt_id"),
                 new IndexWithReference(AttributeType.MNT_IRT, "mnt_irt", "irt_id"),
                 new IndexWithReference(AttributeType.MNT_LOWER, "mnt_lower", "mnt_id"),
-                new IndexWithValue(AttributeType.MNT_NFY, "mnt_nfy", "mnt_nfy"),
+                new IndexWithEmailAddressValue(AttributeType.MNT_NFY, "mnt_nfy", "mnt_nfy"),
                 new IndexWithReference(AttributeType.MNT_REF, "mnt_ref", "mnt_id"),
                 new IndexWithMntRoutes(AttributeType.MNT_ROUTES),
                 new Unindexed(AttributeType.MP_DEFAULT),
@@ -86,7 +87,7 @@ public final class IndexStrategies {
                 new Unindexed(AttributeType.MP_PEERING),
                 new Unindexed(AttributeType.NETNAME),   // TODO: [AH] ATM this is handled by JdbcInetnumDao/JdbcInet6numDao as a special case
                 new IndexWithValueAndType(AttributeType.NIC_HDL, "person_role", "nic_hdl"),
-                new IndexWithValueAndType(AttributeType.NOTIFY, "notify", "notify"),
+                new IndexWithEmailAddressValueAndType(AttributeType.NOTIFY, "notify", "notify"),
                 new IndexWithNServer(AttributeType.NSERVER, "nserver", "host"),
                 new IndexWithReference(AttributeType.ORG, "org", "org_id"),
                 new Unindexed(AttributeType.ORG_TYPE),
@@ -103,7 +104,7 @@ public final class IndexStrategies {
                 new Unindexed(AttributeType.PINGABLE),
                 new IndexWithValue(AttributeType.POEM, "poem", "poem"),
                 new IndexWithValue(AttributeType.POETIC_FORM, "poetic_form", "poetic_form"),
-                new IndexWithValue(AttributeType.REF_NFY, "ref_nfy", "ref_nfy"),
+                new IndexWithEmailAddressValue(AttributeType.REF_NFY, "ref_nfy", "ref_nfy"),
                 new Unindexed(AttributeType.REMARKS),
                 new IndexWithNameAndType(AttributeType.ROLE, ObjectType.ROLE, "names"),
                 new IndexWithRoute(AttributeType.ROUTE),
@@ -116,7 +117,7 @@ public final class IndexStrategies {
                 new IndexWithValueAndType(AttributeType.STATUS, "status", "status"),
                 new IndexWithReference(AttributeType.TECH_C, "tech_c", "pe_ro_id"),
                 new Unindexed(AttributeType.TEXT),
-                new IndexWithValue(AttributeType.UPD_TO, "upd_to", "upd_to"),
+                new IndexWithEmailAddressValue(AttributeType.UPD_TO, "upd_to", "upd_to"),
                 new IndexWithReference(AttributeType.ZONE_C, "zone_c", "pe_ro_id")
         };
 

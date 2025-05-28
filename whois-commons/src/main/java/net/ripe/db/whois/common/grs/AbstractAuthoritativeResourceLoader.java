@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.grs;
 
-import com.google.common.collect.Sets;
 import net.ripe.commons.ip.Asn;
 import net.ripe.commons.ip.AsnRange;
 import net.ripe.commons.ip.Ipv4;
@@ -13,9 +12,14 @@ import org.slf4j.Logger;
 
 import java.util.Set;
 
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.ALLOCATED;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.ASSIGNED;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.AVAILABLE;
+import static net.ripe.db.whois.common.grs.AuthoritativeResourceStatus.RESERVED;
+
 abstract class AbstractAuthoritativeResourceLoader {
 
-    private final static Set<String> ALLOWED_STATUSES = Sets.newHashSet("allocated", "assigned", "available", "reserved");
+    private final Set<AuthoritativeResourceStatus> statuses;
 
     protected final Logger logger;
 
@@ -25,6 +29,12 @@ abstract class AbstractAuthoritativeResourceLoader {
 
     AbstractAuthoritativeResourceLoader(final Logger logger) {
         this.logger = logger;
+        this.statuses = Set.of(ALLOCATED, ASSIGNED, AVAILABLE, RESERVED);
+    }
+
+    AbstractAuthoritativeResourceLoader(final Logger logger, final Set<AuthoritativeResourceStatus> statuses) {
+        this.logger = logger;
+        this.statuses = statuses;
     }
 
     void handleResource(final String source,
@@ -32,7 +42,7 @@ abstract class AbstractAuthoritativeResourceLoader {
                         final String type,
                         final String start,
                         final String value,
-                        final String status,
+                        final AuthoritativeResourceStatus status,
                         final String expectedSource) {
 
         if (!source.toLowerCase().contains(expectedSource)) {
@@ -45,7 +55,7 @@ abstract class AbstractAuthoritativeResourceLoader {
             return;
         }
 
-        if (!ALLOWED_STATUSES.contains(status)) {
+        if (!statuses.contains(status)) {
             logger.debug("Ignoring status '{}'", status);
             return;
         }

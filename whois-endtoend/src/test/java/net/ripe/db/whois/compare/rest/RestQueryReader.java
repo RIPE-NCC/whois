@@ -1,13 +1,13 @@
 package net.ripe.db.whois.compare.rest;
 
 import net.ripe.db.whois.compare.common.QueryReader;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 
 public class RestQueryReader extends QueryReader {
 
     public enum RestResponseType {
-        ALL, XML, JSON
+        ALL, XML, JSON, TEXT
     }
 
     private final RestResponseType restResponseType;
@@ -32,8 +32,10 @@ public class RestQueryReader extends QueryReader {
         switch (restResponseType) {
             case JSON:
                 return line.contains(".json");
+            case TEXT:
+                return line.contains(".txt");
             case XML:
-                return !line.contains(".json");
+                return !line.contains(".json") && !line.contains(".txt");
             case ALL:
             default:
                 return true;

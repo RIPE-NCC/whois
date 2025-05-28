@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
