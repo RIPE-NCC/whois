@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import org.junit.jupiter.api.Tag
-import spock.lang.Ignore
 
 @Tag("IntegrationTest")
 class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
@@ -1619,7 +1618,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         !response.contains("Deprecated attribute \"mnt-lower\". This attribute has been removed.")
     }
 
-    @Ignore
+    //@Ignore
     def "replace mbrs-by-ref from as-set causes aut-num member-of to fail"() {
         when:
         def createSet = syncUpdate new SyncUpdate(data: """\
@@ -1681,7 +1680,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         def modifyAutnum = syncUpdate new SyncUpdate(data: """\
             aut-num:        AS101
             as-name:        End-User-1
-            member-of:      AS101:AS-ANOTHERSET
+            member-of:      AS101:AS-ANOTHERSET              # no longer authenticated
             descr:          description
             import:         from AS1 accept ANY
             export:         to AS1 announce AS2
@@ -1699,9 +1698,10 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             password:       update
             """.stripIndent(true))
         then:
-            // ***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the
-            //            referenced set [AS101:AS-ANOTHERSET]
-            modifyAutnum =~ /Modify SUCCEEDED: \[aut-num] AS101/
+            modifyAutnum =~ /FAIL/
+            modifyAutnum.contains(
+                    "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                            "            referenced set [AS101:AS-ANOTHERSET]")
     }
 
 
