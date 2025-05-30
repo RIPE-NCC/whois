@@ -5,7 +5,6 @@ import net.ripe.db.whois.common.jmx.JmxBase;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.DummifierRC;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
@@ -199,8 +198,6 @@ public class DatabaseDummifierJmx extends JmxBase {
                     }
                 }
             }
-
-            builder.addAttributeAfter(new RpslAttribute(AttributeType.AUTH, "MD5-PW " + PasswordHelper.hashMd5Password(rpslObject.getKey().toUpperCase())), AttributeType.MNTNER);
 
             return builder.get();
         }

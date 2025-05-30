@@ -6,49 +6,38 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DatabaseDummifierJmxTest {
+
+    final RpslObject mntnerWithMd5SSO = RpslObject.parse(
+            "mntner: NINJA\n" +
+                    "auth: md5-pw mwhahaha\n" +
+                    "auth: md5-pw minime\n" +
+                    "source: test");
+
     final RpslObject mntnerWithPgp = RpslObject.parse(
             "mntner: NINJA\n" +
             "auth: PGP-111\n" +
             "source: test");
 
-    final RpslObject mntnerAfterDummy = RpslObject.parse(
-            "mntner: NINJA\n" +
-            "auth: md5-pw mwhahaha\n" +
-            "source: test");
-
-    final RpslObject mntnerWithMultiplePasswords = RpslObject.parse(
-            "mntner: NINJA\n" +
-            "auth: md5-pw mwhahaha\n" +
-            "auth: md5-pw minime\n" +
-            "source: test");
 
     @Test
-    public void replacePassword() {
-        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceAuthAttributes(mntnerAfterDummy);
-        final RpslAttribute authAttr = rpslObject.findAttribute(AttributeType.AUTH);
-        assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(true));
-    }
-
-    @Test
-    public void replaceMultiplePasswords() {
-        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceAuthAttributes(mntnerWithMultiplePasswords);
-        assertThat(rpslObject.findAttributes(AttributeType.AUTH), hasSize(1));
-
-        final RpslAttribute authAttr = rpslObject.findAttribute(AttributeType.AUTH);
-        assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(true));
-    }
-
-    @Test
-    public void replacePasswordButNotPgp() {
+    public void doNotReplacePGP() {
         final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceAuthAttributes(mntnerWithPgp);
 
-        assertThat(rpslObject.findAttributes(AttributeType.AUTH), hasSize(2));
-        final RpslAttribute authAttr = rpslObject.findAttributes(AttributeType.AUTH).get(0);
-        assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(true));
+        assertThat(rpslObject.findAttributes(AttributeType.AUTH), hasSize(1));
+        final RpslAttribute authAttr = rpslObject.findAttributes(AttributeType.AUTH).getFirst();
+        assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(false));
+        assertThat(authAttr.getCleanValue(), is("PGP-111"));
+    }
+
+    @Test
+    public void doReplaceMD5AndSSO() {
+        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceAuthAttributes(mntnerWithMd5SSO);
+
+        assertThat(rpslObject.findAttributes(AttributeType.AUTH), hasSize(0));
     }
 }
