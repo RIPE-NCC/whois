@@ -184,23 +184,23 @@ public class DatabaseDummifierJmx extends JmxBase {
                 }
             });
         }
-    }
 
-    static RpslObject replaceAuthAttributes(final RpslObject rpslObject) {
-        RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
+        static RpslObject replaceAuthAttributes(final RpslObject rpslObject) {
+            RpslObjectBuilder builder = new RpslObjectBuilder(rpslObject);
 
-        final Iterator<RpslAttribute> attributes = builder.getAttributes().iterator();
-        while (attributes.hasNext()) {
-            final RpslAttribute attribute = attributes.next();
-            if (AttributeType.AUTH.equals(attribute.getType())) {
-                if (attribute.getCleanValue().startsWith("md5-pw") ||
-                        attribute.getCleanValue().startsWith("sso")) {
-                    attributes.remove();
+            final Iterator<RpslAttribute> attributes = builder.getAttributes().iterator();
+            while (attributes.hasNext()) {
+                final RpslAttribute attribute = attributes.next();
+                if (AttributeType.AUTH.equals(attribute.getType())) {
+                    if (attribute.getCleanValue().startsWith("md5-pw") ||
+                            attribute.getCleanValue().startsWith("sso")) {
+                        attributes.remove();
+                    }
                 }
             }
+
+            return builder.get();
         }
-        
-        return builder.get();
     }
 
     private static String unsupportedEnvironment(final String environment) {
