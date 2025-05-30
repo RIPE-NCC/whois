@@ -11,6 +11,13 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
 public class DatabaseDummifierJmxTest {
+
+    final RpslObject mntnerWithMd5SSO = RpslObject.parse(
+            "mntner: NINJA\n" +
+                    "auth: md5-pw mwhahaha\n" +
+                    "auth: md5-pw minime\n" +
+                    "source: test");
+
     final RpslObject mntnerWithPgp = RpslObject.parse(
             "mntner: NINJA\n" +
             "auth: PGP-111\n" +
@@ -25,5 +32,12 @@ public class DatabaseDummifierJmxTest {
         final RpslAttribute authAttr = rpslObject.findAttributes(AttributeType.AUTH).getFirst();
         assertThat(PasswordHelper.authenticateMd5Passwords(authAttr.getCleanValue().toString(), "NINJA"), is(false));
         assertThat(authAttr.getCleanValue(), is("PGP-111"));
+    }
+
+    @Test
+    public void doReplaceMD5AndSSO() {
+        final RpslObject rpslObject = DatabaseDummifierJmx.DatabaseObjectProcessor.replaceAuthAttributes(mntnerWithMd5SSO);
+
+        assertThat(rpslObject.findAttributes(AttributeType.AUTH), hasSize(0));
     }
 }
