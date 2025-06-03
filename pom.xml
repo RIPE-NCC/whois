@@ -93,7 +93,7 @@
         <proprot.version>1.0</proprot.version>
 
         <sentry.version>6.26.0</sentry.version>
-        <shedlock.version>5.16.0</shedlock.version>
+        <shedlock.version>6.8.0</shedlock.version>
         <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
         <spring.version>6.2.7</spring.version>
