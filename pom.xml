@@ -96,7 +96,9 @@
         <shedlock.version>5.16.0</shedlock.version>
         <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
+
         <spring.version>6.2.7</spring.version>
+
         <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
