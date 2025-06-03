@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -49,6 +50,7 @@ public class FilterAuthFunction implements FilterFunction {
     private boolean isTrusted;
     private OAuthSession oAuthSession;
     private UserSession  userSession;
+    private User overrideUser;
     private RpslObjectDao rpslObjectDao = null;
     private AuthServiceClient authServiceClient;
     private List<X509CertificateWrapper> certificates;
@@ -57,7 +59,7 @@ public class FilterAuthFunction implements FilterFunction {
 
 
     public FilterAuthFunction(final List<String> passwords,
-                              final OverrideCredential overrideCredential,
+                              final User overrideUser,
                               final OAuthSession oAuthSession,
                               final UserSession userSession,
                               final AuthServiceClient authServiceClient,
@@ -68,7 +70,7 @@ public class FilterAuthFunction implements FilterFunction {
                               final boolean isTrusted) {
         this.userSession = userSession;
         this.passwords = passwords;
-        this.overrideCredential = overrideCredential;
+        this.overrideUser = overrideUser;
         this.authServiceClient = authServiceClient;
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
@@ -121,7 +123,7 @@ public class FilterAuthFunction implements FilterFunction {
     private boolean isOverrideAuthenticated(final ObjectType objectType){
         try {
             return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
-                    userSession, overrideCredential, objectType);
+                    userSession, overrideUser, objectType);
         } catch (Exception e){
             return false;
         }

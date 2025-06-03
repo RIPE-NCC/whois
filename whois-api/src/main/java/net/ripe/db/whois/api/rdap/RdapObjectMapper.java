@@ -374,8 +374,10 @@ public class RdapObjectMapper {
             }
 
             entity.getLinks().add(new Link(requestUrl, "self",
-                    UriBuilder.newInstance().path(url.getProtocol() + "://" + url.getHost()).path(entity.getObjectClassName()).path(attributeValue.toString()).toString(),
-                    null, null, null));
+                    UriBuilder.newInstance()
+                        .path(url.getProtocol() + "://" + url.getHost())
+                        .path(entity.getObjectClassName())
+                        .path(attributeValue.toString()).toString(), null, null, null));
         }
 
         entity.getLinks().add(COPYRIGHT_LINK);

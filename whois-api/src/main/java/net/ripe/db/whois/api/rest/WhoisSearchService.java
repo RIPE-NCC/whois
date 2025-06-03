@@ -23,6 +23,7 @@ import net.ripe.db.whois.api.rest.domain.QueryStrings;
 import net.ripe.db.whois.api.rest.domain.Service;
 import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
@@ -93,6 +94,7 @@ public class WhoisSearchService {
 
     private final AccessControlListManager accessControlListManager;
     private final SsoTokenTranslator ssoTokenTranslator;
+    private final OverrideCredentialValidator overrideCredentialValidator;
     private final RpslObjectStreamer rpslObjectStreamer;
     private final SourceContext sourceContext;
 
@@ -101,10 +103,12 @@ public class WhoisSearchService {
             final AccessControlListManager accessControlListManager,
             final SsoTokenTranslator ssoTokenTranslator,
             final RpslObjectStreamer rpslObjectStreamer,
+            final OverrideCredentialValidator overrideCredentialValidator,
             final SourceContext sourceContext) {
         this.accessControlListManager = accessControlListManager;
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.rpslObjectStreamer = rpslObjectStreamer;
+        this.overrideCredentialValidator = overrideCredentialValidator;
         this.sourceContext = sourceContext;
     }
 
@@ -167,7 +171,7 @@ public class WhoisSearchService {
         }
 
 
-        final Query query = Query.parse(queryBuilder.build(searchKey), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), override, Query.Origin.REST,
+        final Query query = Query.parse(queryBuilder.build(searchKey), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), overrideCredentialValidator.getValidOverrideUser(override), Query.Origin.REST,
                 isTrusted(request));
 
         final Parameters parameters = new Parameters.Builder()
