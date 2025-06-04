@@ -3,8 +3,17 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.CookieParam;
 import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -14,11 +23,10 @@ import net.ripe.db.whois.api.rest.domain.QueryStrings;
 import net.ripe.db.whois.api.rest.domain.Service;
 import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
-import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -27,15 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Set;
@@ -95,6 +94,7 @@ public class WhoisSearchService {
 
     private final AccessControlListManager accessControlListManager;
     private final SsoTokenTranslator ssoTokenTranslator;
+    private final OverrideCredentialValidator overrideCredentialValidator;
     private final RpslObjectStreamer rpslObjectStreamer;
     private final SourceContext sourceContext;
 
@@ -103,10 +103,12 @@ public class WhoisSearchService {
             final AccessControlListManager accessControlListManager,
             final SsoTokenTranslator ssoTokenTranslator,
             final RpslObjectStreamer rpslObjectStreamer,
+            final OverrideCredentialValidator overrideCredentialValidator,
             final SourceContext sourceContext) {
         this.accessControlListManager = accessControlListManager;
         this.ssoTokenTranslator = ssoTokenTranslator;
         this.rpslObjectStreamer = rpslObjectStreamer;
+        this.overrideCredentialValidator = overrideCredentialValidator;
         this.sourceContext = sourceContext;
     }
 
@@ -146,6 +148,7 @@ public class WhoisSearchService {
             @QueryParam("abuse-contact") final String abuseContact,
             @QueryParam("limit") final Integer limit,
             @QueryParam("offset") final Integer offset,
+            @QueryParam("override") final String override,
             @QueryParam("roa-check") @DefaultValue("false") final Boolean roaCheck) {
 
         validateSources(request, sources);
@@ -168,7 +171,8 @@ public class WhoisSearchService {
         }
 
 
-        final Query query = Query.parse(queryBuilder.build(searchKey), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), Query.Origin.REST, isTrusted(request));
+        final Query query = Query.parse(queryBuilder.build(searchKey), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), overrideCredentialValidator.getValidOverrideUser(override), Query.Origin.REST,
+                isTrusted(request));
 
         final Parameters parameters = new Parameters.Builder()
                 .inverseAttributes(new InverseAttributes(inverseAttributes))

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.httpserver.dos;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +10,6 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
 import org.eclipse.jetty.servlets.DoSFilter;
-import org.eclipse.jetty.util.StringUtil;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public abstract class WhoisDoSFilter extends DoSFilter {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
+    private static final Splitter COMMA_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
     private final Set<Ipv4Resource> ipv4whitelist = new CopyOnWriteArraySet<>();
     private final Set<Ipv6Resource> ipv6whitelist = new CopyOnWriteArraySet<>();
@@ -96,7 +97,7 @@ public abstract class WhoisDoSFilter extends DoSFilter {
     @Override
     public void setWhitelist(final String commaSeparatedList) {
         clearWhitelist();
-        for (String address : StringUtil.csvSplit(commaSeparatedList)) {
+        for (String address : COMMA_SPLITTER.split(commaSeparatedList)) {
             addWhitelistAddress(address);
         }
         logWhiteList();

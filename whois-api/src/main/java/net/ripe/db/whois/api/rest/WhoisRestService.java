@@ -25,6 +25,7 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.oauth.OAuthUtils;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -71,6 +72,7 @@ public class WhoisRestService {
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
     private final BearerTokenExtractor bearerTokenExtractor;
+    private final OverrideCredentialValidator overrideCredentialValidator;
     private final String baseUrl;
 
     @Autowired
@@ -85,6 +87,7 @@ public class WhoisRestService {
                             final LoggerContext loggerContext,
                             final AuthoritativeResourceData authoritativeResourceData,
                             final BearerTokenExtractor bearerTokenExtractor,
+                            final OverrideCredentialValidator overrideCredentialValidator,
                             @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
         this.rpslObjectStreamer = rpslObjectStreamer;
@@ -97,6 +100,7 @@ public class WhoisRestService {
         this.loggerContext = loggerContext;
         this.authoritativeResourceData = authoritativeResourceData;
         this.bearerTokenExtractor = bearerTokenExtractor;
+        this.overrideCredentialValidator = overrideCredentialValidator;
         this.baseUrl = baseUrl;
     }
 
@@ -319,7 +323,7 @@ public class WhoisRestService {
         final Query query;
         try {
             query =
-                    Query.parse(queryBuilder.build(key), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), passwords, override, isTrusted(request),
+                    Query.parse(queryBuilder.build(key), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), passwords, overrideCredentialValidator.getValidOverrideUser(override), isTrusted(request),
                             ClientCertificateExtractor.getClientCertificates(request), bearerTokenExtractor.extractBearerToken(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);

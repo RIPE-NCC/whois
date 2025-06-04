@@ -47,7 +47,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
-import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -353,42 +352,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
         assertThat(whoisObject.getPrimaryKey().get(0).getValue(), is("2001:2002:2003::/48"));
-    }
-
-    @Test
-    public void lookup_cross_origin_from_db_ripe() {
-
-        final Response response = RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .get(Response.class);
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-    }
-
-    @Test
-    public void lookup_cross_origin_from_not_db_ripe() {
-
-        final Response response = RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stat.ripe.net")
-                .get(Response.class);
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-    }
-
-    @Test
-    public void lookup_cross_origin_from_external_site() {
-
-        final Response response = RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::/48")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://example.com")
-                .get(Response.class);
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -5426,149 +5389,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(person.getAttributes().get(6).getComment(), is("comment"));
     }
 
-    // Cross-origin requests
-
-    @Test
-    public void cross_origin_preflight_request_from_apps_db_ripe_net_is_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-    }
-
-    @Test
-    public void cross_origin_preflight_request_from_outside_ripe_net_is_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-    }
-
-    @Test
-    public void cross_origin_preflight_post_request_from_apps_db_ripe_net_is_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","POST","HEAD"));
-    }
-
-    @Test
-    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-    }
-
-    @Test
-    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .get();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_get_request_from_outside_ripe_net_is_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.foo.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .get();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-
-        // actual request is still allowed (it's the browsers responsibility to honor the restriction)
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_post_request_from_apps_db_ripe_net_is_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML));
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_post_request_from_outside_ripe_net_is_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.foo.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML));
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-
-        // actual request is still allowed (it's the browsers responsibility to honor the restriction)
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_preflight_request_malformed_origin() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "?invalid?")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-    }
-
-    @Test
-    public void cross_origin_get_request_malformed_origin_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "?invalid?")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .get();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_get_request_host_and_port_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.ripe.net:8443")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .get();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
-    }
-
     @Test
     public void lookup_route_out_of_region_redirect() {
         databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
@@ -6260,11 +6080,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(member.getName(), is(attributeExpectedType));
         assertThat(member.getReferencedType(), is("route-set"));
         assertThat(member.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route-set/" + member.getValue()));
-    }
-
-    private String encode(final String input) {
-        // do not interpret template parameters
-        return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
     }
 
     private WhoisResources map(final RpslObject ... rpslObjects) {

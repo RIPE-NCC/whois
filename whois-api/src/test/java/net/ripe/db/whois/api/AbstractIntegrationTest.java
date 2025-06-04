@@ -14,6 +14,7 @@ import org.apache.logging.log4j.core.appender.WriterAppender;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,5 +113,10 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
                         Link::getRel,
                         link -> link.getHref().replace(rdapBaseUrl + "/", "")
                 ));
+    }
+
+    protected String encode(final String input) {
+        // do not interpret template parameters
+        return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
     }
 }
