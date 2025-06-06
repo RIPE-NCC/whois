@@ -100,7 +100,7 @@ this spec a notification is added when the output is truncated.
 Nameserver queries always return Not Implemented
 -------------------------------------------------
 The RIPE database doesn't contain any forward domain objects, consequently according to the RFC
-https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt section 6.3 "501 Not Implemented" will be
+https://bitbucket.org/nroecg/nro-rdap-profile/raw/v1/nro-rdap-profile.txt section 6.3, 501 "Not Implemented" will be
 returned.
 
 Only "mnt-by:" Maintainers are Listed as Registrants

@@ -120,7 +120,7 @@ public class RdapRelationService {
                         .toList();
 
             }
-            default -> throw new RdapException("400 Bad Request", "Invalid or unknown type " + requestType.toString().toLowerCase(), HttpStatus.BAD_REQUEST_400);
+            default -> throw new RdapException("Bad Request", "Invalid or unknown type " + requestType.toString().toLowerCase(), HttpStatus.BAD_REQUEST_400);
         }
 
         return rdapObjectMapper.mapSearch(
@@ -202,7 +202,7 @@ public class RdapRelationService {
     private IpEntry searchUpResource(final IpTree ipTree, final IpInterval searchIp){
         final List<IpEntry> parentList = ipTree.findFirstLessSpecific(searchIp);
         if (parentList.isEmpty() || !existAndNoAdministrative(searchIp, parentList.getFirst())){
-            throw new RdapException("404 Not Found", "No up level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
+            throw new RdapException("Not Found", "No up level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
         }
         return parentList.getFirst();
     }
@@ -220,7 +220,7 @@ public class RdapRelationService {
                 return lessSpecific;
             }
         }
-        throw new RdapException("404 Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
+        throw new RdapException("Not Found", "No top-level object has been found for " + searchIp.toString(), HttpStatus.NOT_FOUND_404);
     }
 
     @Nullable

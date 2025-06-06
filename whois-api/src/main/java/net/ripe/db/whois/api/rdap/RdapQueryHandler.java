@@ -106,11 +106,11 @@ public class RdapQueryHandler {
             throw tooManyRequests(e.getMessage());
         } else {
             LOGGER.error(e.getMessage(), e);
-            throw new RdapException("500 Internal Server Error", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR_500);
+            throw new RdapException("Internal Server Error", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
     }
 
     private RdapException tooManyRequests(final String message) {
-        return new RdapException("429 Too Many Requests", message, HttpStatus.TOO_MANY_REQUESTS_429);
+        return new RdapException("Too Many Requests", message, HttpStatus.TOO_MANY_REQUESTS_429);
     }
 }

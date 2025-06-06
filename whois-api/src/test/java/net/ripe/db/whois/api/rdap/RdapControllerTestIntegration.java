@@ -754,7 +754,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         });
         final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
         assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
-        assertThat(error.getErrorTitle(), is("404 Not Found"));
+        assertThat(error.getErrorTitle(), is("Not Found"));
         assertThat(error.getDescription().get(0), is("Requested object not found"));
     }
 
@@ -848,7 +848,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
         });
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorStatus(badRequestException, 400);
         assertErrorDescription(badRequestException, "'invalid' is not an IP string literal.");
     }
@@ -1222,7 +1222,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         });
         final RdapObject error = notFoundException.getResponse().readEntity(RdapObject.class);
         assertThat(error.getErrorCode(), is(HttpStatus.NOT_FOUND_404));
-        assertThat(error.getErrorTitle(), is("404 Not Found"));
+        assertThat(error.getErrorTitle(), is("Not Found"));
         assertThat(error.getDescription().get(0), is("Requested object not found"));
     }
 
@@ -1278,7 +1278,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Entity.class);
         });
         assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorDescription(notFoundException, "Requested organisation not found: ORG-BAD1-TEST");
     }
 
@@ -1290,7 +1290,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Entity.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Bad organisation or mntner syntax: 12345");
     }
 
@@ -1632,7 +1632,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(RdapObject.class);
         });
-        assertErrorTitle(notFoundException, "HTTP 404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorStatus(notFoundException, 404);
     }
 
@@ -1644,7 +1644,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
         });
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorStatus(notFoundException, 404);
         assertErrorDescription(notFoundException, "Requested object not found");
     }
@@ -1657,7 +1657,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Domain.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "RIPE NCC does not support forward domain queries.");
     }
 
@@ -1671,7 +1671,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Autnum.class);
         });
         assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorDescription(notFoundException, "Requested object not found");
     }
 
@@ -1695,7 +1695,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Autnum.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Invalid syntax (ASXYZ)");
     }
 
@@ -1707,7 +1707,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Autnum.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "unknown objectType");
     }
 
@@ -1911,7 +1911,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Autnum.class);
         });
         assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not found");
+        assertErrorTitle(notFoundException, "Not found");
         assertErrorDescription(notFoundException, "Redirect URI not found");
     }
 
@@ -2191,7 +2191,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Entity.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "unknown objectType");
     }
 
@@ -2232,7 +2232,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Entity.class);
         });
         assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorDescription(notFoundException, "Requested object not found");
     }
 
@@ -2617,7 +2617,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Entity.class);
         });
         assertErrorStatus(notFoundException, 404);
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorDescription(notFoundException, "Requested organisation not found: ORG-NONE-TEST");
     }
 
@@ -2641,7 +2641,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Entity.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Bad organisation or mntner syntax: ORG-INVALID");
     }
 
@@ -2823,7 +2823,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Autnum.class);
         });
         assertErrorStatus(serverErrorException, 501);
-        assertErrorTitle(serverErrorException, "501 Not Implemented");
+        assertErrorTitle(serverErrorException, "Not Implemented");
         assertErrorDescription(serverErrorException, "Nameserver not supported");
     }
 
@@ -3155,7 +3155,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Entity.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Empty search term");
     }
 
@@ -3327,7 +3327,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
         assertErrorDescription(badRequestException, "Relation upper doesn't exist");
     }
@@ -3342,7 +3342,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorTitle(notImplementedException, "Not Implemented");
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "Relation queries not allowed for autnum");
     }
@@ -3385,7 +3385,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
         assertErrorDescription(notFoundException, "No up level object has been found for 192.0.2.0/24");
     }
@@ -3398,7 +3398,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
         assertErrorDescription(badRequestException, "'192.0.2' is not an IP string literal.");
     }
@@ -3445,7 +3445,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
         assertErrorDescription(notFoundException, "No up level object has been found for 192.0.0.0/16");
     }
@@ -3525,7 +3525,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Ip.class);
         });
 
-        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorTitle(notImplementedException, "Not Implemented");
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "administrative status is not implemented");
     }
@@ -3609,7 +3609,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
         assertErrorDescription(notFoundException, "No top-level object has been found for 192.0.0.0/16");
     }
@@ -3638,7 +3638,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
         assertErrorDescription(notFoundException, "No top-level object has been found for 2000::/3");
     }
@@ -3680,7 +3680,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(SearchResult.class);
         });
 
-        assertErrorTitle(notFoundException, "404 Not Found");
+        assertErrorTitle(notFoundException, "Not Found");
         assertErrorStatus(notFoundException, HttpStatus.NOT_FOUND_404);
         assertErrorDescription(notFoundException, "No top-level object has been found for 192.0.2.0/24");
     }
@@ -3693,7 +3693,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Ip.class);
         });
 
-        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorTitle(notImplementedException, "Not Implemented");
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "administrative status is not implemented");
     }
@@ -3829,7 +3829,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
         });
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
         assertErrorDescription(badRequestException, "Invalid or unknown type ip");
     }
@@ -4008,7 +4008,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
-        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorTitle(notImplementedException, "Not Implemented");
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "Status is not implement in down and bottom relation");
     }
@@ -4099,7 +4099,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(SearchResult.class);
         });
-        assertErrorTitle(notImplementedException, "501 Not Implemented");
+        assertErrorTitle(notImplementedException, "Not Implemented");
         assertErrorStatus(notImplementedException, HttpStatus.NOT_IMPLEMENTED_501);
         assertErrorDescription(notImplementedException, "Status is not implement in down and bottom relation");
     }

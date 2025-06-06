@@ -118,13 +118,13 @@ public class RdapLookupService {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
-            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+            throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
         }
         final RpslObject domainObject = domainIterator.next();
         final RpslObject inetnumObject = inetnumIterator.hasNext() ? inetnumIterator.next() : null;
 
         if (domainIterator.hasNext() || inetnumIterator.hasNext()) {
-            throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
+            throw new RdapException("Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
         return rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject);
@@ -135,10 +135,10 @@ public class RdapLookupService {
 
         final RpslObject organisation = switch (organisationResult.size()) {
             case 0 ->
-                    throw new RdapException("404 Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
+                    throw new RdapException("Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
             case 1 -> organisationResult.getFirst();
             default ->
-                    throw new RdapException("500 Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
+                    throw new RdapException("Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
         };
 
         final Set<RpslObjectInfo> references = getReferences(organisation);
@@ -226,20 +226,20 @@ public class RdapLookupService {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
-            throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+            throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
         }
 
         RpslObject resultObject = rpslIterator.next();
 
         if (rpslIterator.hasNext()) {
-            throw new RdapException("500 Internal Error", "Unexpected result size: " + Iterators.size(rpslIterator),
+            throw new RdapException("Internal Error", "Unexpected result size: " + Iterators.size(rpslIterator),
                     HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
         if (RdapObjectMapper.isIANABlock(resultObject)){
             final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(requestedkey);
             if(adminstrativeBlock == null) {
-                throw new RdapException("404 Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+                throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
             }
 
             resultObject = adminstrativeBlock;
