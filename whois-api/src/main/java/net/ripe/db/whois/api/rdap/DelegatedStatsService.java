@@ -87,7 +87,7 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
                     try {
                         return URI.create(String.format("%s%s", basePath, requestPath.replaceFirst("/rdap", "")));
                     } catch (IllegalArgumentException ex){
-                        throw new RdapException("400 Bad Request", "Wrong URL format", HttpStatus.BAD_REQUEST_400);
+                        throw new RdapException("Bad Request", "Wrong URL format", HttpStatus.BAD_REQUEST_400);
                     }
                 }
             }

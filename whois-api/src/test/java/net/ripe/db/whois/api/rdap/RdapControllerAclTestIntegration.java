@@ -151,7 +151,7 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, HttpStatus.TOO_MANY_REQUESTS_429);
-                assertErrorTitleContains(e, "429 Too Many Requests");
+                assertErrorTitleContains(e, "Too Many Requests");
                 assertErrorDescriptionContains(e, "%ERROR:201: access denied for 127.0.0.1");
             }
         } finally {
