@@ -25,6 +25,6 @@ public enum RelationType {
                 return type;
             }
         }
-        throw new RdapException("400 Bad Request", "Relation " + value + " doesn't exist", HttpStatus.BAD_REQUEST_400);
+        throw new RdapException("Bad Request", "Relation " + value + " doesn't exist", HttpStatus.BAD_REQUEST_400);
     }
 }

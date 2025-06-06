@@ -61,7 +61,7 @@ public enum RdapRequestType {
 
     NAMESERVER {
         public Set<ObjectType> getWhoisObjectTypes(final String key) {
-            throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
+            throw new RdapException("Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
         }
     };
 
