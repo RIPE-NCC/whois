@@ -330,7 +330,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "RIPE NCC does not support forward domain queries.");
         }
     }
@@ -419,7 +419,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(Entity.class);
         });
         assertErrorStatus(serverErrorException, 501);
-        assertErrorTitle(serverErrorException, "501 Not Implemented");
+        assertErrorTitle(serverErrorException, "Not Implemented");
         assertErrorDescription(serverErrorException, "Nameserver not supported");
     }
 
@@ -616,7 +616,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
             fail();
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Either fn or handle is a required parameter, but never both");
     }
 
@@ -628,7 +628,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(Entity.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Either fn or handle is a required parameter, but never both");
     }
 
@@ -640,7 +640,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(Entity.class);
         });
         assertErrorStatus(badRequestException, 400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Empty search term");
     }
 
@@ -653,7 +653,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
             fail();
         } catch (BadRequestException e) {
             assertErrorStatus(e, 400);
-            assertErrorTitle(e, "400 Bad Request");
+            assertErrorTitle(e, "Bad Request");
             assertErrorDescription(e, "Empty search term");
         }
     }
@@ -742,7 +742,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, 429);
-                assertErrorTitleContains(e, "429 Too Many Requests");
+                assertErrorTitleContains(e, "Too Many Requests");
                 assertErrorDescription(e,"%ERROR:201: access denied for 127.0.0.1\n%\n% Sorry, access from your host " +
                         "has been permanently\n% denied because of a repeated excessive querying.\n% For more " +
                         "information, see\n% https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n");
@@ -988,7 +988,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(SearchResult.class);
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Empty search term");
     }
 
@@ -1000,7 +1000,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(SearchResult.class);
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
     }
 
@@ -1012,7 +1012,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(SearchResult.class);
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
     }
 
@@ -1108,7 +1108,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(SearchResult.class);
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Empty search term");
     }
 
@@ -1120,7 +1120,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(SearchResult.class);
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
     }
 
@@ -1132,7 +1132,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                     .get(SearchResult.class);
         });
         assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
-        assertErrorTitle(badRequestException, "400 Bad Request");
+        assertErrorTitle(badRequestException, "Bad Request");
         assertErrorDescription(badRequestException, "Either name or handle is a required parameter, but never both");
     }
 

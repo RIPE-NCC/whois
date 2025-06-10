@@ -100,7 +100,7 @@ public class RdapController {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
         if (requestType == null) {
-            throw new RdapException("400 Bad Request", "requestType parameter is required", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("Bad Request", "requestType parameter is required", HttpStatus.BAD_REQUEST_400);
         }
 
         final Set<ObjectType> whoisObjectTypes = requestType.getWhoisObjectTypes(key);  // null
@@ -128,7 +128,7 @@ public class RdapController {
         }
 
         if (object == null){
-            throw new RdapException("400 Bad Request", "Either fn or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("Bad Request", "Either fn or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
         }
 
         return Response.ok(object)
@@ -157,7 +157,7 @@ public class RdapController {
         }
 
         if (object == null) {
-            throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
         }
 
         return Response.ok(object)
@@ -185,7 +185,7 @@ public class RdapController {
         }
 
         if (object == null){
-            throw new RdapException("400 Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("Bad Request", "Either name or handle is a required parameter, but never both", HttpStatus.BAD_REQUEST_400);
         }
 
         return Response.ok(object)
@@ -200,7 +200,7 @@ public class RdapController {
     public Response searchNameservers(
             @Context final HttpServletRequest request,
             @QueryParam("name") final String name) {
-        throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
+        throw new RdapException("Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
     }
 
     @GET
@@ -265,17 +265,17 @@ public class RdapController {
         }
 
         if (relation.equals(RelationType.DOWN) || relation.equals(RelationType.BOTTOM)){
-            throw new RdapException("501 Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
+            throw new RdapException("Not Implemented", "Status is not implement in down and bottom relation", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
         if (!("active".equalsIgnoreCase(status))) {
-            throw new RdapException("501 Not Implemented", String.format("%s status is not implemented", status), HttpStatus.NOT_IMPLEMENTED_501);
+            throw new RdapException("Not Implemented", String.format("%s status is not implemented", status), HttpStatus.NOT_IMPLEMENTED_501);
         }
     }
 
     private void validateKey(final HttpServletRequest request, final RdapRequestType requestType, final String key){
         switch (requestType) {
-            case AUTNUMS -> throw new RdapException("501 Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
+            case AUTNUMS -> throw new RdapException("Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
             case IPS -> rdapRequestValidator.validateIp(request.getRequestURI(), key);
             case DOMAIN -> rdapRequestValidator.validateDomain(key);
         }
@@ -315,10 +315,10 @@ public class RdapController {
                         rdapService.lookupObject(request, whoisObjectTypes, key);
             }
             case NAMESERVER -> {
-                throw new RdapException("501 Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
+                throw new RdapException("Not Implemented", "Nameserver not supported", HttpStatus.NOT_IMPLEMENTED_501);
             }
             default -> {
-                throw new RdapException("400 Bad Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
+                throw new RdapException("Bad Request", "unknown type" + requestType, HttpStatus.BAD_REQUEST_400);
             }
         }
 
@@ -359,7 +359,7 @@ public class RdapController {
                     domain.getReverseIp().toString());
         } catch (WebApplicationException e) {
             LOGGER.debug(e.getMessage(), e);
-            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
+            throw new RdapException("Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -371,7 +371,7 @@ public class RdapController {
             uri = delegatedStatsService.getUriForRedirect(requestPath, query);
         } catch (WebApplicationException e) {
             LOGGER.debug(e.getMessage(), e);
-            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
+            throw new RdapException("Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -383,7 +383,7 @@ public class RdapController {
             uri = delegatedStatsService.getUriForRedirect(requestPath, objectType, searchValue);
         } catch (WebApplicationException e) {
             LOGGER.debug(e.getMessage(), e);
-            throw new RdapException("404 Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
+            throw new RdapException("Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 
         return Response.status(Response.Status.MOVED_PERMANENTLY).location(uri).build();
@@ -423,7 +423,7 @@ public class RdapController {
         LOGGER.debug("Search {} for {}", fields, term);
 
         if (StringUtils.isEmpty(term)) {
-            throw new RdapException("400 Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("Bad Request", "Empty search term", HttpStatus.BAD_REQUEST_400);
         }
 
         try {
@@ -437,7 +437,7 @@ public class RdapController {
         }
         catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new RdapException("500 Internal Error", "search failed", HttpStatus.INTERNAL_SERVER_ERROR_500);
+            throw new RdapException("Internal Error", "search failed", HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
     }
 }
