@@ -57,9 +57,7 @@ public class RewriteEngine {
 
     public RewriteHandler getRewriteHandler() {
         final RewriteHandler rewriteHandler = new RewriteHandler();
-        rewriteHandler.setRewriteRequestURI(true);
-        rewriteHandler.setRewritePathInfo(true);
-
+        
         // rest
         final VirtualHostRuleContainer restVirtualHostRule = new VirtualHostRuleContainer();
         restVirtualHostRule.addVirtualHost(restVirtualHost);

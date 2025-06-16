@@ -13,7 +13,8 @@ public class CaseInsensitiveRewriteRegexRule extends RewriteRegexRule {
 
     @Override
     public void setRegex(String regex) {
-        _regex = regex == null ? null : Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        String defaultRegex = getRegex();
+        defaultRegex = regex == null ? null : Pattern.compile(regex, Pattern.CASE_INSENSITIVE).pattern();
     }
 
 }
