@@ -3,15 +3,23 @@ package net.ripe.db.whois.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
 import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +27,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -51,11 +52,12 @@ public class ZonemasterDummy implements Stub {
         this.zonemasterClient = zonemasterClient;
     }
 
-    private class ZonemasterHandler extends AbstractHandler {
+    private class ZonemasterHandler extends Handler.Abstract {
 
         @Override
-        public void handle(final String target, final Request baseRequest, final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
-            final String requestBody = getRequestBody(request);
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
+
+            final String requestBody = getRequestBody( (HttpServletRequest) request);
             Map<String, Object> map = OBJECT_MAPPER.readValue(requestBody, Map.class);
 
 
@@ -63,19 +65,19 @@ public class ZonemasterDummy implements Stub {
                 if (ZonemasterRequest.Method.START_DOMAIN_TEST.getMethod().equals(map.get("method"))){
                     Map<String, String> parameters = OBJECT_MAPPER.convertValue(map.get("params"), Map.class);
                     if(entry.getKey().equals(parameters.get("domain"))){
-                        putResponseBody(response, removeFirst(entry.getValue()));
-                        return;
+                        putResponseBody((HttpServletResponse) response, removeFirst(entry.getValue()));
+                        return true;
                     }
                 }
                 if (ZonemasterRequest.Method.VERSION_INFO.getMethod().equals(map.get("method")) &&
                         entry.getKey().equals(String.valueOf(map.get("id")))) {
-                    putResponseBody(response, removeFirst(entry.getValue()));
-                    return;
+                    putResponseBody((HttpServletResponse) response, removeFirst(entry.getValue()));
+                    return true;
                 }
                 if (ZonemasterRequest.Method.GET_TEST_RESULTS.getMethod().equals(map.get("method")) &&
                         entry.getKey().equals(String.valueOf(map.get("id")))){
-                    putResponseBody(response, removeFirst(entry.getValue()));
-                    return;
+                    putResponseBody((HttpServletResponse) response, removeFirst(entry.getValue()));
+                    return true;
                 }
             }
             throw new IllegalStateException("request not handled: " + requestBody);
@@ -92,6 +94,7 @@ public class ZonemasterDummy implements Stub {
 
         private void putResponseBody(final HttpServletResponse response, final String body) throws IOException {
             response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
             try (final PrintWriter writer = response.getWriter()) {
                 writer.write(body);
             }

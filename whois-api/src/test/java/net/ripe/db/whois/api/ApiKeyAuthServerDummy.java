@@ -12,8 +12,6 @@ import com.nimbusds.jwt.JWTClaimNames;
 import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
@@ -22,10 +20,12 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.oauth.ApiKeyAuthServiceClient;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ResourceUtils;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Date;
@@ -88,28 +89,25 @@ public class ApiKeyAuthServerDummy implements Stub {
     }
 
 
-    private class OAuthTestHandler extends AbstractHandler {
+    private class OAuthTestHandler extends Handler.Abstract {
 
         @Override
-        public void handle(final String target, final Request baseRequest,
-                           final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
-            response.setContentType("text/xml;charset=utf-8");
-            baseRequest.setHandled(true);
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
 
-            if(!request.getRequestURI().contains("/api/v1/api-keys/authenticate")) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
+            if(!request.getHttpURI().getPath().contains("/api/v1/api-keys/authenticate")) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return false;
             }
 
-            final String userKey = StringUtils.substringAfter(request.getHeader("Authorization"), "Basic").trim();
+            final String userKey = StringUtils.substringAfter(request.getHeaders().get("Authorization"), "Basic").trim();
 
             try {
                 final String jwt = convertToJwt(userKey);
 
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/json");
-                response.getWriter().println(jwt);
+                response.write(true, ByteBuffer.wrap(jwt.getBytes(StandardCharsets.UTF_8)), callback);
 
+                return true;
             } catch (NotFoundException ex) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             } catch (NotAuthorizedException ex) {
@@ -117,6 +115,8 @@ public class ApiKeyAuthServerDummy implements Stub {
             } catch (Exception exception) {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
+
+            return false;
         }
     }
 
