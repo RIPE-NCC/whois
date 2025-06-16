@@ -32,10 +32,16 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
         </dependency>
+
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-rewrite</artifactId>
