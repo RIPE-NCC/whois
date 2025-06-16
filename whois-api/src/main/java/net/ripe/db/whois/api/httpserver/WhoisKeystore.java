@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.collect.Lists;
-import io.netty.util.internal.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -325,7 +324,7 @@ public class WhoisKeystore {
     }
 
     private String writeKeyStoreNewFile(final KeyStore keyStore, final String filename) {
-        return writeKeyStore(keyStore, StringUtil.isNullOrEmpty(filename) ? createTempFile() : createFile(filename));
+        return writeKeyStore(keyStore, StringUtils.isEmpty(filename) ? createTempFile() : createFile(filename));
     }
 
     private String writeKeyStore(final KeyStore keyStore, final String filename) {

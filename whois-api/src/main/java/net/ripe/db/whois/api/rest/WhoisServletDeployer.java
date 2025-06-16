@@ -17,10 +17,9 @@ import net.ripe.db.whois.api.httpserver.ClientCertificateService;
 import net.ripe.db.whois.api.httpserver.DefaultExceptionMapper;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.glassfish.jersey.jaxb.internal.JaxbMessagingBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.message.DeflateEncoder;
@@ -56,6 +55,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final HttpsAuthHeaderFiler httpsAuthHeaderFiler;
     private final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter;
     private final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter;
+    private final WhoisCrossOriginFilter whoisCrossOriginFilter;
 
     @Autowired
     public WhoisServletDeployer(final WhoisRestService whoisRestService,
@@ -69,6 +69,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                                 final ReferencesService referencesService,
                                 final DefaultExceptionMapper defaultExceptionMapper,
                                 final MaintenanceModeFilter maintenanceModeFilter,
+                                final WhoisCrossOriginFilter whoisCrossOriginFilter,
                                 final DomainObjectService domainObjectService,
                                 final FullTextSearchService fullTextSearch,
                                 final BatchUpdatesService batchUpdatesService,
@@ -98,6 +99,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.httpsAuthHeaderFiler = httpsAuthHeaderFiler;
         this.httpsAPIKeyAuthFilter = httpsAPIKeyAuthFilter;
         this.syncUpdatesHttpSchemeFilter = syncUpdatesHttpSchemeFilter;
+        this.whoisCrossOriginFilter = whoisCrossOriginFilter;
     }
 
     @Override
@@ -107,6 +109,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         context.addFilter(new FilterHolder(httpsAPIKeyAuthFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(httpsBasicAuthFiler), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(syncUpdatesHttpSchemeFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(whoisCrossOriginFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
 
         final ResourceConfig resourceConfig = new ResourceConfig();
         EncodingFilter.enableFor(resourceConfig, GZipEncoder.class);
@@ -148,10 +151,6 @@ public class WhoisServletDeployer implements ServletDeployer {
         resourceConfig.register(customMessageBodyWriter);
 
         resourceConfig.register(new JaxbMessagingBinder());
-
-        // only allow cross-origin requests from ripe.net
-        final FilterHolder crossOriginFilterHolder = context.addFilter(CrossOriginFilter.class, "/whois/*", EnumSet.allOf(DispatcherType.class));
-        crossOriginFilterHolder.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "https?://*.db.ripe.net");
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");
     }

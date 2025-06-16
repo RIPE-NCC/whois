@@ -128,9 +128,9 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
             }.search();
         } catch (QueryException e){
             if ( e.getCompletionInfo() == QueryCompletionInfo.BLOCKED) {
-                throw new RdapException("429 Too Many Requests", e.getMessage(), Response.Status.TOO_MANY_REQUESTS.getStatusCode());
+                throw new RdapException("Too Many Requests", e.getMessage(), Response.Status.TOO_MANY_REQUESTS.getStatusCode());
             }
-            throw new RdapException("400 Bad Request", e.getMessage(), Response.Status.BAD_REQUEST.getStatusCode());
+            throw new RdapException("Bad Request", e.getMessage(), Response.Status.BAD_REQUEST.getStatusCode());
         }
     }
 }

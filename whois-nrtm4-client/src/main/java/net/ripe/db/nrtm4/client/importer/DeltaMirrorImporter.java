@@ -1,6 +1,5 @@
 package net.ripe.db.nrtm4.client.importer;
 
-import io.netty.util.internal.StringUtil;
 import net.ripe.db.nrtm4.client.client.MirrorDeltaInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
@@ -10,6 +9,7 @@ import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +118,7 @@ public class DeltaMirrorImporter extends AbstractMirrorImporter {
             final String deltaObjectType = jsonObject.optString("object_class", null);
             final String deltaPrimaryKey = jsonObject.optString("primary_key", null);
             final String deltaUpdatedObject = jsonObject.optString("object", null);
-            final RpslObject rpslObject = !StringUtil.isNullOrEmpty(deltaUpdatedObject) ?
+            final RpslObject rpslObject = ! StringUtils.isEmpty(deltaUpdatedObject) ?
                     RpslObject.parse(deltaUpdatedObject) : null;
 
             return new MirrorDeltaInfo(rpslObject,

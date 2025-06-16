@@ -323,7 +323,7 @@ public class RdapObjectMapper {
                 default -> throw new IllegalArgumentException("Unhandled object type: " + rpslObject.getType());
             };
         } catch (IllegalArgumentException ex){
-            throw new RdapException("400 Bad Request", ex.getMessage(), HttpStatus.BAD_REQUEST_400);
+            throw new RdapException("Bad Request", ex.getMessage(), HttpStatus.BAD_REQUEST_400);
         }
 
         if (abuseContact != null) {
@@ -374,8 +374,10 @@ public class RdapObjectMapper {
             }
 
             entity.getLinks().add(new Link(requestUrl, "self",
-                    UriBuilder.newInstance().path(url.getProtocol() + "://" + url.getHost()).path(entity.getObjectClassName()).path(attributeValue.toString()).toString(),
-                    null, null, null));
+                    UriBuilder.newInstance()
+                        .path(url.getProtocol() + "://" + url.getHost())
+                        .path(entity.getObjectClassName())
+                        .path(attributeValue.toString()).toString(), null, null, null));
         }
 
         entity.getLinks().add(COPYRIGHT_LINK);
@@ -439,7 +441,7 @@ public class RdapObjectMapper {
                 return reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED :
                         reservedResources.isAdministrative(rpslObject.getKey().toString()) ? ADMINISTRATIVE : ACTIVE;
             default:
-                throw new RdapException("400 Bad Request", "Unhandled object type: " + rpslObject.getType(),
+                throw new RdapException("Bad Request", "Unhandled object type: " + rpslObject.getType(),
                         HttpStatus.BAD_REQUEST_400);
         }
     }
@@ -474,7 +476,7 @@ public class RdapObjectMapper {
     private String lookupParentHandle(final IpInterval ipInterval) {
         final RpslObject parentRpslObject = getRpslObject(lookupParentIpEntry(ipInterval).getObjectId());
         if (parentRpslObject == null) {
-            throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
+            throw new RdapException("Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
         return parentRpslObject.getKey().toString();
@@ -485,19 +487,19 @@ public class RdapObjectMapper {
             case Ipv4Resource ipv4Resource : {
                 final List<Ipv4Entry> firstLessSpecific = ipv4Tree.findFirstLessSpecific(ipv4Resource);
                 if (firstLessSpecific.isEmpty()) {
-                    throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
+                    throw new RdapException("Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
                 }
                 return firstLessSpecific.get(0);
             }
             case Ipv6Resource ipv6Resource : {
                 final List<Ipv6Entry> firstLessSpecific = ipv6Tree.findFirstLessSpecific(ipv6Resource);
                 if (firstLessSpecific.isEmpty()) {
-                    throw new RdapException("500 Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
+                    throw new RdapException("Internal Error", "No parentHandle for " + ipInterval, HttpStatus.INTERNAL_SERVER_ERROR_500);
                 }
                 return firstLessSpecific.get(0);
             }
             case null : {
-                throw new RdapException("500 Internal Error", "Unknown interval type " + ipInterval.getClass().getName(), HttpStatus.INTERNAL_SERVER_ERROR_500);
+                throw new RdapException("Internal Error", "Unknown interval type " + ipInterval.getClass().getName(), HttpStatus.INTERNAL_SERVER_ERROR_500);
             }
         }
     }

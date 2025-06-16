@@ -270,7 +270,7 @@ public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
     public void inetnum_exact_match_redirect_illegal_character() {
         final String query = TelnetWhoisClient.queryLocalhost(getPort(), "GET /rdap/ip/193.0.0.0/21?redirect:%25{333*444} HTTP/1.1\nHost: localhost\nConnection: close\n");
 
-        assertThat(query, containsString("400 Bad Request"));
+        assertThat(query, containsString("Bad Request"));
         assertThat(query, containsString("Wrong URL format"));
     }
 
