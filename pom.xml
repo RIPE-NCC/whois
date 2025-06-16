@@ -134,6 +134,7 @@
         <module>whois-nrtm4</module>
         <module>whois-nrtm4-client</module>
         <module>whois-query</module>
+        <module>whois-rdap</module>
         <module>whois-rpsl</module>
         <module>whois-scheduler</module>
         <module>whois-smtp</module>
@@ -241,6 +242,13 @@
             </dependency>
             <dependency>
                 <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rdap</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
                 <artifactId>whois-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -280,6 +288,13 @@
                 <artifactId>whois-smtp</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>net.ripe.db</groupId>
+                <artifactId>whois-rdap</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>net.ripe.commons</groupId>
                 <artifactId>commons-ip-math</artifactId>
