@@ -147,6 +147,20 @@ whois-query:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query -T 1
 
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rdap
+
+whois-rdap:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  services:
+    - *mariadb_service
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-rdap
 
 whois-rpsl:
   <<:
