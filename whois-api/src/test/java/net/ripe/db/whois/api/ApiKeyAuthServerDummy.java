@@ -15,11 +15,13 @@ import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.oauth.ApiKeyAuthServiceClient;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
@@ -93,6 +95,7 @@ public class ApiKeyAuthServerDummy implements Stub {
 
         @Override
         public boolean handle(Request request, Response response, Callback callback) throws Exception {
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
 
             if(!request.getHttpURI().getPath().contains("/api/v1/api-keys/authenticate")) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -106,7 +109,9 @@ public class ApiKeyAuthServerDummy implements Stub {
 
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.write(true, ByteBuffer.wrap(jwt.getBytes(StandardCharsets.UTF_8)), callback);
+                response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 
+                callback.succeeded();
                 return true;
             } catch (NotFoundException ex) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);

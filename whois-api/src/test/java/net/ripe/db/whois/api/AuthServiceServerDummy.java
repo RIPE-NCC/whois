@@ -4,12 +4,14 @@ import com.google.common.collect.Maps;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Profile({WhoisProfile.TEST})
@@ -83,6 +86,7 @@ public class AuthServiceServerDummy implements Stub {
 
         @Override
         public boolean handle(Request request, Response response, Callback callback) throws Exception {
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
 
             if(!request.getHttpURI().getPath().contains("/authorisation-service/v2/authresource/")) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -99,10 +103,12 @@ public class AuthServiceServerDummy implements Stub {
             }
 
             response.setStatus(HttpServletResponse.SC_OK);
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
             response.write(true,
-                    request.getHttpURI().getPath().contains("history") ? ByteBuffer.wrap(serializeHistoricalDetails(user).getBytes()) : ByteBuffer.wrap(serializeUuid(user).getBytes()),
+                    request.getHttpURI().getPath().contains("history") ? ByteBuffer.wrap(serializeHistoricalDetails(user).getBytes(StandardCharsets.UTF_8)) : ByteBuffer.wrap(serializeUuid(user).getBytes(StandardCharsets.UTF_8)),
                     callback);
 
+            callback.succeeded();
             return true;
         }
 

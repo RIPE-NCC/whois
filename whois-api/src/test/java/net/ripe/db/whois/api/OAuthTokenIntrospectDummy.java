@@ -5,11 +5,13 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.http.client.utils.URIBuilder;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
@@ -48,6 +50,8 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
         @Override
         public boolean handle(Request request, Response response, Callback callback) throws Exception {
+            
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
 
             if (request.getHttpURI().getPath().contains("ripe-ncc/protocol/openid-connect/token/introspect")) {
                 try {
@@ -69,6 +73,9 @@ public class OAuthTokenIntrospectDummy implements Stub {
                             callback
                     );
 
+                    response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                    callback.succeeded();
+
                     return true;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -85,6 +92,9 @@ public class OAuthTokenIntrospectDummy implements Stub {
                         ByteBuffer.wrap(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_public.key").toPath())).getBytes()),
                         callback
                 );
+
+                response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                callback.succeeded();
 
                 return true;
             }
