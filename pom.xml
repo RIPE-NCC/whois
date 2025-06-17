@@ -72,7 +72,7 @@
         <!-- Jersey Jakarta REST 3.1 for EE10 compatible https://projects.eclipse.org/projects/ee4j.jersey/releases/3.1.0 -->
         <jersey.version>3.1.9</jersey.version>
         <!-- Jetty Server EE10 compatible https://jetty.org/docs/jetty/12/index.html -->
-        <jetty.version>12.0.15</jetty.version>
+        <jetty.version>12.0.22</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsonassert.version>1.5.3</jsonassert.version>
@@ -532,6 +532,12 @@
                   <groupId>org.eclipse.jetty</groupId>
                   <artifactId>jetty-alpn-server</artifactId>
                   <version>${jetty.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-alpn-conscrypt-server -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-alpn-conscrypt-server</artifactId>
+                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
