@@ -148,7 +148,7 @@ public class RdapRedirectTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void domain_outside_range() {
         Assertions.assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), String.format("rdap/%s", "net/ripe/db/whois/rdap/domain/0.0.192.in-addr.arpa"))
+            RestTest.target(getPort(), String.format("rdap/%s", "domain/0.0.192.in-addr.arpa"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
         });
