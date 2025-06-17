@@ -12,5 +12,11 @@
  *
  * For more information on RDAP, see <a href="http://datatracker.ietf.org/doc/search/?name=rdap&rfcs=on&activeDrafts=on">RFCs on ietf.org</a>
  */
+@XmlSchema(
+        namespace = "http://rdap.db.ripe.net",
+        elementFormDefault = XmlNsForm.QUALIFIED)
 
 package net.ripe.db.whois.rdap;
+
+import jakarta.xml.bind.annotation.XmlNsForm;
+import jakarta.xml.bind.annotation.XmlSchema;
