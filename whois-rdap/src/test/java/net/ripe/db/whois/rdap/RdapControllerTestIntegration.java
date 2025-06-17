@@ -643,7 +643,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Domain domain = createResource("net/ripe/db/whois/rdap/domain/52.179.80.in-addr.arpa")
+        final Domain domain = createResource("domain/52.179.80.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
@@ -1394,14 +1394,14 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
     @Test
     public void lookup_domain_object() {
-        final Domain domain = createResource("net/ripe/db/whois/rdap/domain/31.12.202.in-addr.arpa")
+        final Domain domain = createResource("domain/31.12.202.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
         assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
-        assertThat(domain.getObjectClassName(), is("net/ripe/db/whois/rdap/domain"));
+        assertThat(domain.getObjectClassName(), is("domain"));
 
         assertThat(domain.getNameservers(), hasSize(2));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
@@ -1487,14 +1487,14 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Domain domain = createResource("net/ripe/db/whois/rdap/domain/52.179.80.in-addr.arpa")
+        final Domain domain = createResource("domain/52.179.80.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
         assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("52.179.80.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("52.179.80.in-addr.arpa."));
-        assertThat(domain.getObjectClassName(), is("net/ripe/db/whois/rdap/domain"));
+        assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("80.179.52.0 - 80.179.55.255"));
 
         final List<Link> links = domain.getLinks();
@@ -1539,14 +1539,14 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Domain domain = createResource("net/ripe/db/whois/rdap/domain/e.c.c.2.0.0.a.2.ip6.arpa")
+        final Domain domain = createResource("domain/e.c.c.2.0.0.a.2.ip6.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
         assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("e.c.c.2.0.0.a.2.ip6.arpa"));
         assertThat(domain.getLdhName(), equalTo("e.c.c.2.0.0.a.2.ip6.arpa."));
-        assertThat(domain.getObjectClassName(), is("net/ripe/db/whois/rdap/domain"));
+        assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("2a00:2cce::/32"));
 
         final List<Link> links = domain.getLinks();
@@ -1589,14 +1589,14 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Domain domain = createResource("net/ripe/db/whois/rdap/domain/52.179.80.in-addr.arpa")
+        final Domain domain = createResource("domain/52.179.80.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
         assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("52.179.80.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("52.179.80.in-addr.arpa."));
-        assertThat(domain.getObjectClassName(), is("net/ripe/db/whois/rdap/domain"));
+        assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork(), is(nullValue()));
 
         final List<Link> links = domain.getLinks();
@@ -1609,14 +1609,14 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
     @Test
     public void lookup_domain_object_is_case_insensitive() {
-        final Domain domain = createResource("net/ripe/db/whois/rdap/domain/31.12.202.IN-AddR.ARPA")       // mixed case in request
+        final Domain domain = createResource("domain/31.12.202.IN-AddR.ARPA")       // mixed case in request
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
         assertDomain(domain);
         assertThat(domain.getHandle(), equalTo("31.12.202.in-addr.arpa"));
         assertThat(domain.getLdhName(), equalTo("31.12.202.in-addr.arpa."));
-        assertThat(domain.getObjectClassName(), is("net/ripe/db/whois/rdap/domain"));
+        assertThat(domain.getObjectClassName(), is("domain"));
         assertThat(domain.getNetwork().getHandle(), is("0.0.0.0 - 255.255.255.255"));
 
         final List<Link> links = domain.getLinks();
@@ -1641,7 +1641,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void domain_not_found() {
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
-            createResource("net/ripe/db/whois/rdap/domain/10.in-addr.arpa")
+            createResource("domain/10.in-addr.arpa")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
         });
@@ -1653,7 +1653,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void lookup_forward_domain() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
-            createResource("net/ripe/db/whois/rdap/domain/ripe.net")
+            createResource("domain/ripe.net")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Domain.class);
         });
@@ -3136,7 +3136,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         ipTreeUpdater.rebuild();
 
-        final Domain domain = createResource("net/ripe/db/whois/rdap/domain/52.179.80.in-addr.arpa")
+        final Domain domain = createResource("domain/52.179.80.in-addr.arpa")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 

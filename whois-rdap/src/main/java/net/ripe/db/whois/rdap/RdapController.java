@@ -212,7 +212,7 @@ public class RdapController {
 
         LOGGER.debug("Request: {}", RestServiceHelper.getRequestURI(request));
 
-        return Response.ok(handleSearch(RdapRequestType.DOMAINS, new String[]{"net/ripe/db/whois/rdap/domain"}, name, request))
+        return Response.ok(handleSearch(RdapRequestType.DOMAINS, new String[]{"domain"}, name, request))
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
     }

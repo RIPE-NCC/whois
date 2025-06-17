@@ -303,7 +303,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         assertThat(diff.getAdded().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(0));
         assertThat(diff.getRemoved().getAll(), hasSize(10));
-        assertThat(diff.getRemoved().getTable("net/ripe/db/whois/rdap/domain"), hasSize(1));
+        assertThat(diff.getRemoved().getTable("domain"), hasSize(1));
         assertThat(diff.getRemoved().getTable("admin_c"), hasSize(1));
         assertThat(diff.getRemoved().getTable("tech_c"), hasSize(1));
         assertThat(diff.getRemoved().getTable("zone_c"), hasSize(1));
@@ -336,10 +336,10 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         assertThat(diff.getRemoved().getAll(), hasSize(0));
         assertThat(diff.getModified().getAll(), hasSize(2));
 
-        final Table domainTable = diff.getModified().getTable("net/ripe/db/whois/rdap/domain");
+        final Table domainTable = diff.getModified().getTable("domain");
         assertThat(domainTable, hasSize(1));
         final Row domainRow = domainTable.get(0);
-        assertThat(domainRow.getString("net/ripe/db/whois/rdap/domain"), is("0.0.10.in-addr.arpa"));
+        assertThat(domainRow.getString("domain"), is("0.0.10.in-addr.arpa"));
 
         final Table lastTable = diff.getModified().getTable("last");
         assertThat(lastTable, hasSize(1));
@@ -1855,7 +1855,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         final DatabaseDiff diff = rebuild();
 
-        assertThat(diff.getToDatabase().getTable("net/ripe/db/whois/rdap/domain").get(with("net/ripe/db/whois/rdap/domain", "169.236.109.IN-ADDR.ARPA")), not(nullValue()));
+        assertThat(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")), not(nullValue()));
     }
 
     /*

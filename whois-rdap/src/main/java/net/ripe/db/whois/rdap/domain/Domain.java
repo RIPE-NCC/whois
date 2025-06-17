@@ -23,7 +23,7 @@ import java.util.Objects;
     "secureDNS",
     "publicIds"
 })
-@XmlRootElement(name = "net/ripe/db/whois/rdap/domain")
+@XmlRootElement(name = "domain")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Domain extends RdapObject implements Serializable {
 
@@ -40,7 +40,7 @@ public class Domain extends RdapObject implements Serializable {
 
     public Domain() {
         super();
-        super.setObjectClassName("net/ripe/db/whois/rdap/domain");
+        super.setObjectClassName("domain");
     }
 
     public Domain(final String handle, final String ldhName, final String unicodeName, final List<Nameserver> nameservers, final Domain.SecureDNS secureDNS, final Map publicIds) {

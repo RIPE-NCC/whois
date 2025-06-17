@@ -124,7 +124,7 @@ public class RdapRedirectTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void redirect_domain_query() {
         try {
-            RestTest.target(getPort(), String.format("rdap/%s", "net/ripe/db/whois/rdap/domain/7.0.193.in-addr.arpa"))
+            RestTest.target(getPort(), String.format("rdap/%s", "domain/7.0.193.in-addr.arpa"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
             fail();
@@ -136,7 +136,7 @@ public class RdapRedirectTestIntegration extends AbstractRdapIntegrationTest {
     @Test
     public void redirect_ipv6_domain_query() {
         try {
-            RestTest.target(getPort(), String.format("rdap/%s", "net/ripe/db/whois/rdap/domain/0.7.3.0.c.7.6.0.1.0.0.2.ip6.arpa"))
+            RestTest.target(getPort(), String.format("rdap/%s", "domain/0.7.3.0.c.7.6.0.1.0.0.2.ip6.arpa"))
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
             fail();
