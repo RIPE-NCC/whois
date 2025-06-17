@@ -66,7 +66,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                                 remoteAddress = clientIp;
                             }
                         }
-                        return InetSocketAddress.createUnresolved(getXForwardedForAddress(request), Request.getRemotePort(request));
+                        return InetSocketAddress.createUnresolved(remoteAddress, Request.getRemotePort(request));
                     }
 
                     @Override
@@ -119,6 +119,8 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
 
             @Nullable
             private String getQueryParamValue(final Request request, final String paramName) {
+                if(request.getHttpURI().getQuery() == null) return null;
+
                 for (String queryParam : AMPERSAND_SPLITTER.split(request.getHttpURI().getQuery())) {
                     final Iterator<String> split = EQUALS_SPLITTER.split(queryParam).iterator();
                     if (split.hasNext()) {
