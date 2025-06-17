@@ -147,9 +147,6 @@ whois-query:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query -T 1
 
-  script:
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rdap
-
 whois-rdap:
   <<:
     - *it_env
