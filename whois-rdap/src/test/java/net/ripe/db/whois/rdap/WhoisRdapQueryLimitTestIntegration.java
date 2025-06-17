@@ -1,9 +1,10 @@
-package net.ripe.db.whois.api.elasticsearch;
+package net.ripe.db.whois.rdap;
 
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
+import net.ripe.db.whois.rdap.domain.SearchResult;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

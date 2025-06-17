@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.elasticsearch;
+package net.ripe.db.whois.rdap;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -11,18 +11,19 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rdap.RdapConformance;
-import net.ripe.db.whois.api.rdap.domain.Action;
-import net.ripe.db.whois.api.rdap.domain.Domain;
-import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.api.rdap.domain.Event;
-import net.ripe.db.whois.api.rdap.domain.Link;
-import net.ripe.db.whois.api.rdap.domain.Nameserver;
-import net.ripe.db.whois.api.rdap.domain.Notice;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Redaction;
-import net.ripe.db.whois.api.rdap.domain.Role;
-import net.ripe.db.whois.api.rdap.domain.SearchResult;
+import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
+import net.ripe.db.whois.rdap.domain.Action;
+import net.ripe.db.whois.rdap.domain.Domain;
+import net.ripe.db.whois.rdap.domain.Entity;
+import net.ripe.db.whois.rdap.domain.Event;
+import net.ripe.db.whois.rdap.domain.Link;
+import net.ripe.db.whois.rdap.domain.LinkRelationType;
+import net.ripe.db.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.rdap.domain.Notice;
+import net.ripe.db.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.rdap.domain.Redaction;
+import net.ripe.db.whois.rdap.domain.Role;
+import net.ripe.db.whois.rdap.domain.SearchResult;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -30,12 +31,14 @@ import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.eclipse.jetty.http.HttpStatus;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -75,6 +78,9 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     private IpResourceConfiguration ipResourceConfiguration;
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
+
+    @Value("${rdap.public.baseUrl:}")
+    private String rdapBaseUrl;
 
     @BeforeAll
     public static void setUpProperties() {
@@ -255,7 +261,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getLdhName(), domain.getNameservers().get(1).getLdhName()),
                     containsInAnyOrder("ns1.test.com.au", "ns2.test.com.au"));
         assertThat(Lists.newArrayList(domain.getNameservers().get(0).getIpAddresses(), domain.getNameservers().get(1).getIpAddresses()),
-                    containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
+                    Matchers.containsInAnyOrder(new Nameserver.IpAddresses(Lists.newArrayList("10.0.0.1/32"), null),
                                         new Nameserver.IpAddresses(null, Lists.newArrayList("2001:10::2/128"))));
 
         assertThat(domain.getSecureDNS().isDelegationSigned(), is(Boolean.TRUE));
@@ -273,9 +279,9 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         final List<Event> events = domain.getEvents();
         assertThat(events, hasSize(2));
         assertThat(events.get(0).getEventDate(), isBefore(LocalDateTime.now()));
-        assertThat(events.get(0).getEventAction(), is(Action.REGISTRATION));
+        assertThat(events.get(0).getEventAction(), Matchers.is(Action.REGISTRATION));
         assertThat(events.get(1).getEventDate(), isBefore(LocalDateTime.now()));
-        assertThat(events.get(1).getEventAction(), is(Action.LAST_CHANGED));
+        assertThat(events.get(1).getEventAction(), Matchers.is(Action.LAST_CHANGED));
 
         final List<Entity> entities = domain.getEntitySearchResults();
         assertThat(entities, hasSize(2));
@@ -716,7 +722,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         assertThat(firstEntityMntBy.getVCardArray().toString(), is("[vcard, [" +
                 "[version, {}, text, 4.0], [fn, {}, text, OWNER-MNT], [kind, {}, text, individual]]]"));
         assertThat(firstEntityMntBy.getRoles(), hasSize(1));
-        assertThat(firstEntityMntBy.getRoles().getFirst(), is(Role.REGISTRANT));
+        assertThat(firstEntityMntBy.getRoles().getFirst(), Matchers.is(Role.REGISTRANT));
 
 
         //admin-c TP1-TEST
@@ -726,7 +732,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 "[version, {}, text, 4.0], [fn, {}, text, Test Person], [kind, {}, text, individual], " +
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], [tel, {type=voice}, text, +31 6 12345678]]]"));
         assertThat(secondEntityAdminC.getRoles(), hasSize(1));
-        assertThat(secondEntityAdminC.getRoles().getFirst(), is(Role.ADMINISTRATIVE));
+        assertThat(secondEntityAdminC.getRoles().getFirst(), Matchers.is(Role.ADMINISTRATIVE));
     }
 
     @Test
@@ -1194,6 +1200,15 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
 
     // helper methods
+
+    protected Map<String, String> getRelationCallsFromLinks(final List<Link> links) {
+        return links.stream()
+                .filter(link -> LinkRelationType.containsValidValue(link.getRel()))
+                .collect(Collectors.toMap(
+                        Link::getRel,
+                        link -> link.getHref().replace(rdapBaseUrl + "/", "")
+                ));
+    }
 
     private void assertRelationLinks(final List<Link> links){
         final Map<String, String> relationCalls = getRelationCallsFromLinks(links);

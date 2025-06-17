@@ -8,7 +8,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlSchemaType;
 import jakarta.xml.bind.annotation.XmlType;
-import net.ripe.db.whois.api.rdap.domain.vcard.VCard;
+import net.ripe.db.whois.rdap.domain.vcard.VCard;
 
 import java.io.Serializable;
 import java.util.List;

@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
+import net.ripe.db.whois.rdap.domain.RdapObject;
 import org.glassfish.jersey.server.ParamException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.rdap.domain;
 
 import com.google.common.collect.ImmutableSet;
-import net.ripe.db.whois.api.rdap.RdapException;
+import net.ripe.db.whois.rdap.RdapException;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.eclipse.jetty.http.HttpStatus;
 

@@ -5,7 +5,7 @@ import jakarta.ws.rs.RedirectionException;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rdap.domain.Ip;
+import net.ripe.db.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;

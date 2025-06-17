@@ -1,6 +1,6 @@
 package net.ripe.db.whois.rdap.domain;
 
-import net.ripe.db.whois.api.rdap.RdapException;
+import net.ripe.db.whois.rdap.RdapException;
 import org.eclipse.jetty.http.HttpStatus;
 
 public enum RelationType {

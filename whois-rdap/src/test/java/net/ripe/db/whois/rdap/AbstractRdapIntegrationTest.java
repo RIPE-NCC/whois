@@ -10,18 +10,23 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Redaction;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
+import net.ripe.db.whois.rdap.domain.Entity;
+import net.ripe.db.whois.rdap.domain.Link;
+import net.ripe.db.whois.rdap.domain.LinkRelationType;
+import net.ripe.db.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.rdap.domain.Redaction;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static net.ripe.db.whois.api.rdap.domain.vcard.VCardType.TEXT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
+import static net.ripe.db.whois.rdap.domain.vcard.VCardType.TEXT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -29,6 +34,10 @@ import static org.hamcrest.Matchers.is;
 public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTest {
 
     private static final String REDACTED_EMAIL_DESCRIPTION = "Personal e-mail information";
+
+    @Value("${rdap.public.baseUrl:}")
+    private String rdapBaseUrl;
+
     @BeforeAll
     public static void rdapSetProperties() {
         System.setProperty("rdap.sources", "TEST-GRS");
@@ -44,6 +53,15 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
     }
 
     // helper methods
+
+    protected Map<String, String> getRelationCallsFromLinks(final List<Link> links) {
+        return links.stream()
+                .filter(link -> LinkRelationType.containsValidValue(link.getRel()))
+                .collect(Collectors.toMap(
+                        Link::getRel,
+                        link -> link.getHref().replace(rdapBaseUrl + "/", "")
+                ));
+    }
 
     protected WebTarget createResource(final String path) {
         return RestTest.target(getPort(), String.format("rdap/%s", path));

@@ -2,9 +2,9 @@ package net.ripe.db.whois.rdap;
 
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.rdap.domain.Autnum;
-import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.api.rdap.domain.Ip;
+import net.ripe.db.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.rdap.domain.Entity;
+import net.ripe.db.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;

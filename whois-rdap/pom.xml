@@ -83,7 +83,7 @@
                         <xsdOption>
                             <xsd>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xsd</xsd>
                             <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xjb</bindingFile>
-                            <packagename>net.ripe.db.whois.api.rdap.domain</packagename>
+                            <packagename>net.ripe.db.whois.rdap.domain</packagename>
                             <extension>true</extension>
                             <extensionArgs>
                                 <arg>-Xdv</arg>
@@ -92,7 +92,7 @@
                         <xsdOption>
                             <xsd>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xsd</xsd>
                             <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xjb</bindingFile>
-                            <packagename>net.ripe.db.whois.api.rdap.domain.vcard</packagename>
+                            <packagename>net.ripe.db.whois.rdap.domain.vcard</packagename>
                             <extension>true</extension>
                             <extensionArgs>
                                 <arg>-Xdv</arg>

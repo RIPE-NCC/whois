@@ -1,9 +1,9 @@
 package net.ripe.db.whois.rdap;
 
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.rdap.domain.Entity;
-import net.ripe.db.whois.api.rdap.domain.RdapObject;
-import net.ripe.db.whois.api.rdap.domain.Redaction;
+import net.ripe.db.whois.rdap.domain.Entity;
+import net.ripe.db.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.rdap.domain.Redaction;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
