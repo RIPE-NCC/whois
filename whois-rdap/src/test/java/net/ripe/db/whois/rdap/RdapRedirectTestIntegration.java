@@ -3,13 +3,12 @@ package net.ripe.db.whois.rdap;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.RedirectionException;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.dao.DailySchedulerDao;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
+import net.ripe.db.whois.rdap.domain.Ip;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class RdapRedirectTestIntegration extends AbstractIntegrationTest {
+public class RdapRedirectTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired AuthoritativeResourceData authoritativeResourceData;
     @Autowired DailySchedulerDao dailySchedulerDao;

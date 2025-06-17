@@ -19,6 +19,7 @@ import net.ripe.db.whois.rdap.domain.Redaction;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
+@ContextConfiguration(locations = {"classpath:applicationContext-rdap-test.xml"})
 public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTest {
 
     private static final String REDACTED_EMAIL_DESCRIPTION = "Personal e-mail information";
