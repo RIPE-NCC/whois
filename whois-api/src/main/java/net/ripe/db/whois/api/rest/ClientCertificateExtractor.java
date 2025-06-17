@@ -14,7 +14,7 @@ public class ClientCertificateExtractor {
 
     @Nullable
     public static List<X509CertificateWrapper> getClientCertificates(final HttpServletRequest request) {
-        final X509Certificate[] certificates = (X509Certificate[]) request.getAttribute(SecureRequestCustomizer.JAKARTA_SERVLET_REQUEST_X_509_CERTIFICATE);
+        final X509Certificate[] certificates = (X509Certificate[]) request.getAttribute(SecureRequestCustomizer.X509_ATTRIBUTE);
         if (certificates == null || certificates.length == 0) {
             return null;
         }

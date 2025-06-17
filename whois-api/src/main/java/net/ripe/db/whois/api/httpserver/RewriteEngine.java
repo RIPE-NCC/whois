@@ -57,9 +57,7 @@ public class RewriteEngine {
 
     public RewriteHandler getRewriteHandler() {
         final RewriteHandler rewriteHandler = new RewriteHandler();
-        rewriteHandler.setRewriteRequestURI(true);
-        rewriteHandler.setRewritePathInfo(true);
-
+        
         // rest
         final VirtualHostRuleContainer restVirtualHostRule = new VirtualHostRuleContainer();
         restVirtualHostRule.addVirtualHost(restVirtualHost);
@@ -120,7 +118,7 @@ public class RewriteEngine {
         // Don't allow passwords over plain HTTP
         virtualHost.addRule(
             new HttpTransportRule(HttpScheme.HTTP,
-                new HttpMethodRule(HttpMethod.GET, new RequestParamRegexRule(
+                new HttpMethodRule(HttpMethod.GET, new QueryParamRegexRule(
                 "(&?password=(.*))*$",
                 HttpStatus.FORBIDDEN_403
         ))));

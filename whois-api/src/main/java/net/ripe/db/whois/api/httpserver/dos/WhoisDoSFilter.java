@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
-import org.eclipse.jetty.servlets.DoSFilter;
+import org.eclipse.jetty.ee10.servlets.DoSFilter;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
