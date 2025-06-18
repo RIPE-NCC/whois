@@ -79,9 +79,8 @@ public class BouncedMessageParser {
                     return recipient;
                 }
             } catch (MessagingException | IOException | IllegalStateException ex) {
-                throw new MailParsingException("Error parsing multipart report", ex);
+                // do not throw an exception, as whois updates can be multipart/mixed
             }
-            // do not throw an exception, as whois updates can be multipart/mixed
         }
 
         // fall through: message is not bounced message
