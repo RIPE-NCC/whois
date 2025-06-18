@@ -88,6 +88,7 @@ public class BouncedMessageParser {
         return null;
     }
 
+    @Nullable
     private EmailMessageInfo extractEmailMessageInfo(final MimeMessage message, final MimeMultipart multipart) throws MessagingException, IOException {
         if (isReportDeliveryStatus(multipart)) {
             final DeliveryStatus deliveryStatus = deliveryStatus(message);
