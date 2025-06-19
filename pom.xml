@@ -964,7 +964,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -1036,7 +1036,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.1.3</version>
+                <version>3.1.4</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
@@ -1047,7 +1047,7 @@
                 <!-- RUN UNIT TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
@@ -1075,7 +1075,7 @@
                 <!-- RUN INTEGRATION TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>
