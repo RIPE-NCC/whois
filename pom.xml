@@ -62,7 +62,7 @@
         <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
 
-        <jackson.version>2.18.3</jackson.version>
+        <jackson.version>2.19.1</jackson.version>
         <jaxb.api.version>4.0.2</jaxb.api.version>
         <jaxb.impl.version>4.0.5</jaxb.impl.version>
         <jcache.version>1.1.1</jcache.version>
