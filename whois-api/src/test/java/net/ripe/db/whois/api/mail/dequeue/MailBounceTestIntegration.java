@@ -5,7 +5,6 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.awaitility.Awaitility;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -160,6 +159,15 @@ public class MailBounceTestIntegration extends AbstractMailMessageIntegrationTes
 
         // test that no notification mail is sent to nonexistant@ripe.net
         assertThat(mailSenderStub.anyMoreMessages(), is(false));
+    }
+
+    @Test
+    public void permanent_delivery_failure_not_enough_parts() {
+        final MimeMessage message = MimeMessageProvider.getUpdateMessage("permanentFailureMessageNotEnoughParts.mail");
+        insertIncomingMessage(message);
+
+        // wait for incoming message to be processed
+        Awaitility.waitAtMost(10L, TimeUnit.SECONDS).until(() -> (! anyIncomingMessages()));
     }
 
     @Test
