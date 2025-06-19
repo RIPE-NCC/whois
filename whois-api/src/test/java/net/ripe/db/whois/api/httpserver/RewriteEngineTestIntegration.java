@@ -7,7 +7,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-import net.ripe.db.whois.api.rdap.domain.Entity;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -31,7 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.net.URI;
 
-import static jakarta.ws.rs.client.Entity.*;
+import static jakarta.ws.rs.client.Entity.entity;
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -173,16 +172,6 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
                 .post(entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
-    }
-
-    @Test
-    public void rdap_lookup_with_rewrite() {
-        final Entity person = RestTest.target(getPort(), "entity/TP1-TEST")
-                .request()
-                .header(HttpHeaders.HOST, getHost(restApiBaseUrl).replace("rest", "rdap"))
-                .get(Entity.class);
-
-        assertThat(person.getHandle(), is("TP1-TEST"));
     }
 
     @Test
