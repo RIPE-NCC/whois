@@ -18,12 +18,12 @@ import org.eclipse.jetty.server.Request;
 import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import static org.eclipse.jetty.http.HttpHeader.X_FORWARDED_FOR;
 import static org.eclipse.jetty.http.HttpHeader.X_FORWARDED_PROTO;
 
 /**
@@ -66,7 +66,8 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                                 remoteAddress = clientIp;
                             }
                         }
-                        return InetSocketAddress.createUnresolved(remoteAddress, Request.getRemotePort(request));
+                        //TODO: why need to decode ?
+                        return InetSocketAddress.createUnresolved(URLDecoder.decode(remoteAddress), Request.getRemotePort(request));
                     }
 
                     @Override
@@ -93,14 +94,6 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 final String header = getLastHeaderValue(request, X_FORWARDED_PROTO.asString());
                 if (Strings.isNullOrEmpty(header)) {
                     return request.getHttpURI().getScheme();
-                }
-                return header;
-            }
-
-            private String getXForwardedForAddress(final Request request) {
-                final String header = getLastHeaderValue(request, X_FORWARDED_FOR.asString());
-                if (Strings.isNullOrEmpty(header)) {
-                    return Request.getRemoteAddr(request);
                 }
                 return header;
             }
