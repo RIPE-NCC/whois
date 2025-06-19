@@ -79,9 +79,8 @@ public class BouncedMessageParser {
                     return recipient;
                 }
             } catch (MessagingException | IOException | IllegalStateException ex) {
-                throw new MailParsingException("Error parsing multipart report", ex);
+                // do not throw an exception, as whois updates can be multipart/mixed
             }
-            // do not throw an exception, as whois updates can be multipart/mixed
         }
 
         // fall through: message is not bounced message
@@ -117,38 +116,36 @@ public class BouncedMessageParser {
         return ((report != null) && "delivery-status".equals(report.getType()));
     }
 
-    @Nullable
     private Report getReport(final MimeMultipart mimeMultipart) throws MessagingException {
         if (mimeMultipart.getCount() < 2) {
-            return null;
+            throw new IllegalStateException("Unexpected " + mimeMultipart.getCount() + " parts when looking for report");
         }
         final BodyPart bodyPart = mimeMultipart.getBodyPart(1);
         try {
             final Object content = bodyPart.getContent();
             if (!(content instanceof Report)) {
-                return null;
+                throw new IllegalStateException("body part is not report");
             } else {
                 return (Report) content;
             }
         } catch (IOException ex) {
-            return null;
+                throw new IllegalStateException(ex);
         }
     }
 
-    @Nullable
     private MimeMessage getReturnedMessage(final MimeMultipart mimeMultipart) throws MessagingException {
         if (mimeMultipart.getCount() < 3) {
-            return null;
+            throw new IllegalStateException("Unexpected " + mimeMultipart.getCount() + " parts when looking for returned message");
         }
         final BodyPart bodyPart = mimeMultipart.getBodyPart(2);
         if (!bodyPart.isMimeType("message/rfc822") &&
                 !bodyPart.isMimeType("text/rfc822-headers")) {
-            return null;
+            throw new IllegalStateException("Unexpected body part mime type " + bodyPart.getContentType());
         } else {
             try {
                 return (MimeMessage) bodyPart.getContent();
             } catch (IOException ex) {
-                return null;
+                throw new IllegalStateException(ex);
             }
         }
     }
