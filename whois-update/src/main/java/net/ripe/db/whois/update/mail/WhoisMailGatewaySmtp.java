@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
 import net.ripe.db.whois.common.mail.EmailStatusType;
+import net.ripe.db.whois.common.mail.MailLog;
 import net.ripe.db.whois.update.domain.ResponseMessage;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.slf4j.Logger;
@@ -38,8 +39,9 @@ public class WhoisMailGatewaySmtp extends MailGatewaySmtp {
             final JavaMailSender mailSender,
             final EmailStatusDao emailStatusDao,
             final OutgoingMessageDao outgoingMessageDao,
+            final MailLog mailLog,
             @Value("${web.baseurl}") final String webBaseUrl) {
-        super(mailConfiguration, mailSender, emailStatusDao, outgoingMessageDao, webBaseUrl);
+        super(mailConfiguration, mailSender, emailStatusDao, outgoingMessageDao, mailLog, webBaseUrl);
         this.loggerContext = loggerContext;
     }
 
