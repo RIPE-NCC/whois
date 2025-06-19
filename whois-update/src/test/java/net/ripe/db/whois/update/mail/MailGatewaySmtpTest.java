@@ -9,6 +9,7 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
+import net.ripe.db.whois.common.mail.MailLog;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ public class MailGatewaySmtpTest {
     @Mock CustomJavaMailSender mailSender;
     @Mock EmailStatusDao emailStatusDao;
     @Mock OutgoingMessageDao outgoingMessageDao;
+    @Mock MailLog mailLog;
     @InjectMocks WhoisMailGatewaySmtp subject;
 
     @BeforeEach
