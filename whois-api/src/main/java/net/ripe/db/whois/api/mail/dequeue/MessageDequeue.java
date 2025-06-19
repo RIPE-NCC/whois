@@ -219,7 +219,10 @@ public class MessageDequeue implements ApplicationService {
             }
 
         } catch (MailParsingException e){
-            LOGGER.info("Error detecting bounce detection or unsubscribing for messageId {}", messageId, e);
+            LOGGER.info("Error detecting bounce detection or unsubscribing for messageId {} due to {}: {} ({})",
+                messageId,
+                e.getClass().getSimpleName(), e.getMessage(),
+                e.getCause() != null ? e.getCause().getMessage() : "null");
             mailMessageDao.deleteMessage(messageId);
             return;
         } catch (MessagingException ex) {
