@@ -103,7 +103,7 @@
         <testcontainers.elasticsearch.version>1.16.2</testcontainers.elasticsearch.version>
         <tink.version>1.13.0</tink.version>
 
-        <validation.version>3.0.2</validation.version>
+        <validation.version>3.1.1</validation.version>
         <velocity.version>2.4.1</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
