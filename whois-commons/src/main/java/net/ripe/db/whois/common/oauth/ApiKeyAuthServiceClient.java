@@ -76,10 +76,10 @@ public class ApiKeyAuthServiceClient {
                     .get(String.class);
 
         } catch (NotFoundException | NotAuthorizedException e) {
-            LOGGER.debug("Failed to validate api key {} due to {}:{}\n\tResponse: {}", apiKeyId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            LOGGER.debug("Failed to validate api key (Username: {}) due to {}:{}\n\tResponse: {}", apiKeyId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             return null;
         } catch (Exception e) {
-            LOGGER.error("Failed to validate api key {} due to {}:{}", apiKeyId, e.getClass().getName(), e.getMessage());
+            LOGGER.error("Failed to validate api key (Username: {}) due to {}:{}", apiKeyId, e.getClass().getName(), e.getMessage());
             return null;
         }
     }
