@@ -19,6 +19,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
@@ -87,10 +88,10 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
         }
 
         try {
-            final SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+            final SSLContext sslContext = SSLContext.getInstance("TLSv1.2", "BCJSSE");
             sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{new DummyTrustManager()}, new SecureRandom());
             return sslContext;
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException | NoSuchProviderException e) {
             throw new IllegalStateException(e);
         }
     }

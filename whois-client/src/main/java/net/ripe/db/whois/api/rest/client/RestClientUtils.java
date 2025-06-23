@@ -11,6 +11,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.List;
 
 public class RestClientUtils {
@@ -44,10 +45,10 @@ public class RestClientUtils {
     // Trust all server-side certificates (including self-signed)
     public static SSLContext trustAllSSLContext() {
         try {
-            final SSLContext sslContext = SSLContext.getInstance("TLS");
+            final SSLContext sslContext = SSLContext.getInstance("TLSv1.2", "BCJSSE");
             sslContext.init(null, new TrustManager[]{new DummyTrustManager()}, new java.security.SecureRandom());
             return sslContext;
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (NoSuchAlgorithmException | KeyManagementException | NoSuchProviderException e) {
             throw new IllegalStateException(e);
         }
     }

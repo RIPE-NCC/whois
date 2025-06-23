@@ -27,12 +27,6 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
@@ -47,6 +41,16 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
+        <!-- bouncy castle -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bctls-jdk18on</artifactId>
+        </dependency>
+
         <!-- jetty -->
         <dependency>
             <groupId>org.eclipse.jetty.http2</groupId>
@@ -57,8 +61,8 @@
             <artifactId>jetty-alpn-server</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-alpn-conscrypt-server</artifactId>
+              <groupId>org.eclipse.jetty</groupId>
+              <artifactId>jetty-alpn-bouncycastle-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -352,7 +356,6 @@
                         <ignoredUsedUndeclaredDependency>stax:stax-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.elasticsearch:elasticsearch</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.elasticsearch.client:elasticsearch-rest-high-level-client</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcprov-jdk15on</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.apache.lucene:lucene-core</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>com.vaadin.external.google:android-json</ignoredUsedUndeclaredDependency>
                     </ignoredUsedUndeclaredDependencies>

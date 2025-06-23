@@ -191,8 +191,6 @@
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-jcl</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.bouncycastle:bcpkix-jdk18on</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.bouncycastle:bcutil-jdk18on</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcpkix-jdk15on</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcutil-jdk15on</ignoredUsedUndeclaredDependency>
                     </ignoredUsedUndeclaredDependencies>
 
                     <!-- Ignore dependencies coming from another dependency and which we are just using in
