@@ -1,0 +1,42 @@
+From MAILER-DAEMON Wed Jun 18 07:58:17 2025
+>From MAILER-DAEMON Wed Jun 18 07:58:17 2025
+Received: from mahimahi.ripe.net ([193.0.19.1])
+	by allealle.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94)
+	id xxxxxx-0004d4-OF
+	for test-dbm@ripe.net; Fri, 23 Feb 2024 17:29:29 +0200
+Received: from abc1.example.com ([68.232.147.154]:21686)
+	by mahimahi.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	id xxxxxx-0009P6-50
+	for test-dbm@ripe.net; Fri, 23 Feb 2024 17:29:29 +0200
+Message-Id: <03fc0e$59o25b@esa4.hc3324-5.example.com>
+Date: 18 Jun 2025 03:58:15 -0400
+To: test-dbm@ripe.net
+From: "Mail Delivery System" <noreply@ces.example.com>
+Subject: Delivery Status Notification (Failure)
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary="Ad0Yg.6DzFzmxAq.7AeuSmtdIoc.EaPRUHz"
+
+--Ad0Yg.6DzFzmxAq.7AeuSmtdIoc.EaPRUHz
+content-type: text/plain;
+    charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+The following message to <outgoing@example.com> was undeliverable.
+The reason for the problem:
+5.1.0 - Unknown address error 550-'5.4.1 Recipient address rejected: Access=
+ denied. '
+
+--Ad0Yg.6DzFzmxAq.7AeuSmtdIoc.EaPRUHz
+content-type: message/delivery-status
+
+Reporting-MTA: dns; esa4.hc3324-5.example.com
+
+Final-Recipient: rfc822;outgoing@example.com
+Action: failed
+Status: 5.0.0 (permanent failure)
+Remote-MTA: dns; [52.101.73.22]
+Diagnostic-Code: smtp; 5.1.0 - Unknown address error 550-'5.4.1 Recipient address rejected: Access denied.' (delivery attempts: 0)
+
+--Ad0Yg.6DzFzmxAq.7AeuSmtdIoc.EaPRUHz
