@@ -23,8 +23,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.eclipse.jetty.http.HttpHeader.X_FORWARDED_PROTO;
 
@@ -61,7 +59,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return new ConnectionMetaData.Wrapper(request.getConnectionMetaData()) {
                     @Override
                     public SocketAddress getRemoteSocketAddress() {
-                        String remoteAddress = stripSquareBrackets(stripSlashAndPort(getRemoteAddrFromRequest(request)));
+                        String remoteAddress = getRemoteAddrFromRequest(request);
                         if (isTrusted(remoteAddress)){
                             String clientIp = getClientIp(request);
                             if (clientIp != null){
@@ -86,12 +84,6 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                     return clientIp;
                 }
                 return null;
-            }
-
-            private String stripSquareBrackets(final String address) {
-                int start = address.indexOf('[');
-                int end = address.indexOf(']');
-                return (start > -1 && end > -1) ? address.substring(start + 1, end) : address;
             }
 
             public String getScheme() {
@@ -136,7 +128,12 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                     final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
                     return (Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor);
                 } else {
-                    return request.getConnectionMetaData().getRemoteSocketAddress().toString();
+                    final SocketAddress remoteSocketAddress = request.getConnectionMetaData().getRemoteSocketAddress();
+                    if (remoteSocketAddress instanceof InetSocketAddress) {
+                        return ((InetSocketAddress) remoteSocketAddress).getAddress().getHostAddress();
+                    } else {
+                        return remoteSocketAddress.toString();
+                    }
                 }
             }
 
@@ -166,11 +163,4 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
         return intervals;
     }
 
-    private static final Pattern PORT_PATTERN = Pattern.compile("/(\\[.*\\]|.*):\\d+");
-
-    // TODO: rewrite method. Why does Jetty return remote address in format "/127.0.0.1:7263" ?
-    private static String stripSlashAndPort(final String address) {
-        final Matcher matcher = PORT_PATTERN.matcher(address);
-        return matcher.matches() ? matcher.group(1) : address;
-    }
 }
