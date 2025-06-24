@@ -59,7 +59,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return new ConnectionMetaData.Wrapper(request.getConnectionMetaData()) {
                     @Override
                     public SocketAddress getRemoteSocketAddress() {
-                        String remoteAddress = stripSquareBrackets(getRemoteAddrFromRequest(request));
+                        String remoteAddress = stripSlashAndPort(stripSquareBrackets(getRemoteAddrFromRequest(request)));
                         if (isTrusted(remoteAddress)){
                             String clientIp = getClientIp(request);
                             if (clientIp != null){
@@ -138,6 +138,13 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
 
         };
     };
+
+    private static String stripSlashAndPort(final String address) {
+        final int leadingSlash = address.indexOf('/');
+        final int trailingColon = address.indexOf(':');
+
+        return (leadingSlash != -1 && trailingColon != -1) ?   address.substring(leadingSlash + 1, trailingColon) : address;
+    }
 
     private boolean isTrusted(final String remoteAddress){
         return isTrusted(getInterval(remoteAddress));
