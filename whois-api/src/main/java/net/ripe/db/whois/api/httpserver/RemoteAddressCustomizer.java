@@ -59,7 +59,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return new ConnectionMetaData.Wrapper(request.getConnectionMetaData()) {
                     @Override
                     public SocketAddress getRemoteSocketAddress() {
-                        String remoteAddress = stripSlashAndPort(stripSquareBrackets(getRemoteAddrFromRequest(request)));
+                        String remoteAddress = stripSquareBrackets(getRemoteAddrFromRequest(request));
                         if (isTrusted(remoteAddress)){
                             String clientIp = getClientIp(request);
                             if (clientIp != null){
@@ -160,16 +160,5 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
         }
 
         return intervals;
-    }
-
-    // TODO: rewrite method. Why does Jetty return remote address in format "/127.0.0.1:7263" ?
-    private static String stripSlashAndPort(final String address) {
-        final int leadingSlash = address.indexOf('/');
-        final int trailingColon = address.indexOf(':');
-        if (leadingSlash != -1 && trailingColon != -1) {
-            return address.substring(leadingSlash + 1, trailingColon);
-        } else {
-            return address;
-        }
     }
 }

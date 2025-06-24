@@ -7,7 +7,6 @@ import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
@@ -39,7 +38,6 @@ import org.springframework.stereotype.Component;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.security.KeyStore;
-import java.security.Security;
 import java.security.cert.CRL;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -86,9 +84,6 @@ public class JettyBootstrap implements ApplicationService {
             "SSLv3"
     };
 
-    static {
-        Security.addProvider(new BouncyCastleJsseProvider());
-    }
 
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
@@ -307,7 +302,6 @@ public class JettyBootstrap implements ApplicationService {
         sslContextFactory.setKeyStorePath(keystore);
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
-		sslContextFactory.setProvider("BCJSSE");
 
         if (isClientCertificate) {
             // accept self-signed client certificates for authentication
