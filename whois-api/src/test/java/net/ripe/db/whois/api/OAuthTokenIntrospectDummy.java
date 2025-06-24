@@ -10,6 +10,7 @@ import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Handler;
@@ -31,6 +32,8 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 
+import static net.ripe.db.whois.api.AbstractIntegrationTest.getRequestBody;
+
 @Profile({WhoisProfile.TEST})
 @Component
 public class OAuthTokenIntrospectDummy implements Stub {
@@ -48,14 +51,16 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
     private static class ApiPublicKeyLoaderTestHandler extends Handler.Abstract {
 
-        @Override
+            @Override
         public boolean handle(Request request, Response response, Callback callback) throws Exception {
-            
-            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
+
+           response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
 
             if (request.getHttpURI().getPath().contains("ripe-ncc/protocol/openid-connect/token/introspect")) {
                 try {
-                    final SignedJWT signedJWT = SignedJWT.parse(request.getAttribute("token").toString());
+
+                    final String body = getRequestBody(request);
+                    final SignedJWT signedJWT = SignedJWT.parse(StringUtils.substringAfter(body, "token="));
 
                     final String email = signedJWT.getJWTClaimsSet().getStringClaim("email");
                     if (email.equals("invalid@ripenet")) {
@@ -66,17 +71,17 @@ public class OAuthTokenIntrospectDummy implements Stub {
                     final boolean isActive = !email.equals("inactive@ripe.net");
 
                     response.setStatus(HttpServletResponse.SC_OK);
-                    //response.setContentType(MediaType.APPLICATION_JSON);
+                    response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
                     response.write(
                             true,
                             ByteBuffer.wrap(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", isActive).toString().getBytes()),
                             callback
                     );
 
-                    response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
                     callback.succeeded();
 
                     return true;
+
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

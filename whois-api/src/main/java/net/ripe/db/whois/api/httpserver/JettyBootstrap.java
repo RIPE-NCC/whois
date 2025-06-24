@@ -83,7 +83,6 @@ public class JettyBootstrap implements ApplicationService {
             "SSLv3"
     };
 
-
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
     private final List<ServletDeployer> servletDeployers;

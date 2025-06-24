@@ -14,6 +14,8 @@ import org.apache.logging.log4j.core.appender.WriterAppender;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.eclipse.jetty.io.Content;
+import org.eclipse.jetty.server.Request;
 import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -118,5 +123,26 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
     protected String encode(final String input) {
         // do not interpret template parameters
         return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
+    }
+
+    public static String getRequestBody(final Request request) throws IOException {
+
+        final StringBuilder builder = new StringBuilder();
+
+        while (true) {
+            final Content.Chunk chunk = request.read();
+
+            final ByteBuffer buffer = chunk.getByteBuffer();
+
+            final byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            builder.append(new String(bytes, StandardCharsets.UTF_8));
+
+            chunk.release();
+
+            if (chunk.isLast()) break;
+        }
+
+        return builder.toString();
     }
 }

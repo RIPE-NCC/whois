@@ -5,15 +5,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.update.dns.zonemaster.ZonemasterRestClient;
 import net.ripe.db.whois.update.dns.zonemaster.domain.ZonemasterRequest;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
@@ -27,11 +25,13 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+
+import static net.ripe.db.whois.api.AbstractIntegrationTest.getRequestBody;
 
 @Profile({WhoisProfile.TEST})
 @Component
@@ -57,7 +57,7 @@ public class ZonemasterDummy implements Stub {
         @Override
         public boolean handle(Request request, Response response, Callback callback) throws Exception {
 
-            final String requestBody = getRequestBody( (HttpServletRequest) request);
+            final String requestBody = getRequestBody(request);
             Map<String, Object> map = OBJECT_MAPPER.readValue(requestBody, Map.class);
 
 
@@ -65,39 +65,35 @@ public class ZonemasterDummy implements Stub {
                 if (ZonemasterRequest.Method.START_DOMAIN_TEST.getMethod().equals(map.get("method"))){
                     Map<String, String> parameters = OBJECT_MAPPER.convertValue(map.get("params"), Map.class);
                     if(entry.getKey().equals(parameters.get("domain"))){
-                        putResponseBody((HttpServletResponse) response, removeFirst(entry.getValue()));
+                        response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+                        response.write(true, ByteBuffer.wrap(removeFirst(entry.getValue()).getBytes(StandardCharsets.UTF_8)), callback);
+                        callback.succeeded();
+
                         return true;
                     }
                 }
                 if (ZonemasterRequest.Method.VERSION_INFO.getMethod().equals(map.get("method")) &&
                         entry.getKey().equals(String.valueOf(map.get("id")))) {
-                    putResponseBody((HttpServletResponse) response, removeFirst(entry.getValue()));
+
+                    response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+                    response.write(true, ByteBuffer.wrap(removeFirst(entry.getValue()).getBytes(StandardCharsets.UTF_8)), callback);
+                    callback.succeeded();
+
                     return true;
                 }
                 if (ZonemasterRequest.Method.GET_TEST_RESULTS.getMethod().equals(map.get("method")) &&
                         entry.getKey().equals(String.valueOf(map.get("id")))){
-                    putResponseBody((HttpServletResponse) response, removeFirst(entry.getValue()));
+                    response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+
+                    response.write(true, ByteBuffer.wrap(removeFirst(entry.getValue()).getBytes(StandardCharsets.UTF_8)), callback);
+                    callback.succeeded();
                     return true;
                 }
             }
+
             throw new IllegalStateException("request not handled: " + requestBody);
-        }
-
-        private String getRequestBody(final HttpServletRequest request) throws IOException {
-            final StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = request.getReader().readLine()) != null) {
-                builder.append(line).append('\n');
-            }
-            return builder.toString();
-        }
-
-        private void putResponseBody(final HttpServletResponse response, final String body) throws IOException {
-            response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-
-            try (final PrintWriter writer = response.getWriter()) {
-                writer.write(body);
-            }
         }
 
         private String removeFirst(final List<String> list) {

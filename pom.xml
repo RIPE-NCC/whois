@@ -528,17 +528,11 @@
                   <artifactId>jetty-http2-server</artifactId>
                   <version>${jetty.version}</version>
             </dependency>
-         <!--   <dependency>
+          <dependency>
                   <groupId>org.eclipse.jetty</groupId>
                   <artifactId>jetty-alpn-server</artifactId>
                   <version>${jetty.version}</version>
             </dependency>
-            &lt;!&ndash; https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-alpn-conscrypt-server &ndash;&gt;
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-alpn-conscrypt-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>-->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-io</artifactId>
