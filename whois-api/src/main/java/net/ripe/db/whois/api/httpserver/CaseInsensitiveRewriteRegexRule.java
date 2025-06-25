@@ -6,15 +6,10 @@ import java.util.regex.Pattern;
 
 public class CaseInsensitiveRewriteRegexRule extends RewriteRegexRule {
 
-    public CaseInsensitiveRewriteRegexRule(String regex, String replacement) {
-        super(regex, replacement);
-        setTerminating(true);
+    public CaseInsensitiveRewriteRegexRule(final String regex, final String replacement) {
+        // Compile regex with CASE_INSENSITIVE flag
+        Pattern caseInsensitivePattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        setRegex(caseInsensitivePattern.pattern());   // This initializes the internal _regex field
+        setReplacement(replacement);        // Sets the target replacement string
     }
-
-    @Override
-    public void setRegex(String regex) {
-        String defaultRegex = getRegex();
-        defaultRegex = regex == null ? null : Pattern.compile(regex, Pattern.CASE_INSENSITIVE).pattern();
-    }
-
 }
