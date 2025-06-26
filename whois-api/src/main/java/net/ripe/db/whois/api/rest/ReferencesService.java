@@ -55,6 +55,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.update.domain.Keyword;
@@ -141,22 +142,28 @@ public class ReferencesService {
             @PathParam("key") final String keyParam) {
 
         final Reference result = new Reference(keyParam, objectTypeParam);
-        populateIncomingReferences(result);
+        lookupIncomingReferences(result);
 
         for (final Reference reference : result.getIncoming()) {
-            populateIncomingReferences(reference);
+            lookupIncomingReferences(reference);
         }
 
         return result;
     }
 
-    private void populateIncomingReferences(final Reference reference) {
-        final RpslObject primaryObject = lookupObjectByKey(reference.getPrimaryKey(), reference.getObjectType());
+    private void lookupIncomingReferences(final Reference reference) {
+        final Source originalSource = sourceContext.getCurrentSource();
+        try {
+            sourceContext.setCurrent(sourceContext.getSlaveSource());
+            final RpslObject primaryObject = lookupObjectByKey(reference.getPrimaryKey(), reference.getObjectType());
 
-        for (final Map.Entry<RpslObjectInfo, RpslObject> entry : findReferences(primaryObject).entrySet()) {
-            final RpslObject referenceObject = entry.getValue();
-            final Reference referenceToReference = new Reference(referenceObject.getKey().toString(), referenceObject.getType().getName());
-            reference.getIncoming().add(referenceToReference);
+            for (final Map.Entry<RpslObjectInfo, RpslObject> entry : findReferences(primaryObject).entrySet()) {
+                final RpslObject referenceObject = entry.getValue();
+                final Reference referenceToReference = new Reference(referenceObject.getKey().toString(), referenceObject.getType().getName());
+                reference.getIncoming().add(referenceToReference);
+            }
+        } finally {
+            sourceContext.setCurrent(originalSource);
         }
     }
 

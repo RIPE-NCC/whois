@@ -16,8 +16,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.RecoverableDataAccessException;
@@ -35,27 +33,18 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Repository
 @RetryFor(RecoverableDataAccessException.class)
-// TODO: [ES] sourceaware only seems to use the correct source when extending JdbcRpslObjectDao?
 public class JdbcReferencesDao extends JdbcRpslObjectDao implements ReferencesDao {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcReferencesDao.class);
-
-    final SourceContext sourceContext;      // TODO: [ES] debug only
     private final JdbcTemplate jdbcTemplate;
 
-    // TODO: [ES] if we use a hardcoded @Qualifier("whoisSlaveDataSource") final DataSource dataSource
-    // then whois-update will use the possibly out-of-date slave source when validating references.
     @Autowired
     public JdbcReferencesDao(@Qualifier("sourceAwareDataSource") final DataSource dataSource, final SourceContext sourceContext) {
         super(dataSource, sourceContext);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.sourceContext = sourceContext;
     }
 
     @Override
     public boolean isReferenced(final RpslObject object) {
-        LOGGER.warn("*** isReferenced: currentSource = {} ***", sourceContext.getCurrentSource());
-
         for (final RpslAttribute attribute : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
             for (final IndexStrategy indexStrategy : IndexStrategies.getReferencing(object.getType())) {
                 for (final CIString value : attribute.getReferenceValues()) {
@@ -74,8 +63,6 @@ public class JdbcReferencesDao extends JdbcRpslObjectDao implements ReferencesDa
 
     @Override
     public Set<RpslObjectInfo> getReferences(final RpslObject object) {
-        LOGGER.warn("*** getReferences: currentSource = {} ***", sourceContext.getCurrentSource());
-
         final Set<RpslObjectInfo> references = Sets.newHashSet();
         final List<IndexStrategy> indexStrategies = IndexStrategies.getReferencing(object.getType());
 
@@ -100,8 +87,6 @@ public class JdbcReferencesDao extends JdbcRpslObjectDao implements ReferencesDa
 
     @Override
     public Map<RpslAttribute, Set<CIString>> getInvalidReferences(final RpslObject object) {
-        LOGGER.warn("*** getInvalidReferences: currentSource = {} ***", sourceContext.getCurrentSource());
-
         final Map<RpslAttribute, Set<CIString>> invalidReferenceMap = Maps.newHashMap();
 
         for (final RpslAttribute attribute : object.getAttributes()) {
@@ -151,8 +136,6 @@ public class JdbcReferencesDao extends JdbcRpslObjectDao implements ReferencesDa
 
     @CheckForNull
     public RpslObjectInfo getAttributeReference(final AttributeType attributeType, final CIString value) {
-        LOGGER.warn("*** getAttributeReference: currentSource = {} ***", sourceContext.getCurrentSource());
-
         final CIString referenceValue = new RpslAttribute(attributeType, value.toString()).getReferenceValue();
         for (final ObjectType objectType : attributeType.getReferences()) {
             final RpslObjectInfo result = getAttributeReference(objectType, referenceValue);
