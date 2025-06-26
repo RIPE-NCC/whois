@@ -578,7 +578,6 @@
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
                 <version>${servlet.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- Jersey Jakarta REST (JAX-RS) implementation -->
@@ -619,7 +618,6 @@
                 <groupId>jakarta.ws.rs</groupId>
                 <artifactId>jakarta.ws.rs-api</artifactId>
                 <version>${jaxrs.api.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
@@ -681,7 +679,6 @@
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jaxb.api.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
@@ -720,7 +717,6 @@
                 <groupId>javax.cache</groupId>
                 <artifactId>cache-api</artifactId>
                 <version>${jcache.api.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
@@ -800,7 +796,7 @@
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
             <version>${persistence.api.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
