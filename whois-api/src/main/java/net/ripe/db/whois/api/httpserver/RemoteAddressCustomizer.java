@@ -123,20 +123,12 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return null;
             }
 
-            private String getRemoteAddrFromRequest(final Request request){
-                if (usingForwardedForHeader){
-                    final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
-                    return (Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor);
-                } else {
-                    final SocketAddress remoteSocketAddress = request.getConnectionMetaData().getRemoteSocketAddress();
-                    if (remoteSocketAddress instanceof InetSocketAddress) {
-                        return ((InetSocketAddress) remoteSocketAddress).getAddress().getHostAddress();
-                    } else {
-                        return remoteSocketAddress.toString();
-                    }
-                }
-            }
+            private String getRemoteAddrFromRequest(final Request request) {
+                if(!usingForwardedForHeader) return Request.getRemoteAddr(request);
 
+                final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
+                return Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor;
+            }
         };
     };
 
