@@ -59,7 +59,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return new ConnectionMetaData.Wrapper(request.getConnectionMetaData()) {
                     @Override
                     public SocketAddress getRemoteSocketAddress() {
-                        String remoteAddress = getRemoteAddrFromRequest(request);
+                        String remoteAddress = stripSlashAndPort(stripSquareBrackets(getRemoteAddrFromRequest(request)));
                         if (isTrusted(remoteAddress)){
                             String clientIp = getClientIp(request);
                             if (clientIp != null){
@@ -84,6 +84,10 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                     return clientIp;
                 }
                 return null;
+            }
+
+            private String stripSquareBrackets(final String address){
+                return (address.startsWith("[") && address.endsWith("]")) ? address.substring(1, address.length() - 1) : address;
             }
 
             public String getScheme() {
@@ -123,14 +127,24 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return null;
             }
 
-            private String getRemoteAddrFromRequest(final Request request) {
-                if(!usingForwardedForHeader) return Request.getRemoteAddr(request);
-
-                final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
-                return Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor;
+            private String getRemoteAddrFromRequest(final Request request){
+                if (usingForwardedForHeader){
+                    final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
+                    return (Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor);
+                } else {
+                    return request.getConnectionMetaData().getRemoteSocketAddress().toString();
+                }
             }
+
         };
     };
+
+    private static String stripSlashAndPort(final String address) {
+        final int leadingSlash = address.indexOf('/');
+        final int trailingColon = address.indexOf(':');
+
+        return (leadingSlash != -1 && trailingColon != -1) ?   address.substring(leadingSlash + 1, trailingColon) : address;
+    }
 
     private boolean isTrusted(final String remoteAddress){
         return isTrusted(getInterval(remoteAddress));
@@ -154,5 +168,4 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
 
         return intervals;
     }
-
 }
