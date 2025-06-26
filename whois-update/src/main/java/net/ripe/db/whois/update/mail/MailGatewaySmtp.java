@@ -8,9 +8,9 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.common.PunycodeConversion;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.dao.OutgoingMessageDao;
+import net.ripe.db.whois.common.mail.MailLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
@@ -30,6 +30,7 @@ public abstract class MailGatewaySmtp {
     protected final JavaMailSender mailSender;
     protected final EmailStatusDao emailStatusDao;
     protected final OutgoingMessageDao outgoingMessageDao;
+    protected final MailLog mailLog;
     protected final String webBaseUrl;
 
 
@@ -38,11 +39,13 @@ public abstract class MailGatewaySmtp {
             final JavaMailSender mailSender,
             final EmailStatusDao emailStatusDao,
             final OutgoingMessageDao outgoingMessageDao,
-            @Value("${web.baseurl}") final String webBaseUrl) {
+            final MailLog mailLog,
+            final String webBaseUrl) {
         this.mailConfiguration = mailConfiguration;
         this.mailSender = mailSender;
         this.emailStatusDao = emailStatusDao;
         this.outgoingMessageDao = outgoingMessageDao;
+        this.mailLog = mailLog;
         this.webBaseUrl = webBaseUrl;
     }
 
@@ -178,6 +181,7 @@ public abstract class MailGatewaySmtp {
     private MimeMessage sendAndPersist(final MimeMessageHelper messageHelper, final String[] recipientsPunycode) throws MessagingException {
         final MimeMessage message = messageHelper.getMimeMessage();
         mailSender.send(message);
+        mailLog.info(message);
         persistOutGoingMessageInfo(message, recipientsPunycode);
         return message;
     }

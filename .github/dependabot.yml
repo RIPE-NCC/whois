@@ -18,16 +18,10 @@ updates:
         versions: ["5.x"]
       # Don't update SolrJ (provides API for full text search)
       - dependency-name: "org.apache.solr:solr-solrj"
-      # Jackson 3.x is a major update (still) in development and not API compatible with 2.x
+      # Jackson 3.x is a major update in development and not API compatible with 2.x
       - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-jaxrs-base"
         versions: ["3.x"]
       - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider"
         versions: ["3.x"]
       - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-annotations"
         versions: ["3.x"]
-      # ignore JAX-RS API 4.0 for Jakarta EE11
-      - dependency-name: "jakarta.ws.rs:jakarta.ws.rs-api"
-        versions: ["4.x"]
-      # ignore Servlet API 6.1 for Jakarta EE11
-      - dependency-name: "jakarta.servlet:jakarta.servlet-api"
-        versions: ["6.1.0"]
