@@ -18,8 +18,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
-import java.util.Random;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -50,22 +48,22 @@ public class RestTest {
     }
 
     public static WebTarget target(final int port, final String path) {
-        return client.target(String.format("http://%s:%d/%s", getLocalhost(), port, path));
+        return client.target(String.format("http://localhost:%d/%s", port, path));
     }
 
     public static WebTarget target(final int port, final String path, String queryParam) {
-        return client.target(String.format("http://%s:%d/%s?%s", getLocalhost(),port, path,
+        return client.target(String.format("http://localhost:%d/%s?%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam));
     }
 
     public static WebTarget target(final int port, final String path, String queryParam, final String apiKey) {
-        return client.target(String.format("http://%s:%d/%s?%sapiKey=%s", getLocalhost(), port, path,
+        return client.target(String.format("http://localhost:%d/%s?%sapiKey=%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
                 apiKey));
     }
 
     public static WebTarget target(final int port, final String path, final String pathParam, String queryParam, final String apiKey) {
-        return client.target(String.format("http://%s:%d/%s/%s?%sapiKey=%s", getLocalhost(), port, path, RestClientUtils.encode(pathParam),
+        return client.target(String.format("http://localhost:%d/%s/%s?%sapiKey=%s", port, path, RestClientUtils.encode(pathParam),
                 StringUtils.isBlank(queryParam) ? "" : queryParam + "&",
                 apiKey));
     }
@@ -128,9 +126,5 @@ public class RestTest {
             }
         }
         assertThat(errorCount, is(expectedCount));
-    }
-
-    private static String getLocalhost() {
-        return new Random().nextBoolean() ? "0.0.0.0" : "[::1]";
     }
 }
