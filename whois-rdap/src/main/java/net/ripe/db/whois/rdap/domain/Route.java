@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.rdap.domain;
+package net.ripe.db.whois.rdap.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.xml.bind.annotation.XmlAccessType;
