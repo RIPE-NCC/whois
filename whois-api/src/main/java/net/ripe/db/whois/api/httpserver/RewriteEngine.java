@@ -153,8 +153,9 @@ public class RewriteEngine {
                 "https://docs.db.ripe.net/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"
         ));
 
+        //TODO: Rules are added as list , fix it 
         // catch-all fallthrough; return 400
-        //virtualHost.addRule(new FixedResponseRule(HttpStatus.BAD_REQUEST_400));
+       // virtualHost.addRule(new FixedResponseRule(HttpStatus.BAD_REQUEST_400));
     }
 
 }
