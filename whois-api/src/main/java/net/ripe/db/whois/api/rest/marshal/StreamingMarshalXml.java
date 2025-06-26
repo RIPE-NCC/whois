@@ -1,7 +1,11 @@
 package net.ripe.db.whois.api.rest.marshal;
 
 import com.google.common.collect.ImmutableList;
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
+import org.glassfish.jaxb.core.marshaller.CharacterEscapeHandler;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import javanet.staxutils.events.NamespaceEvent;
 import javanet.staxutils.io.XMLWriterUtils;
 import net.ripe.db.whois.api.rest.client.StreamingException;
@@ -10,10 +14,6 @@ import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.TemplateResources;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Namespace;
@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class StreamingMarshalXml extends AbstractStreamingMarshal {
+public class StreamingMarshalXml implements StreamingMarshal {
+
     private static final List<Namespace> NAMESPACES = ImmutableList.<Namespace>of(new NamespaceEvent("xlink", Link.XLINK_URI));
     private static final NewlineEscapeHandler NEWLINE_ESCAPE_HANDLER = new NewlineEscapeHandler();
 
@@ -52,7 +53,7 @@ class StreamingMarshalXml extends AbstractStreamingMarshal {
             marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.setProperty(CharacterEscapeHandler.class.getName(), NEWLINE_ESCAPE_HANDLER);
+            marshaller.setProperty("org.glassfish.jaxb.characterEscapeHandler", NEWLINE_ESCAPE_HANDLER);
 
         } catch (JAXBException e) {
             throw new StreamingException(e);
@@ -119,7 +120,6 @@ class StreamingMarshalXml extends AbstractStreamingMarshal {
         }
     }
 
-    @Override
     public <T> void singleton(T t) {
         try {
             XMLWriterUtils.writeStartDocument("1.0", "UTF-8", xmlOut);

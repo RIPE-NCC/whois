@@ -6,9 +6,9 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ErrorMessageTest {
 
@@ -34,11 +34,11 @@ public class ErrorMessageTest {
 
     @Test
     public void equals() {
-        final ErrorMessage errorMessage1 = new ErrorMessage("Error", new Attribute("name", "value"), "text", Lists.newArrayList(new Arg("value")));
+        final ErrorMessage errorMessage1 = new ErrorMessage(new Attribute("name", "value"), "text", Lists.newArrayList(new Arg("value")));
         assertThat(errorMessage1.equals(null), is(false));
         assertThat(errorMessage1.equals("String"), is(false));
         assertThat(errorMessage1.equals(errorMessage1), is(true));
-        assertThat(errorMessage1.equals(new ErrorMessage("Error", new Attribute("name", "value"), "text", Lists.newArrayList(new Arg("value")))), is(true));
+        assertThat(errorMessage1.equals(new ErrorMessage(new Attribute("name", "value"), "text", Lists.newArrayList(new Arg("value")))), is(true));
 
         final ErrorMessage errorMessage2 = new ErrorMessage(new Message(Messages.Type.ERROR, "text"));
         assertThat(errorMessage2.equals(null), is(false));

@@ -59,7 +59,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          LIM-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -81,7 +81,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          UPD-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -104,7 +104,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          UPD-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update
@@ -124,7 +124,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          LIM-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
         def createResponse = syncUpdate create
 
@@ -143,7 +143,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          LIM-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
         def updateResponse = syncUpdate update
 
@@ -162,7 +162,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          LIM-MNT
             source:          TEST
             password:        update
-            """.stripIndent())
+            """.stripIndent(true))
 
         def createResponse = syncUpdate create
 
@@ -180,7 +180,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
             source:          TEST
             password:        update
             delete:          test
-            """.stripIndent())
+            """.stripIndent(true))
 
         def deleteResponse = syncUpdate delete
 

@@ -1,18 +1,17 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.ClientErrorException;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
-
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-
-import javax.ws.rs.ClientErrorException;
 import java.net.HttpURLConnection;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
 
     @Test

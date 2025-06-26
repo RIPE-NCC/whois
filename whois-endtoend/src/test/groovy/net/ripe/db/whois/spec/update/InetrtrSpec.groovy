@@ -134,7 +134,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -143,7 +143,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -193,7 +193,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
 
                 password: test2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -202,7 +202,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -239,7 +239,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -248,7 +248,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 1, 2)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -280,7 +280,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -289,7 +289,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -325,7 +325,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -334,7 +334,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -365,7 +365,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -374,7 +374,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObjectNotFound("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -406,7 +406,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 delete:       test delete
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -450,7 +450,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 delete:      test delete
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -491,7 +491,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -500,7 +500,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -532,7 +532,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -541,7 +541,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -576,7 +576,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -585,7 +585,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -621,7 +621,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -630,7 +630,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -668,7 +668,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -677,7 +677,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -714,7 +714,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -723,7 +723,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -753,7 +753,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -762,7 +762,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObjectNotFound("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -799,7 +799,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
 
                 password: test
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -808,7 +808,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inet-rtr] test.net" }
         queryObjectNotFound("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -841,7 +841,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -850,7 +850,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -886,7 +886,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -895,7 +895,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet-rtr] test2.net" }
         query_object_not_matches("-rGBT inet-rtr test2.net", "inet-rtr", "test2.net","ifaddr:\\s*146.188.49.14 masklen 31 action")
         ack.errorMessagesFor("Modify","[inet-rtr] test2.net") == ["Syntax error in 146.188.49.14 masklen 31 action"]
@@ -930,7 +930,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -939,7 +939,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet-rtr] test2.net" }
         query_object_not_matches("-rGBT inet-rtr test2.net", "inet-rtr", "test2.net","interface:\\s*2001:1578:200:FFFF::2 masklen 129")
         ack.errorMessagesFor("Modify","[inet-rtr] test2.net") == ["Syntax error in 2001:1578:200:FFFF::2 masklen 129"]
@@ -974,7 +974,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -983,7 +983,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet-rtr] test2.net" }
         query_object_not_matches("-rGBT inet-rtr test2.net", "inet-rtr", "test2.net","peer:\\s*BGP4 192.168.1.2 asno(PeerAS_), flap_damp()")
         ack.errorMessagesFor("Modify","[inet-rtr] test2.net") == ["Syntax error in BGP4 192.168.1.2 asno(PeerAS_), flap_damp()"]
@@ -1018,7 +1018,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1027,7 +1027,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet-rtr] test2.net" }
 
         queryObject("-r -T inet-rtr test2.net", "inet-rtr", "test2.net")
@@ -1065,7 +1065,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1074,7 +1074,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet-rtr] test2.net" }
         queryObject("-rGBT inet-rtr test2.net", "inet-rtr", "test2.net")
         query_object_matches("-rGBT inet-rtr test2.net", "inet-rtr", "test2.net","ifaddr:\\s*146.188.49.14 masklen 31")
@@ -1107,7 +1107,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1116,7 +1116,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -1150,7 +1150,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1159,7 +1159,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")
@@ -1191,7 +1191,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1200,7 +1200,7 @@ class InetrtrSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[inet-rtr] test.net" }
         queryObject("-rGBT inet-rtr test.net", "inet-rtr", "test.net")

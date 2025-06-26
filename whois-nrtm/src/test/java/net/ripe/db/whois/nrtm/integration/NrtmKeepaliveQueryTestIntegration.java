@@ -6,15 +6,15 @@ import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Value;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Value("${nrtm.update.interval:15}") private String updateIntervalString;
@@ -34,7 +34,7 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
 
     @Test
     public void queryKeepaliveNoPreExistingObjects() {
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-2 -k", (updateInterval + 1) * 1000);
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-2 -k", (updateInterval + 1) * 1000);
 
         assertThat(response, containsString("%ERROR:401: invalid range"));
     }
@@ -42,7 +42,7 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
     @Test
     public void queryKeepAliveNoPreExistingObjectsOneNewObject() {
         databaseHelper.addObject(RpslObject.parse("mntner:test\nsource:TEST"));
-        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST:3:1-1 -k", (updateInterval + 1));
+        AsyncNrtmClient client = new AsyncNrtmClient(nrtmServer.getPort(), "-g TEST:3:1-1 -k", (updateInterval + 1));
 
         client.start();
         databaseHelper.addObject(RpslObject.parse("mntner:keepalive\nsource:TEST"));
@@ -54,7 +54,7 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
     @Test
     public void queryKeepAliveNoPreExistingObjectsOneNewObject2() {
         databaseHelper.addObject(RpslObject.parse("mntner:test\nsource:TEST-NONAUTH"));
-        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-1 -k", (updateInterval + 1));
+        AsyncNrtmClient client = new AsyncNrtmClient(nrtmServer.getPort(), "-g TEST-NONAUTH:3:1-1 -k", (updateInterval + 1));
 
         client.start();
         databaseHelper.addObject(RpslObject.parse("mntner:keepalive\nsource:TEST-NONAUTH"));
@@ -66,7 +66,7 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
     @Test
     public void queryKeepAliveOnePreExistingObjectsOneNewObject() {
         databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner\nsource:TEST"));
-        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST:3:1-LAST -k", (updateInterval + 1));
+        AsyncNrtmClient client = new AsyncNrtmClient(nrtmServer.getPort(), "-g TEST:3:1-LAST -k", (updateInterval + 1));
 
         client.start();
         super.databaseHelper.addObject(RpslObject.parse("mntner:keepalive\nsource:TEST"));
@@ -79,7 +79,7 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
     @Test
     public void queryKeepAliveOnePreExistingObjectDifferentSource() {
         databaseHelper.addObject(RpslObject.parse("mntner:testmntner\nmnt-by:testmntner\nsource:TEST"));
-        AsyncNrtmClient client = new AsyncNrtmClient(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-LAST -k", (updateInterval + 1));
+        AsyncNrtmClient client = new AsyncNrtmClient(nrtmServer.getPort(), "-g TEST-NONAUTH:3:1-LAST -k", (updateInterval + 1));
 
         client.start();
         //super.databaseHelper.addObject(RpslObject.parse("aut-num:AS4294967207\nsource:TEST-NONAUTH"));
@@ -96,7 +96,7 @@ public class NrtmKeepaliveQueryTestIntegration extends AbstractNrtmIntegrationBa
         databaseHelper.addObject("aut-num:AS6294967207\nsource:TEST-NONAUTH");
         databaseHelper.addObject("aut-num:AS7294967207\nsource:TEST-NONAUTH");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-LAST");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST-NONAUTH:3:1-LAST");
 
         assertThat(response, containsString("ADD 1"));
         assertThat(response, containsString("AS4294967207"));

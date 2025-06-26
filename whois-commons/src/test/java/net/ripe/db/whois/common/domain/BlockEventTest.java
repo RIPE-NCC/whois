@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class BlockEventTest {
 
@@ -31,13 +31,13 @@ public class BlockEventTest {
         final BlockEvent newDate = new BlockEvent(LocalDateTime.of(2011, 2, 16, 12, 0), 1, BlockEvent.Type.BLOCK_TEMPORARY);
         final BlockEvent newType = new BlockEvent(LocalDateTime.of(2012, 2, 16, 12, 0), 1, BlockEvent.Type.UNBLOCK);
 
-        assertEquals(subject, subject, "same");
-        assertEquals(subject, clone, "equal");
-        assertEquals(subject.hashCode(), clone.hashCode(), "hashcode");
+        assertThat(subject, equalTo(subject));
+        assertThat(subject, equalTo(clone));
+        assertThat(subject.hashCode(), equalTo(clone.hashCode()));
 
-        assertFalse(subject.equals(null), "null");
-        assertFalse(subject.equals(1), "different class");
-        assertFalse(subject.equals(newDate), "different date");
-        assertFalse(subject.equals(newType), "different type");
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo(1))); // different class
+        assertThat(subject, not(equalTo(newDate))); // different date
+        assertThat(subject, not(equalTo(newType))); // different type
     }
 }

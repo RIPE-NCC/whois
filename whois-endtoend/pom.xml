@@ -12,23 +12,84 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-client</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-db</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-query</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-query</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-update</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-nrtm4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-scheduler</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-query</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-update</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-query</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-update</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.ripe.db</groupId>
+                    <artifactId>whois-client</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- testing -->
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
-            <type>test-jar</type>
-        </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-rpsl</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>
@@ -43,12 +104,12 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-api</artifactId>
+            <artifactId>whois-scheduler</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-scheduler</artifactId>
+            <artifactId>whois-api</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>
@@ -66,8 +127,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.15.0</version>
                 <configuration>
                     <skip>true</skip>
                     <aspectLibraries>
@@ -85,7 +147,7 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.13.1</version>
+                <version>4.2.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -95,6 +157,74 @@
                 </executions>
                 <configuration>
                     <parallelParsing>true</parallelParsing>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
+                    <usedDependencies>
+                        <dependency>org.springframework:spring-oxm</dependency>
+                        <dependency>net.ripe.db:whois-nrtm4</dependency>
+                        <dependency>net.ripe.db:whois-scheduler</dependency>
+                        <dependency>net.ripe.db:whois-db</dependency>
+                        <dependency>net.ripe.db:whois-nrtm</dependency>
+                    </usedDependencies>
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-http</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.angus:jakarta.mail</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-client</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-query</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-update</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>io.github.java-diff-utils:java-diff-utils</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-jdbc</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.media:jersey-media-multipart</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-commons</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+
+                    <!-- Ignore dependencies coming from another dependency and which we are just using in
+                    test scope in this module -->
+                    <ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependency>com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.eclipse.jetty:jetty-http</ignoredNonTestScopedDependency>
+
+                        <ignoredNonTestScopedDependency>org.eclipse.angus:jakarta.mail</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>net.ripe.db:whois-api</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>net.ripe.db:whois-commons</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>net.ripe.db:whois-scheduler</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>net.ripe.db:whois-nrtm</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>net.ripe.db:whois-db</ignoredNonTestScopedDependency>
+
+                        <ignoredNonTestScopedDependency>org.springframework:spring-beans</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>commons-lang:commons-lang</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>commons-io:commons-io</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.springframework:spring-jdbc</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.glassfish.jersey.media:jersey-media-multipart</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredNonTestScopedDependency>
+
+                        <ignoredNonTestScopedDependency>org.springframework:spring-context</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>com.fasterxml.jackson.core:jackson-databind</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.slf4j:slf4j-api</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.springframework:spring-core</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>com.google.guava:guava</ignoredNonTestScopedDependency>
+                    </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
         </plugins>

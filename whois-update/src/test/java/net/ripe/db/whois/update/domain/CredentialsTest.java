@@ -1,13 +1,15 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.credentials.Credential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class CredentialsTest {
@@ -31,14 +33,14 @@ public class CredentialsTest {
         assertThat(subject.ofType(Credential.class), hasSize(3));
         assertThat(subject.ofType(PasswordCredential.class), hasSize(1));
         assertThat(subject.ofType(PgpCredential.class), hasSize(0));
-        assertNull(subject.single(PgpCredential.class));
+        assertThat(subject.single(PgpCredential.class), is(nullValue()));
         assertThat(subject.single(PasswordCredential.class), is(passwordCredential));
 
         try {
             subject.single(Credential.class);
             fail("Expected error on multiple credentials of the same type");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("More than 1 credentials of type: interface net.ripe.db.whois.update.domain.Credential"));
+            assertThat(e.getMessage(), is("More than 1 credentials of type: interface net.ripe.db.whois.common.credentials.Credential"));
         }
 
         assertThat(subject.has(PgpCredential.class), is(false));

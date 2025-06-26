@@ -1,6 +1,6 @@
 package net.ripe.db.whois.api.rest.mapper;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.regex.Pattern;
 
 public class ValidXmlAdapter extends XmlAdapter<String, String> {

@@ -1,8 +1,7 @@
 package net.ripe.db.whois.common.conversion;
 
+import jakarta.ws.rs.core.UriBuilder;
 import org.junit.jupiter.api.Test;
-
-import javax.ws.rs.core.UriBuilder;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -47,6 +46,38 @@ public class PasswordFilterTest {
     }
 
     @Test
+    public void testFilterBasicAuthHeadersInMessage() {
+        final String input = "" +
+                "Header: Authorization=Basic dDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==\n" +
+                "blue: asdfasdfasdf\n" +
+                "yellow%3A++asdfasdfasdf\n" +
+                "green: asdfasdfasdf # password: test\n" +
+                "purple: password\n" +
+                "password:   test1 \n" +
+                "password:test2\n" +
+                "password: test3\n" +
+                "password%3A++test4\n" +
+                "password%3A++test5\n" +
+                "Header: Authorization=Basic dDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==\n" +
+                "delete: adsf\n";
+
+        assertThat(PasswordFilter.filterPasswordsInContents(input), containsString("" +
+                "Header: Authorization=Basic FILTERED\n" +
+                "blue: asdfasdfasdf\n" +
+                "yellow%3A++asdfasdfasdf\n" +
+                "green: asdfasdfasdf # password: test\n" +
+                "purple: password\n" +
+                "password:FILTERED\n" +
+                "password:FILTERED\n" +
+                "password:FILTERED\n" +
+                "password%3AFILTERED\n" +
+                "password%3AFILTERED\n" +
+                "Header: Authorization=Basic FILTERED\n" +
+                "delete: adsf\n"));
+    }
+
+
+    @Test
     public void testFilterOverridePasswordsInMessage() {
         final String input = "" +
                 "red: adsfasdf\n" +
@@ -74,18 +105,18 @@ public class PasswordFilterTest {
     }
 
     @Test
-    public void testFilterOverrideAndPasswordsInMessage() {
+    public void testFilterMixedCaseOverrideAndPasswordsInMessage() {
         final String input = "" +
                 "red: adsfasdf\n" +
                 "purple: override\n" +
-                "override:user,pass\n" +
-                "password:test\n";
+                "oveRride:user,pass\n" +
+                "pasSword:test\n";
 
         assertThat(PasswordFilter.filterPasswordsInContents(input), containsString("" +
                 "red: adsfasdf\n" +
                 "purple: override\n" +
-                "override:user,FILTERED\n" +
-                "password:FILTERED")); // eol stripped
+                "oveRride:user,FILTERED\n" +
+                "pasSword:FILTERED")); // eol stripped
      }
 
 
@@ -149,6 +180,9 @@ public class PasswordFilterTest {
 
         assertThat( PasswordFilter.filterPasswordsInUrl("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0Aoverride:+admin,teamred,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"),
                 is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0Aoverride:+admin,FILTERED,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"));
+
+        assertThat( PasswordFilter.filterPasswordsInUrl("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0AovErrIde:+admin,teamred,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"),
+                is("whois/syncupdates/test?DATA=person%3A+++++++++Test+Person%0asource%3a+RIPE%0AovErrIde:+admin,FILTERED,reason%0anotify%3a+email%40ripe.net%0a&NEW=yes"));
     }
 
     @Test

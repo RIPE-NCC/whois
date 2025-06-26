@@ -18,7 +18,7 @@ class OutOfRegionQuerySpec extends BaseEndToEndSpec {
 
     def setup () {
         def rpslObjects = Sets.newHashSet();
-        rpslObjects.addAll(BasicFixtures.basicFixtures.values().collect { RpslObject.parse(it.stripIndent()) })
+        rpslObjects.addAll(BasicFixtures.basicFixtures.values().collect { RpslObject.parse(it.stripIndent(true)) })
         getDatabaseHelper().addObjects(rpslObjects)
     }
 

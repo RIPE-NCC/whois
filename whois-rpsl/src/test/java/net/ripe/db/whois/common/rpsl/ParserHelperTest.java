@@ -1,7 +1,8 @@
 package net.ripe.db.whois.common.rpsl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ParserHelperTest {
 
@@ -15,7 +16,7 @@ public class ParserHelperTest {
 
     @Test
     public void validateMoreSpecificsOperatorFailsTooLarge() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateMoreSpecificsOperator("^33");
         });
     }
@@ -32,14 +33,14 @@ public class ParserHelperTest {
 
     @Test
     public void validateRangeMoreSpecificsOperatorsInverseRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateRangeMoreSpecificsOperators("^1-0");
         });
     }
 
     @Test
     public void validateRangeMoreSpecificsOperatorsOutOfRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateRangeMoreSpecificsOperators("^0-33");
         });
     }
@@ -54,7 +55,7 @@ public class ParserHelperTest {
 
     @Test
     public void validateAsNumberOutOfRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateAsNumber("AS" + (ParserHelper.MAX_32BIT_NUMBER + 1L));
         });
     }
@@ -71,35 +72,35 @@ public class ParserHelperTest {
 
     @Test
     public void validateIpv4PrefixRangeInvalidPrefix() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv4PrefixRange("128.9.0.0/33^-");
         });
     }
 
     @Test
     public void validateIpv4PrefixRangeInvalidPrefixPlus() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv4PrefixRange("128.9.0.0/33^+");
         });
     }
 
     @Test
     public void validateIpv4PrefixRangeInvalidPrefixCaretLength() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv4PrefixRange("128.9.0.0/8^33");
         });
     }
 
     @Test
     public void validateIpv4PrefixRangeInvalidPrefixCaretLengthEndRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv4PrefixRange("128.9.0.0/8^24-33");
         });
     }
 
     @Test
     public void validateIpv4PrefixRangeInvalidPrefixCaretLengthInverseRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv4PrefixRange("128.9.0.0/8^32-24");
         });
     }
@@ -120,35 +121,35 @@ public class ParserHelperTest {
 
     @Test
     public void validateIpv6PrefixRangeInvalidPrefix() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv6PrefixRange("2001:0DB8::/129^-");
         });
     }
 
     @Test
     public void validateIpv6PrefixRangeInvalidPrefixPlus() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv6PrefixRange("2001:0DB8::/129^+");
         });
     }
 
     @Test
     public void validateIpv6PrefixRangeInvalidPrefixCaretLength() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv6PrefixRange("2001:0DB8::/32^129");
         });
     }
 
     @Test
     public void validateIpv6PrefixRangeInvalidPrefixCaretLengthEndRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv6PrefixRange("2001:0DB8::/32^32-129");
         });
     }
 
     @Test
     public void validateIpv6PrefixRangeInvalidPrefixCaretLengthInverseRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv6PrefixRange("2001:0DB8::/32^32-24");
         });
     }
@@ -163,7 +164,7 @@ public class ParserHelperTest {
 
     @Test
     public void validateIpv4PrefixOutOfRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv4Prefix("1.2.3.4/33");
         });
     }
@@ -180,14 +181,14 @@ public class ParserHelperTest {
 
     @Test
     public void validateIpv6PrefixOutOfRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv6Prefix("2001:0DB8::/129");
         });
     }
 
     @Test
     public void validateIpv6PrefixDoubleColonOutOfRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv6Prefix("2001:503:231d::/129");
         });
     }
@@ -201,7 +202,7 @@ public class ParserHelperTest {
 
     @Test
     public void validateIpv4InvalidPrefixLength() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv4("1.2.3.4/33");
         });
     }
@@ -220,7 +221,7 @@ public class ParserHelperTest {
 
     @Test
     public void validateIpv6InvalidPrefixLength() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateIpv6("2001:0DB8::/129");
         });
     }
@@ -235,14 +236,14 @@ public class ParserHelperTest {
 
     @Test
     public void validateCommunityBeforeColonOutOfRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateCommunity("65536:1");
         });
     }
 
     @Test
     public void validateCommunityAfterColonOutOfRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateCommunity("1:65536");
         });
     }
@@ -260,7 +261,7 @@ public class ParserHelperTest {
 
     @Test
     public void validateDomainNameTooLong() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateDomainName("12345678901234567890123456789012345678901234567890" +
                     "12345678901234567890123456789012345678901234567890" +
                     "12345678901234567890123456789012345678901234567890" +
@@ -280,7 +281,7 @@ public class ParserHelperTest {
 
     @Test
     public void validateDomainNameLabelTooLong() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateDomainNameLabel("1234567890123456789012345678901234567890123456789012345678901234");
         });
     }
@@ -295,14 +296,14 @@ public class ParserHelperTest {
 
     @Test
     public void validateAsRangeInverseRange() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateAsRange("AS2 - AS1");
         });
     }
 
     @Test
     public void validateAsRangeInvalidToNoSpaces() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateAsRange("AS1-AS" + (1L << 32));
         });
 
@@ -310,7 +311,7 @@ public class ParserHelperTest {
 
     @Test
     public void validateAsRangeInvalidToWithSpaces() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ParserHelper.validateAsRange("AS1 -  AS" + (1L << 32));
         });
     }

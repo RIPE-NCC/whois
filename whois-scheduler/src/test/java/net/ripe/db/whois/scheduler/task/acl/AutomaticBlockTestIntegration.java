@@ -10,18 +10,18 @@ import net.ripe.db.whois.query.acl.PersonalObjectAccounting;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
 import java.time.LocalDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationTest {
 
     private static final int NR_DAYS_BEFORE_PERMANENT_BAN = 10;
@@ -62,19 +62,19 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
             queryAndCheckNotBanned(personQuery, "person:         test person");
 
             // Caught by ACL manager
-            queryAndCheckBanned(QueryMessages.accessDeniedTemporarily(localHost));
+            queryAndCheckBanned(QueryMessages.accessDeniedTemporarily(localHost.getHostAddress()));
 
             // Caught by ACL handler
-            queryAndCheckBanned(QueryMessages.accessDeniedTemporarily(localHost));
+            queryAndCheckBanned(QueryMessages.accessDeniedTemporarily(localHost.getHostAddress()));
             dailyMaintenance();
         }
 
         testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
         dailyMaintenance();
-        queryAndCheckBanned(QueryMessages.accessDeniedPermanently(localHost));
+        queryAndCheckBanned(QueryMessages.accessDeniedPermanently(localHost.getHostAddress()));
 
         testDateTimeProvider.setTime(LocalDateTime.now().plusDays(currentDay++));
-        databaseHelper.unban("127.0.0.1/32");
+        databaseHelper.unbanIp("127.0.0.1/32");
 
         dailyMaintenance();
 
@@ -93,8 +93,8 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     private void queryAndCheckNotBanned(final String query, final String personOrRole) throws Exception {
         final String result = query(query);
         assertThat(result, containsString(personOrRole));
-        assertThat(result, not(containsString(QueryMessages.accessDeniedTemporarily(localHost).toString())));
-        assertThat(result, not(containsString(QueryMessages.accessDeniedPermanently(localHost).toString())));
+        assertThat(result, not(containsString(QueryMessages.accessDeniedTemporarily(localHost.getHostAddress()).toString())));
+        assertThat(result, not(containsString(QueryMessages.accessDeniedPermanently(localHost.getHostAddress()).toString())));
     }
 
     private void queryAndCheckBanned(final Message messages) throws Exception {
@@ -110,6 +110,6 @@ public class AutomaticBlockTestIntegration extends AbstractSchedulerIntegrationT
     }
 
     private String query(final String query) throws Exception {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 }

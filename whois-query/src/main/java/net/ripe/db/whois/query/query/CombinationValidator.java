@@ -21,13 +21,11 @@ import static net.ripe.db.whois.query.QueryFlag.INVERSE;
 import static net.ripe.db.whois.query.QueryFlag.LIST_VERSIONS;
 import static net.ripe.db.whois.query.QueryFlag.NO_FILTERING;
 import static net.ripe.db.whois.query.QueryFlag.NO_REFERENCED;
-import static net.ripe.db.whois.query.QueryFlag.NO_TAG_INFO;
 import static net.ripe.db.whois.query.QueryFlag.NO_VALID_SYNTAX;
 import static net.ripe.db.whois.query.QueryFlag.PERSISTENT_CONNECTION;
 import static net.ripe.db.whois.query.QueryFlag.PRIMARY_KEYS;
 import static net.ripe.db.whois.query.QueryFlag.RESOURCE;
 import static net.ripe.db.whois.query.QueryFlag.SELECT_TYPES;
-import static net.ripe.db.whois.query.QueryFlag.SHOW_TAG_INFO;
 import static net.ripe.db.whois.query.QueryFlag.SHOW_VERSION;
 import static net.ripe.db.whois.query.QueryFlag.SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.VALID_SYNTAX;
@@ -37,7 +35,6 @@ class CombinationValidator implements QueryValidator {
 
     static {
         INVALID_COMBINATIONS.put(ABUSE_CONTACT, Lists.newArrayList(BRIEF, NO_FILTERING, NO_REFERENCED, PRIMARY_KEYS));
-        INVALID_COMBINATIONS.put(SHOW_TAG_INFO, Lists.newArrayList(NO_TAG_INFO));
         INVALID_COMBINATIONS.put(RESOURCE, Lists.newArrayList(SOURCES, ALL_SOURCES, INVERSE));
         INVALID_COMBINATIONS.put(VALID_SYNTAX, Lists.newArrayList(NO_VALID_SYNTAX, LIST_VERSIONS, SHOW_VERSION, DIFF_VERSIONS));
 

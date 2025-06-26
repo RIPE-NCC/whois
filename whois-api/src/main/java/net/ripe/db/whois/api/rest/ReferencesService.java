@@ -7,6 +7,32 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementRef;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -21,6 +47,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
@@ -52,32 +79,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -132,6 +133,7 @@ public class ReferencesService {
      * @param keyParam
      */
     @GET
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Path("/{source}/{objectType}/{key:.*}")
     public Reference lookup(
             @PathParam("source") final String sourceParam,
@@ -167,6 +169,7 @@ public class ReferencesService {
                 @PathParam("source") final String sourceParam,
                 @Context final HttpServletRequest request,
                 @QueryParam("password") final List<String> passwords,
+                @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
                 @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         validateWhoisResources(whoisResources);
@@ -186,7 +189,7 @@ public class ReferencesService {
 
             validateObjectNotFound(whoisResources, mntner);
 
-            final WhoisResources updatedResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, null, SsoAuthForm.ACCOUNT, null);
+            final WhoisResources updatedResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, apiKeyId, null, SsoAuthForm.ACCOUNT, null);
             return createResponse(request, filterWhoisObjects(updatedResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -234,13 +237,14 @@ public class ReferencesService {
             final List<ActionRequest> actionRequests,
             final List<String> passwords,
             final String crowdTokenKey,
+            final String apiKeyId,
             final String override,
             final SsoAuthForm ssoAuthForm,
             final String reason) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
             updateContext.setBatchUpdate();
             auditlogRequest(request);
 
@@ -350,7 +354,7 @@ public class ReferencesService {
         validateSource(sourceParam);
 
         try {
-            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(whoisResources), Collections.emptyList(), "", override, SsoAuthForm.ACCOUNT, null);
+            final WhoisResources updatedResources = performUpdates(request, convertToActionRequests(whoisResources), Collections.emptyList(), "", null, override, SsoAuthForm.ACCOUNT, null);
             return createResponse(request, updatedResources, Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -395,6 +399,7 @@ public class ReferencesService {
             @PathParam("key") final String keyParam,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @QueryParam("override") final String override,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
@@ -408,7 +413,7 @@ public class ReferencesService {
 
             if (references.isEmpty()) {
                 // delete the primary object directly
-                performUpdate(request, primaryObject, reason, passwords, crowdTokenKey);
+                performUpdate(request, primaryObject, reason, passwords, apiKeyId, crowdTokenKey);
                 return createResponse(request, primaryObject, Response.Status.OK);
             }
 
@@ -438,7 +443,7 @@ public class ReferencesService {
             actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.DELETE));
 
             // batch update
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, override, SsoAuthForm.UUID, reason);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, apiKeyId, override, SsoAuthForm.UUID, reason);
 
             removeDuplicatesAndRestoreReplacedReferences(whoisResources, tmpMntnerWithReplacements);
 
@@ -491,10 +496,11 @@ public class ReferencesService {
                 final RpslObject rpslObject,
                 final String deleteReason,
                 final List<String> passwords,
+                final String apiKeyId,
                 final String crowdTokenKey) {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
 
             auditlogRequest(request);
 

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.handler;
 
 import com.google.common.collect.Maps;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.VersionDao;
@@ -20,14 +22,12 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
-import net.ripe.db.whois.update.mail.MailGateway;
+import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.util.Collections;
 import java.util.Map;
 
@@ -37,14 +37,14 @@ public class UpdateNotifier {
 
     private final RpslObjectDao rpslObjectDao;
     private final ResponseFactory responseFactory;
-    private final MailGateway mailGateway;
+    private final WhoisMailGatewaySmtp mailGateway;
     private final VersionDao versionDao;
     private final Maintainers maintainers;
 
     @Autowired
     public UpdateNotifier(final RpslObjectDao rpslObjectDao,
                           final ResponseFactory responseFactory,
-                          final MailGateway mailGateway,
+                          final WhoisMailGatewaySmtp mailGateway,
                           final VersionDao versionDao,
                           final Maintainers maintainers) {
         this.rpslObjectDao = rpslObjectDao;
@@ -101,7 +101,7 @@ public class UpdateNotifier {
         }
     }
 
-    private boolean notificationsDisabledByOverride(final PreparedUpdate preparedUpdate) {
+    public boolean notificationsDisabledByOverride(final PreparedUpdate preparedUpdate) {
         final OverrideOptions overrideOptions = preparedUpdate.getOverrideOptions();
         return overrideOptions.isNotifyOverride() && !overrideOptions.isNotify();
     }
@@ -112,20 +112,15 @@ public class UpdateNotifier {
                 (object.getType() == ObjectType.ROUTE || object.getType() == ObjectType.ROUTE6));
     }
 
-    private void addNotifications(final Map<CIString, Notification> notifications, final PreparedUpdate update, final UpdateContext updateContext) {
+    public void addNotifications(final Map<CIString, Notification> notifications, final PreparedUpdate update,
+                            final UpdateContext updateContext) {
         final RpslObject object = update.getReferenceObject();
 
         switch (updateContext.getStatus(update)) {
             case SUCCESS:
                 if (updateContext.getAction(update) != Action.NOOP) {
                     addVersionId(update, updateContext);
-                    add(notifications, updateContext, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
-                    add(notifications, updateContext, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
-                    add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);
-                    add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.IRT, update.getDifferences(AttributeType.MNT_IRT)), AttributeType.IRT_NFY);
-                    if (notifyOriginAutnum(update)) {
-                        add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.AUT_NUM, update.getDifferences(AttributeType.ORIGIN)), AttributeType.NOTIFY);
-                    }
+                    addNotificationForNtfyAttrs(notifications, update, updateContext, object);
                 }
                 break;
 
@@ -136,6 +131,17 @@ public class UpdateNotifier {
             default:
                 break;
 
+        }
+    }
+
+    public void addNotificationForNtfyAttrs(final Map<CIString, Notification> notifications, final PreparedUpdate update,
+                                            final UpdateContext updateContext, final RpslObject object) {
+        add(notifications, updateContext, update, Notification.Type.SUCCESS, Collections.singletonList(object), AttributeType.NOTIFY);
+        add(notifications, updateContext, update, Notification.Type.SUCCESS, rpslObjectDao.getByKeys(ObjectType.MNTNER, object.getValuesForAttribute(AttributeType.MNT_BY)), AttributeType.MNT_NFY);
+        add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.ORGANISATION, update.getDifferences(AttributeType.ORG)), AttributeType.REF_NFY);
+        add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.IRT, update.getDifferences(AttributeType.MNT_IRT)), AttributeType.IRT_NFY);
+        if (notifyOriginAutnum(update)) {
+            add(notifications, updateContext, update, Notification.Type.SUCCESS_REFERENCE, rpslObjectDao.getByKeys(ObjectType.AUT_NUM, update.getDifferences(AttributeType.ORIGIN)), AttributeType.NOTIFY);
         }
     }
 

@@ -3,15 +3,28 @@ package net.ripe.db.whois.common.ip;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 
-public abstract class IpInterval<K extends Interval<K>> implements Interval<K> {
+public abstract sealed class IpInterval<K extends Interval<K>> implements Interval<K>, Serializable permits Ipv4Resource, Ipv6Resource {
+
+    @Serial
+    private static final long serialVersionUID = 2309955325901882655L;
+
     public static String removeTrailingDot(final String address) {
         if (address.endsWith(".")) {
             return address.substring(0, address.length() - 1);
         }
 
+        return address;
+    }
+
+    public static String addTrailingDot(final String address){
+        if (!address.endsWith(".")){
+            return address.concat(".");
+        }
         return address;
     }
 

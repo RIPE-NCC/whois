@@ -12,6 +12,7 @@ import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -25,7 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
-@org.junit.jupiter.api.Tag("ManualTest")
+@Tag("ManualTest")
 @DirtiesContext
 public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerIntegrationTest {
 
@@ -88,6 +89,6 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
     }
 
     private String query(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 }

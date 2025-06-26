@@ -1,13 +1,16 @@
 package net.ripe.db.whois.query.support;
 
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
+import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.nio.charset.Charset;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
 public abstract class AbstractQueryIntegrationTest extends AbstractDaoIntegrationTest {
@@ -43,5 +46,14 @@ public abstract class AbstractQueryIntegrationTest extends AbstractDaoIntegratio
         }
 
         return response;
+    }
+
+    protected String query(final String query) {
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
+    }
+
+    protected String query(final String query, final Charset charset) {
+        final TelnetWhoisClient telnetWhoisClient = new TelnetWhoisClient(queryServer.getPort(), charset);
+        return telnetWhoisClient.sendQuery(query);
     }
 }

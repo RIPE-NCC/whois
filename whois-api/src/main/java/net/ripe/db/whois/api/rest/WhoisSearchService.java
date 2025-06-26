@@ -3,6 +3,17 @@ package net.ripe.db.whois.api.rest;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.Flags;
 import net.ripe.db.whois.api.rest.domain.InverseAttributes;
@@ -12,24 +23,18 @@ import net.ripe.db.whois.api.rest.domain.QueryStrings;
 import net.ripe.db.whois.api.rest.domain.Service;
 import net.ripe.db.whois.api.rest.domain.Sources;
 import net.ripe.db.whois.api.rest.domain.TypeFilters;
+import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.query.Query;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Set;
@@ -39,19 +44,15 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
 import static net.ripe.db.whois.query.QueryFlag.ALL_SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.BRIEF;
+import static net.ripe.db.whois.query.QueryFlag.CHARSET;
 import static net.ripe.db.whois.query.QueryFlag.CLIENT;
 import static net.ripe.db.whois.query.QueryFlag.DIFF_VERSIONS;
-import static net.ripe.db.whois.query.QueryFlag.FILTER_TAG_EXCLUDE;
-import static net.ripe.db.whois.query.QueryFlag.FILTER_TAG_INCLUDE;
 import static net.ripe.db.whois.query.QueryFlag.LIST_SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.LIST_SOURCES_OR_VERSION;
 import static net.ripe.db.whois.query.QueryFlag.LIST_VERSIONS;
-import static net.ripe.db.whois.query.QueryFlag.NO_GROUPING;
-import static net.ripe.db.whois.query.QueryFlag.NO_TAG_INFO;
 import static net.ripe.db.whois.query.QueryFlag.PERSISTENT_CONNECTION;
 import static net.ripe.db.whois.query.QueryFlag.PRIMARY_KEYS;
 import static net.ripe.db.whois.query.QueryFlag.SELECT_TYPES;
-import static net.ripe.db.whois.query.QueryFlag.SHOW_TAG_INFO;
 import static net.ripe.db.whois.query.QueryFlag.SHOW_VERSION;
 import static net.ripe.db.whois.query.QueryFlag.SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.TEMPLATE;
@@ -66,9 +67,9 @@ public class WhoisSearchService {
             // flags for port43 only
             VERSION,
             PERSISTENT_CONNECTION,
+            CHARSET,
 
             // port43 filter flags that make no sense in xml/json
-            NO_GROUPING,
             BRIEF,
             ABUSE_CONTACT,
             PRIMARY_KEYS,
@@ -83,12 +84,6 @@ public class WhoisSearchService {
             ALL_SOURCES,
             SELECT_TYPES,
 
-            // tags are handled from queryparam
-            NO_TAG_INFO,
-            SHOW_TAG_INFO,
-            FILTER_TAG_EXCLUDE,
-            FILTER_TAG_INCLUDE,
-
             // versions are accessible via REST URL /versions/
             DIFF_VERSIONS,
             LIST_VERSIONS,
@@ -98,16 +93,22 @@ public class WhoisSearchService {
     private static final Service SEARCH_SERVICE = new Service("search");
 
     private final AccessControlListManager accessControlListManager;
+    private final SsoTokenTranslator ssoTokenTranslator;
+    private final OverrideCredentialValidator overrideCredentialValidator;
     private final RpslObjectStreamer rpslObjectStreamer;
     private final SourceContext sourceContext;
 
     @Autowired
     public WhoisSearchService(
             final AccessControlListManager accessControlListManager,
+            final SsoTokenTranslator ssoTokenTranslator,
             final RpslObjectStreamer rpslObjectStreamer,
+            final OverrideCredentialValidator overrideCredentialValidator,
             final SourceContext sourceContext) {
         this.accessControlListManager = accessControlListManager;
+        this.ssoTokenTranslator = ssoTokenTranslator;
         this.rpslObjectStreamer = rpslObjectStreamer;
+        this.overrideCredentialValidator = overrideCredentialValidator;
         this.sourceContext = sourceContext;
     }
 
@@ -119,8 +120,6 @@ public class WhoisSearchService {
      * @param searchKey (Mandatory) query search key
      * @param inverseAttributes perform an inverse query using the specified attribute(s)
      * @param client Sends information about the client to the server
-     * @param includeTags return only objects with the specified tag(s)
-     * @param excludeTags do not return objects with the specified tag(s)
      * @param types Filter results by object type(s)
      * @param flags Whois Query search flags
      * @param unformatted return attribute values without formatting
@@ -136,12 +135,11 @@ public class WhoisSearchService {
     @Path("/search")
     public Response search(
             @Context final HttpServletRequest request,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("source") final Set<String> sources,
             @QueryParam("query-string") final String searchKey,
             @QueryParam("inverse-attribute") final Set<String> inverseAttributes,
             @QueryParam("client") final String client,
-            @QueryParam("include-tag") final Set<String> includeTags,
-            @QueryParam("exclude-tag") final Set<String> excludeTags,
             @QueryParam("type-filter") final Set<String> types,
             @QueryParam("flags") final Set<String> flags,
             @QueryParam("unformatted") final String unformatted,
@@ -149,7 +147,9 @@ public class WhoisSearchService {
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact,
             @QueryParam("limit") final Integer limit,
-            @QueryParam("offset") final Integer offset) {
+            @QueryParam("offset") final Integer offset,
+            @QueryParam("override") final String override,
+            @QueryParam("roa-check") @DefaultValue("false") final Boolean roaCheck) {
 
         validateSources(request, sources);
         validateSearchKey(request, searchKey);
@@ -158,12 +158,9 @@ public class WhoisSearchService {
         checkForInvalidFlags(request, separateFlags);
 
         final QueryBuilder queryBuilder = new QueryBuilder();
-        queryBuilder.addFlag(QueryFlag.SHOW_TAG_INFO);
         queryBuilder.addCommaList(QueryFlag.SOURCES, sources);
         queryBuilder.addCommaList(QueryFlag.SELECT_TYPES, types);
         queryBuilder.addCommaList(QueryFlag.INVERSE, inverseAttributes);
-        queryBuilder.addCommaList(QueryFlag.FILTER_TAG_INCLUDE, includeTags);
-        queryBuilder.addCommaList(QueryFlag.FILTER_TAG_EXCLUDE, excludeTags);
 
         if (client != null) {
             queryBuilder.addCommaList(QueryFlag.CLIENT, client);
@@ -173,7 +170,9 @@ public class WhoisSearchService {
             queryBuilder.addFlag(separateFlag);
         }
 
-        final Query query = Query.parse(queryBuilder.build(searchKey), Query.Origin.REST, isTrusted(request));
+
+        final Query query = Query.parse(queryBuilder.build(searchKey), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), overrideCredentialValidator.getValidOverrideUser(override), Query.Origin.REST,
+                isTrusted(request));
 
         final Parameters parameters = new Parameters.Builder()
                 .inverseAttributes(new InverseAttributes(inverseAttributes))
@@ -185,6 +184,7 @@ public class WhoisSearchService {
                 .managedAttributes(isQueryParamSet(managedAttributes))
                 .resourceHolder(isQueryParamSet(resourceHolder))
                 .abuseContact(isQueryParamSet(abuseContact))
+                .roaCheck(roaCheck)
                 .limit(limit)
                 .offset(offset)
                 .unformatted(isQueryParamSet(unformatted))

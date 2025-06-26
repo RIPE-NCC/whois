@@ -7,16 +7,17 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+import java.time.LocalDateTime;
+
+@Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase {
 
@@ -68,7 +69,7 @@ public class NrtmClientTimingTestIntegration extends AbstractNrtmIntegrationBase
     private void startNrtmImporter() {
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
         nrtmImporter.start();
     }
 

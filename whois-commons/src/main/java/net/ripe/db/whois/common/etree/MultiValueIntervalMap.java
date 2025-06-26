@@ -103,4 +103,9 @@ public final class MultiValueIntervalMap<K extends Interval<K>, V> implements In
     public List<V> findExactAndAllMoreSpecific(K key) {
         return unroll(wrapped.findExactAndAllMoreSpecific(key));
     }
+
+    @Override
+    public List<V> findMostSpecific(K key) {
+         return unroll(wrapped.findMostSpecific(key));
+    }
 }

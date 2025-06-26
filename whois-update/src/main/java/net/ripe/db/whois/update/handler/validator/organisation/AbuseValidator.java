@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.organisation;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -20,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
@@ -57,17 +61,21 @@ public class AbuseValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
-            return;
+            return Collections.emptyList();
         }
 
-        validateAbuseC(updatedObject, update, updateContext);
-        validateAbuseCRemoved(updatedObject, update, updateContext);
+        final List<Message> messages = Lists.newArrayList();
+
+        validateAbuseC(updatedObject, messages);
+        validateAbuseCRemoved(updatedObject, update, messages);
+
+        return messages;
     }
 
-    private void validateAbuseC(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
+    private void validateAbuseC(final RpslObject updatedObject, final List<Message> messages) {
         final CIString abuseC = updatedObject.getValueOrNullForAttribute(AttributeType.ABUSE_C);
         if (abuseC == null) {
             return;
@@ -76,12 +84,12 @@ public class AbuseValidator implements BusinessRuleValidator {
         try {
             final RpslObject abuseCRole = objectDao.getByKey(ObjectType.ROLE, abuseC);
             if (!abuseCRole.containsAttribute(AttributeType.ABUSE_MAILBOX)) {
-                updateContext.addMessage(update, UpdateMessages.abuseMailboxRequired(abuseC, updatedObject.getType()));
+                messages.add(UpdateMessages.abuseMailboxRequired(abuseC, updatedObject.getType()));
             }
         } catch (EmptyResultDataAccessException e) {
             try {
                 objectDao.getByKey(ObjectType.PERSON, abuseC);
-                updateContext.addMessage(update, UpdateMessages.abuseCPersonReference());
+                messages.add(UpdateMessages.abuseCPersonReference());
             } catch (EmptyResultDataAccessException e1) {
                 // ignore, invalid reference type is checked elsewhere
                 LOGGER.debug("{}: {}", e1.getClass().getName(), e1.getMessage());
@@ -89,12 +97,12 @@ public class AbuseValidator implements BusinessRuleValidator {
         }
     }
 
-    private void validateAbuseCRemoved(final RpslObject updatedObject, final PreparedUpdate update, final UpdateContext updateContext) {
+    private void validateAbuseCRemoved(final RpslObject updatedObject, final PreparedUpdate update, final List<Message> messages) {
         if (updatedObject.getType() == ORGANISATION &&
             isAbuseCRemoved(updatedObject, update) &&
             (isLir(update.getReferenceObject()) ||
                     isOrgReferencedByRsMaintainedResources(updatedObject))) {
-            updateContext.addMessage(update, UpdateMessages.abuseContactNotRemovable());
+            messages.add(UpdateMessages.abuseContactNotRemovable());
         }
     }
 

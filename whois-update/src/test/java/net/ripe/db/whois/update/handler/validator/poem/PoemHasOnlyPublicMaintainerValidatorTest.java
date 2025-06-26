@@ -42,7 +42,7 @@ public class PoemHasOnlyPublicMaintainerValidatorTest {
                 "poem:            POEM-FORM-LIMERICK\n" +
                 "mnt-by:          LIM-MNT\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -55,8 +55,8 @@ public class PoemHasOnlyPublicMaintainerValidatorTest {
 
         when(update.getUpdatedObject()).thenReturn(poem);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, poem.findAttribute(AttributeType.MNT_BY), UpdateMessages.poemRequiresPublicMaintainer());
+        verify(updateContext).addMessage(update, poem.findAttribute(AttributeType.MNT_BY), UpdateMessages.poemRequiresPublicMaintainer(poem.findAttribute(AttributeType.MNT_BY)));
     }
 }

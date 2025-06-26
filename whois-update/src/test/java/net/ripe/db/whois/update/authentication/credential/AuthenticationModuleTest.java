@@ -4,9 +4,9 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.MntByAuthentication;
 import net.ripe.db.whois.update.domain.Credentials;
-import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +52,7 @@ public class AuthenticationModuleTest {
 
     @Test
     public void authenticate_finds_all_candidates() {
-        when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class))).thenReturn(true);
+        when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class), any(RpslObject.class))).thenReturn(true);
 
         final RpslObject mntner1 = RpslObject.parse("mntner: TEST-MNT\nauth: MD5-PWsomething");
         final RpslObject mntner2 = RpslObject.parse("mntner: TEST2-MNT\nauth: MD5-PWsomethingElse");
@@ -60,7 +60,7 @@ public class AuthenticationModuleTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner1, mntner2, mntner3), MntByAuthentication.class);
 
-        assertThat(result.size(), is(2));
+        assertThat(result, hasSize(2));
         assertThat(result.contains(mntner1), is(true));
         assertThat(result.contains(mntner2), is(true));
         assertThat(result.contains(mntner3), is(false));
@@ -68,7 +68,7 @@ public class AuthenticationModuleTest {
 
     @Test
     public void authenticate_mixed_case_auth_line() {
-        when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class))).thenReturn(true);
+        when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class), any(RpslObject.class))).thenReturn(true);
 
         final RpslObject mntner = RpslObject.parse("mntner: TEST-MNT\nauth: Md5-pW something");
         final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner), MntByAuthentication.class);
@@ -79,7 +79,7 @@ public class AuthenticationModuleTest {
 
     @Test
     public void authenticate_fails() {
-        when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class))).thenReturn(false);
+        when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class), any(RpslObject.class))).thenReturn(false);
 
         final RpslObject mntner = RpslObject.parse("mntner: TEST-MNT\nauth: MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/");
         final List<RpslObject> result = subject.authenticate(update, updateContext, Lists.newArrayList(mntner), MntByAuthentication.class);
@@ -89,12 +89,12 @@ public class AuthenticationModuleTest {
 
     @Test
     public void authenticate_sso_credential_checked_first() {
-        when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class))).thenReturn(false);
-        when(ssoCredentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(SsoCredential.class))).thenAnswer(
+        when(credentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class), any(RpslObject.class))).thenReturn(false);
+        when(ssoCredentialValidator.hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(SsoCredential.class), any(RpslObject.class))).thenAnswer(
                 new Answer<Boolean>() {
                     @Override
                     public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                        verify(credentialValidator, never()).hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class));
+                        verify(credentialValidator, never()).hasValidCredential(any(PreparedUpdate.class), any(UpdateContext.class), anyCollection(), any(PasswordCredential.class), any(RpslObject.class));
                         return false;
                     }
         });

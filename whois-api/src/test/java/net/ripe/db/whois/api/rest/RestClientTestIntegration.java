@@ -4,7 +4,6 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.AbuseContact;
-
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -14,13 +13,13 @@ import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 import net.ripe.db.whois.query.QueryFlag;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.Cookie;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
@@ -36,11 +35,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class RestClientTestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -125,9 +122,9 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .search();
 
         final Iterator<RpslObject> iterator = result.iterator();
-        assertTrue(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(true));
         final RpslObject rpslObject = iterator.next();
-        assertFalse(iterator.hasNext());
+        assertThat(iterator.hasNext(), is(false));
         assertThat(rpslObject.getKey().toUpperCase(), is("AS102"));
     }
 

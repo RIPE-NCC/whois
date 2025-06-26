@@ -2,6 +2,7 @@ package net.ripe.db.whois.common.rpsl;
 
 
 import net.ripe.db.whois.common.domain.CIString;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +16,14 @@ import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
 // TODO: [AH] make this rely on downloader (or make it more visible if those files are missing and no tests are actually run)
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class AttributeParserTestIntegration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AttributeParserTestIntegration.class);
 
     @Test
     public void parseAutnumAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.aut-num.gz",
+        parseAttributes("/export/opt/test.db.aut-num.gz",
                 new AttributeType[]{
                         AttributeType.EXPORT,
                         AttributeType.IMPORT,
@@ -37,7 +38,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseInetRtrAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.inet-rtr.gz",
+        parseAttributes("/export/opt/test.db.inet-rtr.gz",
                 new AttributeType[]{
                         AttributeType.ALIAS,
                         AttributeType.IFADDR,
@@ -50,7 +51,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseAsSetAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.as-set.gz",
+        parseAttributes("/export/opt/test.db.as-set.gz",
                 new AttributeType[]{
                         AttributeType.MEMBERS
                 }
@@ -59,7 +60,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseRouteSetAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.route-set.gz",
+        parseAttributes("/export/opt/test.db.route-set.gz",
                 new AttributeType[]{
                         AttributeType.MEMBERS,
                         AttributeType.MP_MEMBERS
@@ -69,7 +70,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseRtrSetAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.rtr-set.gz",
+        parseAttributes("/export/opt/test.db.rtr-set.gz",
                 new AttributeType[]{
                         AttributeType.MEMBERS,
                         AttributeType.MP_MEMBERS
@@ -79,7 +80,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseFilterSetAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.filter-set.gz",
+        parseAttributes("/export/opt/test.db.filter-set.gz",
                 new AttributeType[]{
                         AttributeType.FILTER,
                         AttributeType.MP_FILTER
@@ -89,7 +90,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parsePeeringSetAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.peering-set.gz",
+        parseAttributes("/export/opt/test.db.peering-set.gz",
                 new AttributeType[]{
                         AttributeType.PEERING,
                         AttributeType.MP_PEERING
@@ -99,7 +100,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseRouteAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.route.gz",
+        parseAttributes("/export/opt/test.db.route.gz",
                 new AttributeType[]{
                         AttributeType.INJECT,
                         AttributeType.AGGR_MTD,
@@ -113,7 +114,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseRoute6Attributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.route6.gz",
+        parseAttributes("/export/opt/test.db.route6.gz",
                 new AttributeType[]{
                         AttributeType.INJECT,
                         AttributeType.AGGR_MTD,
@@ -127,7 +128,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseInetnumAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.inetnum.gz",
+        parseAttributes("/export/opt/test.db.inetnum.gz",
                 new AttributeType[]{
                         AttributeType.MNT_ROUTES
                 }
@@ -136,7 +137,7 @@ public class AttributeParserTestIntegration {
 
     @Test
     public void parseInet6numAttributes() throws Exception {
-        parseAttributes("/export/opt/ripe.db.inet6num.gz",
+        parseAttributes("/export/opt/test.db.inet6num.gz",
                 new AttributeType[]{
                         AttributeType.MNT_ROUTES
                 }

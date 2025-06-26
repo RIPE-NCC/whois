@@ -85,7 +85,7 @@ class NoopIntegrationSpec extends BaseWhoisSourceSpec {
             notify: dbtest@@ripe.net
             source: TEST
             password: update
-            """.stripIndent())
+            """.stripIndent(true))
 
       when:
         def response = syncUpdate update

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import jakarta.ws.rs.HEAD;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.domain.Action;
@@ -10,6 +12,10 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class ObjectReferencedValidator implements BusinessRuleValidator {
@@ -24,14 +30,16 @@ public class ObjectReferencedValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         if (!update.hasOriginalObject() || update.getType().equals(ObjectType.AUT_NUM)) {
-            return;
+            return Collections.emptyList();
         }
 
         if (referencesDao.isReferenced(update.getReferenceObject())) {
-            updateContext.addMessage(update, UpdateMessages.objectInUse(update.getReferenceObject()));
+            return Arrays.asList(UpdateMessages.objectInUse(update.getReferenceObject()));
         }
+
+        return Collections.emptyList();
     }
 
     @Override

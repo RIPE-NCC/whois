@@ -21,7 +21,7 @@ import java.util.Set;
  *
  * @see <a href="https://github.com/dotse/zonemaster-backend/blob/master/docs/API.md">Zonemaster documentation</a>
  */
-public  class StartDomainTestRequest extends ZonemasterRequest {
+public class StartDomainTestRequest extends ZonemasterRequest {
 
     @JsonProperty
     private Params params;
@@ -32,7 +32,7 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         final StartDomainTestRequest.Params params = new StartDomainTestRequest.Params();
         params.setDsInfos(Collections.emptyList());
         params.setNameservers(Collections.emptyList());
-        params.setDomain(dnsCheckRequest.getDomain());
+        params.setDomain(removeTrailingDot(dnsCheckRequest.getDomain()));
 
         final RpslObject rpslObject = dnsCheckRequest.getUpdate().getSubmittedObject();
 
@@ -68,6 +68,10 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
         return nameservers;
     }
 
+    private String removeTrailingDot(String domain) {
+        return domain.replaceAll("\\.+$","");
+
+    }
     private List<StartDomainTestRequest.DsInfo> parseDsRdata(final Set<CIString> dsRdataValues) {
         final List<StartDomainTestRequest.DsInfo> dsInfos = Lists.newArrayList();
         for (CIString dsRdataValue : dsRdataValues) {
@@ -129,6 +133,9 @@ public  class StartDomainTestRequest extends ZonemasterRequest {
             this.domain = domain;
         }
 
+        public String getDomain(){
+            return this.domain;
+        }
         public void setClientVersion(final String clientVersion) {
             this.clientVersion = clientVersion;
         }

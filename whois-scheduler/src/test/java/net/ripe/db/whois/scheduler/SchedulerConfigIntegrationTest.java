@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler;
 
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
@@ -9,8 +10,9 @@ import org.springframework.scheduling.TaskScheduler;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class SchedulerConfigIntegrationTest extends AbstractSchedulerIntegrationTest {
 
     @Autowired
@@ -27,7 +29,7 @@ public class SchedulerConfigIntegrationTest extends AbstractSchedulerIntegration
     @Test
     public void bean_named_taskScheduler_in_context() {
         Set<String> beanName = context.getBeanFactory().getBeansOfType(TaskScheduler.class).keySet();
-        MatcherAssert.assertThat(beanName, hasItem("taskScheduler"));
+        assertThat(beanName, hasItem("taskScheduler"));
     }
 
 }

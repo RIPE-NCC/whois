@@ -16,36 +16,12 @@ updates:
       # Netty 5.x is deprecated
       - dependency-name: "io.netty:netty"
         versions: ["5.x"]
-      # Don't update to Spock 2 until we update to JUnit 5
-      - dependency-name: "org.spockframework:spock-core"
-        versions: ["2.x"]
-      - dependency-name: "org.spockframework:spock-spring"
-        versions: ["2.x"]
-      # Don't update to Groovy 3 until we update to Spock 2
-      - dependency-name: "org.codehaus.groovy:groovy"
-        versions: ["3.x"]
-      # Don't update to Jersey 3.x yet
-      - dependency-name: "org.glassfish.jersey.containers:jersey-container-servlet"
-        versions: ["3.x"]
-      - dependency-name: "org.glassfish.jersey.core:jersey-client"
-        versions: ["3.x"]
-      - dependency-name: "org.glassfish.jersey.media:jersey-media-multipart"
-        versions: ["3.x"]
-      - dependency-name: "org.glassfish.jersey.media:jersey-media-jaxb"
-        versions: ["3.x"]
-      - dependency-name: "org.glassfish.jersey.inject:jersey-hk2"
-        versions: ["3.x"]
-      # More recent versions of awaitility depend on Groovy 3
-      - dependency-name: "org.awaitility:awaitility"
       # Don't update SolrJ (provides API for full text search)
       - dependency-name: "org.apache.solr:solr-solrj"
-      # Don't update Lucene (breaking changes)
-      - dependency-name: "org.apache.lucene:lucene-core"
-      - dependency-name: "org.apache.lucene:lucene-queries"
-      - dependency-name: "org.apache.lucene:lucene-queryparser"
-      - dependency-name: "org.apache.lucene:lucene-analyzers-common"
-      - dependency-name: "org.apache.lucene:lucene-highlighter"
-      - dependency-name: "org.apache.lucene:lucene-facet"
-      # Don't update to Jetty 11.x yet as it uses Jakarta EE 9 (see #744)
-      - dependency-name: "org.eclipse.jetty:jetty-webapp"
-        versions: ["11.x"]
+      # Jackson 3.x is a major update in development and not API compatible with 2.x
+      - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-jaxrs-base"
+        versions: ["3.x"]
+      - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider"
+        versions: ["3.x"]
+      - dependency-name: "com.fasterxml.jackson.jaxrs:jackson-annotations"
+        versions: ["3.x"]

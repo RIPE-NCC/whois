@@ -3,17 +3,16 @@ package net.ripe.db.whois.api;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.Operation;
-import net.ripe.db.whois.update.domain.OverrideCredential;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.update.domain.Paragraph;
-import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +23,6 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,10 +30,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -48,11 +44,6 @@ public class UpdatesParserTest {
     @Mock UpdateContext updateContext;
 
     @InjectMocks UpdatesParser subject = new UpdatesParser(1000000);
-
-    @BeforeEach
-    public void setup() {
-        lenient().when(updateContext.getClientCertificate()).thenReturn(Optional.empty());
-    }
 
     @Test
     public void no_paragraphs() {
@@ -71,7 +62,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.UNSPECIFIED));
         assertThat(update.getDeleteReasons(), hasSize(0));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
         assertThat(update.getParagraph().getContent(), is(MNTNER_DEV_MNT));
         verify(updateContext, never()).ignore(any(Paragraph.class));
@@ -100,7 +91,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
         assertThat(update.getDeleteReasons(), contains("reason"));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
 
         verify(updateContext, never()).ignore(any(Paragraph.class));
@@ -117,7 +108,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
         assertThat(update.getDeleteReasons(), contains("reason"));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
 
         verify(updateContext, never()).ignore(any(Paragraph.class));
@@ -142,7 +133,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
         assertThat(update.getDeleteReasons(), contains("reason"));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse("" +
                 "mntner: UPD-MNT\n" +
                 "descr: description\n" +
@@ -166,7 +157,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.DELETE));
         assertThat(update.getDeleteReasons(), contains("reason1", "reason2"));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(MNTNER_DEV_MNT)));
     }
 
@@ -182,7 +173,7 @@ public class UpdatesParserTest {
         final Update update = updates.get(0);
         assertThat(update.getOperation(), is(Operation.UNSPECIFIED));
         assertThat(update.getDeleteReasons(), hasSize(0));
-        assertFalse(update.isOverride());
+        assertThat(update.isOverride(), is(false));
         assertThat(update.getSubmittedObject(), is(RpslObject.parse(input)));
     }
 
@@ -619,7 +610,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs, hasSize(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
         assertThat(paragraphs.get(1).getContent(), is(""));
         assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource:RIPE"));
@@ -646,7 +637,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs, hasSize(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
         assertThat(paragraphs.get(1).getContent(), is(""));
         assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource:RIPE"));
@@ -672,7 +663,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(4));
+        assertThat(paragraphs, hasSize(4));
         assertThat(paragraphs.get(0).getContent(), is("mntner:one\nsource: RIPE"));
         assertThat(paragraphs.get(1).getContent(), is(""));
         assertThat(paragraphs.get(2).getContent(), is("mntner:two\nsource: RIPE"));
@@ -711,7 +702,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(1));
+        assertThat(paragraphs, hasSize(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
                 "mntner:      SHRYANE-MNT\n" +
                 "descr:       description\n" +
@@ -772,7 +763,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(1));
+        assertThat(paragraphs, hasSize(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
                 "person:  Admin Person\n" +
                 "address: Admin Road\n" +
@@ -845,7 +836,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(1));
+        assertThat(paragraphs, hasSize(1));
         assertThat(paragraphs.get(0).getContent(), is("" +
                 "person:  Admin Person\n" +
                 "address: Admin Road\n" +
@@ -887,7 +878,7 @@ public class UpdatesParserTest {
 
         final List<Paragraph> paragraphs = subject.createParagraphs(new ContentWithCredentials(content), updateContext);
 
-        assertThat(paragraphs.size(), is(1));
+        assertThat(paragraphs, hasSize(1));
         assertThat(paragraphs.get(0).getContent(), is(content));
         assertThat(paragraphs.get(0).getCredentials().all(), hasSize(0));
     }

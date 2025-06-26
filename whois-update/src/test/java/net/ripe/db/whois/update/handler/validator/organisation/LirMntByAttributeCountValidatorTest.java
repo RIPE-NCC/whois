@@ -8,10 +8,9 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -20,8 +19,9 @@ import static net.ripe.db.whois.update.handler.validator.organisation.LirAttribu
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.LIR_ORG_SINGLE_USER_MNTNER;
 import static net.ripe.db.whois.update.handler.validator.organisation.LirAttributeValidatorFixtures.NON_LIR_ORG;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -40,22 +40,21 @@ public class LirMntByAttributeCountValidatorTest {
 
     @Test
     public void getActions() {
-        assertThat(subject.getActions().size(), is(2));
-        assertTrue(subject.getActions().contains(Action.CREATE));
-        assertTrue(subject.getActions().contains(Action.MODIFY));
+        assertThat(subject.getActions(), hasSize(2));
+        assertThat(subject.getActions(), containsInAnyOrder(Action.CREATE, Action.MODIFY));
     }
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes().size(), is(1));
-        assertTrue(subject.getTypes().contains(ObjectType.ORGANISATION));
+        assertThat(subject.getTypes(), hasSize(1));
+        assertThat(subject.getTypes(), contains(ObjectType.ORGANISATION));
     }
 
     @Test
     public void update_of_not_lir_with_single_mntner() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(update).getReferenceObject();
         verifyNoMoreInteractions(update);
@@ -66,7 +65,7 @@ public class LirMntByAttributeCountValidatorTest {
     public void update_of_not_lir_with_multiple_mntner() {
         when(update.getReferenceObject()).thenReturn(NON_LIR_ORG);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(update).getReferenceObject();
         verifyNoMoreInteractions(update);
@@ -79,7 +78,7 @@ public class LirMntByAttributeCountValidatorTest {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_SINGLE_USER_MNTNER);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(maintainers).isRsMaintainer(ciString("MNT1-LIR"));
         verifyNoMoreInteractions(maintainers);
@@ -96,7 +95,7 @@ public class LirMntByAttributeCountValidatorTest {
         when(update.getReferenceObject()).thenReturn(LIR_ORG);
         when(update.getUpdatedObject()).thenReturn(LIR_ORG_MULTIPLE_USER_MNTNER);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(maintainers).isRsMaintainer(ciString("MNT1-LIR"));
         verify(maintainers).isRsMaintainer(ciString("MNT2-LIR"));

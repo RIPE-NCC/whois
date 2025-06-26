@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.ProcessingException;
+import jakarta.ws.rs.ProcessingException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class ZonemasterDnsGateway implements DnsGateway {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZonemasterDnsGateway.class);
 
     private static final int TEST_PROGRESS_SLEEP_SECONDS = 5;
-    private static final int TEST_PROGRESS_MAXIMUM_RETRIES = ((60 * 5) / TEST_PROGRESS_SLEEP_SECONDS);
+    private static final int TEST_PROGRESS_MAXIMUM_RETRIES = ((60 * 10) / TEST_PROGRESS_SLEEP_SECONDS);
 
     private static final String PERCENTAGE_COMPLETE = "100";
 

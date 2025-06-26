@@ -2,7 +2,6 @@ package net.ripe.db.whois.db;
 
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.DateTimeProvider;
-
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.dao.jdbc.IndexDao;
@@ -17,8 +16,8 @@ import net.ripe.db.whois.common.support.database.diff.Row;
 import net.ripe.db.whois.common.support.database.diff.Table;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,14 +29,15 @@ import java.util.List;
 import java.util.Map;
 
 import static net.ripe.db.whois.common.support.database.diff.Rows.with;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 
 @Disabled("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
 public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
@@ -610,7 +610,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
         indexDao.rebuild();
 
         List<Map<String, Object>> result = whoisTemplate.queryForList("select status, object_type from status");
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0).get("status"), is("ASSIGNED PI"));
     }
 
@@ -1837,7 +1837,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         final DatabaseDiff diff = rebuild();
 
-        assertNotNull(diff.getToDatabase().getTable("person_role").get(with("nic_hdl", "HIA1-AFRINIC")));
+        assertThat(diff.getToDatabase().getTable("person_role").get(with("nic_hdl", "HIA1-AFRINIC")), not(nullValue()));
     }
 
     @Test
@@ -1855,7 +1855,7 @@ public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
         final DatabaseDiff diff = rebuild();
 
-        assertNotNull(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")));
+        assertThat(diff.getToDatabase().getTable("domain").get(with("domain", "169.236.109.IN-ADDR.ARPA")), not(nullValue()));
     }
 
     /*

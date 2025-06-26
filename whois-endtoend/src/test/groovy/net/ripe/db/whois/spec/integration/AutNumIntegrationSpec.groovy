@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.integration
 
-
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -158,7 +157,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password:       update
                         delete:         reason
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate update
 
@@ -191,7 +190,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -225,7 +224,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password:       update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -249,7 +248,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -272,7 +271,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -298,7 +297,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: update
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -325,7 +324,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent());
+                        """.stripIndent(true));
 
         then:
         def ack = ackFor message
@@ -352,7 +351,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: alban
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -381,7 +380,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: emptypassword
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def response = syncUpdate(update);
 
@@ -408,7 +407,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -427,7 +426,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
 
         then:
         updateResponse =~ /SUCCESS/
@@ -449,7 +448,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -471,7 +470,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent());
+                        """.stripIndent(true));
 
         then:
         def ack = ackFor message
@@ -496,7 +495,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -512,13 +511,185 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
 
         then:
         updateResponse =~ /FAIL/
         updateResponse.contains(
                 "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                         "            referenced set [AS-TESTSET]")
+    }
+
+    def "change mbrs-by-ref from as-set add warning if change causes aut-num member-of to fail"() {
+
+        when:
+        syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    UPD-MNT    # matches AS101 mntner
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET             # added member-of set
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        def replacedMntner = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    OTHER-MNT  # replaced UPD-MNT, doing this will cause aut-num update to FAIL
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+        then:
+        replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
+    }
+
+    def "change mbrs-by-ref from as-set do not add warning if mbrs-by-ref is ANY"() {
+
+        when:
+        syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    UPD-MNT    # matches AS101 mntner
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET             # added member-of set
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        def replacedMntner = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    ANY
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+        then:
+        replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        !replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
+    }
+
+    def "change mbrs-by-ref from as-set do not add warning if member-of valid"() {
+
+        when:
+        syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref: UPD-MNT    # matches AS1 mntner
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET             # added member-of set
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+
+        def replacedMntner = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref:    UPD-MNT
+            mbrs-by-ref:    OTHER-MNT
+            source:         TEST
+            override: denis,override1
+            """.stripIndent(true))
+        then:
+        replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        !replacedMntner.contains("***Warning: Changing mbrs-by-ref:  may cause updates to [AS101] to fail, because\n" +
+                "            the member-of: reference in [AS101] is no longer protected")
     }
 
     def "modify, added member-of value does not exist"() {
@@ -533,7 +704,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -549,7 +720,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
 
         then:
         updateResponse =~ /FAIL/
@@ -569,7 +740,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
         expect:
         insertResponse =~ /SUCCESS/
 
@@ -586,7 +757,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: emptypassword
                         password: update
-                        """.stripIndent()));
+                        """.stripIndent(true)));
 
         then:
         updateResponse =~ /SUCCESS/
@@ -616,7 +787,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         _UPD-MNT-MNT-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
         when:
         def response = syncUpdate update
@@ -643,7 +814,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         then:
@@ -663,7 +834,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: hm
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         then:
@@ -682,7 +853,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         then:
@@ -703,7 +874,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
@@ -725,7 +896,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: hm
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /SUCCESS/
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
@@ -747,7 +918,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: hm
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         when:
         def update = syncUpdate new SyncUpdate(data: """\
                         aut-num:        AS102
@@ -759,7 +930,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         password: hm
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS102/
         update =~ /Warning: "status:" attribute cannot be removed/
@@ -795,7 +966,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS104/
 
@@ -824,7 +995,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         UPD-MNT
                         source:         TEST
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS104/
         update =~ /\*\*\*Warning: "status:" attribute cannot be removed/
@@ -859,7 +1030,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
         then:
         response =~ /\*\*\*Warning: Supplied attribute 'status' has been replaced with a generated value/
         response =~ /SUCCESS/
@@ -895,7 +1066,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                         source:         TEST
                         override:       denis,override1
                         password: update
-                        """.stripIndent())
+                        """.stripIndent(true))
 
         then:
         response =~ /SUCCESS/
@@ -948,7 +1119,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: ende
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         create =~ /Create FAILED: \[aut-num\] AS400/
@@ -987,7 +1158,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: ende
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
@@ -1012,7 +1183,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: ende
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
@@ -1048,7 +1219,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: hm
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED: \[aut-num\] AS400/
     }
@@ -1067,7 +1238,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         create =~ /Error:   The "sponsoring-org" attribute can only be added by the RIPE NCC/
@@ -1089,7 +1260,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 password: hm
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Create SUCCEEDED: \[aut-num\] AS400/
@@ -1108,7 +1279,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED/
 
@@ -1125,7 +1296,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 source:         TEST
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Error:   The "sponsoring-org" attribute can only be added by the RIPE NCC/
@@ -1147,7 +1318,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 password: hm
-                """.stripIndent()))
+                """.stripIndent(true)))
         then:
         create =~ /Create SUCCEEDED/
 
@@ -1167,7 +1338,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 password: emptypassword
                 password: update
                 password: hm
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
@@ -1187,7 +1358,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -1202,7 +1373,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS400/
@@ -1222,7 +1393,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -1236,7 +1407,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Modify FAILED: \[aut-num\] AS400/
@@ -1257,7 +1428,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 override:       denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
@@ -1271,7 +1442,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         update =~ /Modify SUCCEEDED: \[aut-num\] AS401/
@@ -1310,7 +1481,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 delete:         no reason
                 password: emptypassword
                 password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
         then:
         delete =~ /Delete SUCCEEDED: \[aut-num\] AS400/
@@ -1329,7 +1500,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         RIPE-NCC-LEGACY-MNT
                 source:         TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         response =~ /Create FAILED: \[aut-num\] AS103/
         response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
@@ -1347,7 +1518,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       when:
         def response = syncUpdate new SyncUpdate(data: """\
                 aut-num:        AS103
@@ -1360,7 +1531,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         RIPE-NCC-LEGACY-MNT
                 source:         TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
       then:
         response =~ /Modify FAILED: \[aut-num\] AS103/
         response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
@@ -1380,7 +1551,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:         UPD-MNT
                 source:         TEST
                 password: update
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
             response =~ /Create SUCCEEDED: \[aut-num] AS102/
@@ -1409,7 +1580,7 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
                             mnt-by:         UPD-MNT
                             source:         TEST
                             password:       update
-                            """.stripIndent())
+                            """.stripIndent(true))
 
         then:
             response =~ /Modify SUCCEEDED: \[aut-num] AS101/
@@ -1440,11 +1611,98 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
             source:         TEST
             password:       update
             delete:         reason
-            """.stripIndent())
+            """.stripIndent(true))
 
         then:
         response =~ /Delete SUCCEEDED: \[aut-num] AS101/
         !response.contains("Deprecated attribute \"mnt-lower\". This attribute has been removed.")
     }
+
+    //@Ignore
+    def "replace mbrs-by-ref from as-set causes aut-num member-of to fail"() {
+        when:
+        def createSet = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref: UPD-MNT    # matches AS1 mntner
+            source:         TEST
+            password:       update
+            password:       emptypassword
+            """.stripIndent(true))
+        then:
+        createSet =~ /Create SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        when:
+        def memberOfSet = syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET             # added member-of set
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            password:       update
+            """.stripIndent(true))
+        then:
+            memberOfSet =~ /Modify SUCCEEDED: \[aut-num] AS101/
+        when:
+        def replacedMntner = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref: OTHER-MNT  # replaced UPD-MNT, doing this will cause aut-num update to FAIL
+            source:         TEST
+            password:       emptypassword
+            """.stripIndent(true))
+        then:
+        replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        when:
+        def modifyAutnum = syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET              # no longer authenticated
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        updated                         # was remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            password:       update
+            """.stripIndent(true))
+        then:
+            modifyAutnum =~ /FAIL/
+            modifyAutnum.contains(
+                    "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                            "            referenced set [AS101:AS-ANOTHERSET]")
+    }
+
 
 }

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public final class QueryServer implements ApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryServer.class);
 
-    public static int port;
+    private int port;
 
     @Value("${port.query:0}") private int queryPort;
     @Value("${loadbalancer.query.timeout:5000}") private int markNodeFailedTimeout;
@@ -81,5 +81,9 @@ public final class QueryServer implements ApplicationService {
                 maintenanceMode.setShutdown();
             }
         }
+    }
+
+    public int getPort() {
+        return port;
     }
 }

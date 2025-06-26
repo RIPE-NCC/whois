@@ -9,15 +9,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class FilenameStrategyTest {
     @Test
     public void getFilename_SingleFile() {
-        final FilenameStrategy subject = new FilenameStrategy.SingleFile();
+        final FilenameStrategy subject = new FilenameStrategy.SingleFile("TEST");
 
-        assertThat(subject.getFilename(ObjectType.MNTNER), is("ripe.db"));
+        assertThat(subject.getFilename(ObjectType.MNTNER), is("test.db"));
     }
 
     @Test
     public void getFilename_SplitFile() {
-        final FilenameStrategy subject = new FilenameStrategy.SplitFile();
+        final FilenameStrategy subject = new FilenameStrategy.SplitFile("TEST");
 
-        assertThat(subject.getFilename(ObjectType.MNTNER), is("ripe.db.mntner"));
+        assertThat(subject.getFilename(ObjectType.MNTNER), is("test.db.mntner"));
     }
 }

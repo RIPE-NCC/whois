@@ -1,0 +1,2 @@
+{"nrtm_version":4,"type":"delta","source":"RIPE","session_id":"4521174b-548f-4e51-98fc-dfd720011a0c","version":5}
+{"action":"add_modify","object":"mntner:          MHM-MNT\nmnt-by:         MHM-MNT\ncreated:        2020-04-06T11:26:00Z\nlast-modified:  2020-04-06T11:26:00Z\nsource:         RIPE\n"}

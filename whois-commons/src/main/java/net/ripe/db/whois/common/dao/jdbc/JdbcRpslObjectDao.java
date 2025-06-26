@@ -13,7 +13,6 @@ import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategies;
 import net.ripe.db.whois.common.dao.jdbc.index.IndexStrategy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
-import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -42,7 +41,6 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -169,12 +167,6 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
     @Override
     public RpslObject getById(final int objectId) {
         return JdbcRpslObjectOperations.getObjectById(jdbcTemplate, objectId);
-    }
-
-    @Override
-    public LocalDateTime getLastUpdated(int objectId) {
-        final long timestamp = jdbcTemplate.queryForObject("SELECT timestamp FROM last WHERE object_id = ?", Long.class, new Object[]{objectId});
-        return (Timestamp.fromSeconds(timestamp)).toLocalDateTime();
     }
 
     @Override

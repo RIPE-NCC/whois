@@ -1,8 +1,6 @@
 package net.ripe.db.whois.scheduler.task.export;
 
 import com.google.common.base.Stopwatch;
-import net.ripe.db.whois.common.dao.TagsDao;
-import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportCallbackHandler;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
@@ -28,7 +26,6 @@ class RpslObjectsExporter {
 
     private final ExportFileWriterFactory exportFileWriterFactory;
     private final ExportDao exportDao;
-    private final TagsDao tagsDao;
     private final File exportDir;
     private final File tmpDir;
 
@@ -38,13 +35,11 @@ class RpslObjectsExporter {
     @Autowired
     public RpslObjectsExporter(final ExportFileWriterFactory exportFileWriterFactory,
                                final ExportDao exportDao,
-                               final TagsDao tagsDao,
                                @Value("${dir.rpsl.export}") final String exportDirName,
                                @Value("${dir.rpsl.export.tmp}") final String tmpDirName,
                                @Value("${rpsl.export.enabled:true}") final boolean enabled) {
         this.exportFileWriterFactory = exportFileWriterFactory;
         this.exportDao = exportDao;
-        this.tagsDao = tagsDao;
         this.enabled = enabled;
 
         exportDir = new File(exportDirName);
@@ -130,10 +125,9 @@ class RpslObjectsExporter {
 
         @Override
         public void exportObject(final RpslObject object) {
-            final List<Tag> tags = tagsDao.getTags(object.getObjectId());
             for (final ExportFileWriter exportFileWriter : exportFileWriters) {
                 try {
-                    exportFileWriter.write(object, tags);
+                    exportFileWriter.write(object);
                 } catch (IOException e) {
                     throw new RuntimeException("Exporting to " + exportFileWriter, e);
                 }

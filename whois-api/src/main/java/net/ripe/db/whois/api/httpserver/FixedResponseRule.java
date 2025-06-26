@@ -1,10 +1,10 @@
 package net.ripe.db.whois.api.httpserver;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class FixedResponseRule extends Rule {
@@ -19,10 +19,11 @@ public class FixedResponseRule extends Rule {
     public String matchAndApply(String target, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (HttpStatus.isClientError(responseCode) || HttpStatus.isServerError(responseCode)) {
             response.sendError(responseCode);
+            this.setHandling(true);
         } else {
             response.setStatus(responseCode);
         }
-        return null;
+        return target;
     }
 
     @Override

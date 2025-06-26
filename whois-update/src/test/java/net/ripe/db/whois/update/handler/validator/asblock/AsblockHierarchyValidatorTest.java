@@ -51,7 +51,7 @@ public class AsblockHierarchyValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS20"));
         when(rpslObjectDao.findAsBlockIntersections(10L, 20L)).thenReturn(Lists.newArrayList(RpslObject.parse("as-block: AS1 - AS30")));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, times(1)).addMessage(update, UpdateMessages.asblockParentAlreadyExists());
     }
@@ -61,7 +61,7 @@ public class AsblockHierarchyValidatorTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS20"));
         when(rpslObjectDao.findAsBlockIntersections(10L, 20L)).thenReturn(Lists.newArrayList(RpslObject.parse("as-block: AS15 - AS30")));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, times(1)).addMessage(update, UpdateMessages.intersectingAsblockAlreadyExists());
     }
@@ -69,7 +69,7 @@ public class AsblockHierarchyValidatorTest {
     @Test
     public void validate_asBlock_child_exists() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.asblockChildAlreadyExists());
     }
@@ -78,7 +78,7 @@ public class AsblockHierarchyValidatorTest {
     public void validate_asBlock_intersects_on_boundaries() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.intersectingAsblockAlreadyExists());
     }
@@ -87,7 +87,7 @@ public class AsblockHierarchyValidatorTest {
     public void validate_already_exists() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("as-block: AS10 - AS15"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.asblockAlreadyExists());
     }

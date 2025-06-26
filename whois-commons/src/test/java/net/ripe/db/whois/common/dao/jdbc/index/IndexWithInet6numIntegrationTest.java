@@ -7,15 +7,16 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.core.Is.is;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class IndexWithInet6numIntegrationTest extends IndexIntegrationTestBase {
     private RpslObjectInfo rpslObjectInfo;
 
@@ -49,7 +50,7 @@ public class IndexWithInet6numIntegrationTest extends IndexIntegrationTestBase {
         databaseHelper.addObject("inet6num: 2001:db8:60::/48\nnetname: testnet");
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "2001:db8:60::/48");
 
-        assertThat(found.size(), is(1));
+        assertThat(found, hasSize(1));
     }
 
     @Test
@@ -58,7 +59,7 @@ public class IndexWithInet6numIntegrationTest extends IndexIntegrationTestBase {
 
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, "2001:600::/56");
 
-        assertThat(found.size(), is(0));
+        assertThat(found, hasSize(0));
 
     }
 
@@ -66,7 +67,7 @@ public class IndexWithInet6numIntegrationTest extends IndexIntegrationTestBase {
     public void find_no_inet6num() {
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, rpslObjectInfo.getKey());
 
-        assertThat(found.size(), is(0));
+        assertThat(found, hasSize(0));
     }
 
     @Test
@@ -75,7 +76,7 @@ public class IndexWithInet6numIntegrationTest extends IndexIntegrationTestBase {
 
         final List<RpslObjectInfo> found = subject.findInIndex(whoisTemplate, rpslObjectInfo.getKey());
 
-        assertThat(found.size(), is(1));
+        assertThat(found, hasSize(1));
         final RpslObjectInfo objectInfo = found.get(0);
         assertThat(objectInfo.getKey(), is(rpslObjectInfo.getKey()));
         assertThat(objectInfo.getObjectId(), is(rpslObjectInfo.getObjectId()));

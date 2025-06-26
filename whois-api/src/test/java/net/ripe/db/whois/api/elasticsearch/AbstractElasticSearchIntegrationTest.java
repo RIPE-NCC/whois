@@ -3,6 +3,10 @@ package net.ripe.db.whois.api.elasticsearch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.ElasticSearchHelper;
+import net.ripe.db.whois.api.fulltextsearch.ElasticFullTextRebuild;
+import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
+import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -14,9 +18,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractElasticSearchIntegrationTest extends AbstractIntegrationTest {
@@ -34,11 +45,15 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     @Autowired
     ElasticFullTextIndex elasticFullTextIndex;
 
+    @Autowired
+    ElasticFullTextRebuild elasticFullTextRebuild;
+
+
     @BeforeAll
     public static void setUpElasticCluster() {
         if (StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAINERS))) {
             if (elasticsearchContainer == null) {
-                elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.15.0");
+                elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.16.3");
                 elasticsearchContainer.start();
             }
 
@@ -46,19 +61,15 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
         } else {
             System.setProperty("elastic.host", "elasticsearch:9200");
         }
-
-        System.setProperty("elasticsearch.enabled", "true");
     }
 
     @AfterAll
     public static void resetElasticCluster() {
         System.clearProperty("elastic.host");
-        System.clearProperty("elasticsearch.enabled");
     }
 
     @BeforeEach
     public void setUpIndexes() throws Exception {
-        elasticSearchHelper.setupElasticIndexes(getWhoisIndex(), getMetadataIndex());
         rebuildIndex();
     }
 
@@ -69,9 +80,10 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     public void rebuildIndex() {
         try {
-            elasticFullTextIndex.update();
+            elasticSearchHelper.resetElasticIndexes(getWhoisIndex(), getMetadataIndex());
+            elasticFullTextRebuild.rebuild(getWhoisIndex(), getMetadataIndex(), false);
             Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.info("Failed to update the ES indexes {}", e.getMessage());
         }
     }
@@ -90,21 +102,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
 
     public abstract String getWhoisIndex();
 
-    public static ElasticsearchContainer getElasticsearchContainer() {
-        return elasticsearchContainer;
-    }
-
-    public ElasticIndexService getElasticIndexService() {
-        return elasticIndexService;
-    }
-
-    public ElasticSearchHelper getElasticSearchHelper() {
-        return elasticSearchHelper;
-    }
-
-    public ElasticFullTextIndex getElasticFullTextIndex() {
-        return elasticFullTextIndex;
-    }
 
     public abstract String getMetadataIndex();
+
 }

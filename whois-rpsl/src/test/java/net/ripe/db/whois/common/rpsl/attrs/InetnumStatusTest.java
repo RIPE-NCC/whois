@@ -28,7 +28,7 @@ public class InetnumStatusTest {
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(ALLOCATED_PA, true), is(true));
         assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(LIR_PARTITIONED_PA, true), is(true));
-        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(true));
+        assertThat(LIR_PARTITIONED_PA.worksWithParentStatus(SUB_ALLOCATED_PA, true), is(false));
 
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(ALLOCATED_UNSPECIFIED, true), is(true));
         assertThat(ALLOCATED_UNSPECIFIED.worksWithParentStatus(LEGACY, true), is(false));
@@ -53,7 +53,7 @@ public class InetnumStatusTest {
     public void allowedOrgTypesChecks() {
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.LIR), is(true));
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.RIR), is(true));
-        assertThat(ALLOCATED_PA.isValidOrgType(OrgType.IANA), is(true));
+        assertThat(ALLOCATED_PA.isValidOrgType(OrgType.IANA), is(false));
         assertThat(ALLOCATED_PA.isValidOrgType(OrgType.DIRECT_ASSIGNMENT), is(false));
 
         assertThat(ALLOCATED_UNSPECIFIED.isValidOrgType(OrgType.LIR), is(true));

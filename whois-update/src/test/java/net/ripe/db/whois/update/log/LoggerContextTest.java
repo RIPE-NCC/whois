@@ -7,7 +7,6 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.Update;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +31,7 @@ import java.util.zip.GZIPInputStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -94,7 +94,7 @@ public class LoggerContextTest {
 
     @Test
     public void log_throws_exception() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             subject.log("filename", new LogCallback() {
                 @Override
                 public void log(final OutputStream outputStream) throws IOException {
@@ -125,17 +125,12 @@ public class LoggerContextTest {
                 "            <key>[mntner] DEV-ROOT-MNT</key>\n" +
                 "            <operation>DELETE</operation>\n" +
                 "            <reason/>\n" +
-                "            <paragraph>\n" +
-                "                <![CDATA[mntner: DEV-ROOT-MNT]]>\n" +
-                "            </paragraph>\n" +
-                "            <object>\n" +
-                "                <![CDATA[mntner:         DEV-ROOT-MNT\n"));
+                "            <paragraph><![CDATA[mntner: DEV-ROOT-MNT]]></paragraph>\n" +
+                "            <object><![CDATA[mntner:         DEV-ROOT-MNT\n"));
 
         assertThat(contents, containsString("" +
                 "            <query>\n" +
-                "                <sql>\n" +
-                "                    <![CDATA[sql]]>\n" +
-                "                </sql>\n" +
+                "                <sql><![CDATA[sql]]></sql>\n" +
                 "                <params/>\n" +
                 "                <results/>\n" +
                 "            </query>\n"));
@@ -148,7 +143,7 @@ public class LoggerContextTest {
 
     @Test
     public void logUpdateComplete_no_context_should_fail() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             subject.logUpdateCompleted(update);
         });
     }
@@ -173,12 +168,9 @@ public class LoggerContextTest {
                 "            <exception>\n" +
                 "                <class>java.lang.NullPointerException</class>\n"));
         assertThat(contents, containsString("" +
-                "                <message>\n" +
-                "                    <![CDATA[null]]>\n" +
-                "                </message>\n"));
+                "                <message><![CDATA[null]]></message>\n"));
         assertThat(contents, containsString("" +
-                "                <stacktrace>\n" +
-                "                    <![CDATA[java.lang.NullPointerException\n"));
+                "                <stacktrace><![CDATA[java.lang.NullPointerException\n"));
     }
 
     @Test

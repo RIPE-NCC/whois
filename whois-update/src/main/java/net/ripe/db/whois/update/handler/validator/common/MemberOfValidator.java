@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -17,7 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,18 +49,20 @@ public class MemberOfValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Collection<CIString> memberOfs = update.getUpdatedObject().getValuesForAttribute((AttributeType.MEMBER_OF));
         if (memberOfs.isEmpty()) {
-            return;
+            return Collections.emptyList();
         }
 
         final Set<CIString> updatedObjectMaintainers = update.getUpdatedObject().getValuesForAttribute(AttributeType.MNT_BY);
         final ObjectType referencedObjectType = objectTypeMap.get(update.getType());
         final Set<CIString> unsupportedSets = findUnsupportedMembers(memberOfs, updatedObjectMaintainers, referencedObjectType);
         if (!unsupportedSets.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.membersNotSupportedInReferencedSet(unsupportedSets.toString()));
+            return Arrays.asList(UpdateMessages.membersNotSupportedInReferencedSet(unsupportedSets.toString()));
         }
+
+        return Collections.emptyList();
     }
 
     private Set<CIString> findUnsupportedMembers(final Collection<CIString> memberOfs, final Set<CIString> originalObjectMaintainers, final ObjectType objectType) {
@@ -90,5 +96,10 @@ public class MemberOfValidator implements BusinessRuleValidator {
     @Override
     public ImmutableList<ObjectType> getTypes() {
         return TYPES;
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 }

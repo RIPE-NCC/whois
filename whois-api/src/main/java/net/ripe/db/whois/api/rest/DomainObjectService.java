@@ -2,26 +2,44 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.CookieParam;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.update.domain.ClientCertificateCredential;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.OAuthCredential;
+import net.ripe.db.whois.common.credentials.ClientCertificateCredential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Origin;
 import net.ripe.db.whois.update.domain.Paragraph;
-import net.ripe.db.whois.update.domain.PasswordCredential;
-import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateStatus;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -29,29 +47,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.OK;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.CONFLICT;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 @Component
 @Path("/domain-objects")
@@ -82,6 +85,7 @@ public class DomainObjectService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String sourceParam,
             @QueryParam("password") final List<String> passwords,
+            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         if (resources == null || resources.getWhoisObjects().size() == 0) {
@@ -91,7 +95,7 @@ public class DomainObjectService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
 
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
             updateContext.setBatchUpdate();
 
             auditlogRequest(request);
@@ -161,9 +165,11 @@ public class DomainObjectService {
                 default:
                     if (updateContext.getMessages(update).contains(UpdateMessages.newKeywordAndObjectExists())) {
                         throw new UpdateFailedException(CONFLICT, resources);
-                    } else {
-                        throw new UpdateFailedException(BAD_REQUEST, resources);
                     }
+                    if (updateContext.getMessages(update).contains(UpdateMessages.dnsCheckTimeout())){
+                        throw new UpdateFailedException(INTERNAL_SERVER_ERROR, resources);
+                    }
+                    throw new UpdateFailedException(BAD_REQUEST, resources);
             }
         }
     }
@@ -199,7 +205,15 @@ public class DomainObjectService {
             credentials.add(SsoCredential.createOfferedCredential(updateContext.getUserSession()));
         }
 
-        updateContext.getClientCertificate().ifPresent(x509 -> credentials.add(ClientCertificateCredential.createOfferedCredential(x509)));
+        if (updateContext.getClientCertificates() != null) {
+            for (X509CertificateWrapper clientCertificate : updateContext.getClientCertificates()) {
+                credentials.add(ClientCertificateCredential.createOfferedCredential(clientCertificate));
+            }
+        }
+
+        if (updateContext.getOAuthSession() != null) {
+            credentials.add(OAuthCredential.createOfferedCredential(updateContext.getOAuthSession()));
+        }
 
         return new Credentials(credentials);
     }

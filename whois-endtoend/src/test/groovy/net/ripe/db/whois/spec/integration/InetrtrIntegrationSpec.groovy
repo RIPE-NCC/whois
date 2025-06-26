@@ -118,7 +118,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             password:        emptypassword
             password:        update
         """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
       then:
         createResponse =~ /Create SUCCEEDED: \[inet-rtr\] test.ripe.net/
     }
@@ -139,7 +139,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             password:        emptypassword
         """
 
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       then:
         createResponse =~ /SUCCESS/
@@ -161,11 +161,35 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             password:        emptypassword
         """
 
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       then:
         createResponse =~ /FAIL/
         createResponse.contains("***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                "            referenced set [rtrs-no-mbrsbyref]")
+    }
+
+    def "create, with member-of that does not contain needed mnt-by's, override"() {
+        when:
+        def data = """\
+            inet-rtr:        test.ripe.net
+            descr:           test
+            local-as:        AS101
+            ifaddr:          192.168.0.1 masklen 22
+            admin-c:         AP1-TEST
+            tech-c:          AP1-TEST
+            mnt-by:          TEST-MNT
+            mnt-by:          REF-MNT
+            member-of:       rtrs-no-mbrsbyref
+            source:          TEST
+            override:     denis,override1
+        """
+
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
+
+        then:
+        createResponse =~ /SUCCEEDED/
+        createResponse.contains("***Warning: Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                 "            referenced set [rtrs-no-mbrsbyref]")
     }
 
@@ -182,7 +206,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -199,7 +223,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          REF-MNT
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       then:
         updateResponse =~ /SUCCESS/
@@ -217,7 +241,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -235,7 +259,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             member-of:       rtrs-ripetest
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       then:
         updateResponse =~ /SUCCESS/
@@ -253,7 +277,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-by:          TEST-MNT
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       expect:
         createResponse =~ /SUCCESS/
@@ -271,13 +295,52 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             member-of:       rtrs-no-mbrsbyref
             source:          TEST
             password:        emptypassword
-        """.stripIndent()))
+        """.stripIndent(true)))
 
       then:
         updateResponse =~ /FAIL/
         updateResponse.contains(
                 "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
                 "            referenced set [rtrs-no-mbrsbyref]")
+    }
+
+    def "modify, member-of not in rtr-set's mbrs-by-ref, using override"() {
+        given:
+        def createResponse = syncUpdate(new SyncUpdate(data: """\
+            inet-rtr:        test.ripe.net
+            descr:           test
+            local-as:        AS101
+            ifaddr:          192.168.0.1 masklen 22
+            admin-c:         AP1-TEST
+            tech-c:          AP1-TEST
+            mnt-by:          TEST-MNT
+            source:          TEST
+            password:        emptypassword
+        """.stripIndent(true)))
+
+        expect:
+        createResponse =~ /SUCCESS/
+
+        when:
+        def updateResponse = syncUpdate(new SyncUpdate(data: """\
+            inet-rtr:        test.ripe.net
+            descr:           test
+            local-as:        AS101
+            ifaddr:          192.168.0.1 masklen 22
+            admin-c:         AP1-TEST
+            tech-c:          AP1-TEST
+            mnt-by:          TEST-MNT
+            mnt-by:          REF-MNT
+            member-of:       rtrs-no-mbrsbyref
+            source:          TEST
+            override:     denis,override1
+        """.stripIndent(true)))
+
+        then:
+        updateResponse =~ /SUCCESS/
+        updateResponse.contains(
+                "***Warning: Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                        "            referenced set [rtrs-no-mbrsbyref]")
     }
 
     def "delete inet-rtr object"() {
@@ -291,7 +354,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c: AP1-TEST
                 mnt-by: TEST-MNT
                 source: TEST
-            """.stripIndent()
+            """.stripIndent(true)
         def insertResponse = syncUpdate(new SyncUpdate(data: inetrtr + "password: emptypassword"))
 
       expect:
@@ -318,7 +381,7 @@ class InetrtrIntegrationSpec extends BaseWhoisSourceSpec {
             password:        emptypassword
             password:        update
         """
-        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent()))
+        def createResponse = syncUpdate(new SyncUpdate(data: data.stripIndent(true)))
 
       then:
         createResponse =~ /Create SUCCEEDED: \[inet-rtr\] test.ripe.net/

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.outofregion;
 
 import com.google.common.collect.ImmutableList;
-
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -13,6 +13,10 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static net.ripe.db.whois.common.rpsl.ObjectType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROUTE;
@@ -42,21 +46,22 @@ public class OutOfRegionObjectValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
+        if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER)) {
+            return Collections.emptyList();
+        }
+
         final RpslObject updatedObject = update.getUpdatedObject();
         if (updatedObject == null) {
-            return;
+            return Collections.emptyList();
         }
 
         boolean outOfRegion = updatedObject.getType() == ROUTE || updatedObject.getType() == ROUTE6?
                 !authoritativeResourceData.getAuthoritativeResource().isRouteMaintainedInRirSpace(updatedObject) :
                 !authoritativeResourceData.getAuthoritativeResource().isMaintainedInRirSpace(updatedObject);
 
-        if (outOfRegion) {
-            if (!(updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER) || updateContext.getSubject(update).hasPrincipal(Principal.RS_MAINTAINER))) {
-                updateContext.addMessage(update, UpdateMessages.cannotCreateOutOfRegionObject(updatedObject.getType()));
-            }
-        }
+        return outOfRegion ?
+                  Arrays.asList(UpdateMessages.cannotCreateOutOfRegionObject(updatedObject.getType()))
+                : Collections.emptyList();
     }
-
 }

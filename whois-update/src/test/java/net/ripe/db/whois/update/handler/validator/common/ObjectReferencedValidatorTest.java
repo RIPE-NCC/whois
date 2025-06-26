@@ -37,7 +37,7 @@ public class ObjectReferencedValidatorTest {
 
     @Test
     public void validate_no_original_object() {
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -75,7 +75,7 @@ public class ObjectReferencedValidatorTest {
         lenient().when(update.getReferenceObject()).thenReturn(object);
         lenient().when(referencesDao.isReferenced(object)).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }

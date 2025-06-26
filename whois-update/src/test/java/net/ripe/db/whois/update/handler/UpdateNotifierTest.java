@@ -13,12 +13,11 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.response.ResponseFactory;
-import net.ripe.db.whois.update.mail.MailGateway;
+import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -37,7 +36,7 @@ public class UpdateNotifierTest {
 
     @Mock RpslObjectDao rpslObjectDao;
     @Mock ResponseFactory responseFactory;
-    @Mock MailGateway mailGateway;
+    @Mock WhoisMailGatewaySmtp mailGateway;
     @Mock ResponseMessage responseMessage;
 
     @InjectMocks UpdateNotifier subject;

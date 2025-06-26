@@ -1,7 +1,6 @@
 package net.ripe.db.whois.nrtm.integration;
 
 import com.google.common.collect.Lists;
-
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -12,10 +11,10 @@ import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.DirtiesContext;
@@ -26,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
@@ -55,7 +54,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
         nrtmImporter.start();
     }
 
@@ -102,7 +101,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         nrtmServer.start();
 
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
         nrtmImporter.start();
 
         objectExists(ObjectType.MNTNER, "TEST-MNT", true);
@@ -160,7 +159,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         databaseHelper.addObject(mntner2);
         nrtmServer.start();
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
         nrtmImporter.start();
 
         objectExists(ObjectType.MNTNER, "TEST2-MNT", true);
@@ -195,7 +194,7 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
 
         nrtmServer.start();
 
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
         nrtmImporter.start();
 
         objectExists(ObjectType.MNTNER, "TEST2-MNT", true);

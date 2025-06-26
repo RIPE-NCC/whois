@@ -228,7 +228,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -237,7 +237,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -260,7 +260,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 override:  denis,override1
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -298,7 +298,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -307,7 +307,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -334,7 +334,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -343,7 +343,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -371,7 +371,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -380,7 +380,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -407,7 +407,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -416,7 +416,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "just added")
@@ -442,7 +442,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 delete:   exact match
 
                 password:   mb-child
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -451,7 +451,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
@@ -478,7 +478,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   ml-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -487,7 +487,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         queryObject("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
@@ -514,7 +514,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -523,7 +523,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         queryObject("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
@@ -551,7 +551,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mr-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -560,7 +560,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16", "AS2000")
@@ -592,7 +592,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -601,7 +601,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16", "AS2000")
@@ -630,7 +630,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -639,7 +639,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -670,7 +670,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mb-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -679,7 +679,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16", "AS2000")
@@ -707,7 +707,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -716,7 +716,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 21.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16", "AS2000")
@@ -742,7 +742,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -751,7 +751,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 21.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16", "AS2000")
@@ -777,7 +777,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -786,7 +786,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 21.128.255.255/32AS2000" }
 
         query_object_matches("-rGBT route 21.128.255.255/32", "route", "21.128.255.255/32", "AS2000")
@@ -842,7 +842,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   hm
                 password:   mb-child
                 password:   mbi-parent
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -890,7 +890,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -899,7 +899,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
@@ -933,7 +933,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -942,7 +942,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
@@ -976,7 +976,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -985,7 +985,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
@@ -1019,7 +1019,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1028,7 +1028,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
@@ -1057,7 +1057,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1066,7 +1066,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(3, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.errorMessagesFor("Modify", "[route] 20.13.0.0/16AS3000") ==
                 [
@@ -1098,7 +1098,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1107,7 +1107,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.errorMessagesFor("Modify", "[route] 20.13.0.0/16AS3000") ==
                 ["Syntax error in EXACT-MR-MNT {any, 20.13.0.0/16^+}"]
@@ -1135,7 +1135,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   mr-exact
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1144,7 +1144,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.errorMessagesFor("Modify", "[route] 20.13.0.0/16AS3000") ==
                 ["Syntax error in EXACT-MR-MNT {20.13.2.3/16^11-12, 20.13.2.3/16^+}"]
@@ -1179,7 +1179,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 password:   mb-exact
                 password:   mb-child
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1188,7 +1188,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 

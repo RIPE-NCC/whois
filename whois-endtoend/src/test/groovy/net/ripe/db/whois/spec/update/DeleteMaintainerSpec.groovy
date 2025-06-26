@@ -98,7 +98,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
 
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] DEL-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] DEL-MNT") == ["Object [mntner] DEL-MNT does not exist in the database"]
@@ -144,7 +144,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[mntner] DEL-MNT" }
 
         queryNothing("-r -T mntner DEL-MNT")
@@ -168,7 +168,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 referral-by: DEL-MNT
                 mnt-by:      DEL-MNT
                 source:      TEST
-                """.stripIndent())
+                """.stripIndent(true))
 
         expect:
         queryObject("-r -T mntner DEL-MNT", "mntner", "DEL-MNT")
@@ -187,7 +187,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[mntner] DEL-MNT" }
 
         queryNothing("-r -T mntner DEL-MNT")
@@ -220,7 +220,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[mntner] DEL2-MNT" }
         queryNothing("-r -T mntner DEL2-MNT")
 
@@ -251,7 +251,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
 
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] DEL2-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] DEL2-MNT") ==
@@ -286,7 +286,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] DEL-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] DEL-MNT") ==
                 ["Authorisation for [mntner] DEL-MNT failed using \"mnt-by:\" not authenticated by: DEL-MNT, DEL-MNT"]
@@ -322,7 +322,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] DEL-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] DEL-MNT") == ["Object [mntner] DEL-MNT doesn't match version in database"]
     }
@@ -351,7 +351,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[mntner] DEL-MNT" }
 
         queryNothing("-r -T mntner DEL-MNT")
@@ -382,7 +382,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 delete: testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -394,7 +394,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] OWNER-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] OWNER-MNT") ==
                 ["Object [mntner] OWNER-MNT is referenced from other objects"]
@@ -425,7 +425,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 delete: testing
 
                 password: delete
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -437,7 +437,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] DEL-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] DEL-MNT") ==
                 ["Object [mntner] DEL-MNT is referenced from other objects"]
@@ -468,7 +468,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 delete: testing
 
                 password: delete
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -480,7 +480,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] DEL-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] DEL-MNT") ==
                 ["Object [mntner] DEL-MNT is referenced from other objects"]
@@ -511,7 +511,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 delete: testing
 
                 password: delete
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -523,7 +523,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] DEL-MNT"}
         ack.errorMessagesFor("Delete", "[mntner] DEL-MNT") ==
                 ["Object [mntner] DEL-MNT is referenced from other objects"]

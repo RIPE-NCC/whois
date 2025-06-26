@@ -2,6 +2,8 @@ package net.ripe.db.whois.update.handler.validator.personrole;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -16,6 +18,8 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -41,23 +45,26 @@ public class MustKeepAbuseMailboxIfReferencedValidator implements BusinessRuleVa
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Set<CIString> originalAbuseMailbox = update.getReferenceObject().getValuesForAttribute(AttributeType.ABUSE_MAILBOX);
         final Set<CIString> updatedAbuseMailbox = update.getUpdatedObject().getValuesForAttribute(AttributeType.ABUSE_MAILBOX);
 
         if (!updatedAbuseMailbox.isEmpty() || originalAbuseMailbox.isEmpty()) {
-            return;
+            return Collections.emptyList();
         }
 
+        final List<Message> messages = Lists.newArrayList();
         for (final RpslObjectInfo referenceInfo : referencesDao.getReferences(update.getUpdatedObject())) {
             if (REFERENCED_OBJECT_TYPES.contains(referenceInfo.getObjectType())) {
                 final Set<CIString> abuseCAttributes = objectDao.getById(referenceInfo.getObjectId()).getValuesForAttribute(AttributeType.ABUSE_C);
                 if (!abuseCAttributes.isEmpty() && abuseCAttributes.contains(update.getUpdatedObject().getValueForAttribute(AttributeType.NIC_HDL))) {
-                    updateContext.addMessage(update, UpdateMessages.abuseMailboxReferenced(update.getUpdatedObject().getValueForAttribute(AttributeType.ROLE), referenceInfo.getObjectType()));
+                    messages.add(UpdateMessages.abuseMailboxReferenced(update.getUpdatedObject().getValueForAttribute(AttributeType.ROLE), referenceInfo.getObjectType()));
                     break;
                 }
             }
         }
+
+        return messages;
     }
 
     @Override

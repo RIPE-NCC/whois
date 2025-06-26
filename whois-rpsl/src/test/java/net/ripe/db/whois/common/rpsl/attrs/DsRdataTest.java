@@ -1,10 +1,10 @@
 package net.ripe.db.whois.common.rpsl.attrs;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class DsRdataTest {
 
@@ -84,7 +84,7 @@ public class DsRdataTest {
     private void verifyFailure(String input, String expectedError) {
         try {
             DsRdata.parse(input);
-            Assertions.fail("Expected exception not thrown\nInput: '" + input + "'\n Expected Error: '"+ expectedError + "'");
+            fail("Expected exception not thrown\nInput: '" + input + "'\n Expected Error: '"+ expectedError + "'");
         } catch (AttributeParseException e) {
             assertThat(e.getMessage(), is(expectedError));
         }

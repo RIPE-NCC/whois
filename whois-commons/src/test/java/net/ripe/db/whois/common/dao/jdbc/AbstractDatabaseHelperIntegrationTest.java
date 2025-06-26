@@ -30,12 +30,13 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
 
     protected JdbcTemplate whoisTemplate;
     protected JdbcTemplate internalsTemplate;
+    protected JdbcTemplate mailupdatesTemplate;
     protected DatabaseHelper databaseHelper;
 
     private static byte[] propertyStore = null;
 
     @BeforeAll
-    public synchronized static void setupAbstractDatabaseHelperTest() throws Exception {
+    public static synchronized void setupAbstractDatabaseHelperTest() throws Exception {
         DatabaseHelper.setupDatabase();
         Slf4JLogConfiguration.init();
 
@@ -50,6 +51,7 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
         System.setProperty("grs.sources", "TEST-GRS");
         System.setProperty("grs.sources.dummify", "TEST-GRS");
         System.setProperty("api.rest.baseurl", "http://rest-test.db.ripe.net");
+        System.setProperty("whois.environment", "localhost");
 
         // default commit-id
         System.setProperty("git.commit.id.abbrev", "0");
@@ -59,8 +61,8 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
     }
 
     @AfterAll
-    public synchronized static void resetAbstractDatabaseHelperTest() throws Exception {
-        Properties properties = new Properties();
+    public static synchronized void resetAbstractDatabaseHelperTest() throws Exception {
+        final Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(propertyStore));
         System.setProperties(properties);
         propertyStore = null;
@@ -83,5 +85,6 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
         this.databaseHelper = databaseHelper;
         this.whoisTemplate = databaseHelper.getWhoisTemplate();
         this.internalsTemplate = databaseHelper.getInternalsTemplate();
+        this.mailupdatesTemplate = databaseHelper.getMailupdatesTemplate();
     }
 }

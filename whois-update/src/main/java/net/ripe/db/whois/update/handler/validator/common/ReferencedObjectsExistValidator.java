@@ -1,6 +1,8 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -12,10 +14,11 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,17 +36,20 @@ public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final RpslObject updatedObject = update.getUpdatedObject();
+        final List<Message> messages = Lists.newArrayList();
 
         final Map<RpslAttribute, Set<CIString>> invalidReferences = referencesDao.getInvalidReferences(updatedObject);
         final ObjectMessages objectMessages = updateContext.getMessages(update);
         for (final Map.Entry<RpslAttribute, Set<CIString>> invalidReferenceEntry : invalidReferences.entrySet()) {
             final RpslAttribute attribute = invalidReferenceEntry.getKey();
             if (objectMessages.getMessages(attribute).getErrors().isEmpty()) {
-                updateContext.addMessage(update, attribute, UpdateMessages.unknownObjectReferenced(StringUtils.join(invalidReferenceEntry.getValue(), ',')));
+                messages.add(UpdateMessages.unknownObjectReferenced(attribute,StringUtils.join(invalidReferenceEntry.getValue(), ',')));
             }
         }
+
+        return messages;
     }
 
     @Override

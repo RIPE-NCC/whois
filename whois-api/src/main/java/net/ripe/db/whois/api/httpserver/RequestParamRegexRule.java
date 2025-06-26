@@ -1,11 +1,11 @@
 package net.ripe.db.whois.api.httpserver;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +39,7 @@ public class RequestParamRegexRule extends Rule {
     private String apply(final String target, final HttpServletResponse response) throws IOException {
         if (HttpStatus.isClientError(responseCode) || HttpStatus.isServerError(responseCode)) {
             response.sendError(responseCode);
+            this.setHandling(true);
         } else {
             response.setStatus(responseCode);
         }

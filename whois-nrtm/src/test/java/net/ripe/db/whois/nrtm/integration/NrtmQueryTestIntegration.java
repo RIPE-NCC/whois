@@ -7,14 +7,14 @@ import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Autowired
@@ -34,14 +34,14 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void versionQuery() {
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q version");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-q version");
 
         assertThat(response, containsString("% nrtm-server"));
     }
 
     @Test
     public void sourcesQuery() {
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-q sources");
 
         assertThat(response, containsString("TEST:3:X:0-0"));
         assertThat(response, containsString("TEST-NONAUTH:3:X:0-0"));
@@ -49,7 +49,7 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void emptyQuery() {
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "\n");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "\n");
 
         assertThat(response, containsString("no flags passed"));
     }
@@ -66,7 +66,7 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
                 "last-modified: 2001-02-04T17:00:00Z\n" +
                 "source:        TEST");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
                 "role:           Denis Walker\n" +
@@ -81,11 +81,11 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
     @Test
     public void should_not_have_blank_lines_between_sources() {
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-q sources");
 
         assertThat(response, containsString(
                 "% The RIPE Database is subject to Terms and Conditions.\n" +
-                        "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                        "% See https://docs.db.ripe.net/terms-conditions.html\n" +
                         "\n" +
                         "TEST:3:X:0-0\n" +
                         "TEST-NONAUTH:3:X:0-0\n" +
@@ -99,11 +99,11 @@ public class NrtmQueryTestIntegration extends AbstractNrtmIntegrationBase {
             databaseHelper.insertAclIpDenied("127.0.0.1/32");
             ipResourceConfiguration.reload();
 
-            final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-q sources");
+            final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-q sources");
 
             assertThat(response, containsString("ERROR:201: access denied"));
         } finally {
-            databaseHelper.unban("127.0.0.1/32");
+            databaseHelper.unbanIp("127.0.0.1/32");
             ipResourceConfiguration.reload();
             testPersonalObjectAccounting.resetAccounting();
         }

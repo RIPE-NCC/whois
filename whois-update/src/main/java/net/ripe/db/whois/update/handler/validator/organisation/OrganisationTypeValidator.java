@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -16,6 +17,10 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 @Component
 public class OrganisationTypeValidator implements BusinessRuleValidator {
 
@@ -23,12 +28,8 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION);
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-
-        if (subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
-            return;
-        }
 
         final RpslAttribute orgTypeAttribute = update.getUpdatedObject().findAttribute(AttributeType.ORG_TYPE);
         final CIString orgType = orgTypeAttribute.getCleanValue();
@@ -36,8 +37,15 @@ public class OrganisationTypeValidator implements BusinessRuleValidator {
         if ((OrgType.OTHER != OrgType.getFor(orgType)) &&
                 orgTypeHasChanged(update) &&
                 !subject.hasPrincipal(Principal.ALLOC_MAINTAINER)) {
-            updateContext.addMessage(update, orgTypeAttribute, UpdateMessages.invalidMaintainerForOrganisationType(orgType));
+            return Arrays.asList(UpdateMessages.invalidMaintainerForOrganisationType(orgTypeAttribute));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     private boolean orgTypeHasChanged(final PreparedUpdate update) {

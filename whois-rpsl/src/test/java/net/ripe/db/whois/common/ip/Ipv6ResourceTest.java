@@ -1,17 +1,15 @@
 package net.ripe.db.whois.common.ip;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Ipv6ResourceTest {
     private Ipv6Resource subject;
@@ -71,49 +69,49 @@ public class Ipv6ResourceTest {
 
     @Test
     public void parseIpv6MappedIpv4Fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv6Resource.parse("::ffff:192.0.2.128");
         });
     }
 
     @Test
     public void invalidResource() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("invalid resource");
         });
     }
 
     @Test
     public void invalidResourceType() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("12.0.0.1");
         });
     }
 
     @Test
     public void Ipv6RangeThrowsIllegalArgumentException() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("2001:: - 2020::");
         });
     }
 
     @Test
     public void createWithBeginEndBeforeBeginFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = resource(2, 1);
         });
     }
 
     @Test
     public void createWithBeginOutOfBoundsFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = resource(Long.MIN_VALUE, 1);
         });
     }
 
     @Test
     public void createWithEndOutOfBoundsFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new Ipv6Resource(BigInteger.ONE, BigInteger.ONE.shiftLeft(128));
         });
     }
@@ -128,22 +126,22 @@ public class Ipv6ResourceTest {
 
     @Test
     public void maxRangeContainsEverything() {
-        assertTrue(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.begin(), Ipv6Resource.MAX_RANGE.begin())));
-        assertTrue(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.end(), Ipv6Resource.MAX_RANGE.end())));
-        assertTrue(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.begin(), Ipv6Resource.MAX_RANGE.end())));
-        assertTrue(Ipv6Resource.MAX_RANGE.contains(resource(1231250, 123097120)));
+        assertThat(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.begin(), Ipv6Resource.MAX_RANGE.begin())), is(true));
+        assertThat(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.end(), Ipv6Resource.MAX_RANGE.end())), is(true));
+        assertThat(Ipv6Resource.MAX_RANGE.contains(new Ipv6Resource(Ipv6Resource.MAX_RANGE.begin(), Ipv6Resource.MAX_RANGE.end())), is(true));
+        assertThat(Ipv6Resource.MAX_RANGE.contains(resource(1231250, 123097120)), is(true));
     }
 
     @Test
     public void compareUpperBounds() {
-        assertEquals(0, Ipv6Resource.MAX_RANGE.compareUpperBound(Ipv6Resource.MAX_RANGE));
-        assertEquals(-1, Ipv6Resource.parse("2001:ffce::/32").compareUpperBound(Ipv6Resource.MAX_RANGE));
-        assertEquals(1, Ipv6Resource.MAX_RANGE.compareUpperBound(Ipv6Resource.parse("2001:ffce::/32")));
+        assertThat(Ipv6Resource.MAX_RANGE.compareUpperBound(Ipv6Resource.MAX_RANGE), is(0));
+        assertThat(Ipv6Resource.parse("2001:ffce::/32").compareUpperBound(Ipv6Resource.MAX_RANGE), is(-1));
+        assertThat(Ipv6Resource.MAX_RANGE.compareUpperBound(Ipv6Resource.parse("2001:ffce::/32")), is(1));
     }
 
     @Test
     public void singletonIntervalAtLowerBound() {
-        assertEquals(Ipv6Resource.parse("2001::/128"), Ipv6Resource.parse("2001::/77").singletonIntervalAtLowerBound());
+        assertThat(Ipv6Resource.parse("2001::/77").singletonIntervalAtLowerBound(), is(Ipv6Resource.parse("2001::/128")));
     }
 
     @Test
@@ -175,38 +173,38 @@ public class Ipv6ResourceTest {
     public void verifyIntersects() {
         subject = resource(10, 20);
 
-        assertTrue(subject.intersects(subject));
-        assertTrue(subject.intersects(Ipv6Resource.MAX_RANGE));
+        assertThat(subject.intersects(subject), is(true));
+        assertThat(subject.intersects(Ipv6Resource.MAX_RANGE), is(true));
 
-        assertFalse(subject.intersects(resource(9, 9)));
-        assertTrue(subject.intersects(resource(9, 10)));
-        assertTrue(subject.intersects(resource(9, 15)));
-        assertTrue(subject.intersects(resource(9, 20)));
-        assertTrue(subject.intersects(resource(9, 21)));
+        assertThat(subject.intersects(resource(9, 9)), is(false));
+        assertThat(subject.intersects(resource(9, 10)), is(true));
+        assertThat(subject.intersects(resource(9, 15)), is(true));
+        assertThat(subject.intersects(resource(9, 20)), is(true));
+        assertThat(subject.intersects(resource(9, 21)), is(true));
 
-        assertTrue(subject.intersects(resource(10, 10)));
-        assertTrue(subject.intersects(resource(10, 15)));
-        assertTrue(subject.intersects(resource(10, 20)));
-        assertTrue(subject.intersects(resource(10, 21)));
+        assertThat(subject.intersects(resource(10, 10)), is(true));
+        assertThat(subject.intersects(resource(10, 15)), is(true));
+        assertThat(subject.intersects(resource(10, 20)), is(true));
+        assertThat(subject.intersects(resource(10, 21)), is(true));
 
-        assertTrue(subject.intersects(resource(15, 15)));
-        assertTrue(subject.intersects(resource(15, 20)));
-        assertTrue(subject.intersects(resource(15, 21)));
+        assertThat(subject.intersects(resource(15, 15)), is(true));
+        assertThat(subject.intersects(resource(15, 20)), is(true));
+        assertThat(subject.intersects(resource(15, 21)), is(true));
 
-        assertTrue(subject.intersects(resource(20, 20)));
-        assertTrue(subject.intersects(resource(20, 21)));
+        assertThat(subject.intersects(resource(20, 20)), is(true));
+        assertThat(subject.intersects(resource(20, 21)), is(true));
 
-        assertFalse(subject.intersects(resource(21, 21)));
+        assertThat(subject.intersects(resource(21, 21)), is(false));
     }
 
     @Test
     public void verifyEquals() {
         subject = Ipv6Resource.parse("2001::/64");
 
-        assertTrue(subject.equals(subject));
-        assertFalse(subject.equals(Ipv6Resource.MAX_RANGE));
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals("Random object"));
+        assertThat(subject, equalTo(subject));
+        assertThat(subject, not(equalTo(Ipv6Resource.MAX_RANGE)));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo("Random object")));
         assertThat(subject, not(Ipv6Resource.parse("ffce::/64")));
 
         assertThat(subject, is(Ipv6Resource.parse("2001:0:0:0:0:1:2:3/64")));
@@ -382,54 +380,54 @@ public class Ipv6ResourceTest {
     public void parse_from_strings_124() {
         Ipv6Resource ipv6Resource = Ipv6Resource.parse("2a02:27d0:116:fffe:fffe:fffe:1671::/124");
         Ipv6Resource parsedFromStrings = Ipv6Resource.parseFromStrings(Long.toString(Ipv6Resource.msb(ipv6Resource.begin())), Long.toString(Ipv6Resource.lsb(ipv6Resource.begin())), ipv6Resource.getPrefixLength());
-        assertEquals(ipv6Resource, parsedFromStrings);
+        assertThat(parsedFromStrings, equalTo(ipv6Resource));
     }
 
     @Test
     public void reverse_empty() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("");
         });
     }
 
     @Test
     public void reverse_null() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain(null);
         });
     }
 
     @Test
     public void reverse_no_ip6arpa() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("1.2.3.4");
         });
     }
 
     @Test
     public void reverse_no_octets() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain(".ip6.arpa");
         });
     }
 
     @Test
     public void reverse_more_than_four_octets() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("8.7.6.5.4.3.2.1.in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_invalid_nibbles_dash() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("1-1.1.a.ip6.arpa");
         });
 
     }
     @Test
     public void reverse_invalid_nibbles_non_hex() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parseReverseDomain("g.ip6.arpa");
         });
     }
@@ -446,7 +444,7 @@ public class Ipv6ResourceTest {
 
     @Test
     public void invalid_prefix_length() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("2001::/129");
         });
     }
@@ -463,14 +461,14 @@ public class Ipv6ResourceTest {
 
     @Test
     public void test_brackets_invalid_prefix_length() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("[2001:67c:2e8:1::c100:13b/64]");
         });
     }
 
     @Test
     public void test_brackets_with_port_number() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv6Resource.parse("[2001:db8::1]:80");
         });
     }

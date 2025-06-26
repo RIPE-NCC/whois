@@ -12,7 +12,7 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 
 import static org.hamcrest.Matchers.is;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegrationBase {
 
     private static final RpslObject MNTNER = RpslObject.parse("" +
@@ -49,13 +49,13 @@ public class NrtmClientMultipleSourcesTestIntegration extends AbstractNrtmIntegr
         nrtmServer.start();
         System.setProperty("nrtm.import.1-GRS.source", "TEST");
         System.setProperty("nrtm.import.1-GRS.host", "localhost");
-        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.1-GRS.port", Integer.toString(nrtmServer.getPort()));
         System.setProperty("nrtm.import.2-GRS.source", "TEST");
         System.setProperty("nrtm.import.2-GRS.host", "localhost");
-        System.setProperty("nrtm.import.2-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.2-GRS.port", Integer.toString(nrtmServer.getPort()));
         System.setProperty("nrtm.import.3-GRS.source", "TEST");
         System.setProperty("nrtm.import.3-GRS.host", "localhost");
-        System.setProperty("nrtm.import.3-GRS.port", Integer.toString(NrtmServer.getPort()));
+        System.setProperty("nrtm.import.3-GRS.port", Integer.toString(nrtmServer.getPort()));
         nrtmImporter.start();
     }
 

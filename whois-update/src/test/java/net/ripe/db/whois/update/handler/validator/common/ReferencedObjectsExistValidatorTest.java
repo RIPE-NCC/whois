@@ -71,6 +71,6 @@ public class ReferencedObjectsExistValidatorTest {
         when(referencesDao.getInvalidReferences(object)).thenReturn(invalidReferences);
         subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, invalidAttribute, UpdateMessages.unknownObjectReferenced("ADMIN_NC"));
+        verify(updateContext).addMessage(update, invalidAttribute, UpdateMessages.unknownObjectReferenced(invalidAttribute,"ADMIN_NC"));
     }
 }

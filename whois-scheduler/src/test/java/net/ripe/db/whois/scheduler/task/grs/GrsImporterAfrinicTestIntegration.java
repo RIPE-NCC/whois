@@ -2,7 +2,6 @@ package net.ripe.db.whois.scheduler.task.grs;
 
 import com.google.common.io.Files;
 import net.ripe.db.whois.common.DateTimeProvider;
-
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
@@ -14,7 +13,7 @@ import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -26,11 +25,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @DirtiesContext
 public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrationTest {
 
@@ -145,7 +144,7 @@ public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrat
     }
 
     private String query(final String query) throws Exception {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 
     private static String getUrl(final File file) throws MalformedURLException {

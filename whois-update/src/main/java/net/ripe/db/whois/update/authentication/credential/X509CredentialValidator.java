@@ -5,10 +5,11 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
-import net.ripe.db.whois.update.keycert.X509CertificateWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -42,10 +43,11 @@ public class X509CredentialValidator implements CredentialValidator<X509Credenti
     }
 
     @Override
-    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<X509Credential> offeredCredentials, final X509Credential knownCredential) {
+    public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<X509Credential> offeredCredentials, final X509Credential knownCredential, final RpslObject maintainer) {
         for (final X509Credential offeredCredential : offeredCredentials) {
             if (verifySignedMessage(update, updateContext, offeredCredential, knownCredential)) {
                 log(update, String.format("Successfully validated with keycert: %s", knownCredential.getKeyId()));
+                update.getUpdate().setEffectiveCredential(knownCredential.getKeyId(), Update.EffectiveCredentialType.X509);
                 return true;
             }
         }

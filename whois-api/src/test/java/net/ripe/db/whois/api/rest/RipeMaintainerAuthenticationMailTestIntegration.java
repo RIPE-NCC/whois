@@ -1,23 +1,21 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
-
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.mail.MailSenderStub;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.mail.internet.MimeMessage;
-
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class RipeMaintainerAuthenticationMailTestIntegration extends AbstractIntegrationTest {
     //regardless the trusted range, email is never trusted.
 

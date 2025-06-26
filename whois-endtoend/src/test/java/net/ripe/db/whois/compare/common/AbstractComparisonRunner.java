@@ -1,10 +1,10 @@
 package net.ripe.db.whois.compare.common;
 
-import difflib.Delta;
-import difflib.DiffUtils;
-import difflib.Patch;
+import com.github.difflib.DiffUtils;
+import com.github.difflib.patch.AbstractDelta;
+import com.github.difflib.patch.Patch;
 import net.ripe.db.whois.common.domain.ResponseObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -16,10 +16,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.is;
 
 public abstract class AbstractComparisonRunner implements ComparisonRunner {
 
@@ -50,9 +48,9 @@ public abstract class AbstractComparisonRunner implements ComparisonRunner {
     @Override
     public void runCompareTest() throws Exception {
         logger.info("Diffs saved in: {}", targetDir.getAbsolutePath());
-        assertFalse(targetDir.exists(), "Dir should not exist: " + targetDir.getAbsolutePath());
-        assertTrue(targetDir.mkdirs(), "Unable to create: " + targetDir.getAbsolutePath());
-        assertTrue(new File(targetDir, "0_deltas_go_here.txt").createNewFile());
+        assertThat(targetDir.exists(), is(false));  //  "Dir should not exist: " + targetDir.getAbsolutePath());
+        assertThat(targetDir.mkdirs(), is(true));   // "Unable to create: " + targetDir.getAbsolutePath());
+        assertThat(new File(targetDir, "0_deltas_go_here.txt").createNewFile(), is(true));
 
         preRunHook();
 
@@ -75,7 +73,7 @@ public abstract class AbstractComparisonRunner implements ComparisonRunner {
             final ComparisonResult result = filterOutKnownDifferences(executor1Result, executor2Result);
 
             final Patch patch = DiffUtils.diff(result.getList1(), result.getList2());
-            final List<Delta> deltas = patch.getDeltas();
+            final List<AbstractDelta> deltas = patch.getDeltas();
             if (!deltas.isEmpty()) {
                 ComparisonPrinter.writeDifferences(targetDir, queryString, executor1Result, executor2Result, deltas);
                 failedQueries++;

@@ -66,7 +66,7 @@ public class KeycertValidatorTest {
         RpslObject object = RpslObject.parse(getResource("keycerts/AUTO-1-X509.TXT"));
         when(update.getUpdatedObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -118,9 +118,9 @@ public class KeycertValidatorTest {
         when(x509AutoKeyFactory.isKeyPlaceHolder("AUTO-3")).thenReturn(true);
         when(keyWrapperFactory.createKeyWrapper(object, update, updateContext)).thenReturn(PgpPublicKeyWrapper.parse(object));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, object.getAttributes().get(0), UpdateMessages.autokeyForX509KeyCertsOnly());
+        verify(updateContext).addMessage(update, object.getAttributes().get(0), UpdateMessages.autokeyForX509KeyCertsOnly(object.getAttributes().get(0)));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class KeycertValidatorTest {
         final RpslObject object = RpslObject.parse(getResource("keycerts/PGPKEY-MULTIPLE-SUBKEYS.TXT"));
         when(update.getUpdatedObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         assertThat(messages, is(empty()));
     }

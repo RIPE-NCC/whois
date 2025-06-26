@@ -205,7 +205,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] MOD-MNT"}
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         noMoreMessages()
 
@@ -235,7 +235,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] MOD-MNT"}
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         def notif = notificationFor "notify_test@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -267,7 +267,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[mntner] MOD-MNT" }
         query_object_matches("-rGBT mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net")
@@ -300,7 +300,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         ack.successes.any {it.operation == "Delete" && it.key == "[mntner] MOD-MNT"}
         queryNothing("-rGBT mntner MOD-MNT")
@@ -335,7 +335,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT"}
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -368,7 +368,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT3"}
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         noMoreMessages()
 
@@ -397,7 +397,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.errors.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT"}
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errorMessagesFor("Modify", "[mntner] TST-MNT") ==
                 ["Authorisation for [mntner] TST-MNT failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
 
@@ -432,7 +432,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Create" && it.key == "[mntner] CREATE-MNT"}
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -469,7 +469,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.errors.any {it.operation == "Create" && it.key == "[mntner] CREATE-MNT"}
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errorMessagesFor("Create", "[mntner] CREATE-MNT") ==
                 ["Authorisation for [mntner] CREATE-MNT failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
 
@@ -504,7 +504,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Delete" && it.key == "[mntner] TST-MNT4"}
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -543,7 +543,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 0, 1)
 
         ack.errors.any {it.operation == "Delete" && it.key == "[mntner] TST-MNT4"}
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errorMessagesFor("Delete", "[mntner] TST-MNT4") ==
                 ["Authorisation for [mntner] TST-MNT4 failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
 
@@ -577,7 +577,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password:     owner4
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -588,7 +588,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT5"}
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         def notif = notificationFor "mntnfy_owner4@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -643,7 +643,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password:     null
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         def ack = ackFor message
@@ -654,7 +654,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 0, 1, 0)
 
         ack.errors.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT6"}
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errorMessagesFor("Modify", "[mntner] TST-MNT6") ==
                 ["Authorisation for [mntner] TST-MNT6 failed using \"mnt-by:\" not authenticated by: OWNER3-MNT, OWNER4-MNT"]
 
@@ -704,7 +704,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -715,7 +715,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "dbtest-org@ripe.net"
@@ -754,7 +754,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -765,7 +765,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "dbtest-org@ripe.net"
@@ -802,7 +802,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -813,7 +813,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
@@ -852,7 +852,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -863,7 +863,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
@@ -898,7 +898,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete: get rid
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -909,7 +909,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
@@ -949,7 +949,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     delete: get rid
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
             )
 
         then:
@@ -960,7 +960,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
 
         def notif = notificationFor "dbtest-irt@ripe.net"
@@ -1000,7 +1000,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
 
                     password: test3
                     password: irt
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1011,7 +1011,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -1052,7 +1052,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     source:       TEST
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1063,7 +1063,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -1101,7 +1101,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     source:       TEST
 
                     password: test3
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1112,7 +1112,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -1134,7 +1134,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     mnt-by:       RIPE-NCC-HM-MNT
                     mnt-by:       TST-MNT3
                     source:       TEST
-            """.stripIndent())
+            """.stripIndent(true))
             syncUpdate(getTransient("IRT_TEST_NOTIFY") + "password: test3\npassword: irt")
             queryObject("-r -T irt irt-test-notify", "irt", "irt-test-notify")
 
@@ -1156,7 +1156,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                     password: test3
                     password: irt
                     password: hm
-                    """.stripIndent()
+                    """.stripIndent(true)
         )
 
         then:
@@ -1202,7 +1202,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1212,7 +1212,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         def notif = notificationFor "dbtest@ripe.net"
@@ -1260,7 +1260,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1300,7 +1300,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1357,7 +1357,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete:   testing notifications
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1412,7 +1412,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1467,7 +1467,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1477,7 +1477,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         def notif = notificationFor "dbtest@ripe.net"
@@ -1525,7 +1525,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 delete:   testing notifications
                 password: hm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1581,7 +1581,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: false
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1591,7 +1591,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Authorisation for [inetnum] 192.168.200.0 - 192.168.200.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT, LIR-MNT"]
@@ -1640,7 +1640,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 source:      TEST
                 password: null
 
-                """.stripIndent(), redirect: false)
+                """.stripIndent(true), redirect: false)
         )
 
         then:

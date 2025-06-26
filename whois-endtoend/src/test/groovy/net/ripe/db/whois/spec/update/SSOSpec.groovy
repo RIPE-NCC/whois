@@ -53,7 +53,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -94,7 +94,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -138,7 +138,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -183,7 +183,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -227,7 +227,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -272,7 +272,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -315,7 +315,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -358,7 +358,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -400,7 +400,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -448,7 +448,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -495,7 +495,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -538,7 +538,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -581,7 +581,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -622,7 +622,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -665,7 +665,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 source:      TEST
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -703,7 +703,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
                 delete:   test
 
                 password: sso
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

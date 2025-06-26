@@ -7,20 +7,17 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisTag;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
-import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.domain.Tag;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
-import net.ripe.db.whois.query.domain.TagResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,7 +67,7 @@ public class WhoisObjectServerMapperTest {
                 new FormattedServerAttributeMapper(referencedTypeResolver, sourceResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
-        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper, resourceHolderSearch, abuseContactSearch, managedAttributeSearch);
+        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper, resourceHolderSearch, abuseContactSearch, managedAttributeSearch, Lists.newArrayList());
         lenient().when(parameters.getUnformatted()).thenReturn(Boolean.FALSE);
         lenient().when(sourceResolver.getSource(anyString(), any(CIString.class), anyString())).thenReturn("test");
     }
@@ -178,35 +175,5 @@ public class WhoisObjectServerMapperTest {
         assertThat(whoisVersion2.getOperation(), is("ADD/UPD"));
         assertThat(whoisVersion2.getRevision(), is(4));
         assertThat(whoisVersion2.getDate(), is(not(nullValue())));
-    }
-
-    @Test
-    public void map_tags() {
-        final TagResponseObject tagResponseObject =
-                new TagResponseObject(ciString("TEST-DBM"),
-                        Lists.newArrayList(
-                                new Tag(ciString("foo"), "foo data"),
-                                new Tag(ciString("bar"), "bar data"),
-                                new Tag(ciString("barf"), "barf data")
-                        ));
-
-
-        final WhoisObject whoisObject = whoisObjectServerMapper.map(RpslObject.parse("mntner: TEST-MNT\nsource: TEST"), parameters);
-        whoisObjectServerMapper.mapTags(whoisObject, tagResponseObject);
-
-        final List<WhoisTag> tags = whoisObject.getTags();
-
-        assertThat(tags, hasSize(3));
-        final WhoisTag tag1 = tags.get(0);
-        assertThat(tag1.getId(), is("foo"));
-        assertThat(tag1.getData(), is("foo data"));
-
-        final WhoisTag tag2 = tags.get(1);
-        assertThat(tag2.getId(), is("bar"));
-        assertThat(tag2.getData(), is("bar data"));
-
-        final WhoisTag tag3 = tags.get(2);
-        assertThat(tag3.getId(), is("barf"));
-        assertThat(tag3.getData(), is("barf data"));
     }
 }

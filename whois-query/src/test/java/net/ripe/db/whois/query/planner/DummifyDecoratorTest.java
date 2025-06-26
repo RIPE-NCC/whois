@@ -18,8 +18,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -59,7 +59,8 @@ public class DummifyDecoratorTest {
         when(dummifier.dummify(anyInt(), any(RpslObject.class))).thenReturn(dummifiedObject);
 
         final ResponseObject rpslObject = RpslObject.parse("mntner: DEV-MNT\nadmin-c: TEST-PN\nsource: TEST".getBytes());
-        Iterator<? extends ResponseObject> response = subject.decorate(query, Arrays.asList(rpslObject)).iterator();
-        assertEquals(response.next(), RpslObject.parse("mntner:         DEV-MNT\nsource:         TEST-GRS"));
+        final Iterator<? extends ResponseObject> response = subject.decorate(query, Arrays.asList(rpslObject)).iterator();
+
+        assertThat(response.next(), equalTo(RpslObject.parse("mntner:         DEV-MNT\nsource:         TEST-GRS")));
     }
 }

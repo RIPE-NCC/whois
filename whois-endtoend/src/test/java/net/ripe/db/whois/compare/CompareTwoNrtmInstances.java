@@ -6,6 +6,7 @@ import net.ripe.db.whois.compare.common.TargetInterface;
 import net.ripe.db.whois.compare.telnet.NrtmReader;
 import net.ripe.db.whois.compare.telnet.TelnetClientUtils;
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import static net.ripe.db.whois.compare.common.ComparisonExecutorConfig.PRE2;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@org.junit.jupiter.api.Tag("ManualTest")
+@Tag("ManualTest")
 public class CompareTwoNrtmInstances {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompareTwoNrtmInstances.class);
 

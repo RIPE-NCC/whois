@@ -2,7 +2,7 @@ package net.ripe.db.whois.common;
 
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.domain.IpRanges;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

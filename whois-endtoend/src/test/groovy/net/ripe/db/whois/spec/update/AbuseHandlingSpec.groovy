@@ -52,7 +52,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR2-MNT
                 source:       TEST
                 """,
-                "RS-ALLOC-PI": """\
+                "RS-ALLOC-PA": """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -60,7 +60,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 org:          ORG-LIR1-TEST
                 admin-c:      TP1-TEST
                 tech-c:       TP1-TEST
-                status:       ALLOCATED PI
+                status:       ALLOCATED PA
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
@@ -344,7 +344,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -354,7 +354,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] SR2-TEST   Standard Role" }
 
         query_object_not_matches("-rGBT role SR2-TEST", "role", "Standard Role", "abuse-mailbox:")
@@ -383,7 +383,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -393,7 +393,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] AH2-TEST   Abuse Handler" }
         ack.warningSuccessMessagesFor("Create", "[role] AH2-TEST   Abuse Handler") == [
                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
@@ -425,7 +425,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -435,7 +435,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] AH2-TEST   Abuse Handler" }
         ack.errorMessagesFor("Create", "[role] AH2-TEST   Abuse Handler") == [
                 "Attribute \"abuse-mailbox\" appears more than once"
@@ -467,7 +467,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -505,7 +505,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -541,7 +541,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -585,7 +585,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -628,7 +628,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -681,7 +681,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -736,7 +736,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -790,7 +790,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -845,7 +845,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 password:   lir
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -890,7 +890,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -900,7 +900,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] AH2-TEST   Abuse Handler" }
         ack.errorMessagesFor("Create", "[role] AH2-TEST   Abuse Handler") == [
                 "Self reference is not allowed for attribute type \"admin-c\"",
@@ -931,7 +931,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -941,7 +941,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] AH2-TEST   Abuse Handler" }
         ack.errorMessagesFor("Create", "[role] AH2-TEST   Abuse Handler") ==
                 ["\"abuse-c\" is not valid for this object type"]
@@ -973,7 +973,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -983,7 +983,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         query_object_not_matches("-rGBT role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
@@ -1014,7 +1014,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1024,7 +1024,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         query_object_matches("-rGBT role AR1-TEST", "role", "Abuse Role", "LIRabuse@lir.net")
@@ -1054,7 +1054,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1064,7 +1064,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] SR99-TEST   Standard Role" }
         ack.warningSuccessMessagesFor("Modify", "[role] SR99-TEST   Standard Role") == [
                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
@@ -1097,7 +1097,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1107,7 +1107,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] SR1-TEST   Standard Role" }
         ack.warningSuccessMessagesFor("Modify", "[role] SR1-TEST   Standard Role") == [
                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
@@ -1139,7 +1139,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1149,7 +1149,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AH1-TEST   Abuse Handler" }
 
         query_object_matches("-rGBT role AH1-TEST", "role", "Abuse Handler", "just added")
@@ -1181,7 +1181,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 delete:  unreferenced
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1191,7 +1191,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         queryObjectNotFound("-rGBT role AR1-TEST", "role", "Abuse Role")
@@ -1220,7 +1220,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1257,7 +1257,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1295,7 +1295,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 remarks:      just added
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1333,7 +1333,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1343,7 +1343,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-CLR1-TEST" }
 
         query_object_matches("-r -T organisation ORG-CLR1-TEST", "organisation", "ORG-CLR1-TEST", "AH1-TEST")
@@ -1372,7 +1372,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1382,7 +1382,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-CLR1-TEST" }
 
         query_object_not_matches("-r -T organisation ORG-CLR1-TEST", "organisation", "ORG-CLR1-TEST", "abuse-c")
@@ -1413,7 +1413,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 abuse-c:      AH1-TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1423,7 +1423,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
 
         query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "abuse-c")
@@ -1454,7 +1454,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 remarks:      just added
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1464,7 +1464,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
 
         query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "just added")
@@ -1498,7 +1498,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 remarks:      just added
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1508,7 +1508,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
         query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "just added")
@@ -1540,7 +1540,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1550,7 +1550,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
                 ["Attribute \"abuse-c\" appears more than once"]
@@ -1582,7 +1582,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1631,7 +1631,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1669,7 +1669,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 mnt-ref:      owner3-mnt
                 mnt-by:       ripe-ncc-hm-mnt
                 source:       TEST
-                password:     hm""".stripIndent())
+                password:     hm""".stripIndent(true))
 
         def roleMessage = syncUpdate("""\
                 role:         Abuse Role
@@ -1684,7 +1684,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1743,7 +1743,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1796,7 +1796,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1848,7 +1848,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1888,7 +1888,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1928,7 +1928,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1968,7 +1968,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2008,7 +2008,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2048,7 +2048,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2088,7 +2088,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2130,7 +2130,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2172,7 +2172,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2214,7 +2214,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2256,7 +2256,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2298,7 +2298,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2336,7 +2336,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2373,7 +2373,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2426,7 +2426,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2468,7 +2468,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
 
                 password: hm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2510,7 +2510,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 abuse-c:      TP1-TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2520,7 +2520,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
                 ["\"abuse-c:\" references a PERSON object This must reference a ROLE object with an \"abuse-mailbox:\""]
@@ -2546,7 +2546,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 override:   denis,override1
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2584,7 +2584,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 override:   denis,override1
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2620,7 +2620,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 override:   denis,override1
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2656,7 +2656,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 override:   denis,override1
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2693,7 +2693,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: mb-exact
                 password: nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2729,7 +2729,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 password: owner3
                 password: lir
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

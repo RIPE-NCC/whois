@@ -2,6 +2,8 @@ package net.ripe.db.whois.changedphase3;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.changedphase3.util.Scenario.Builder.given;
@@ -27,7 +29,8 @@ import static net.ripe.db.whois.changedphase3.util.Scenario.Req.WITH_CHANGED;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.FAILURE;
 import static net.ripe.db.whois.changedphase3.util.Scenario.Result.SUCCESS;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Disabled("we are not using new mode for now")
+@Tag("IntegrationTest")
 public class ChangedNewModeTestIntegration extends AbstractChangedPhase3IntegrationTest {
 
     @BeforeAll

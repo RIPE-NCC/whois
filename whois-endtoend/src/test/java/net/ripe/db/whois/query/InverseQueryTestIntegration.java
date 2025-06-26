@@ -2,19 +2,18 @@ package net.ripe.db.whois.query;
 
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 // TODO: [AH] this should be in whois-query; however, crowdserverdummy is tied to whois-api because of jetty references
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 
@@ -157,7 +156,112 @@ public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
         assertThat(query("-i referral-by TEST"), containsString("\"referral-by\" is not a known attribute."));
     }
 
-    private String query(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+
+    @Test
+    public void inverse_mnt_ref_person() {
+        databaseHelper.addObject(
+                "person:    Henry Mitchell\n" +
+                        "nic-hdl:   TEST-HM3\n" +
+                        "mnt-ref:   OWNER-MNT\n" +
+                        "source:    TEST");
+
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("TEST-HM3"));
+    }
+
+    @Test
+    public void inverse_mnt_ref_role() {
+        databaseHelper.addObject(
+                "role:    tester\n" +
+                        "nic-hdl:   RL-TEST\n" +
+                        "mnt-ref:   OWNER-MNT\n" +
+                        "source:    TEST");
+
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("RL-TEST"));
+    }
+
+    @Test
+    public void inverse_mnt_ref_irt() {
+        databaseHelper.addObject(
+                "irt: irt-IRT1\n" +
+                        "mnt-ref:   OWNER-MNT\n" +
+                        "source:    TEST");
+
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("irt-IRT1"));
+    }
+
+    @Test
+    public void inverse_mnt_ref_mntner() {
+        databaseHelper.addObject(
+                "mntner: TEST-MNT\n" +
+                        "mnt-ref:   OWNER-MNT\n" +
+                        "mnt-by:   TEST-MNT\n" +
+                        "source:    TEST");
+
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("TEST-MNT"));
+    }
+
+    @Test
+    public void inverse_mnt_ref_no_results() {
+        final String response = query("-i mnt-ref OWNER-MNT");
+
+        assertThat(response, containsString("no entries found"));
+    }
+
+    @Test
+    public void inverse_sponsoring_org_then_succeed() {
+        databaseHelper.addObject(RpslObject.parse("" +
+                "organisation: ORG-SPONSOR\n" +
+                "org-name:     Sponsoring Org Ltd\n" +
+                "org-type:     LIR\n" +
+                "descr:        test org\n" +
+                "address:      street 5\n" +
+                "e-mail:       org1@test.com\n" +
+                "mnt-ref:      OWNER-MNT\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "source:       TEST\n" +
+                ""));
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "sponsoring-org: ORG-SPONSOR\n" +
+                "admin-c:        PP1-TEST\n" +
+                "tech-c:         PP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = query("-i sponsoring-org ORG-SPONSOR");
+
+        assertThat(response, containsString("ORG-SPONSOR"));
+        assertThat(response, containsString("aut-num:        AS102"));
+    }
+
+    @Test
+    public void inverse_email_from_trusted_then_succeed()  {
+        ipRanges.setTrusted("127/8", "::1");
+
+        final String response = query("-Bi e-mail noreply@ripe.net");
+
+        assertThat(response, containsString("noreply@ripe.net"));
+        assertThat(response, containsString("person:         Pauleth Palthen"));
+    }
+
+
+    @Test
+    public void inverse_email_from_untrusted_then_fail() {
+        ipRanges.setTrusted("::0");
+
+        final String response = query("-Bi e-mail noreply@ripe.net");
+
+        assertThat(response, containsString("attribute is not searchable"));
+        assertThat(response, containsString("is not an inverse searchable attribute"));
     }
 }

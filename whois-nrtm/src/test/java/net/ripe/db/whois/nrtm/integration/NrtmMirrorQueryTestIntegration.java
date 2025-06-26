@@ -5,14 +5,14 @@ import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.nrtm.NrtmServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase {
 
     @BeforeEach
@@ -29,7 +29,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
     public void mirrorQueryOneSerialEntry() {
         databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-1");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-1");
 
         assertThat(response, containsString("aut-num:        AS4294967207"));
     }
@@ -38,7 +38,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
     public void mirrorQueryOneSerialEntryNonAuth() {
         databaseHelper.addObject("aut-num:AS4294967207\nsource:TEST-NONAUTH");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-1");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST-NONAUTH:3:1-1");
 
         assertThat(response, containsString("aut-num:        AS4294967207"));
     }
@@ -49,7 +49,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
         databaseHelper.addObject("mntner:DEV-MNT\nsource:TEST");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-3");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-3");
 
         assertThat(response, containsString("ADD 1"));
         assertThat(response, containsString("AS4294967207"));
@@ -67,7 +67,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE\nsource:TEST");
         databaseHelper.addObject("mntner:DEV-MNT\nsource:TEST");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-3");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-3");
 
         assertThat(response, containsString("ADD 1"));
         assertThat(response, containsString("AS4294967207"));
@@ -85,7 +85,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
         databaseHelper.addObject("aut-num:AS6294967207\nsource:TEST-NONAUTH");
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE\nsource:TEST");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST-NONAUTH:3:1-3");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST-NONAUTH:3:1-3");
 
         assertThat(response, containsString("ADD 2"));
         assertThat(response, containsString("AS5294967207"));
@@ -100,7 +100,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
     public void mirrorQueryOutofRange() {
         databaseHelper.addObject("aut-num:AS4294967207");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:2-4");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:2-4");
 
         assertThat(response, containsString("invalid range: Not within 1-1"));
     }
@@ -111,7 +111,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
         databaseHelper.addObject("person:Denis Walker\nnic-hdl:DW-RIPE");
         databaseHelper.addObject("mntner:DEV-MNT\nsource:TEST");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("ADD 1"));
         assertThat(response, containsString("AS4294967207"));
@@ -131,7 +131,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
                 "e-mail:        test@ripe.net\n" +
                 "source:        TEST");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:1-LAST");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:1-LAST");
 
         assertThat(response, containsString("" +
                 "role:           Denis Walker\n" +
@@ -161,7 +161,7 @@ public class NrtmMirrorQueryTestIntegration extends AbstractNrtmIntegrationBase 
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "source:         TEST\n");
 
-        final String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), "-g TEST:3:2-2");
+        final String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), "-g TEST:3:2-2");
 
         assertThat(response, containsString("" +
                 "organisation:   ORG1-TEST\n" +

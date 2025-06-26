@@ -4,9 +4,9 @@ import com.google.common.base.Splitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import java.io.OutputStream;
 
 public class StreamingHelper {
@@ -16,7 +16,7 @@ public class StreamingHelper {
 
     private static final Splitter COMMA_SPLITTER = Splitter.on(',');
 
-    public static AbstractStreamingMarshal getStreamingMarshal(final HttpServletRequest request,
+    public static StreamingMarshal getStreamingMarshal(final HttpServletRequest request,
                                                                final OutputStream outputStream
     ) {
         final String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
@@ -41,7 +41,7 @@ public class StreamingHelper {
         return new StreamingMarshalXml(outputStream, "whois-resources");
     }
 
-    public static AbstractStreamingMarshal getStreamingMarshalJson(final OutputStream outputStream){
+    public static StreamingMarshal getStreamingMarshalJson(final OutputStream outputStream){
         return new StreamingMarshalJson(outputStream);
     }
 }

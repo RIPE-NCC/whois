@@ -69,10 +69,14 @@ public interface AttributeSyntax extends Documented {
             "\n" +
             "An as-set name can also be hierarchical.  A hierarchical set\n" +
             "name is a sequence of set names and AS numbers separated by\n" +
-            "colons \":\".  At least one component of such a name must be\n" +
+            "colons \":\". The first element of the name must be an AS number\n" +
+            "followed by a colon and ending with a name (example: AS3333:AS-TEST)." +
+            "  At least one component of such a name must be\n" +
             "an actual set name (i.e. start with \"as-\").  All the set\n" +
             "name components of a hierarchical as-name have to be as-set\n" +
-            "names. The total length should not exceed 80 characters (octets).\n");
+            "names. The total length should not exceed 80 characters (octets).\n" +
+            "\n" +
+            "Only as-sets with a hierarchical name can be created.\n");
 
     AttributeSyntax AGGR_BNDRY_SYNTAX = new AttributeSyntaxParser(new AggrBndryParser(), "" +
             "[<as-expression>]\n");
@@ -81,7 +85,7 @@ public interface AttributeSyntax extends Documented {
             "inbound | outbound [<as-expression>]\n");
 
     AttributeSyntax AUTH_SCHEME_SYNTAX = new AttributeSyntaxRegexp(
-            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO [-@.'+_\\w]{1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
+            Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO (.+@.+){1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
             "MD5-PW        encrypted           We strongly advise phrases longer\n" +
@@ -147,7 +151,6 @@ public interface AttributeSyntax extends Documented {
             "Digest type is represented by a unsigned decimal integer (0-255).\n" +
             "\n" +
             "Digest is a digest in hexadecimal representation (case insensitive). Its length varies for various digest types.\n" +
-            "For digest type SHA-1 digest is represented by 20 octets (40 characters, plus possible spaces).\n" +
             "\n" +
             "For more details, see RFC4034.\n");
 
@@ -396,9 +399,11 @@ public interface AttributeSyntax extends Documented {
 
     AttributeSyntax ORG_NAME_SYNTAX = new AttributeSyntaxRegexp(
             Pattern.compile("(?i)^[\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}( [\\]\\[A-Z0-9._\"*()@,&:!'`+\\/-]{1,64}){0,29}$"), "" +
-            "A list of 1 to 30 words separated by white space. A word is made up of letters, digits and the following characters:\n" +
+            "A list of 1 to 30 words separated by white space\n." +
+            "A word is made up of ASCII alphanumeric characters and additionally:\n" +
             "][)(._\"*@,&:!'`+/-\n" +
-            "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the above characters with no restriction on the start or end of a word.\n"
+            "A word may have up to 64 characters and is not case sensitive. Each word can have any combination of the" +
+            " above characters with no restriction on the start or end of a word."
     );
 
     AttributeSyntax ORG_TYPE_SYNTAX = new OrgTypeSyntax();
@@ -596,7 +601,8 @@ public interface AttributeSyntax extends Documented {
         public String getDescription(ObjectType objectType) {
             return "" +
                 "Geofeed is a self-published format for IP geolocation data.\n" +
-                "A URL referencing a CSV file containing geolocation data for the resource.\n" +
+                "A URL referencing a CSV file (described by RFC8805) containing\n" +
+                "geolocation data for the resource.\n" +
                 "The URL must be valid and it must specify the HTTPS protocol.\n";
         }
     }
@@ -894,7 +900,7 @@ public interface AttributeSyntax extends Documented {
         public String getDescription(final ObjectType objectType) {
             return "" +
                     "It should contain 2 to 10 words.\n" +
-                    "Each word consists of letters, digits or the following symbols:\n" +
+                    "A word is made up of ASCII alphanumeric characters and additionally:\n" +
                     ".`'_-\n" +
                     "The first word should begin with a letter.\n" +
                     "At least one other word should also begin with a letter.\n" +

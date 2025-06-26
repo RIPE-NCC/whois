@@ -10,11 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
@@ -58,6 +58,16 @@ public class ExtensionOverridesAcceptHeaderFilterTest {
         assertThat(request.getRequestURL().toString(), is("http://localhost/whois/test/inet6num/No%20clue%20what%20the%20range%20is"));
         assertThat(request.getHeader("Accept"), is("application/json"));
         assertThat(toList(request.getHeaders("Accept")), contains("application/json"));
+    }
+
+    @Test
+    public void txt_extension() throws Exception {
+        final HttpServletRequest request = doFilter("http", "localhost", "/whois/test/inet6num/No%20clue%20what%20the%20range%20is.txt");
+
+        assertThat(request.getRequestURI(), is("/whois/test/inet6num/No%20clue%20what%20the%20range%20is"));
+        assertThat(request.getRequestURL().toString(), is("http://localhost/whois/test/inet6num/No%20clue%20what%20the%20range%20is"));
+        assertThat(request.getHeader("Accept"), is("text/plain"));
+        assertThat(toList(request.getHeaders("Accept")), contains("text/plain"));
     }
 
     @Test

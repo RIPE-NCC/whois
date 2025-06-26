@@ -7,7 +7,6 @@ import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.domain.IpRanges;
@@ -16,27 +15,27 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest {
 
     private static final RpslObject OWNER_MNT = RpslObject.parse("" +
@@ -87,9 +86,8 @@ public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void update_maintainer_sso_with_sync_false_succeeds() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 3000, false);
+        enableSyncForOrg("ORG-TEST","OWNER-MNT", 2000);
+        disableSync("ORG-TEST","OWNER-MNT");
 
         final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO test@ripe.net")).get();
 
@@ -114,8 +112,7 @@ public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void update_maintainer_add_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
+        enableSyncForOrg("ORG-TEST","OWNER-MNT", 2000);
 
         final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO test@ripe.net")).get();
 
@@ -132,8 +129,7 @@ public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void update_maintainer_remove_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
+        enableSyncForOrg("ORG-TEST","OWNER-MNT", 2000);
 
         final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get();
 
@@ -150,8 +146,7 @@ public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void update_maintainer_update_sso_with_sync_enabled_should_fail() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 1000, false);
-        insertSyncHistory("ORG-TEST","OWNER-MNT", 2000, true);
+        enableSyncForOrg("ORG-TEST","OWNER-MNT", 2000);
 
         final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get();
 
@@ -168,7 +163,7 @@ public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void update_maintainer_succeeds_sync_enabled_no_sso() {
-        insertSyncHistory("ORG-TEST","OWNER-MNT-SYNC", 1000, true);
+        enableSyncForOrg("ORG-TEST","OWNER-MNT-SYNC", 1000);
 
         RpslObject MNT_SYNC = RpslObject.parse("" +
                 "mntner:      OWNER-MNT-SYNC\n" +
@@ -202,8 +197,7 @@ public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest 
     public void update_maintainer_sso_with_sync_true_trusted_source_succeeds() {
         try {
             ipRanges.setTrusted("127.0.0.1");
-            insertSyncHistory("ORG-TEST", "OWNER-MNT", 1000, false);
-            insertSyncHistory("ORG-TEST", "OWNER-MNT", 2000, true);
+            enableSyncForOrg("ORG-TEST", "OWNER-MNT", 2000);
 
             final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO test@ripe.net")).get();
 
@@ -231,19 +225,20 @@ public class UpdateMaintainerSS0TestIntegration extends AbstractIntegrationTest 
 
     // helper methods
 
-    private void insertSyncHistory(final String org, final String mntnr,  final long when, final Boolean syncState) {
+    private void enableSyncForOrg(final String org, final String mntnr, final long when) {
 
         final String email = UUID.randomUUID() + "@ripe.net";
         final Timestamp timestamp = new Timestamp(when);
 
         databaseHelper.getInternalsTemplate().update(
-                "INSERT INTO default_maintainer_sync_history (org, mntner, timestamp, email, is_synchronised) VALUES (?, ?, ?, ?, ?)",
-                org, mntnr, timestamp, email, syncState);
+                "INSERT INTO default_maintainer_sync (org, mntner, timestamp, email) VALUES (?, ?, ?, ?)",
+                org, mntnr, timestamp, email);
     }
 
-    private String encode(final String input) {
-        // do not interpret template parameters
-        return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
+    private void disableSync(final String org, final String mntnr) {
+        databaseHelper.getInternalsTemplate().update(
+                "DELETE FROM  default_maintainer_sync where org = ? and mntner = ?",
+                org, mntnr);
     }
 
     private WhoisResources map(final RpslObject ... rpslObjects) {

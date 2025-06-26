@@ -1,5 +1,7 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.DateTimeProvider;
@@ -18,11 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.MimeMessage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -174,7 +171,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_invalid_reply_to() throws Exception {
-        MimeMessage messageWithInvalidReplyTo = new MimeMessage(null, new ByteArrayInputStream("Reply-To: <respondera: ventas@amusing.cl>".getBytes()));
+        final String messageWithInvalidReplyTo = "Reply-To: <respondera: ventas@amusing.cl>";
 
         MailMessage result = subject.parse(messageWithInvalidReplyTo, updateContext);
 
@@ -183,7 +180,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_missing_reply_to() throws Exception {
-        MimeMessage messageWithoutReplyTo = new MimeMessage(null, new ByteArrayInputStream("From: minimal@mailclient.org".getBytes()));
+        final String messageWithoutReplyTo = "From: minimal@mailclient.org";
 
         MailMessage result = subject.parse(messageWithoutReplyTo, updateContext);
 
@@ -413,7 +410,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_multipart_alternative_detached_pgp_signature() throws Exception {
-        final MimeMessage message = getMessage("" +
+        final MailMessage mailMessage = subject.parse(
                 "From: noreply@ripe.net\n" +
                 "Content-Type: multipart/signed;\n" +
                 "\tboundary=\"Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\";\n" +
@@ -483,9 +480,7 @@ public class MessageParserTest {
                 "=O7qu\n" +
                 "-----END PGP SIGNATURE-----\n" +
                 "\n" +
-                "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205--");
-
-        final MailMessage mailMessage = subject.parse(message, updateContext);
+                "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205--", updateContext);
 
         assertThat(mailMessage.getContentWithCredentials(), hasSize(1));
         final ContentWithCredentials contentWithCredentials = mailMessage.getContentWithCredentials().get(0);
@@ -504,7 +499,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_multipart_mixed_signed_part() throws Exception {
-        final MimeMessage message = getMessage(
+        final MailMessage mailMessage = subject.parse(
                 "To: auto-dbm@ripe.net\n" +
                 "From: No Reply <noreply@ripe.net>\n" +
                 "Subject: NEW\n" +
@@ -557,9 +552,7 @@ public class MessageParserTest {
                 "=GA9B\n" +
                 "-----END PGP SIGNATURE-----\n" +
                 "\n" +
-                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg--");
-
-        final MailMessage mailMessage = subject.parse(message, updateContext);
+                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg--", updateContext);
 
         assertThat(mailMessage.getContentWithCredentials(), hasSize(1));
         final ContentWithCredentials contentWithCredentials = mailMessage.getContentWithCredentials().get(0);
@@ -590,7 +583,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_smime_multipart_text_plain() throws Exception {
-        final MimeMessage message = getMessage("" +
+        final MailMessage result = subject.parse(
                 "From: <Registration.Ripe@company.com>\n" +
                 "To: <auto-dbm@ripe.net>\n" +
                 "Subject: Bogus\n" +
@@ -631,9 +624,7 @@ public class MessageParserTest {
                 "\n" +
                 "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIQ/TCCBVkw\n" +
                 "rJme/XmWwocAAAAAAAA=\n" +
-                "------=_Part_113918_874669.1345459955655--");
-
-        final MailMessage result = subject.parse(message, updateContext);
+                "------=_Part_113918_874669.1345459955655--", updateContext);
 
         assertThat(result.getId(), is("<3723299.113919.1345459955655.JavaMail.trustmail@ss000807>"));
         assertThat(result.getReplyTo(), is("Registration.Ripe@company.com"));
@@ -675,7 +666,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_smime_multipart_alternative() throws Exception {
-        final MimeMessage input = getMessage("" +
+        final MailMessage mailMessage = subject.parse(
                 "Message-ID: <28483859.46585.1352362093823.JavaMail.trustmail@ss000807>\n" +
                 "MIME-Version: 1.0\n" +
                 "Content-Type: multipart/signed; protocol=\"application/pkcs7-signature\"; micalg=sha1; \n" +
@@ -749,11 +740,10 @@ public class MessageParserTest {
                 "\n" +
                 "MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIQ/TCCBVkw\n" +
                 "NuXtlQgW7sAAAAAAAAA=\n" +
-                "------=_Part_46584_13090458.1352362093823--\n");
+                "------=_Part_46584_13090458.1352362093823--\n",
+                        updateContext);
 
-        final MailMessage message = subject.parse(input, updateContext);
-
-        List<ContentWithCredentials> contentWithCredentialsList = message.getContentWithCredentials();
+        final List<ContentWithCredentials> contentWithCredentialsList = mailMessage.getContentWithCredentials();
         assertThat(contentWithCredentialsList, hasSize(1));
         assertThat(contentWithCredentialsList.get(0).getContent(), is("" +
                 "inetnum: 217.193.204.248 - 217.193.204.255\n" +
@@ -777,8 +767,7 @@ public class MessageParserTest {
 
     @Test
     public void parse_signed_message_missing_crc_check() throws Exception {
-        final MailMessage message = subject.parse(
-                getMessage(
+        final MailMessage message = subject.parse((
                             "To: auto-dbm@ripe.net\n" +
                             "From: No Reply <noreply@ripe.net>\n" +
                             "Date: Thu, 30 Mar 2017 09:00:00 +0100\n" +
@@ -814,7 +803,12 @@ public class MessageParserTest {
         assertThat(contentWithCredentials.getCredentials(), hasSize(0));
     }
 
-    private MimeMessage getMessage(final String message) throws MessagingException, IOException {
-        return new MimeMessage(null, new ByteArrayInputStream(message.getBytes()));
+
+    @Test
+    public void parse_failure_message() throws Exception {
+        final MailMessage mailMessage = subject.parse(MimeMessageProvider.getUpdateMessage("testParseFailure.mail"), updateContext);
+
+        assertThat(mailMessage.getUpdateMessage(), is(not(emptyString())));
     }
+
 }

@@ -6,13 +6,14 @@ import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.is;
 
-@org.junit.jupiter.api.Tag("IntegrationTest")
+@Tag("IntegrationTest")
 public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
 
     @BeforeEach
@@ -49,11 +50,10 @@ public class RelatedToTestIntegration extends AbstractQueryIntegrationTest {
     }
 
     private void references_self(final String query) {
-        final String response = TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
-        System.err.println(response);
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
 
         final String check = "role:           Asia Pacific Network Information Centre\n";
         assertThat(response, containsString(check));
-        assertTrue(response.indexOf(check) == response.lastIndexOf(check), "Object should appear only once");
+        assertThat(response.indexOf(check), is(response.lastIndexOf(check)));   // Object should appear only once
     }
 }

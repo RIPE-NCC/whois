@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -11,7 +12,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.attrs.InetStatus;
 import net.ripe.db.whois.common.rpsl.attrs.OrgType;
-import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -20,6 +20,8 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static net.ripe.db.whois.update.handler.validator.inetnum.InetStatusHelper.getStatus;
@@ -40,35 +42,36 @@ public class ReferenceCheck implements BusinessRuleValidator {
     }
 
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
-        if (updateContext.getSubject(update).hasPrincipal(Principal.OVERRIDE_MAINTAINER)) {
-            return;
-        }
-
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final InetStatus inetStatus = getStatus(update);
         final List<RpslAttribute> updatedOrgAttributes = update.getUpdatedObject().findAttributes(AttributeType.ORG);
 
         if (inetStatus.needsOrgReference() && updatedOrgAttributes.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.orgAttributeMissing());
-            return;
+            return Arrays.asList(UpdateMessages.orgAttributeMissing());
         }
 
         if (updatedOrgAttributes.isEmpty()) {
-            return;
+            return Collections.emptyList();
         }
 
         final RpslAttribute org = updatedOrgAttributes.get(0);
         final RpslObject referencedOrganisation = findOrgReference(org);
         if (referencedOrganisation == null) {
-            updateContext.addMessage(update, UpdateMessages.referenceNotFound(org.getCleanValue()));
-            return;
+            return Arrays.asList(UpdateMessages.referenceNotFound(org.getCleanValue()));
         }
 
         final CIString cleanOrgTypeValue = referencedOrganisation.findAttribute(AttributeType.ORG_TYPE).getCleanValue();
         final OrgType orgType = OrgType.getFor(cleanOrgTypeValue);
         if (orgType == null || !inetStatus.isValidOrgType(orgType)) {
-            updateContext.addMessage(update, UpdateMessages.wrongOrgType(inetStatus.getAllowedOrgTypes()));
+            return Arrays.asList(UpdateMessages.wrongOrgType(inetStatus.getAllowedOrgTypes()));
         }
+
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
     }
 
     private RpslObject findOrgReference(final RpslAttribute org) {

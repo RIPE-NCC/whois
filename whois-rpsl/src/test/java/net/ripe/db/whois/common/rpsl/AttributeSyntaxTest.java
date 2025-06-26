@@ -123,12 +123,16 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO test2-+._sso@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P'O@ripe.net");
         verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P-L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO P&L@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@b");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "x509-ab./");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-ghij./12");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO tes,,,.....");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO ");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a");
+        verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "SSO a@");
 
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw bcdefghijklmnopqrstuvwx");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw $1$abcdefghi$bcdefghijklmnopqrstuvwx");
@@ -235,13 +239,21 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org 20180529");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "a.a.a");
         verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL, "user");
+        verifyFailure(ObjectType.PERSON, AttributeType.E_MAIL,
+            "1234567890123456789012345678901234567890123456789012345678901234567890@123456789012345678901234567890123456789012345678901234567890" +
+            "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567" +
+            "890123456789012345678901234567890123456789012test.com"); // Too large email
 
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "user@host.org");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "Any User <user@host.org>");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "a@a.a");
-        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.45678901234567890123456789012345678901234567890123456789012345678901234567890");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "0@2.4567890123456789012345678901234567890123456789012345678901234567890123456789");
         verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL, "test@ümlaut.email");
+        verifySuccess(ObjectType.PERSON, AttributeType.E_MAIL,
+            "1234567890123456789012345678901234567890123456789012345678901234567890@123456789012345678901234567890123456789012345678901234567890" +
+            "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567" +
+            "89012345678901234567890123456789012345678901test.com"); // Maximum length email
     }
 
     @Test
@@ -1265,10 +1277,10 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED");
         verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "ASSIGNED ANYCAST");
 
-        verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
+        verifySuccess(ObjectType.INETNUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
         verifySuccess(ObjectType.INET6NUM, AttributeType.STATUS, "AGGREGATED-BY-LIR");
 
-        verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "ALLOCATED PI");
+        verifyFailure(ObjectType.INET6NUM, AttributeType.STATUS, "INVALID");
     }
 
     @Test
@@ -1277,7 +1289,7 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "AssIgNed");
         verifySuccess(ObjectType.AUT_NUM, AttributeType.STATUS, "legacy");
 
-        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "ALLOCATED PI");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "INVALID");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "33546565465");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "PGPKEY-");
         verifyFailure(ObjectType.AUT_NUM, AttributeType.STATUS, "whatever");

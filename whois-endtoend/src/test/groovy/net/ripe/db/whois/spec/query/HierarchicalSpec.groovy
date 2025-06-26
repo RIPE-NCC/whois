@@ -11,7 +11,7 @@ class HierarchicalSpec extends BaseQueryUpdateSpec {
 % The objects are in RPSL format.
 %
 % The RIPE Database is subject to Terms and Conditions.
-% See http://www.ripe.net/db/support/db-terms-conditions.pdf
+% See https://docs.db.ripe.net/terms-conditions.html
 
 """
 

@@ -36,7 +36,7 @@ public class ReferencedTypeResolver {
         final Set<ObjectType> references = attributeType.getReferences();
         switch (references.size()) {
             case 0:
-                if (AttributeType.MEMBERS.equals(attributeType)) {
+                if (AttributeType.MEMBERS.equals(attributeType) || AttributeType.MP_MEMBERS.equals(attributeType)) {
                     if (AttributeType.AUT_NUM.isValidValue(ObjectType.AUT_NUM, value)) {
                         return ObjectType.AUT_NUM.getName();
                     }

@@ -8,7 +8,6 @@ import net.ripe.db.whois.update.authentication.credential.AuthenticationModule;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +19,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.anyCollection;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.reset;
@@ -106,7 +106,7 @@ public class AutnumAuthenticationTest {
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
         when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
-        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+        assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
         });
     }
@@ -116,7 +116,7 @@ public class AutnumAuthenticationTest {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("aut-num: AS3333"));
         when(objectDao.findAsBlock(3333, 3333)).thenReturn(null);
 
-        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+        assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
         });
     }
@@ -145,7 +145,7 @@ public class AutnumAuthenticationTest {
         when(objectDao.getByKeys(eq(ObjectType.MNTNER), anyCollection())).thenReturn(parentMaintainers);
         when(authenticationModule.authenticate(update, updateContext, parentMaintainers, AutnumAuthentication.class)).thenReturn(Lists.<RpslObject>newArrayList());
 
-        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+        assertThrows(AuthenticationFailedException.class, () -> {
             subject.authenticate(update, updateContext);
         });
     }

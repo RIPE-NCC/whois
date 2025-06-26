@@ -103,6 +103,10 @@ public class DummifierRCTest {
             "as-name:        RIPE_NCC_AS_NAME\n" +
             "admin-c:        AC1-TEST\n" +
             "tech-c:         TC1-TEST\n" +
+            "notify:         test@ripe.net\n" +
+            "notify:         test@ripe.net, noreply@ripe.net\n" +
+            "notify:         Test User <test@ripe.net>\n" +
+            "notify:         Invalid invalid@ripe.net>\n" +
             "mnt-by:         TEST-MNT\n" +
             "created:        1970-01-01T00:00:00Z\n" +
             "last-modified:  2020-09-22T09:00:00Z\n" +
@@ -116,6 +120,10 @@ public class DummifierRCTest {
             "as-name:        RIPE_NCC_AS_NAME\n" +
             "admin-c:        AC1-TEST\n" +
             "tech-c:         TC1-TEST\n" +
+            "notify:         ***@ripe.net\n" +
+            "notify:         ***\n" +
+            "notify:         ***@ripe.net\n" +
+            "notify:         ***\n" +
             "mnt-by:         TEST-MNT\n" +
             "created:        1970-01-01T00:00:00Z\n" +
             "last-modified:  2020-09-22T09:00:00Z\n" +

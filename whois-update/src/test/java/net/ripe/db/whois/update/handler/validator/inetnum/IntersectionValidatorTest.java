@@ -77,7 +77,7 @@ public class IntersectionValidatorTest {
         when(ipv4Tree.findFirstMoreSpecific(parentIpv4Key)).thenReturn(Lists.<Ipv4Entry>newArrayList());
         when(update.getReferenceObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -91,7 +91,7 @@ public class IntersectionValidatorTest {
         when(ipv6Tree.findFirstMoreSpecific(parentIpv6Key)).thenReturn(Lists.<Ipv6Entry>newArrayList());
         when(update.getReferenceObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -111,7 +111,7 @@ public class IntersectionValidatorTest {
 
         when(update.getReferenceObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -129,7 +129,7 @@ public class IntersectionValidatorTest {
 
         when(update.getReferenceObject()).thenReturn(object);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.intersectingRange(Ipv4Resource.parse("193.0.0.10 - 193.0.0.12")));
 
@@ -141,7 +141,7 @@ public class IntersectionValidatorTest {
         when(ipv6Tree.findFirstLessSpecific(any(Ipv6Resource.class))).thenReturn(Collections.<Ipv6Entry>emptyList());
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("inet6num: fe80::/32"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.invalidParentEntryForInterval(Ipv6Resource.parse("fe80::/32")));
         verifyNoMoreInteractions(updateContext);

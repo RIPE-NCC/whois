@@ -39,7 +39,7 @@ public class EndUserMaintainerChecksTest {
         when(updateContext.getSubject(update)).thenReturn(principalSubject);
         lenient().when(principalSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.adminMaintainerRemoved());
         verify(maintainers).isEnduserMaintainer(ciSet("TEST-MNT"));
@@ -49,9 +49,10 @@ public class EndUserMaintainerChecksTest {
     @Test
     public void modify_has_no_endusermntner_override() {
         when(updateContext.getSubject(update)).thenReturn(principalSubject);
-        when(principalSubject.hasPrincipal(any(Principal.class))).thenReturn(true);
+        when(principalSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(principalSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
         verifyNoMoreInteractions(maintainers);
@@ -61,8 +62,9 @@ public class EndUserMaintainerChecksTest {
     public void modify_succeeds() {
         when(updateContext.getSubject(update)).thenReturn(principalSubject);
         when(principalSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(principalSubject.hasPrincipal(Principal.ENDUSER_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
         verifyNoMoreInteractions(maintainers);

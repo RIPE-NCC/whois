@@ -27,12 +27,51 @@
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-update</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
 
+        <!-- jetty -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-alpn-java-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.http2</groupId>
+            <artifactId>http2-hpack</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-rewrite</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
@@ -44,10 +83,6 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlets</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-rewrite</artifactId>
         </dependency>
 
         <!-- Jersey JAX-RS 2.0 implementation -->
@@ -67,19 +102,20 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-        </dependency>
+
 
         <!-- Jackson -->
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-base</artifactId>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-base</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
         </dependency>
 
         <!-- StaxUtils for the XMLWriterUtils -->
@@ -98,35 +134,23 @@
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
-        <!-- Lucene full text search -->
+        <!-- Jakarta Mail -->
         <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>dsn</artifactId>
+        </dependency>
+
+        <!-- Signature -->
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queries</artifactId>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-facet</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.ez-vcard</groupId>
-            <artifactId>ez-vcard</artifactId>
-        </dependency>
+
+        <!-- testing -->
 
         <!-- Solr -->
         <dependency>
@@ -134,15 +158,12 @@
             <artifactId>solr-solrj</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- testing -->
+        <!-- TODO: [ES] testcontainers dependency depends on JUnit 4 -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>1.16.2</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
@@ -158,31 +179,22 @@
             <artifactId>whois-update</artifactId>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>net.ripe.db</groupId>
-            <artifactId>whois-rpsl</artifactId>
-            <type>test-jar</type>
-        </dependency>
 
         <!-- JSON testing -->
 
         <dependency>
             <groupId>org.skyscreamer</groupId>
             <artifactId>jsonassert</artifactId>
-            <version>1.5.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>uk.co.datumedge</groupId>
             <artifactId>hamcrest-json</artifactId>
-            <version>0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.ostermiller</groupId>
-            <artifactId>utils</artifactId>
-            <version>1.07.00</version>
-            <scope>test</scope>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
         </dependency>
 
     </dependencies>
@@ -196,8 +208,9 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>io.starter</groupId>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.15.0</version>
                 <configuration>
                     <aspectLibraries>
                         <aspectLibrary>
@@ -212,62 +225,80 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-xjc-plugin</artifactId>
-                <version>2.6.1</version>
-                <executions>
-                    <execution>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-                    <extensions>
-                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.6.1</extension>
-                    </extensions>
-                    <sourceRoot>${project.build.sourceDirectory}</sourceRoot>
-                    <xsdOptions>
-                        <xsdOption>
-                            <xsd>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xsd</xsd>
-                            <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/rdap/rdap-resources.xjb</bindingFile>
-                            <packagename>net.ripe.db.whois.api.rdap.domain</packagename>
-                            <extension>true</extension>
-                            <extensionArgs>
-                                <arg>-Xdv</arg>
-                            </extensionArgs>
-                        </xsdOption>
-                        <xsdOption>
-                            <xsd>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xsd</xsd>
-                            <bindingFile>${basedir}/src/main/resources/rdap-docs/xsd/vcard/vcard.xjb</bindingFile>
-                            <packagename>net.ripe.db.whois.api.rdap.domain.vcard</packagename>
-                            <extension>true</extension>
-                            <extensionArgs>
-                                <arg>-Xdv</arg>
-                            </extensionArgs>
-                        </xsdOption>
-                    </xsdOptions>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                <artifactId>maven-replacer-plugin</artifactId>
-                <version>1.4.1</version>
-                <executions>
-                    <execution>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>replace</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <basedir>${project.build.sourceDirectory}/net/ripe/db/whois/api/whois/rdap/domain</basedir>
-                    <filesToInclude>**/*.java</filesToInclude>
-                    <regex>true</regex>
-                    <token>^// Generated on: 20.*$</token>
-                    <value>// Generated on: stripped</value>
-                    <regexFlags>
-                        <regexFlag>MULTILINE</regexFlag>
-                    </regexFlags>
+                    <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
+                    <usedDependencies>
+                        <dependency>org.glassfish.jersey.containers:jersey-container-servlet</dependency>
+                        <dependency>org.springframework:spring-oxm</dependency>
+                    </usedDependencies>
+
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcprov-jdk18on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jaxb:jaxb-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.logging.log4j</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.containers:jersey-container-servlet-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.aspectj:aspectjweaver</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.angus:jakarta.mail</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.commons:commons-compress</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.jetbrains:annotations</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.commons:commons-lang3</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-server</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-net:commons-net</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-annotations</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-commons</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-jdbc</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.elasticsearch:elasticsearch-x-content</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.httpcomponents:httpasyncclient</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.httpcomponents:httpclient</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.annotation:jakarta.annotation-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.javacrumbs.shedlock:shedlock-spring</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.httpcomponents:httpcore</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-servlet</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-codec:commons-codec</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-servlet-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.elasticsearch.client:elasticsearch-rest-client</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.hamcrest:hamcrest-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.module:jackson-module-jaxb-annotations</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-collections:commons-collections</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-util</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.mchange:mchange-commons-java</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.core:jersey-common</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.glassfish.jersey.core:jersey-server</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.commons:commons-ip-math</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-http</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>stax:stax-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.elasticsearch:elasticsearch</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.elasticsearch.client:elasticsearch-rest-high-level-client</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.bouncycastle:bcprov-jdk15on</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.apache.lucene:lucene-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.vaadin.external.google:android-json</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+
+                    <!-- Ignore dependencies coming from another dependency and which we are just using in
+                    test scope in this module -->
+                    <ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependency>org.bouncycastle:bcprov-jdk18on</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.apache.commons:commons-compress</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.glassfish.jersey.core:jersey-client</ignoredNonTestScopedDependency>
+                        <ignoredNonTestScopedDependency>org.apache.logging.log4j:log4j-api</ignoredNonTestScopedDependency>
+                    </ignoredNonTestScopedDependencies>
                 </configuration>
             </plugin>
         </plugins>

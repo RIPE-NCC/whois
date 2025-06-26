@@ -18,7 +18,7 @@ public class AutoKeyTransformer implements Transformer {
     }
 
     @Override
-    public RpslObject transform(RpslObject rpslObject, Update update, UpdateContext updateContext, final Action action) {
+    public RpslObject transform(final RpslObject rpslObject, final Update update, final UpdateContext updateContext, final Action action) {
         return autoKeyResolver.resolveAutoKeys(rpslObject, update, updateContext, action);
     }
 }

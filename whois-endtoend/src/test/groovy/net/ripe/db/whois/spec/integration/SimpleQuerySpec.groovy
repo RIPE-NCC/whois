@@ -109,7 +109,7 @@ class SimpleQuerySpec extends BaseWhoisSourceSpec {
             notify:         notify@ripe.net
             mnt-by:         TST-MNT
             source:         TEST
-            """.stripIndent()
+            """.stripIndent(true)
 
         response.contains(expectedResult)
     }
