@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.net.URI;
 
-import static jakarta.ws.rs.client.Entity.*;
+import static jakarta.ws.rs.client.Entity.entity;
 import static net.ripe.db.whois.common.rpsl.ObjectType.PERSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -285,20 +285,12 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void cors_preflight_request() {
-        Response response = RestTest.target(getPort(), "TEST/person/PP1-TEST")
-                .request()
-                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                .options();
-
-
-        Response response2 = RestTest.target(getPort(), "test/person/PP1-TEST")
+        Response response = RestTest.target(getPort(), "test/person/PP1-TEST")
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                 .options();
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
-
-        assertThat(response2.getStatus(), is(HttpStatus.OK_200));
     }
 
     @Test

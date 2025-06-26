@@ -113,6 +113,13 @@ public class RewriteEngine {
         virtualHost.addRule(commonRule);
 
         //https rule
+
+        final RewriteRegexRule httpsRule = new CaseInsensitiveRewriteRegexRule(
+                String.format("^/(%s|%s)/(.*)$", source, nonAuthSource),
+                "/whois/$1/$2"
+        );
+
+        httpsRule.setTerminating(true);
         virtualHost.addRule(
                 new HttpTransportRule(HttpScheme.HTTPS,
                         new HttpMethodRule(Set.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE), new CaseInsensitiveRewriteRegexRule(
@@ -123,26 +130,16 @@ public class RewriteEngine {
         // Don't allow passwords over plain HTTP
         virtualHost.addRule(
             new HttpTransportRule(HttpScheme.HTTP,
-                new HttpMethodRule(HttpMethod.GET, new QueryParamRegexRule(
-                "(&?password=(.*))*$",
-                HttpStatus.FORBIDDEN_403
-        ))));
+                new HttpMethodRule(HttpMethod.GET, new QueryParamRegexRule())));
 
-        // Lookups
+
+        // GET and OPTIONS  request
         virtualHost.addRule(
-                new HttpMethodRule(HttpMethod.GET, new CaseInsensitiveRewriteRegexRule(
+                new HttpMethodRule(Set.of(HttpMethod.OPTIONS, HttpMethod.GET), new CaseInsensitiveRewriteRegexRule(
                         String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
                         "/whois/$1/$2"
                 )));
 
-        // CORS preflight request
-        virtualHost.addRule(
-                new HttpMethodRule(HttpMethod.OPTIONS, new CaseInsensitiveRewriteRegexRule(
-                        String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
-                        "/whois/$1/$2"
-                )));
-
-        //
         // Batch
         virtualHost.addRule(new HttpTransportRule(HttpScheme.HTTPS,
                 new HttpMethodRule(HttpMethod.POST, new CaseInsensitiveRewriteRegexRule(
@@ -157,7 +154,7 @@ public class RewriteEngine {
         ));
 
         // catch-all fallthrough; return 400
-       // virtualHost.addRule(new FixedResponseRule(HttpStatus.BAD_REQUEST_400));
+        //virtualHost.addRule(new FixedResponseRule(HttpStatus.BAD_REQUEST_400));
     }
 
 }
