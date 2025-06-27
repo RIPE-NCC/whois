@@ -119,7 +119,10 @@ public class RewriteEngine {
         // Don't allow passwords over plain HTTP
         virtualHost.addRule(
             new HttpTransportRule(HttpScheme.HTTP,
-                new HttpMethodRule(HttpMethod.GET, new QueryParamRegexRule())));
+                new HttpMethodRule(HttpMethod.GET, new RequestParamRegexRule(
+                        "(&?password=(.*))*$",
+                        HttpStatus.FORBIDDEN_403)
+                )));
 
         // Lookups
         virtualHost.addRule(
