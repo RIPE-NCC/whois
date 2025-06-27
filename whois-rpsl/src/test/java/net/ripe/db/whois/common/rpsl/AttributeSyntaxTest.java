@@ -2,8 +2,8 @@ package net.ripe.db.whois.common.rpsl;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class AttributeSyntaxTest {
 
@@ -1266,6 +1266,33 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.ROUTE, AttributeType.PINGABLE, "192.168.1.10");
         verifySuccess(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c00::");
         verifySuccess(ObjectType.ROUTE6, AttributeType.PINGABLE, "2a00:c01::1234/128");
+    }
+
+    @Test
+    public void prefixlen() {
+        /*INETNUM*/
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "random text");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "https://.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "ftp://::::@example.com");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "https://localhost");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "https://not an url");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "https://notanurl");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "http://unsafe.url.com");
+
+        verifySuccess(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "https://safe.url.com");
+
+        /*INET6NUM*/
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "random text");
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "https://.com");
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "ftp://::::@example.com");
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "https://localhost");
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "https://not an url");
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "https://notanurl");
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "");
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "http://unsafe.url.com");
+
+        verifySuccess(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "https://safe.url.com");
     }
 
     @Test
