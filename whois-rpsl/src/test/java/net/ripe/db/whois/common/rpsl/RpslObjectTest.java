@@ -129,7 +129,7 @@ public class RpslObjectTest {
 
         List<RpslAttribute> addresses = subject.findAttributes(AttributeType.ADDRESS);
         assertThat(addresses, hasSize(2));
-        assertThat(addresses.get(0).getValue(), containsString("Flughafenstraße 120/?"));
+        assertThat(addresses.get(0).getValue(), containsString("Flughafenstraße 120/Σ"));
         assertThat(addresses.get(1).getValue(), containsString("Düsseldorf"));
     }
 
@@ -141,7 +141,7 @@ public class RpslObjectTest {
 
         List<RpslAttribute> addresses = subject.findAttributes(AttributeType.ADDRESS);
         assertThat(addresses, hasSize(1));
-        assertThat(addresses.get(0).getValue(), containsString("???????? ?????,??????"));
+        assertThat(addresses.get(0).getValue(), containsString("Тверская улица,москва"));
     }
 
     @Test
@@ -208,7 +208,7 @@ public class RpslObjectTest {
     }
 
     private byte[] bytesFrom(String input) {
-        return input.getBytes(StandardCharsets.ISO_8859_1);
+        return input.getBytes(StandardCharsets.UTF_8);
     }
 
     private void parseAndAssign(String input) {
@@ -700,6 +700,173 @@ public class RpslObjectTest {
                 "+               DEV-MNT2,\n" +
                 "+               DEV-MNT3,\n" +
                 "+               DEV-MNT4\n"));
+    }
+
+    @Test
+    public void diff_idential() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, original), is(""));
+    }
+
+    @Test
+    public void diff_delete_lines() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,4 +1,2 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "-description:    descr\n" +
+                        "-mnt-by:         UPD-MNT\n" +
+                        " source:         TEST\n"));
+    }
+
+    @Test
+    public void diff_add_lines() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,2 +1,4 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "+description:    descr\n" +
+                        "+mnt-by:         UPD-MNT\n" +
+                        " source:         TEST\n"));
+    }
+
+    @Test
+    public void diff_change_line() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: updated\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,3 +1,3 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "-description:    descr\n" +
+                        "+description:    updated\n" +
+                        " mnt-by:         UPD-MNT\n"));
+    }
+
+    @Test
+    public void diff_add_and_change_lines() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "mnt-by: UPD-MNT\n" +
+                "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: updated\n" +
+                "mnt-by: UPD-MNT2\n" +
+                "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,3 +1,4 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "-mnt-by:         UPD-MNT\n" +
+                        "+description:    updated\n" +
+                        "+mnt-by:         UPD-MNT2\n" +
+                        " source:         TEST\n"));
+    }
+
+    @Test
+    public void diff_separate_changes() {
+        final RpslObject original = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: descr\n" +
+                "admin-c: OR1-TEST\n" +
+                "tech-c: OR2-TEST\n" +
+                "remarks: remark\n" +
+                "mnt-by: UPD-MNT\n" +
+                "changed: noreply@ripe.net\n" +
+                "source: TEST\n");
+        final RpslObject updated = RpslObject.parse(
+                "mntner: UPD-MNT\n" +
+                "description: updated\n" +
+                "admin-c: OR1-TEST\n" +
+                "tech-c: OR2-TEST\n" +
+                "remarks: remark\n" +
+                "mnt-by: UPD-MNT\n" +
+                "changed: updated@ripe.net\n" +
+                "source: TEST\n");
+
+        assertThat(RpslObjectFilter.diff(original, updated),
+                is("@@ -1,3 +1,3 @@\n" +
+                        " mntner:         UPD-MNT\n" +
+                        "-description:    descr\n" +
+                        "+description:    updated\n" +
+                        " admin-c:        OR1-TEST\n" +
+                        "@@ -6,3 +6,3 @@\n" +
+                        " mnt-by:         UPD-MNT\n" +
+                        "-changed:        noreply@ripe.net\n" +
+                        "+changed:        updated@ripe.net\n" +
+                        " source:         TEST\n"));
+    }
+
+    @Test
+    public void parse_greek_attribute_value() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "person:  Test Person\n" +
+                "address: Καλημέρα κόσμε\n" +
+                "phone:   +31 20 123456\n" +
+                "nic-hdl: AUTO-1\n" +
+                "mnt-by:  TEST-DBM-MNT\n" +
+                "changed: hostmaster@ripe.net\n" +
+                "source:  TEST\n");
+
+        assertThat(rpslObject.findAttribute(AttributeType.ADDRESS).getValue(), containsString("Καλημέρα κόσμε"));
+    }
+
+    @Test
+    public void parse_japanese_attribute_value() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "person:  Test Person\n" +
+                "address: こんにちは 世界\n" +
+                "phone:   +31 20 123456\n" +
+                "nic-hdl: AUTO-1\n" +
+                "mnt-by:  TEST-DBM-MNT\n" +
+                "changed: hostmaster@ripe.net\n" +
+                "source:  TEST\n");
+
+        assertThat(rpslObject.findAttribute(AttributeType.ADDRESS).getValue(), containsString("こんにちは 世界"));
+    }
+
+    @Test
+    public void parse_arabic_attribute_value() {
+        final RpslObject rpslObject = RpslObject.parse(
+                "person:  Test Person\n" +
+                "address: حد بيتكلم انجليزي؟\n" +
+                "phone:   +31 20 123456\n" +
+                "nic-hdl: AUTO-1\n" +
+                "mnt-by:  TEST-DBM-MNT\n" +
+                "changed: hostmaster@ripe.net\n" +
+                "source:  TEST\n");
+
+        assertThat(rpslObject.findAttribute(AttributeType.ADDRESS).getValue(), containsString("حد بيتكلم انجلي"));
     }
 
     @Test

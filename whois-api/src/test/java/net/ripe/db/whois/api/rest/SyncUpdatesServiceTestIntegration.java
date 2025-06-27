@@ -722,7 +722,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void post_url_encoded_data_with_latin1_charset_error() {
+    public void post_url_encoded_data_with_latin1_charset_failure() {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
@@ -744,7 +744,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void post_url_encoded_data_with_latin1_charset() {
+    public void post_url_encoded_data_with_non_latin1_address_success() {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
@@ -805,7 +805,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("address:        ???????? ?????,??????"));
+                containsString("address:        Тверская улица,москва"));
     }
 
     @Test
@@ -899,12 +899,14 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
-        RestTest.target(getPort(), "whois/syncupdates/test")
+
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("address:        ???????? ?????,??????"));
+                containsString("address:        Тверская улица,москва"));
     }
 
     @Test
@@ -922,14 +924,14 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
-        RestTest.target(getPort(), "whois/syncupdates/test")
+        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
+        assertThat(response, containsString("Create SUCCEEDED: [person] TP2-TEST   Test Person"));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("address:        Test???? Address"));
+                containsString("address:        Тверская улица,москва"));
     }
-
 
     @Test
     public void post_multipart_data_with_latin1_non_ascii_address() {

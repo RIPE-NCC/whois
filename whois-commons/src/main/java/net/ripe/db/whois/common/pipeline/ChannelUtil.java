@@ -13,8 +13,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public final class ChannelUtil {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ChannelUtil.class);
-    public static final Charset BYTE_ENCODING = StandardCharsets.ISO_8859_1;
+
+    public static final Charset BYTE_ENCODING = StandardCharsets.UTF_8;
 
     public static final AttributeKey<InetAddress> CLIENT_IP = AttributeKey.newInstance("client-ip");
 
