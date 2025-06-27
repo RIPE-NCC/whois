@@ -545,7 +545,7 @@
             </dependency>
           <dependency>
                   <groupId>org.eclipse.jetty</groupId>
-                  <artifactId>jetty-alpn-server</artifactId>
+                  <artifactId>jetty-alpn-java-server</artifactId>
                   <version>${jetty.version}</version>
             </dependency>
             <dependency>

@@ -101,7 +101,7 @@ whois-api:
       alias: "elasticsearch"
       command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
   script:
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb -Djavax.net.debug=ssl,handshake -Djava.net.debug=all -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-api
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-api
 
 whois-client:
   <<:
