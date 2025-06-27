@@ -104,22 +104,11 @@ public class RewriteEngine {
 
     private void restRedirectRules(final VirtualHostRuleContainer virtualHost) {
 
-        final RewriteRegexRule commonRule = new CaseInsensitiveRewriteRegexRule(
+        virtualHost.addRule(new CaseInsensitiveRewriteRegexRule(
                 "^/(fulltextsearch|search|geolocation|metadata|abuse-contact|references|autocomplete|domain-objects|client)/?(.*)$",
                 "/whois/$1/$2"
-        );
+        ));
 
-        commonRule.setTerminating(true);
-        virtualHost.addRule(commonRule);
-
-        //https rule
-
-        final RewriteRegexRule httpsRule = new CaseInsensitiveRewriteRegexRule(
-                String.format("^/(%s|%s)/(.*)$", source, nonAuthSource),
-                "/whois/$1/$2"
-        );
-
-        httpsRule.setTerminating(true);
         virtualHost.addRule(
                 new HttpTransportRule(HttpScheme.HTTPS,
                         new HttpMethodRule(Set.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE), new CaseInsensitiveRewriteRegexRule(
@@ -132,14 +121,21 @@ public class RewriteEngine {
             new HttpTransportRule(HttpScheme.HTTP,
                 new HttpMethodRule(HttpMethod.GET, new QueryParamRegexRule())));
 
-
-        // GET and OPTIONS  request
+        // Lookups
         virtualHost.addRule(
-                new HttpMethodRule(Set.of(HttpMethod.OPTIONS, HttpMethod.GET), new CaseInsensitiveRewriteRegexRule(
+            new HttpMethodRule(HttpMethod.GET, new CaseInsensitiveRewriteRegexRule(
                         String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
                         "/whois/$1/$2"
                 )));
 
+        // CORS preflight request
+        virtualHost.addRule(
+            new HttpMethodRule(HttpMethod.OPTIONS, new CaseInsensitiveRewriteRegexRule(
+                    String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
+            "/whois/$1/$2"
+        )));
+
+        //
         // Batch
         virtualHost.addRule(new HttpTransportRule(HttpScheme.HTTPS,
                 new HttpMethodRule(HttpMethod.POST, new CaseInsensitiveRewriteRegexRule(
@@ -154,7 +150,7 @@ public class RewriteEngine {
         ));
 
         // catch-all fallthrough; return 400
-        //virtualHost.addRule(new FixedResponseRule(HttpStatus.BAD_REQUEST_400));
+        virtualHost.addRule(new FixedResponseRule(HttpStatus.BAD_REQUEST_400));
     }
 
 }
