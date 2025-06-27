@@ -743,7 +743,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        //TODO: why I have to add Syncupdates warning for EE10 ?
         ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
 
