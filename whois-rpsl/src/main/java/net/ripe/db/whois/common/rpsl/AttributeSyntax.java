@@ -876,7 +876,7 @@ public interface AttributeSyntax extends Documented {
 
     class PrefixlenSyntax implements AttributeSyntax {
 
-        private static final UrlValidator validator = new UrlValidator(new String[] {"http", "https"});
+        private static final UrlValidator validator = new UrlValidator(new String[] {"https"});
 
         @Override
         public boolean matches(ObjectType objectType, String value) {
@@ -889,7 +889,7 @@ public interface AttributeSyntax extends Documented {
                     Prefixlen is a self-published format for IP additional metadata.
                     A URL referencing a CSV file (described by RFC8805) containing
                     additional metadata about how the prefix is used or subdivided.
-                    The URL must be valid.
+                    The URL must be valid and it must specify the HTTPS protocol.
                     """;
         }
     }

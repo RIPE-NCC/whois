@@ -1278,8 +1278,8 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "https://not an url");
         verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "https://notanurl");
         verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "");
+        verifyFailure(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "http://unsafe.url.com");
 
-        verifySuccess(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "http://unsafe.url.com");
         verifySuccess(ObjectType.INETNUM,  AttributeType.PREFIXLEN, "https://safe.url.com");
 
         /*INET6NUM*/
@@ -1290,8 +1290,8 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "https://not an url");
         verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "https://notanurl");
         verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "");
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "http://unsafe.url.com");
 
-        verifySuccess(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "http://unsafe.url.com");
         verifySuccess(ObjectType.INET6NUM,  AttributeType.PREFIXLEN, "https://safe.url.com");
     }
 
