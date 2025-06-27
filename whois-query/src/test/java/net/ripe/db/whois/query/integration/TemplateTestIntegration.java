@@ -129,7 +129,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 country:        [mandatory]  [multiple]   [ ]
                 geofeed:        [optional]   [single]     [ ]
                 geoloc:         [optional]   [single]     [ ]
-                prefixlen:      [optional]   [multiple]   [ ]
+                prefixlen:      [optional]   [single]     [ ]
                 language:       [optional]   [multiple]   [ ]
                 org:            [optional]   [single]     [inverse key]
                 sponsoring-org: [optional]   [single]     [inverse key]
