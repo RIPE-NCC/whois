@@ -6,6 +6,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetAddress;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -30,6 +31,7 @@ public interface IpBlockManager {
     boolean isBlockedIp(final InetAddress candidate);
 
     default boolean isBlockedIp(final String candidate) {
-        return isBlockedIp(InetAddresses.forString(candidate));
+
+        return isBlockedIp(InetAddresses.forString(URLDecoder.decode(candidate)));
     }
 }

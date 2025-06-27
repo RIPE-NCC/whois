@@ -57,8 +57,6 @@ public class RewriteEngine {
 
     public RewriteHandler getRewriteHandler() {
         final RewriteHandler rewriteHandler = new RewriteHandler();
-        rewriteHandler.setRewriteRequestURI(true);
-        rewriteHandler.setRewritePathInfo(true);
 
         // rest
         final VirtualHostRuleContainer restVirtualHostRule = new VirtualHostRuleContainer();
@@ -96,7 +94,7 @@ public class RewriteEngine {
         // whois
         final VirtualHostRuleContainer whoisVirtualHostRule = new VirtualHostRuleContainer();
         whoisVirtualHostRule.addVirtualHost("whois.ripe.net");
-        final RedirectRegexRule whoisRule = new RedirectRegexRule(".*", "https://apps.db.ripe.net/db-web-ui/query");
+        final RedirectRegexRule whoisRule = new RedirectRegexRule("/(.*)", "https://apps.db.ripe.net/db-web-ui/query");
         whoisRule.setStatusCode(HttpStatus.MOVED_PERMANENTLY_301);
         whoisVirtualHostRule.addRule(whoisRule);
         rewriteHandler.addRule(whoisVirtualHostRule);
@@ -105,32 +103,33 @@ public class RewriteEngine {
     }
 
     private void restRedirectRules(final VirtualHostRuleContainer virtualHost) {
+
         virtualHost.addRule(new CaseInsensitiveRewriteRegexRule(
-    "^/(fulltextsearch|search|geolocation|metadata|abuse-contact|references|autocomplete|domain-objects|client)/?(.*)$",
-    "/whois/$1/$2"
+                "^/(fulltextsearch|search|geolocation|metadata|abuse-contact|references|autocomplete|domain-objects|client)/?(.*)$",
+                "/whois/$1/$2"
         ));
 
         virtualHost.addRule(
-            new HttpTransportRule(HttpScheme.HTTPS,
-                new HttpMethodRule(Set.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE), new CaseInsensitiveRewriteRegexRule(
-                String.format("^/(%s|%s)/(.*)$", source, nonAuthSource),
-                "/whois/$1/$2"
-        ))));
+                new HttpTransportRule(HttpScheme.HTTPS,
+                        new HttpMethodRule(Set.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE), new CaseInsensitiveRewriteRegexRule(
+                                String.format("^/(%s|%s)/(.*)$", source, nonAuthSource),
+                                "/whois/$1/$2"
+                        ))));
 
         // Don't allow passwords over plain HTTP
         virtualHost.addRule(
             new HttpTransportRule(HttpScheme.HTTP,
                 new HttpMethodRule(HttpMethod.GET, new RequestParamRegexRule(
-                "(&?password=(.*))*$",
-                HttpStatus.FORBIDDEN_403
-        ))));
+                        "(&?password=(.*))*$",
+                        HttpStatus.FORBIDDEN_403)
+                )));
 
         // Lookups
         virtualHost.addRule(
             new HttpMethodRule(HttpMethod.GET, new CaseInsensitiveRewriteRegexRule(
-                    String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
-            "/whois/$1/$2"
-        )));
+                        String.format("^/(%s|%s|[a-z]+-grs)/(.*)$", source, nonAuthSource),
+                        "/whois/$1/$2"
+                )));
 
         // CORS preflight request
         virtualHost.addRule(
@@ -142,15 +141,15 @@ public class RewriteEngine {
         //
         // Batch
         virtualHost.addRule(new HttpTransportRule(HttpScheme.HTTPS,
-            new HttpMethodRule(HttpMethod.POST, new CaseInsensitiveRewriteRegexRule(
-            "^/batch/?(.*)$",
-            "/whois/batch/$1"
-        ))));
+                new HttpMethodRule(HttpMethod.POST, new CaseInsensitiveRewriteRegexRule(
+                        "^/batch/?(.*)$",
+                        "/whois/batch/$1"
+                ))));
 
         // Slash
         virtualHost.addRule(new RedirectRegexRule(
-        "^/$",
-        "https://docs.db.ripe.net/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"
+                "^/$",
+                "https://docs.db.ripe.net/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"
         ));
 
         // catch-all fallthrough; return 400

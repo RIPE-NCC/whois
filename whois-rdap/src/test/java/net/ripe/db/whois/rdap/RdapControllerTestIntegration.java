@@ -828,7 +828,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Ip.class);
         });
 
-        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("Ambiguous URI empty segment"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("Ambiguous URI encoding: AMBIGUOUS_EMPTY_SEGMENT"));
     }
 
     @Test

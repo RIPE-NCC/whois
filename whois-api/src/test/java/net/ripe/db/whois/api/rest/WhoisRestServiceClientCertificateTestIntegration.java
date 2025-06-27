@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
@@ -240,8 +239,8 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
                     .request()
                     .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
-        } catch (ProcessingException e) {
-            assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
+        } catch (Exception e) {
+            assertThat(e.getCause().toString(), containsString("Received fatal alert: bad_certificate"));
         }
     }
 

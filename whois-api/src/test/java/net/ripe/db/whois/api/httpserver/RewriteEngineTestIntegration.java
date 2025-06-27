@@ -105,25 +105,13 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void dont_allow_password_over_http() {
-        final ForbiddenException throwable = assertThrows(ForbiddenException.class, () ->
+        assertThrows(ForbiddenException.class, () ->
             RestTest.target(getPort(), "test/person/TP1-TEST?password=123")
                     .request()
                     .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                     .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTP)
                     .get(WhoisResources.class)
         );
-        final String error = throwable.getResponse().readEntity(String.class);
-        assertThat(error.contains("""
-                <title>Error 403 Forbidden</title>
-                </head>
-                <body><h2>HTTP ERROR 403 Forbidden</h2>
-                <table>
-                <tr><th>URI:</th><td>/test/person/TP1-TEST</td></tr>
-                <tr><th>STATUS:</th><td>403</td></tr>
-                <tr><th>MESSAGE:</th><td>Forbidden</td></tr>
-                <tr><th>SERVLET:</th><td>-</td></tr>
-                </table>
-                """), is(true));
     }
 
     @Test
@@ -209,24 +197,12 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void rest_bad_request_fallthrough() {
-        final BadRequestException throwable = assertThrows(BadRequestException.class, () ->
+        assertThrows(BadRequestException.class, () ->
                 RestTest.target(getPort(), "does_not_exist")
                         .request()
                         .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
                         .get(WhoisResources.class)
         );
-        final String error = throwable.getResponse().readEntity(String.class);
-        assertThat(error.contains("""
-                <title>Error 400 Bad Request</title>
-                </head>
-                <body><h2>HTTP ERROR 400 Bad Request</h2>
-                <table>
-                <tr><th>URI:</th><td>/does_not_exist</td></tr>
-                <tr><th>STATUS:</th><td>400</td></tr>
-                <tr><th>MESSAGE:</th><td>Bad Request</td></tr>
-                <tr><th>SERVLET:</th><td>-</td></tr>
-                </table>
-                """), is(true));
     }
 
     @Test

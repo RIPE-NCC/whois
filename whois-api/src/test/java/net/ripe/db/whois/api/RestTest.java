@@ -51,6 +51,10 @@ public class RestTest {
         return client.target(String.format("http://localhost:%d/%s", port, path));
     }
 
+    public static WebTarget target(final int port, final String path, boolean useIpv4) {
+        return client.target(String.format("http://%s:%d/%s", useIpv4 ? "0.0.0.0" : "[::1]", port, path));
+    }
+
     public static WebTarget target(final int port, final String path, String queryParam) {
         return client.target(String.format("http://localhost:%d/%s?%s", port, path,
                 StringUtils.isBlank(queryParam) ? "" : queryParam));
