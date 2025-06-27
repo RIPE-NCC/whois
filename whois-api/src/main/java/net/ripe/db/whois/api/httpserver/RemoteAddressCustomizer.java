@@ -60,12 +60,10 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                     @Override
                     public SocketAddress getRemoteSocketAddress() {
                         String remoteAddress = stripBrackets(getRemoteAddrFromRequest(request));
-                        System.out.println("evealuted remote address: " + remoteAddress);
-                        if (isTrusted(remoteAddress)){
-                            String clientIp = getClientIp(request);
-                            if (clientIp != null){
-                                remoteAddress = clientIp;
-                            }
+                        final String clientIp = getClientIp(request);
+
+                        if (isTrusted(remoteAddress) && StringUtils.isNotEmpty(clientIp)){
+                            remoteAddress = clientIp;
                         }
                         //TODO: why need to decode ?
                         return InetSocketAddress.createUnresolved(URLDecoder.decode(remoteAddress), Request.getRemotePort(request));
@@ -78,13 +76,8 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 };
             }
 
-            @Nullable
             private String getClientIp(final Request request) {
-                final String clientIp = getQueryParamValue(request, QUERY_PARAM_CLIENT_IP);
-                if (StringUtils.isNotEmpty(clientIp)) {
-                    return clientIp;
-                }
-                return null;
+                return getQueryParamValue(request, QUERY_PARAM_CLIENT_IP);
             }
 
             public String getScheme() {
@@ -125,16 +118,13 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
             }
 
             private String getRemoteAddrFromRequest(final Request request){
-                System.out.println("Remote address is from function " + Request.getRemoteAddr(request));
-
-                if (usingForwardedForHeader){
-                    final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
-                    return (Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor);
-                } else {
+                if (!usingForwardedForHeader) {
                     return Request.getRemoteAddr(request);
                 }
-            }
 
+                final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
+                return Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor;
+            }
         };
     };
 
