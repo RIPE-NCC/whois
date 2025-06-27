@@ -418,5 +418,4 @@ public class JdbcRpslObjectDaoIntegrationTest extends AbstractDaoIntegrationTest
         final RpslObject object = subject.getById(1);
         assertThat(object, is(rpslObject));
     }
-
 }

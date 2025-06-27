@@ -1,8 +1,9 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import com.google.common.collect.ImmutableList;
+import jakarta.ws.rs.HEAD;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -21,11 +22,11 @@ public class ObjectReferencedValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.DELETE);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
 
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
+    private final ReferencesDao referencesDao;
 
     @Autowired
-    public ObjectReferencedValidator(final RpslObjectUpdateDao rpslObjectUpdateDao) {
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
+    public ObjectReferencedValidator(final ReferencesDao referencesDao) {
+        this.referencesDao = referencesDao;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class ObjectReferencedValidator implements BusinessRuleValidator {
             return Collections.emptyList();
         }
 
-        if (rpslObjectUpdateDao.isReferenced(update.getReferenceObject())) {
+        if (referencesDao.isReferenced(update.getReferenceObject())) {
             return Arrays.asList(UpdateMessages.objectInUse(update.getReferenceObject()));
         }
 

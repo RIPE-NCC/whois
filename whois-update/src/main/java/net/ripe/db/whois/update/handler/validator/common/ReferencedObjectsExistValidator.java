@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.handler.validator.common;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.ReferencesDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -28,11 +28,11 @@ public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.copyOf(ObjectType.values());
 
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
+    private final ReferencesDao referencesDao;
 
     @Autowired
-    public ReferencedObjectsExistValidator(final RpslObjectUpdateDao rpslObjectUpdateDao) {
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
+    public ReferencedObjectsExistValidator(final ReferencesDao referencesDao) {
+        this.referencesDao = referencesDao;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class ReferencedObjectsExistValidator implements BusinessRuleValidator {
         final RpslObject updatedObject = update.getUpdatedObject();
         final List<Message> messages = Lists.newArrayList();
 
-        final Map<RpslAttribute, Set<CIString>> invalidReferences = rpslObjectUpdateDao.getInvalidReferences(updatedObject);
+        final Map<RpslAttribute, Set<CIString>> invalidReferences = referencesDao.getInvalidReferences(updatedObject);
         final ObjectMessages objectMessages = updateContext.getMessages(update);
         for (final Map.Entry<RpslAttribute, Set<CIString>> invalidReferenceEntry : invalidReferences.entrySet()) {
             final RpslAttribute attribute = invalidReferenceEntry.getKey();

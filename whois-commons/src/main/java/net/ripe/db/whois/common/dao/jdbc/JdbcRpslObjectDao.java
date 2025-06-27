@@ -338,4 +338,5 @@ public class JdbcRpslObjectDao implements RpslObjectDao {
 
         return result;
     }
+
 }

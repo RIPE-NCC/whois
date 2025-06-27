@@ -7,51 +7,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.api.rest.domain.Action;
-import net.ripe.db.whois.api.rest.domain.ActionRequest;
-import net.ripe.db.whois.api.rest.domain.Attribute;
-import net.ripe.db.whois.api.rest.domain.ErrorMessage;
-import net.ripe.db.whois.api.rest.domain.WhoisObject;
-import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
-import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.oauth.OAuthUtils;
-import net.ripe.db.whois.common.dao.RpslObjectDao;
-import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
-import net.ripe.db.whois.common.rpsl.AttributeTemplate;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.ObjectTemplate;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.update.domain.Keyword;
-import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.update.domain.Update;
-import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
-import net.ripe.db.whois.update.domain.UpdateStatus;
-import net.ripe.db.whois.update.log.LoggerContext;
-import net.ripe.db.whois.update.sso.SsoTranslator;
-import org.eclipse.jetty.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
@@ -78,6 +33,52 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import net.ripe.db.whois.api.rest.domain.Action;
+import net.ripe.db.whois.api.rest.domain.ActionRequest;
+import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.ErrorMessage;
+import net.ripe.db.whois.api.rest.domain.WhoisObject;
+import net.ripe.db.whois.api.rest.domain.WhoisResources;
+import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
+import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
+import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
+import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.dao.ReferencesDao;
+import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.RpslObjectInfo;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
+import net.ripe.db.whois.common.rpsl.AttributeTemplate;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.ObjectTemplate;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.update.domain.Keyword;
+import net.ripe.db.whois.update.domain.Origin;
+import net.ripe.db.whois.update.domain.Update;
+import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
+import net.ripe.db.whois.update.domain.UpdateStatus;
+import net.ripe.db.whois.update.log.LoggerContext;
+import net.ripe.db.whois.update.sso.SsoTranslator;
+import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -95,7 +96,7 @@ public class ReferencesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesService.class);
 
     private final RpslObjectDao rpslObjectDao;
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
+    private final ReferencesDao referencesDao;
     private final SourceContext sourceContext;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
@@ -105,17 +106,16 @@ public class ReferencesService {
     private final String dummyRole;
     @Autowired
     public ReferencesService(
-            final RpslObjectDao rpslObjectDao,
-            final RpslObjectUpdateDao rpslObjectUpdateDao,
+            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
+            final ReferencesDao referencesDao,
             final SourceContext sourceContext,
             final InternalUpdatePerformer updatePerformer,
             final SsoTranslator ssoTranslator,
             final LoggerContext loggerContext,
             final WhoisObjectMapper whoisObjectMapper,
             final @Value("#{${whois.dummy}}") Map<String, String> dummyMap) {
-
         this.rpslObjectDao = rpslObjectDao;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
+        this.referencesDao = referencesDao;
         this.sourceContext = sourceContext;
         this.updatePerformer = updatePerformer;
         this.ssoTranslator = ssoTranslator;
@@ -139,18 +139,23 @@ public class ReferencesService {
             @PathParam("source") final String sourceParam,
             @PathParam("objectType") final String objectTypeParam,
             @PathParam("key") final String keyParam) {
+        try {
+            sourceContext.setCurrent(sourceContext.getSlaveSource());
 
-        final Reference result = new Reference(keyParam, objectTypeParam);
-        populateIncomingReferences(result);
+            final Reference result = new Reference(keyParam, objectTypeParam);
+            lookupIncomingReferences(result);
 
-        for (final Reference reference : result.getIncoming()) {
-            populateIncomingReferences(reference);
+            for (final Reference reference : result.getIncoming()) {
+                lookupIncomingReferences(reference);
+            }
+
+            return result;
+        } finally {
+            sourceContext.removeCurrentSource();
         }
-
-        return result;
     }
 
-    private void populateIncomingReferences(final Reference reference) {
+    private void lookupIncomingReferences(final Reference reference) {
         final RpslObject primaryObject = lookupObjectByKey(reference.getPrimaryKey(), reference.getObjectType());
 
         for (final Map.Entry<RpslObjectInfo, RpslObject> entry : findReferences(primaryObject).entrySet()) {
@@ -578,7 +583,7 @@ public class ReferencesService {
 
         for (final Map.Entry<RpslObjectInfo, RpslObject> entry : references.entrySet()) {
             final RpslObject reference = entry.getValue();
-            for (final RpslObjectInfo referenceToReference : rpslObjectUpdateDao.getReferences(reference)) {
+            for (final RpslObjectInfo referenceToReference : referencesDao.getReferences(reference)) {
                 if (!referenceMatches(referenceToReference, primaryObject) && !references.keySet().contains(referenceToReference)) {
                     throw new IllegalArgumentException("Referencing object " + reference.getKey()  + " itself is referenced by " + referenceToReference.getKey());
                 }
@@ -724,7 +729,7 @@ public class ReferencesService {
     private Map<RpslObjectInfo, RpslObject> findReferences(final RpslObject rpslObject) {
         final Map<RpslObjectInfo, RpslObject> references = Maps.newHashMap();
         try {
-            for (final RpslObjectInfo rpslObjectInfo : rpslObjectUpdateDao.getReferences(rpslObject)) {
+            for (final RpslObjectInfo rpslObjectInfo : referencesDao.getReferences(rpslObject)) {
                 references.put(rpslObjectInfo, rpslObjectDao.getById(rpslObjectInfo.getObjectId()));
             }
         } catch (EmptyResultDataAccessException e) {
