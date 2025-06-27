@@ -157,6 +157,11 @@ public class VersionQueryExecutor implements QueryExecutor {
 
         messages.add(new MessageObject(String.format("%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
 
+        if (versionInfos.isEmpty()) {
+            // if there is no version history present, do not add trailing EOL
+            return messages;
+        }
+
         for (int i = 0; i < versionInfos.size(); i++) {
             final VersionInfo versionInfo = versionInfos.get(i);
             messages.add(new VersionResponseObject(versionPadding, versionInfo.getOperation(), i + 1, versionInfo.getTimestamp(), objectType, pkey));
