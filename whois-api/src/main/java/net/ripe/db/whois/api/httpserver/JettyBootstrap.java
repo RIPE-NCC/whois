@@ -203,7 +203,9 @@ public class JettyBootstrap implements ApplicationService {
     private Server createServer() {
         final WebAppContext context = new WebAppContext();
         context.setContextPath("/");
-        context.setBaseResourceAsString("./");
+
+       // context.setBaseResourceAsPath(Paths.get("src/main/webapp").toAbsolutePath().normalize());
+        context.setBaseResourceAsString("/");
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
