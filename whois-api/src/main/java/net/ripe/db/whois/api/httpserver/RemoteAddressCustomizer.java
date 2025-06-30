@@ -65,7 +65,6 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                         if (isTrusted(remoteAddress) && StringUtils.isNotEmpty(clientIp)){
                             remoteAddress = clientIp;
                         }
-                        //TODO: why need to decode ?
                         return InetSocketAddress.createUnresolved(URLDecoder.decode(remoteAddress), Request.getRemotePort(request));
                     }
 

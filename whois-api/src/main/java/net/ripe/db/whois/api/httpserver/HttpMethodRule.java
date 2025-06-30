@@ -44,11 +44,4 @@ public class HttpMethodRule extends Rule {
         return delegate.isTerminating();
     }
 
-/*
-    @Override
-    public boolean isHandling() {
-        return delegate.isHandling();
-    }
-*/
-
 }

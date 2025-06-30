@@ -91,7 +91,6 @@ public class OAuthTokenIntrospectDummy implements Stub {
             if (request.getHttpURI().getPath().contains("realms/ripe-ncc/protocol/openid-connect/certs")) {
 
                 response.setStatus(HttpServletResponse.SC_OK);
-              //  response.setContentType("application/json");
                 response.write(
                         true,
                         ByteBuffer.wrap(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_public.key").toPath())).getBytes()),

@@ -29,9 +29,4 @@ public class HttpTransportRule extends Rule {
         return delegate.isTerminating();
     }
 
-  /*  @Override
-    public boolean isHandling() {
-        return delegate.isHandling();
-    }*/
-
 }
