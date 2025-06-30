@@ -15,6 +15,9 @@ import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
+import org.eclipse.jetty.io.Connection;
+import org.eclipse.jetty.io.ssl.SslConnection;
+import org.eclipse.jetty.io.ssl.SslHandshakeListener;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
@@ -297,6 +300,8 @@ public class JettyBootstrap implements ApplicationService {
             throw new IllegalStateException("NO keystore");
         }
 
+        sslContextFactory.setRenegotiationAllowed(true);
+
         sslContextFactory.setKeyStorePath(keystore);
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
@@ -337,6 +342,28 @@ public class JettyBootstrap implements ApplicationService {
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
         sslConnector.setPort(port);
+
+        sslConnector.addBean(new Connection.Listener() {
+            @Override
+            public void onOpened(Connection connection) {
+                if (connection instanceof SslConnection sslConn) {
+
+                    sslConn.addHandshakeListener(new SslHandshakeListener() {
+                        int renegotiationCount = 0;
+
+                        @Override
+                        public void handshakeSucceeded(Event event) {
+                            renegotiationCount++;
+                            if (renegotiationCount > 2) {
+                                LOGGER.warn("Too many renegotiations, closing connection");
+                                sslConn.getEndPoint().close();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
         return sslConnector;
     }
 
