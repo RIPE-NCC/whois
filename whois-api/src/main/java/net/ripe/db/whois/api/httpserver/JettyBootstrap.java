@@ -93,6 +93,7 @@ public class JettyBootstrap implements ApplicationService {
     private final RewriteEngine rewriteEngine;
     private final WhoisKeystore whoisKeystore;
     private final String trustedIpRanges;
+    private final int sslRenegotiationRetries;
     private final boolean rewriteEngineEnabled;
     private final boolean sniHostCheck;
     private Server server;
@@ -124,6 +125,7 @@ public class JettyBootstrap implements ApplicationService {
                           final WhoisQueryDoSFilter whoisQueryDoSFilter,
                           final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
+                          @Value("${ssl.renegotiation.retries:2}") final int sslRenegotiationRetries,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
@@ -144,6 +146,7 @@ public class JettyBootstrap implements ApplicationService {
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
         this.sniHostCheck = sniHostCheck;
+        this.sslRenegotiationRetries = sslRenegotiationRetries;
         this.idleTimeout = idleTimeout;
         this.securePort = securePort;
         this.port = port;
@@ -304,8 +307,6 @@ public class JettyBootstrap implements ApplicationService {
             throw new IllegalStateException("NO keystore");
         }
 
-        sslContextFactory.setRenegotiationAllowed(true);
-
         sslContextFactory.setKeyStorePath(keystore);
         sslContextFactory.setKeyStorePassword(whoisKeystore.getPassword());
         sslContextFactory.setCipherComparator(HTTP2Cipher.COMPARATOR);
@@ -347,6 +348,17 @@ public class JettyBootstrap implements ApplicationService {
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
         sslConnector.setPort(port);
 
+        sslRenegotiationRetries(sslContextFactory, sslConnector);
+
+        return sslConnector;
+    }
+
+    private void sslRenegotiationRetries(final SslContextFactory.Server sslContextFactory, final ServerConnector sslConnector) {
+
+        if(sslRenegotiationRetries == 0) return;
+
+        sslContextFactory.setRenegotiationAllowed(true);
+
         sslConnector.addBean(new Connection.Listener() {
             @Override
             public void onOpened(Connection connection) {
@@ -358,7 +370,12 @@ public class JettyBootstrap implements ApplicationService {
                         @Override
                         public void handshakeSucceeded(Event event) {
                             renegotiationCount++;
-                            if (renegotiationCount > 2) {
+
+                            if(renegotiationCount > 1) {
+                              LOGGER.info("SSL connection renegotiation count : " + renegotiationCount);
+                            }
+
+                            if (renegotiationCount > sslRenegotiationRetries) {
                                 LOGGER.warn("Too many renegotiations, closing connection");
                                 sslConn.getEndPoint().close();
                             }
@@ -367,8 +384,6 @@ public class JettyBootstrap implements ApplicationService {
                 }
             }
         });
-
-        return sslConnector;
     }
 
     @Scheduled(fixedDelay = 60 * 60 * 1_000L)
@@ -436,8 +451,7 @@ public class JettyBootstrap implements ApplicationService {
     private void logHttpsConfig() {
         for (Connector connector : this.server.getConnectors()) {
             for (ConnectionFactory connectionFactory : connector.getConnectionFactories()) {
-                if (connectionFactory instanceof SslConnectionFactory) {
-                    final SslConnectionFactory sslConnectionFactory = (SslConnectionFactory)connectionFactory;
+                if (connectionFactory instanceof SslConnectionFactory sslConnectionFactory) {
                     final SslContextFactory.Server sslContextFactory = sslConnectionFactory.getSslContextFactory();
                     for (String alias : sslContextFactory.getAliases()) {
                         LOGGER.info("Certificate:       {}", sslContextFactory.getX509(alias));

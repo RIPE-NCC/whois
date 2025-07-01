@@ -1,19 +1,19 @@
-    package net.ripe.db.whois.api.httpserver;
+package net.ripe.db.whois.api.httpserver;
 
-    import com.google.common.base.Splitter;
-    import com.google.common.base.Strings;
-    import com.google.common.collect.Iterables;
-    import org.eclipse.jetty.http.HttpFields;
-    import org.eclipse.jetty.http.HttpURI;
-    import org.eclipse.jetty.server.HttpConfiguration;
-    import org.eclipse.jetty.server.Request;
-    import org.slf4j.Logger;
-    import org.slf4j.LoggerFactory;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpURI;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    import javax.annotation.Nullable;
-    import java.util.Enumeration;
+import javax.annotation.Nullable;
+import java.util.Enumeration;
 
-    import static org.eclipse.jetty.http.HttpHeader.X_FORWARDED_PROTO;
+import static org.eclipse.jetty.http.HttpHeader.X_FORWARDED_PROTO;
 
     /**
  * When HTTP requests are proxied via a loadbalancer, the X-Forwarded-Proto value will replace the request HTTP protocol (URL scheme).
