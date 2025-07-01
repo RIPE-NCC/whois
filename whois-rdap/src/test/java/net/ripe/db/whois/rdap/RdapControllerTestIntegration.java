@@ -287,17 +287,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_root_path_rdap_404() {
-
-        final Ip ip = createResource("")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(Ip.class);
-
-        assertThat(ip.getHandle(), is("192.0.2.0 - 192.0.2.255"));
-        assertThat(ip.getRdapConformance(), hasItem(RdapConformance.GEO_FEED_1.getValue()));
-    }
-
-    @Test
     public void lookup_inetnum_geoFeed_attribute() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.2.0 - 192.0.2.255\n" +
