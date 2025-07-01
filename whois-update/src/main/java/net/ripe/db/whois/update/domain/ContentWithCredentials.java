@@ -15,7 +15,7 @@ public class ContentWithCredentials {
     final Charset charset;
 
     public ContentWithCredentials(final String content) {
-        this(content, StandardCharsets.ISO_8859_1);
+        this(content, StandardCharsets.UTF_8);
     }
 
     public ContentWithCredentials(final String content, final Charset charset) {
@@ -25,7 +25,7 @@ public class ContentWithCredentials {
     }
 
     public ContentWithCredentials(final String content, final List<Credential> credentials) {
-        this(content, credentials, StandardCharsets.ISO_8859_1);
+        this(content, credentials, StandardCharsets.UTF_8);
     }
 
     public ContentWithCredentials(final String content, final List<Credential> credentials, final Charset charset) {

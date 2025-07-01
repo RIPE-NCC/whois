@@ -80,7 +80,7 @@ public class ExportFileWriter {
             final File file = new File(baseDir, filename + ".gz");
             final FileOutputStream fileOutputStream = new FileOutputStream(file);
             try {
-                writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), StandardCharsets.ISO_8859_1));
+                writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(fileOutputStream), StandardCharsets.UTF_8));
                 writer.write(QueryMessages.termsAndConditionsDump().toString());
                 writerMap.put(filename, writer);
             } catch (IOException e) {

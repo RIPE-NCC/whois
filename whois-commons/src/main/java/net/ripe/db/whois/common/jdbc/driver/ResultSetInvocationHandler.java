@@ -52,9 +52,9 @@ class ResultSetInvocationHandler implements InvocationHandler {
                 row.add("<null>");
             } else if (object instanceof Blob) {
                 final Blob blob = (Blob) object;
-                row.add(new String(blob.getBytes(0, (int) blob.length()), StandardCharsets.ISO_8859_1));
+                row.add(new String(blob.getBytes(0, (int) blob.length()), StandardCharsets.UTF_8));
             } else if (object instanceof byte[]) {
-                row.add(new String((byte[]) object, StandardCharsets.ISO_8859_1));
+                row.add(new String((byte[]) object, StandardCharsets.UTF_8));
             } else {
                 row.add(object.toString());
             }

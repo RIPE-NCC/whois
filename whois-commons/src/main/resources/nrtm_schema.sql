@@ -33,6 +33,7 @@ CREATE TABLE `source`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+DROP TABLE IF EXISTS `version_info`;
 CREATE TABLE `version_info`
 (
     `id`             int unsigned    NOT NULL AUTO_INCREMENT,
@@ -47,6 +48,7 @@ CREATE TABLE `version_info`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+DROP TABLE IF EXISTS `snapshot_file`;
 CREATE TABLE `snapshot_file`
 (
     `id`         int unsigned NOT NULL AUTO_INCREMENT,
@@ -61,6 +63,7 @@ CREATE TABLE `snapshot_file`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+DROP TABLE IF EXISTS `delta_file`;
 CREATE TABLE `delta_file`
 (
     `id`         int unsigned NOT NULL AUTO_INCREMENT,
@@ -75,6 +78,7 @@ CREATE TABLE `delta_file`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+DROP TABLE IF EXISTS `notification_file`;
 CREATE TABLE `notification_file`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
@@ -86,7 +90,7 @@ CREATE TABLE `notification_file`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-
+DROP TABLE IF EXISTS `key_pair`;
 CREATE TABLE `key_pair`
 (
     `id`          int unsigned    NOT NULL AUTO_INCREMENT,
@@ -97,6 +101,13 @@ CREATE TABLE `key_pair`
     `is_active`   bit(1) NOT NULL DEFAULT b'0',
     UNIQUE KEY `private_key_name_uk` (`private_key`),
     PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+DROP TABLE IF EXISTS `version`;
+CREATE TABLE `version`
+(
+    `version` varchar(80)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
