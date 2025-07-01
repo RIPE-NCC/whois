@@ -9,7 +9,7 @@ import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http2.HTTP2Cipher;
@@ -204,10 +204,8 @@ public class JettyBootstrap implements ApplicationService {
     server = new Server(threadPool);
       */
     private Server createServer() {
-        final WebAppContext context = new WebAppContext();
+        final ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
-
-        context.setBaseResourceAsString("./");
 
         context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
