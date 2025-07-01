@@ -64,6 +64,7 @@ release:
     - when: manual
       allow_failure: true
   artifacts:
+    expire_in: 6 months
     reports:
       junit:
         - "*/target/failsafe-reports/TEST-*.xml"
