@@ -14,6 +14,8 @@ import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.ConnectionMetaData;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.net.InetSocketAddress;
@@ -30,6 +32,8 @@ import static org.eclipse.jetty.http.HttpHeader.X_FORWARDED_PROTO;
  * When HTTP requests via trusted source use clientIp query paramater as remote Address if set
  */
 public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAddressCustomizer.class);
 
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
     private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings().trimResults();
@@ -65,6 +69,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                         if (isTrusted(remoteAddress) && StringUtils.isNotEmpty(clientIp)){
                             remoteAddress = clientIp;
                         }
+
                         return InetSocketAddress.createUnresolved(URLDecoder.decode(remoteAddress), Request.getRemotePort(request));
                     }
 
@@ -76,7 +81,19 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
             }
 
             private String getClientIp(final Request request) {
-                return getQueryParamValue(request, QUERY_PARAM_CLIENT_IP);
+                final String clientIp =  getQueryParamValue(request, QUERY_PARAM_CLIENT_IP);
+                if(StringUtils.isEmpty(clientIp)) {
+                   return null;
+                }
+
+                try {
+                   InetAddresses.forString(URLDecoder.decode(clientIp));
+                } catch (IllegalArgumentException e) {
+                    LOGGER.warn("Invalid client IP address: {}, falling back to remote address", clientIp);
+                    return null;
+                }
+
+                return clientIp;
             }
 
             public String getScheme() {
