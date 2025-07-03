@@ -566,7 +566,7 @@ public enum AttributeType implements Documented {
             .syntax(POETIC_FORM_SYNTAX)),
 
     PREFIXLEN(new Builder("prefixlen",  "pl")
-            .doc("A URL referencing a CSV file containing additional metadata for the resource.")
+            .doc("A URL referencing a CSV file containing prefix length data for the resource.")
             .syntax(PREFIXLEN_SYNTAX)),
 
     REF_NFY(new Builder("ref-nfy", "rn")

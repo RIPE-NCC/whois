@@ -886,8 +886,7 @@ public interface AttributeSyntax extends Documented {
         @Override
         public String getDescription(ObjectType objectType) {
             return """
-                    Prefixlen is a self-published format for IP additional metadata.
-                    A URL referencing a CSV file (described by RFC8805) containing
+                    A URL referencing a CSV file (described by draft-ietf-opsawg-prefix-lengths) containing
                     additional metadata about how the prefix is used or subdivided.
                     The URL must be valid and it must specify the HTTPS protocol.
                     """;
