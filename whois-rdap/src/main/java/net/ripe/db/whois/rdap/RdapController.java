@@ -59,7 +59,6 @@ public class RdapController {
     private final String baseUrl;
     private final int maxResultSize;
     private final RdapRelationService rdapRelationService;
-    private final SourceContext sourceContext;
 
     /**
      *
@@ -79,14 +78,12 @@ public class RdapController {
                           final RdapFullTextSearch rdapFullTextSearch,
                           @Value("${rdap.public.baseUrl:}") final String baseUrl,
                           @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                          final SourceContext sourceContext,
-                          final RdapRelationService rdapRelationService) {
+                          final SourceContext sourceContext, RdapRelationService rdapRelationService) {
         this.rdapService = rdapService;
         this.rdapRequestValidator = rdapRequestValidator;
         this.delegatedStatsService = delegatedStatsService;
         this.rdapObjectMapper = rdapObjectMapper;
         this.rdapFullTextSearch = rdapFullTextSearch;
-        this.sourceContext = sourceContext;
         this.source = sourceContext.getCurrentSource();
         this.baseUrl = baseUrl;
         this.maxResultSize = maxResultSize;
@@ -237,8 +234,6 @@ public class RdapController {
             @PathParam("relation") String relationType,
             @PathParam("key") final String key,
             @QueryParam("status") String status) {
-        try {
-            sourceContext.setCurrent(sourceContext.getSlaveSource());
 
             final RelationType relation = RelationType.fromValue(relationType);
 
@@ -257,9 +252,6 @@ public class RdapController {
                             key, getRequestUrl(request), maxResultSize))
                     .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                     .build();
-        } finally {
-            sourceContext.removeCurrentSource();
-        }
     }
 
 
