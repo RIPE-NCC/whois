@@ -21,7 +21,7 @@ import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.lookupR
 
 @Repository
 @Transactional(transactionManager = TransactionConfiguration.WHOIS_READONLY_TRANSACTION)
-        public class JdbcReferenceReadOnlyDao {
+public class JdbcReferenceReadOnlyDao {
 
     private final JdbcTemplate jdbcTemplate;
 
