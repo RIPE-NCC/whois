@@ -60,6 +60,7 @@ public class RdapController {
     private final int maxResultSize;
     private final RdapRelationService rdapRelationService;
 
+
     /**
      *
      * @param rdapObjectMapper
@@ -235,23 +236,23 @@ public class RdapController {
             @PathParam("key") final String key,
             @QueryParam("status") String status) {
 
-            final RelationType relation = RelationType.fromValue(relationType);
+        final RelationType relation = RelationType.fromValue(relationType);
 
-            validateStatus(status, relation);
-            validateKey(request, requestType, key);
+        validateStatus(status, relation);
+        validateKey(request, requestType, key);
 
-            final Set<ObjectType> objectTypes = requestType.getWhoisObjectTypes(key);
-            if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
-                return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
-            }
+        final Set<ObjectType> objectTypes = requestType.getWhoisObjectTypes(key);
+        if (isRedirect(Iterables.getOnlyElement(objectTypes), key)) {
+            return redirect(getRequestPath(request), getQueryObject(objectTypes, key));
+        }
 
-            return Response.ok(
-                    rdapRelationService.handleRelationQuery(
-                            request, objectTypes,
-                            requestType, relation,
-                            key, getRequestUrl(request), maxResultSize))
-                    .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
-                    .build();
+        return Response.ok(
+                rdapRelationService.handleRelationQuery(
+                        request, objectTypes,
+                        requestType, relation,
+                        key, getRequestUrl(request), maxResultSize))
+                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                .build();
     }
 
 
