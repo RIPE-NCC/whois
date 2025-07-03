@@ -14,6 +14,7 @@ import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.ConnectionMetaData;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.util.Fields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,6 @@ import java.net.SocketAddress;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import static org.eclipse.jetty.http.HttpHeader.X_FORWARDED_PROTO;
@@ -36,10 +36,9 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAddressCustomizer.class);
 
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings().trimResults();
-    private static final Splitter AMPERSAND_SPLITTER = Splitter.on('&').omitEmptyStrings().trimResults();
-    private static final Splitter EQUALS_SPLITTER = Splitter.on('=').omitEmptyStrings().trimResults();
-
     public static final String QUERY_PARAM_CLIENT_IP = "clientIp";
+
+    // trusted (internal) IP addresses are allowed to use clientIp
     private final Set<Interval> trusted;
 
     // if client address is set in X-Forwarded-For header by HTTP proxy
@@ -104,6 +103,15 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return header;
             }
 
+            private String getRemoteAddrFromRequest(final Request request){
+                if (!usingForwardedForHeader) {
+                    return Request.getRemoteAddr(request);
+                }
+
+                final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
+                return Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor;
+            }
+
             @Nullable
             private String getLastHeaderValue(final Request request, final String headerName) {
                 final Enumeration<String> headers = request.getHeaders().getValues(headerName);
@@ -118,28 +126,12 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
 
             @Nullable
             private String getQueryParamValue(final Request request, final String paramName) {
-                if(request.getHttpURI().getQuery() == null) return null;
-
-                for (String queryParam : AMPERSAND_SPLITTER.split(request.getHttpURI().getQuery())) {
-                    final Iterator<String> split = EQUALS_SPLITTER.split(queryParam).iterator();
-                    if (split.hasNext()) {
-                        if (split.next().equals(paramName)) {
-                            if (split.hasNext()) {
-                                return split.next();
-                            }
-                        }
+                for (Fields.Field queryParameter : Request.extractQueryParameters(request)) {
+                    if (queryParameter.getName().equals(paramName)) {
+                        return queryParameter.getValue();
                     }
                 }
                 return null;
-            }
-
-            private String getRemoteAddrFromRequest(final Request request){
-                if (!usingForwardedForHeader) {
-                    return Request.getRemoteAddr(request);
-                }
-
-                final String xForwardedFor = getLastHeaderValue(request, HttpHeaders.X_FORWARDED_FOR);
-                return Strings.isNullOrEmpty(xForwardedFor) ? Request.getRemoteAddr(request) : xForwardedFor;
             }
         };
     };
@@ -151,6 +143,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
     private boolean isTrusted(final Interval ipResource) {
         return trusted.stream().anyMatch(ipRange -> ipRange.getClass().equals(ipResource.getClass()) && ipRange.contains(ipResource));
     }
+
     private Interval getInterval(final String address){
         return IpInterval.asIpInterval(InetAddresses.forString(address));
     }
