@@ -27,7 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class ElasticSearchInstance implements ElasticRestHighlevelClient {
 
-    private static final Integer TIMEOUT_IN_MS = 30000; // 30seconds
+    private static final Integer TIMEOUT_IN_MS = 15000; // 30seconds
     private static final Logger LOGGER = getLogger(ElasticSearchInstance.class);
     private final RestHighLevelClient client;
 
