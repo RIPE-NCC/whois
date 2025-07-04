@@ -1,49 +1,50 @@
 package net.ripe.db.whois.api.httpserver;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.rewrite.handler.RegexRule;
 import org.eclipse.jetty.rewrite.handler.Rule;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * {@link Rule} to match on request parameter regex and return a response code.
  */
-public class RequestParamRegexRule extends Rule {
+public class RequestParamRegexRule extends RegexRule {
 
-    private final Pattern pattern;
+    private final String regex;
     private final int responseCode;
 
     public RequestParamRegexRule(final String regex, final int responseCode) {
-        pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        this.regex = regex;
         this.responseCode = responseCode;
         setTerminating(true);
     }
 
     @Override
-    public String matchAndApply(String target, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (StringUtils.isNotBlank(request.getQueryString())) {
-            Matcher matcher = pattern.matcher(request.getQueryString());
-            boolean matches = matcher.matches();
-            if (matches) {
-                return apply(target, response);
+    public Rule.Handler matchAndApply(Rule.Handler input) {
+        if(StringUtils.isEmpty(input.getHttpURI().getQuery())) {
+            return null;
+        }
+
+        final String target = input.getHttpURI().getQuery();
+        Matcher matcher =  Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(target);
+        return matcher.matches() ? this.apply(input, matcher) : null;
+    }
+
+    @Override
+    protected Handler apply(Handler handler, Matcher matcher) {
+        return new Handler(handler)
+        {
+            @Override
+            protected boolean handle(final Response response, final Callback callback)
+            {
+                response.setStatus(responseCode);
+                callback.succeeded();
+                return true;
             }
-        }
-        return null;
+        };
     }
-
-    private String apply(final String target, final HttpServletResponse response) throws IOException {
-        if (HttpStatus.isClientError(responseCode) || HttpStatus.isServerError(responseCode)) {
-            response.sendError(responseCode);
-            this.setHandling(true);
-        } else {
-            response.setStatus(responseCode);
-        }
-        return target;
-    }
-
 }
