@@ -27,6 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class ElasticSearchInstance implements ElasticRestHighlevelClient {
 
+    private static final int TIMEOUT_IN_MS = 35000;
     private static final Logger LOGGER = getLogger(ElasticSearchInstance.class);
     private final RestHighLevelClient client;
 
@@ -44,6 +45,7 @@ public class ElasticSearchInstance implements ElasticRestHighlevelClient {
            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(elasticUser, elasticPassword));
 
            return new RestHighLevelClient(RestClient.builder(asHttpHosts(elasticHosts))
+                   .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder.setSocketTimeout(TIMEOUT_IN_MS))
                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)));
        }  catch (Exception e) {
            LOGGER.warn("Failed to start the ES client {}", e.getMessage());
