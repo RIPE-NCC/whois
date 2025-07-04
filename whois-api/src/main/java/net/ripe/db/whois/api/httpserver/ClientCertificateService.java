@@ -7,6 +7,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
+import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
 import org.springframework.stereotype.Component;
 
 import java.security.cert.X509Certificate;
@@ -19,7 +20,7 @@ public class ClientCertificateService {
 
     @GET
     public Response clientCertificate(@Context final HttpServletRequest request) {
-        final Object certAttr = request.getAttribute("jakarta.servlet.request.X509Certificate");
+        final Object certAttr = request.getAttribute(ServletContextRequest.PEER_CERTIFICATES);
         if (!(certAttr instanceof X509Certificate[] certificates)) {
             throw new BadRequestException("Didn't find any client certificate");
         }
