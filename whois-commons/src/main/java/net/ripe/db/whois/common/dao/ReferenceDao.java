@@ -20,4 +20,6 @@ public interface ReferenceDao {
     @CheckForNull
     RpslObjectInfo getAttributeReference(AttributeType attributeType, CIString keyValue);
 
+    Map<RpslObjectInfo, RpslObject> findReferences(RpslObject object);
+
 }

@@ -68,6 +68,11 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
     }
 
     @Override
+    public Map<RpslObjectInfo, RpslObject> findReferences(final RpslObject object) {
+        return JdbcReferencesOperations.findReferences(jdbcTemplate, object);
+    }
+
+    @Override
     public RpslObjectUpdateInfo deleteObject(final int objectId, final String pkey) {
         final RpslObjectUpdateInfo rpslObjectInfo = lookupRpslObjectUpdateInfo(jdbcTemplate, objectId, pkey);
 
