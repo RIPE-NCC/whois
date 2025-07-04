@@ -13,6 +13,8 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.Validate;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.CheckForNull;
@@ -24,7 +26,6 @@ import java.util.Set;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 public class JdbcReferencesOperations {
-
 
     public static boolean isReferenced(final JdbcTemplate jdbcTemplate, final RpslObject object) {
         for (final RpslAttribute attribute : object.findAttributes(ObjectTemplate.getTemplate(object.getType()).getKeyAttributes())) {
@@ -126,6 +127,21 @@ public class JdbcReferencesOperations {
         }
 
         return null;
+    }
+
+    public static Map<RpslObjectInfo, RpslObject> findReferences(final JdbcTemplate jdbcTemplate, RpslObject object) {
+        final Map<RpslObjectInfo, RpslObject> references = Maps.newHashMap();
+        try {
+            for (final RpslObjectInfo rpslObjectInfo : getReferences(jdbcTemplate, object)) {
+                references.put(rpslObjectInfo, JdbcRpslObjectOperations.getObjectById(jdbcTemplate, rpslObjectInfo.getObjectId()));
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw e;
+        } catch (DataAccessException e) {
+            throw new EmptyResultDataAccessException(e.getMessage(), 1);
+        }
+
+        return references;
     }
 
     private static RpslObjectInfo getAttributeReference(final JdbcTemplate jdbcTemplate, final ObjectType objectType, final CIString keyValue) {

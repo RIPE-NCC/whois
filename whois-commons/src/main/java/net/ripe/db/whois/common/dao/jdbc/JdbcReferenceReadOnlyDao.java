@@ -7,6 +7,8 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,6 +23,8 @@ import java.util.Set;
 @Repository
 @Transactional(transactionManager = TransactionConfiguration.WHOIS_READONLY_TRANSACTION)
 public class JdbcReferenceReadOnlyDao implements ReferenceDao {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcReferenceReadOnlyDao.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -48,5 +52,10 @@ public class JdbcReferenceReadOnlyDao implements ReferenceDao {
     @Override
     public RpslObjectInfo getAttributeReference(AttributeType attributeType, CIString keyValue) {
         return JdbcReferencesOperations.getAttributeReference(jdbcTemplate, attributeType, keyValue);
+    }
+
+    @Override
+    public Map<RpslObjectInfo, RpslObject> findReferences(final RpslObject object) {
+       return JdbcReferencesOperations.findReferences(jdbcTemplate, object);
     }
 }
