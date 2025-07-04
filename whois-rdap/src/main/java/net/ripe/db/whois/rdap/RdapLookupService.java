@@ -5,11 +5,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
-import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
+import net.ripe.db.whois.common.dao.jdbc.JdbcReferenceReadOnlyDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.source.Source;
-import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.planner.AbuseContact;
@@ -47,9 +45,7 @@ public class RdapLookupService {
 
     private final RdapQueryHandler rdapQueryHandler;
 
-    private final SourceContext sourceContext;
-
-    private final RpslObjectUpdateDao rpslObjectUpdateDao;
+    private final JdbcReferenceReadOnlyDao jdbcReferenceReadOnlyDao;
 
     private final AbuseCFinder abuseCFinder;
 
@@ -63,7 +59,7 @@ public class RdapLookupService {
      * @param rdapObjectMapper
      * @param rdapQueryHandler
      * @param sourceContext
-     * @param rpslObjectUpdateDao
+     * @param jdbcReferenceReadOnlyDao
      * @param abuseCFinder
      */
 
@@ -73,18 +69,15 @@ public class RdapLookupService {
                              final RdapObjectMapper rdapObjectMapper,
                              final ReservedResources reservedResources,
                              final RdapQueryHandler rdapQueryHandler,
-                             final SourceContext sourceContext,
-                             final RpslObjectUpdateDao rpslObjectUpdateDao,
+                             final JdbcReferenceReadOnlyDao jdbcReferenceReadOnlyDao,
                              final AbuseCFinder abuseCFinder){
         this.rdapObjectMapper = rdapObjectMapper;
         this.maxEntityResultSize = maxEntityResultSize;
         this.baseUrl = baseUrl;
         this.rdapQueryHandler = rdapQueryHandler;
-        this.sourceContext = sourceContext;
-        this.rpslObjectUpdateDao = rpslObjectUpdateDao;
+        this.jdbcReferenceReadOnlyDao = jdbcReferenceReadOnlyDao;
         this.abuseCFinder = abuseCFinder;
         this.reservedResources = reservedResources;
-
     }
 
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
@@ -160,13 +153,7 @@ public class RdapLookupService {
 
 
     private Set<RpslObjectInfo> getReferences(final RpslObject organisation) {
-        final Source originalSource = sourceContext.getCurrentSource();
-        try {
-            sourceContext.setCurrent(sourceContext.getSlaveSource());
-            return rpslObjectUpdateDao.getReferences(organisation);
-        } finally {
-            sourceContext.setCurrent(originalSource);
-        }
+        return jdbcReferenceReadOnlyDao.getReferences(organisation);
     }
 
     private Object getOrganisationRdapObject(final HttpServletRequest request,
