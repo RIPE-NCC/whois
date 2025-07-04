@@ -198,15 +198,14 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                      Latitude ranges from [-90,+90] and longitude from [-180,+180]
 
                 prefixlen
-                
-                   A URL referencing a CSV file containing additional metadata for the
+
+                   A URL referencing a CSV file containing prefix length data for the
                    resource.
-                
-                     Prefixlen is a self-published format for IP additional metadata.
-                     A URL referencing a CSV file (described by RFC8805) containing
+
+                     A URL referencing a CSV file (described by draft-ietf-opsawg-prefix-lengths) containing
                      additional metadata about how the prefix is used or subdivided.
                      The URL must be valid and it must specify the HTTPS protocol.
-     
+
                 language
 
                    Identifies the language.
