@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
-import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotAllowedException;
 import jakarta.ws.rs.NotAuthorizedException;
@@ -77,7 +76,6 @@ import java.util.zip.GZIPInputStream;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -805,6 +803,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void create_person_json_ipv4_address() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test", true)
+                .request()
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://0.0.0.0:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+    }
+
+    @Test
+    public void create_person_json_ipv6_address() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test", false)
+                .request()
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://[::1]:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
     }
 
 
