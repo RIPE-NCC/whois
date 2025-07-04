@@ -59,7 +59,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
 
-    private static final Integer TIMEOUT_IN_MS = 15000; // 30seconds
+    private static final Integer GRACEFUL_TIMEOUT_IN_MS = 30000; // 30seconds
 
     public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders
             .terms("types-count")
@@ -166,10 +166,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
             return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), RequestOptions.DEFAULT);
         } catch (ElasticsearchStatusException ex){
             if (ex.status().equals(RestStatus.BAD_REQUEST)){
-                LOGGER.info("ElasticFullTextSearch fails due to the query: " + ex.getMessage());
+                LOGGER.info("ElasticFullTextSearch fails due to the query: {}", ex.getMessage());
                 throw new IllegalArgumentException("Invalid query syntax");
             }
-            LOGGER.error("ElasticFullTextSearch error: " + ex.getMessage());
+            LOGGER.error("ElasticFullTextSearch error: {}", ex.getMessage());
             throw ex;
         }
     }
@@ -189,7 +189,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(getQueryBuilder(searchRequest.getQuery()))
                 .size(searchRequest.getRows()).from(start)
-                .timeout(TimeValue.timeValueMillis(TIMEOUT_IN_MS))
+                .timeout(TimeValue.timeValueMillis(GRACEFUL_TIMEOUT_IN_MS))
                 .aggregation(AGGREGATION_BUILDER)
                 .sort(SORT_BUILDERS)
                 .highlighter(highlightBuilder).trackTotalHits(true);
