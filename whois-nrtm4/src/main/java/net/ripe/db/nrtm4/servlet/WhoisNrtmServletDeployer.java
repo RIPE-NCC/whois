@@ -2,9 +2,9 @@ package net.ripe.db.nrtm4.servlet;
 
 import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class WhoisNrtmServletDeployer implements ServletDeployer {
     }
 
     @Override
-    public void deploy(final WebAppContext context) {
+    public void deploy(final ServletContextHandler context) {
         final ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(nrtmClientService);
         resourceConfig.register(nrtmExceptionMapper);

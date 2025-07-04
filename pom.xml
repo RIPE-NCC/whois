@@ -63,11 +63,16 @@
         <hazelcast.version>4.2.8</hazelcast.version>
 
         <jackson.version>2.19.1</jackson.version>
+        <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
         <jaxb.api.version>4.0.2</jaxb.api.version>
         <jaxb.impl.version>4.0.5</jaxb.impl.version>
-        <jcache.version>1.1.1</jcache.version>
-        <jersey.version>3.0.18</jersey.version>
-        <jetty.version>11.0.25</jetty.version>
+        <!-- Jakarta REST (JAX-RS) API for EE10 https://jakarta.ee/specifications/restful-ws/3.1/ -->
+        <jaxrs.api.version>3.1.0</jaxrs.api.version>
+        <jcache.api.version>1.1.1</jcache.api.version>
+        <!-- Jersey Jakarta REST 3.1 for EE10 compatible https://projects.eclipse.org/projects/ee4j.jersey/releases/3.1.0 -->
+        <jersey.version>3.1.9</jersey.version>
+        <!-- Jetty Server EE10 compatible https://jetty.org/docs/jetty/12/index.html -->
+        <jetty.version>12.0.22</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsonassert.version>1.5.3</jsonassert.version>
@@ -89,10 +94,12 @@
         <org.json.version>20250517</org.json.version>
 
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
-        <persistence.version>1.0.2</persistence.version>
+        <persistence.api.version>3.2.0</persistence.api.version>
         <proprot.version>1.0</proprot.version>
 
         <sentry.version>6.26.0</sentry.version>
+        <!-- Servlet API 6.0 for EE10 : https://jakarta.ee/specifications/servlet/6.0/ -->
+        <servlet.version>6.0.0</servlet.version>
         <shedlock.version>5.16.0</shedlock.version>
         <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
@@ -103,7 +110,7 @@
         <testcontainers.elasticsearch.version>1.16.2</testcontainers.elasticsearch.version>
         <tink.version>1.13.0</tink.version>
 
-        <validation.version>3.0.2</validation.version>
+        <validation.api.version>3.1.0</validation.api.version>
         <velocity.version>2.4.1</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
@@ -532,29 +539,14 @@
 
             <!-- Jetty as an embedded server -->
             <dependency>
-                <groupId>org.eclipse.jetty.http2</groupId>
-                <artifactId>http2-common</artifactId>
-                <version>${jetty.version}</version>
+                  <groupId>org.eclipse.jetty.http2</groupId>
+                  <artifactId>jetty-http2-server</artifactId>
+                  <version>${jetty.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.http2</groupId>
-                <artifactId>http2-hpack</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.http2</groupId>
-                <artifactId>http2-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-alpn-java-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-alpn-server</artifactId>
-                <version>${jetty.version}</version>
+          <dependency>
+                  <groupId>org.eclipse.jetty</groupId>
+                  <artifactId>jetty-alpn-java-server</artifactId>
+                  <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
@@ -567,8 +559,8 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-servlets</artifactId>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-servlets</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -577,12 +569,18 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-webapp</artifactId>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-webapp</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
+            <!-- Jetty implements Jakarta Servlet API -->
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${servlet.version}</version>
+            </dependency>
 
-            <!-- Jersey JAX-RS 3.0 implementation -->
+            <!-- Jersey Jakarta REST (JAX-RS) implementation -->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-servlet</artifactId>
@@ -615,12 +613,18 @@
                 <artifactId>jersey-hk2</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
+            <!-- Jakarta REST 3.1 (JAX-RS) API -->
+            <dependency>
+                <groupId>jakarta.ws.rs</groupId>
+                <artifactId>jakarta.ws.rs-api</artifactId>
+                <version>${jaxrs.api.version}</version>
+            </dependency>
 
             <dependency>
                 <!-- don't use the Validation API in our code, use the static checks (JSR305) instead -->
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
-                <version>${validation.version}</version>
+                <version>${validation.api.version}</version>
                 <!-- set scope to prevent compile-time checks but Jersey can use at runtime -->
                 <scope>runtime</scope>
             </dependency>
@@ -670,7 +674,7 @@
                 </exclusions>
             </dependency>
 
-            <!-- JAXB -->
+            <!-- Jakarta XML Binding (JAXB) API and implementation -->
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
@@ -708,10 +712,11 @@
                 <version>${diffutils.version}</version>
             </dependency>
 
+            <!-- JCache (JSR107) has not moved to Jakarta namespace -->
             <dependency>
                 <groupId>javax.cache</groupId>
                 <artifactId>cache-api</artifactId>
-                <version>${jcache.version}</version>
+                <version>${jcache.api.version}</version>
             </dependency>
 
             <dependency>
@@ -788,9 +793,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>persistence-api</artifactId>
-            <version>${persistence.version}</version>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>${persistence.api.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

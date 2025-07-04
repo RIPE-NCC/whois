@@ -1,7 +1,5 @@
 package net.ripe.db.whois.api.httpserver;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
@@ -18,23 +16,17 @@ public class HttpTransportRule extends Rule {
     }
 
     @Override
-    public String matchAndApply(String target, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return hasTransport(request)? delegate.matchAndApply(target, request, response) : null;
+    public Handler matchAndApply(Handler handler) throws IOException {
+        return hasTransport(handler)? delegate.matchAndApply(handler) : null;
     }
 
-
-    private boolean hasTransport(final HttpServletRequest request) {
-        return transport.is(request.getScheme());
+    private boolean hasTransport(final Handler handler) {
+        return transport.is(handler.getHttpURI().getScheme());
     }
 
     @Override
     public boolean isTerminating() {
         return delegate.isTerminating();
-    }
-
-    @Override
-    public boolean isHandling() {
-        return delegate.isHandling();
     }
 
 }
