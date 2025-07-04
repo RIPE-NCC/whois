@@ -484,6 +484,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         databaseHelper.addObject("person: Tëst Person3\nnic-hdl: TP3-TEST\ncreated: 2022-08-14T11:48:28Z\nlast-modified:   2022-10-25T12:22:39Z\nsource: TEST");
         rebuildIndex();
 
+        // non-ASCII characters percent encoding should use UTF-8 not latin-1 according to RFC 3986 see https://en.wikipedia.org/wiki/Percent-encoding
         final SearchResult searchResult = createResource("entities?fn=T%EBst%20Person3")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
