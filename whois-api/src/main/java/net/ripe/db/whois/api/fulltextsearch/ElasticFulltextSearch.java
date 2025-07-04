@@ -18,6 +18,7 @@ import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -57,6 +58,8 @@ import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.PRIMARY_KE
 public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
+
+    private static final Integer TIMEOUT_IN_MS = 15000; // 30seconds
 
     public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders
             .terms("types-count")
@@ -186,6 +189,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(getQueryBuilder(searchRequest.getQuery()))
                 .size(searchRequest.getRows()).from(start)
+                .timeout(TimeValue.timeValueMillis(TIMEOUT_IN_MS))
                 .aggregation(AGGREGATION_BUILDER)
                 .sort(SORT_BUILDERS)
                 .highlighter(highlightBuilder).trackTotalHits(true);
