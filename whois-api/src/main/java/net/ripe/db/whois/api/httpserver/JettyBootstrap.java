@@ -8,6 +8,7 @@ import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
+import org.eclipse.jetty.ee10.servlet.DefaultServlet;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpVersion;
@@ -207,7 +208,7 @@ public class JettyBootstrap implements ApplicationService {
         final ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
 
-        context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+        context.setInitParameter(DefaultServlet.CONTEXT_INIT + "dirAllowed", "false");
 
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
