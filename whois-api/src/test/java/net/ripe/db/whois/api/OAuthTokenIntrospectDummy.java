@@ -4,19 +4,21 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
+import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ResourceUtils;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
+
+import static net.ripe.db.whois.api.AbstractIntegrationTest.getRequestBody;
 
 @Profile({WhoisProfile.TEST})
 @Component
@@ -45,47 +49,62 @@ public class OAuthTokenIntrospectDummy implements Stub {
         this.bearerTokenExtractor = bearerTokenExtractor;
     }
 
-    private static class ApiPublicKeyLoaderTestHandler extends AbstractHandler {
+    private static class ApiPublicKeyLoaderTestHandler extends Handler.Abstract {
 
-        @Override
-        public void handle(final String target, final Request baseRequest,
-                           final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
-            response.setContentType("text/xml;charset=utf-8");
-            baseRequest.setHandled(true);
+            @Override
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
 
+           response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
 
-            if (request.getRequestURI().contains("ripe-ncc/protocol/openid-connect/token/introspect")) {
+            if (request.getHttpURI().getPath().contains("ripe-ncc/protocol/openid-connect/token/introspect")) {
                 try {
-                    final SignedJWT signedJWT = SignedJWT.parse(request.getParameter("token"));
+
+                    final String body = getRequestBody(request);
+                    final SignedJWT signedJWT = SignedJWT.parse(StringUtils.substringAfter(body, "token="));
 
                     final String email = signedJWT.getJWTClaimsSet().getStringClaim("email");
                     if (email.equals("invalid@ripenet")) {
-                        response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                        return;
+                        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                        return false;
                     }
 
                     final boolean isActive = !email.equals("inactive@ripe.net");
 
                     response.setStatus(HttpServletResponse.SC_OK);
-                    response.setContentType(MediaType.APPLICATION_JSON);
-                    response.getWriter().println(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", isActive));
-                    return;
+                    response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                    response.write(
+                            true,
+                            ByteBuffer.wrap(JSONObjectUtils.parse(signedJWT.getPayload().toString()).appendField("active", isActive).toString().getBytes()),
+                            callback
+                    );
+
+                    callback.succeeded();
+
+                    return true;
+
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
 
             }
 
-            if (request.getRequestURI().contains("realms/ripe-ncc/protocol/openid-connect/certs")) {
+            if (request.getHttpURI().getPath().contains("realms/ripe-ncc/protocol/openid-connect/certs")) {
 
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/json");
-                response.getWriter().println(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_public.key").toPath())));
+                response.write(
+                        true,
+                        ByteBuffer.wrap(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_public.key").toPath())).getBytes()),
+                        callback
+                );
 
-                return;
+                response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                callback.succeeded();
+
+                return true;
             }
 
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return false;
         }
     }
 
