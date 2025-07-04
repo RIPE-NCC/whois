@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
@@ -16,7 +16,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
-import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -31,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestExecutionListeners;
 
 import javax.net.ssl.SSLContext;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -41,6 +39,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -212,7 +211,6 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
     }
 
     @Test
-    @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
     public void update_person_missing_private_key_unauthorised() throws Exception {
         // create certificate and don't use private key
         final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
@@ -235,14 +233,11 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
         final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
         databaseHelper.updateObject(updatedMntner);
 
-        try {
-            SecureRestTest.target(sslContext, getClientCertificatePort(), "whois/test/person/TP1-TEST")
-                    .request()
-                    .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (ProcessingException e) {
-            assertThat(e.getMessage(), containsString("javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate"));
-        }
+        assertThrows(InternalServerErrorException.class, () -> {
+                SecureRestTest.target(sslContext, getClientCertificatePort(), "whois/test/person/TP1-TEST")
+                        .request()
+                        .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
     }
 
     @Test
