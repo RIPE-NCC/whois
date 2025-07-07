@@ -44,7 +44,6 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.marshal.StreamingHelper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.dao.ReferenceDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -98,7 +97,7 @@ public class ReferencesService {
 
     private final RpslObjectDao rpslObjectDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
-    private final ReferenceDao referenceReadOnlyDao;
+    private final JdbcReferenceReadOnlyDao jdbcReferenceReadOnlyDao;
     private final SourceContext sourceContext;
     private final InternalUpdatePerformer updatePerformer;
     private final SsoTranslator ssoTranslator;
@@ -119,7 +118,7 @@ public class ReferencesService {
             final @Value("#{${whois.dummy}}") Map<String, String> dummyMap) {
 
         this.rpslObjectDao = rpslObjectDao;
-        this.referenceReadOnlyDao = jdbcReferenceReadOnlyDao;
+        this.jdbcReferenceReadOnlyDao = jdbcReferenceReadOnlyDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.sourceContext = sourceContext;
         this.updatePerformer = updatePerformer;
@@ -156,9 +155,8 @@ public class ReferencesService {
     }
 
     private void populateIncomingReferences(final Reference reference) {
-        final RpslObject primaryObject = lookupObjectByKey(reference.getPrimaryKey(), reference.getObjectType());
 
-        for (final Map.Entry<RpslObjectInfo, RpslObject> entry : referenceReadOnlyDao.findReferences(primaryObject).entrySet()) {
+        for (final Map.Entry<RpslObjectInfo, RpslObject> entry : jdbcReferenceReadOnlyDao.findReferences(reference.getPrimaryKey(),  ObjectType.getByName(reference.getObjectType())).entrySet()) {
             final RpslObject referenceObject = entry.getValue();
             final Reference referenceToReference = new Reference(referenceObject.getKey().toString(), referenceObject.getType().getName());
             reference.getIncoming().add(referenceToReference);

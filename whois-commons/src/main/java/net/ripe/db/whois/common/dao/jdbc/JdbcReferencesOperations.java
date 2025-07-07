@@ -16,6 +16,7 @@ import org.apache.commons.lang.Validate;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
+@Component
 public class JdbcReferencesOperations {
 
     public static boolean isReferenced(final JdbcTemplate jdbcTemplate, final RpslObject object) {
