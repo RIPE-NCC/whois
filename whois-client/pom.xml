@@ -26,7 +26,7 @@
             <artifactId>jopt-simple</artifactId>
         </dependency>
 
-        <!-- Jersey JAX-RS 2.0 implementation -->
+        <!-- Jersey JAX-RS implementation -->
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
@@ -38,6 +38,11 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-jaxb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Jackson Jax-RS provider for JSON content type -->
@@ -58,16 +63,18 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
-         <!-- Glassfish JAXB implementation -->
+         <!-- Glassfish JAXB API and implementation -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <!-- AspectJ -->
         <dependency>
            <groupId>org.springframework</groupId>

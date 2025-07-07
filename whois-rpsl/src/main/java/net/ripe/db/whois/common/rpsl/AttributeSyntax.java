@@ -381,6 +381,8 @@ public interface AttributeSyntax extends Documented {
             "with \"prng-\" are reserved for peering set names. Names\n" +
             "starting with \"irt-\" are reserved for irt names.\n");
 
+    AttributeSyntax PREFIXLEN_SYNTAX = new PrefixlenSyntax();
+
     AttributeSyntax SOURCE_SYNTAX = new AttributeSyntaxRegexp(80,
             Pattern.compile("(?i)^[A-Z][A-Z0-9_-]*[A-Z0-9]$"), "" +
             "Made up of letters, digits, the character underscore \"_\",\n" +
@@ -869,6 +871,25 @@ public interface AttributeSyntax extends Documented {
 
             builder.append("\n");
             return builder.toString();
+        }
+    }
+
+    class PrefixlenSyntax implements AttributeSyntax {
+
+        private static final UrlValidator validator = new UrlValidator(new String[] {"https"});
+
+        @Override
+        public boolean matches(ObjectType objectType, String value) {
+            return validator.isValid(value);
+        }
+
+        @Override
+        public String getDescription(ObjectType objectType) {
+            return """
+                    A URL referencing a CSV file (described by draft-ietf-opsawg-prefix-lengths) containing
+                    additional metadata about how the prefix is used or subdivided.
+                    The URL must be valid and it must specify the HTTPS protocol.
+                    """;
         }
     }
 

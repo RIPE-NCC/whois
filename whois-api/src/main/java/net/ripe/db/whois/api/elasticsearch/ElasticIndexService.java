@@ -19,10 +19,10 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.xcontent.XContentBuilder;
-import org.elasticsearch.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,7 +92,7 @@ public class ElasticIndexService {
         return true;
     }
 
-    protected void createOrUpdateEntry(final RpslObject rpslObject) throws IOException {
+    protected void createOrUpdateEntry(final RpslObject rpslObject) {
         if (!isElasticRunning()) {
             return;
         }

@@ -1,5 +1,6 @@
 package net.ripe.db.whois.update.handler.validator.inetnum;
 
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -48,7 +49,7 @@ public class GeofeedValidatorTest {
         when(update.getUpdatedObject()).thenReturn(object);
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.eitherGeofeedOrRemarksIsAllowed());
+        verify(updateContext).addMessage(update, UpdateMessages.eitherAttributeOrRemarksIsAllowed(AttributeType.GEOFEED.getName()));
     }
     @Test
     public void updated_inetnum_contains_multiple_remarks_geofeed() {
@@ -61,7 +62,7 @@ public class GeofeedValidatorTest {
         when(update.getUpdatedObject()).thenReturn(object);
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.eitherGeofeedOrRemarksIsAllowed());
+        verify(updateContext).addMessage(update, UpdateMessages.eitherAttributeOrRemarksIsAllowed(AttributeType.GEOFEED.getName()));
     }
 
     @Test
@@ -79,6 +80,6 @@ public class GeofeedValidatorTest {
         when(update.getUpdatedObject()).thenReturn(object);
        subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, UpdateMessages.eitherGeofeedOrRemarksIsAllowed());
+        verify(updateContext).addMessage(update, UpdateMessages.eitherAttributeOrRemarksIsAllowed(AttributeType.GEOFEED.getName()));
     }
 }
