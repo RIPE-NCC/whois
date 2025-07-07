@@ -51,7 +51,6 @@ public final class IndexStrategies {
                 new IndexWithReference(AttributeType.FORM, "form", "form_id"),
                 new Unindexed(AttributeType.GEOFEED),
                 new Unindexed(AttributeType.GEOLOC),
-                new Unindexed(AttributeType.PREFIXLEN),
                 new Unindexed(AttributeType.HOLES),
                 new IndexWithIfAddr(AttributeType.IFADDR),
                 new Unindexed(AttributeType.IMPORT),

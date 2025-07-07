@@ -119,7 +119,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.PINGABLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PING_HDL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.POEM;
 import static net.ripe.db.whois.common.rpsl.AttributeType.POETIC_FORM;
-import static net.ripe.db.whois.common.rpsl.AttributeType.PREFIXLEN;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REMARKS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
@@ -255,7 +254,6 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(COUNTRY, MANDATORY, MULTIPLE),
                         new AttributeTemplate(GEOFEED, OPTIONAL, SINGLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
-                        new AttributeTemplate(PREFIXLEN, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
@@ -282,7 +280,6 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(COUNTRY, MANDATORY, MULTIPLE),
                         new AttributeTemplate(GEOFEED, OPTIONAL, SINGLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
-                        new AttributeTemplate(PREFIXLEN, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),

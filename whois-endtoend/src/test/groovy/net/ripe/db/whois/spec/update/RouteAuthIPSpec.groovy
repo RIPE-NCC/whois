@@ -186,19 +186,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 mnt-by:  PARENT-INETNUM-MB-MNT
                 source:      TEST
                 """,
-            "ALLOC-INET": """\
-                inetnum: 21.0.0.0 - 21.255.255.255
-                netname: PARENT-INETNUM
-                descr: Parent inetnum object
-                org:   ORG-LIR1-TEST
-                country: EU
-                admin-c: TP1-TEST
-                tech-c:  TP1-TEST
-                status:  ALLOCATED PA
-                mnt-by:  RIPE-NCC-HM-MNT
-                mnt-by:  PARENT-INETNUM-MB-MNT
-                source:      TEST
-                """,
             "PARENT-INET4": """\
                 inetnum: 21.128.0.0 - 21.128.255.255
                 netname: EXACT-INETNUM
@@ -807,7 +794,6 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, split parent inet, parent inet pw supplied"() {
         given:
-        syncUpdate(getTransient("ALLOC-INET") + "password: mbi-parent\npassword: hm\npassword: owner3")
         syncUpdate(getTransient("PARENT-INET4") + "password: mbi-parent\npassword: hm")
 
         expect:

@@ -1040,12 +1040,11 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 2, 1)
+        ack.countErrorWarnInfo(1, 2, 1)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
-                ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED",
-                    "The \"sponsoring-org:\" attribute is not allowed with status value \"LIR-PARTITIONED PA\""]
+                ["The \"sponsoring-org:\" attribute is not allowed with status value \"LIR-PARTITIONED PA\""]
         ack.infoMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Authorisation override used"]
 

@@ -77,7 +77,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PHONE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PINGABLE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POEM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POETIC_FORM_SYNTAX;
-import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PREFIXLEN_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE6_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SYNTAX;
@@ -564,10 +563,6 @@ public enum AttributeType implements Documented {
     POETIC_FORM(new Builder("poetic-form", "pf")
             .doc("Specifies the poem type.")
             .syntax(POETIC_FORM_SYNTAX)),
-
-    PREFIXLEN(new Builder("prefixlen",  "pl")
-            .doc("A URL referencing a CSV file containing prefix length data for the resource.")
-            .syntax(PREFIXLEN_SYNTAX)),
 
     REF_NFY(new Builder("ref-nfy", "rn")
             .doc("Specifies the e-mail address to be notified when a reference to the organisation object is added " +
