@@ -743,8 +743,8 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Ignored object with size %d, exceeds maximum object size %d.", size, maximumSize);
     }
 
-    public static Message eitherGeofeedOrRemarksIsAllowed() {
-        return new Message(Type.ERROR, "Only one between the \"geofeed:\" and \"remark: geofeed:\" attributes is allowed.");
+    public static Message eitherAttributeOrRemarksIsAllowed(final String attribute) {
+        return new Message(Type.ERROR, String.format("Only one between the \"%s:\" and \"remark: %s:\" attributes is allowed.", attribute, attribute));
     }
 
     public static Message incorrectPrefixForRipeNsServer() {

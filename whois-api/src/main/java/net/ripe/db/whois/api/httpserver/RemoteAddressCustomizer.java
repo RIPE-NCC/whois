@@ -8,6 +8,7 @@ import com.google.common.net.InetAddresses;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.http.BadMessageException;
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.http.HttpURI;
@@ -126,10 +127,14 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
 
             @Nullable
             private String getQueryParamValue(final Request request, final String paramName) {
-                for (Fields.Field queryParameter : Request.extractQueryParameters(request)) {
-                    if (queryParameter.getName().equals(paramName)) {
-                        return queryParameter.getValue();
+                try {
+                    for (Fields.Field queryParameter : Request.extractQueryParameters(request)) {
+                        if (queryParameter.getName().equals(paramName)) {
+                            return queryParameter.getValue();
+                        }
                     }
+                }  catch (BadMessageException e) {
+                    LOGGER.warn("{} on query parameter {}: {}", e.getClass().getName(), paramName, e.getMessage());
                 }
                 return null;
             }
