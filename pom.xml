@@ -108,7 +108,7 @@
         <stax-utils.version>20070216</stax-utils.version>
 
         <testcontainers.elasticsearch.version>1.21.3</testcontainers.elasticsearch.version>
-        <tink.version>1.13.0</tink.version>
+        <tink.version>1.18.0</tink.version>
 
         <validation.api.version>3.1.0</validation.api.version>
         <velocity.version>2.4.1</velocity.version>
