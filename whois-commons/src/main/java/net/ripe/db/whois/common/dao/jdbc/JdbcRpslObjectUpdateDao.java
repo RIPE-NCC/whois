@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
@@ -14,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,5 +134,22 @@ public class JdbcRpslObjectUpdateDao implements RpslObjectUpdateDao {
     @Override
     public RpslObjectUpdateInfo lookupObject(ObjectType type, String pkey) {
         return lookupRpslObjectUpdateInfo(jdbcTemplate, type, pkey);
+    }
+
+    @Override
+    public Map<RpslObjectInfo, RpslObject> findReferences(final RpslObject rpslObject) {
+        final Map<RpslObjectInfo, RpslObject> references = Maps.newHashMap();
+        try {
+            for (final RpslObjectInfo rpslObjectInfo : getReferences(rpslObject)) {
+                references.put(rpslObjectInfo, JdbcRpslObjectOperations.getObjectById(jdbcTemplate, rpslObjectInfo.getObjectId()));
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw e;
+        } catch (DataAccessException e) {
+            LOGGER.error("Unexpected", e);
+            throw new EmptyResultDataAccessException(1);
+        }
+
+        return references;
     }
 }
