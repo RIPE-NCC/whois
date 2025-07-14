@@ -58,7 +58,12 @@ abstract class Response extends BasicResponse {
 
     String[] warningMessagesFor(String operation, String key) {
         def error = getErrors().find { it.operation == operation && it.key.startsWith(key) }
-        error == null ? [] : error.warnings
+        if (error != null) {
+            error.warnings
+        } else {
+            def success = getSuccesses().find { it.operation == operation && it.key.startsWith(key) }
+            success == null ? [] : success.warnings
+        }
     }
 
     String[] infoMessagesFor(String operation, String key) {

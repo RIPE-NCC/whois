@@ -19,6 +19,6 @@ public class OAuthCredential implements Credential {
     }
     @Override
     public String toString() {
-        return String.format("APIKeyCredential{offeredUserSession=%s}", offeredOAuthSession);
+        return String.format("OAuthCredential{offeredUserSession=%s}", offeredOAuthSession);
     }
 }
