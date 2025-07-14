@@ -14,7 +14,6 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang.Validate;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
 import java.util.Collections;
@@ -24,7 +23,6 @@ import java.util.Set;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-@Component
 public class JdbcReferencesOperations {
 
 
