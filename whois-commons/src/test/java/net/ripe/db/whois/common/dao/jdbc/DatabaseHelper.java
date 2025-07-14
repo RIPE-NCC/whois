@@ -244,7 +244,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
     }
 
     private static JdbcTemplate createDefaultTemplate() {
-        return new JdbcTemplate(createDataSource(""));  // database name can be empty for mysql
+        return new JdbcTemplate(createDataSource(""));  // database name can be empty for mariadb
     }
 
     private static DataSource createDataSource( final String databaseName) {
