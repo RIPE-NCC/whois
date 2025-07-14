@@ -1,5 +1,19 @@
 # next
 
+# 1.118
+
+[all] LIR Partitioned inetnum status is not valid under Allocated Unspecified (#1825)
+[all] Add Prefixlen Attribute to Inet(6)num (#1816)
+[all] Removing mbrs-by-ref maintainer from set causes aut-num update containing member-of to fail (#1770)
+[all] Do not apply ACL accounting for an Authenticated Maintainer's own Objects (#1723)
+[api] Graceful Timeout Fulltextsearch (#1823)
+[api] ES should be Alphabetically sorted (#1720)
+[rdap] Implemented administrative status in RDAP but not for rir search (#1778, #1730, #1722)
+[rdap] Remove HTTP Status code from RDAP response "title" element. (#1777)
+[update] Validate token offline for api keys (#1743)
+[nrtm] NRTMv4 Client Do Not Throw Error When Non Parseable Delta (#1715)
+
+
 # 1.117
 
 [update] Parent status for LIR-PARTITIONED PA cannot be ASSIGNED PA (#1669) 
