@@ -70,6 +70,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -96,6 +97,7 @@ public class ReferencesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReferencesService.class);
 
     private final RpslObjectDao rpslObjectDao;
+    private final RpslObjectDao rpslObjectReadOnlyDao;
     private final RpslObjectUpdateDao rpslObjectUpdateDao;
     private final JdbcReferenceReadOnlyDao jdbcReferenceReadOnlyDao;
     private final SourceContext sourceContext;
@@ -108,6 +110,7 @@ public class ReferencesService {
     @Autowired
     public ReferencesService(
             final RpslObjectDao rpslObjectDao,
+            @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao  rpslObjectReadOnlyDao,
             final JdbcReferenceReadOnlyDao jdbcReferenceReadOnlyDao,
             final RpslObjectUpdateDao rpslObjectUpdateDao,
             final SourceContext sourceContext,
@@ -118,6 +121,7 @@ public class ReferencesService {
             final @Value("#{${whois.dummy}}") Map<String, String> dummyMap) {
 
         this.rpslObjectDao = rpslObjectDao;
+        this.rpslObjectReadOnlyDao = rpslObjectReadOnlyDao;
         this.jdbcReferenceReadOnlyDao = jdbcReferenceReadOnlyDao;
         this.rpslObjectUpdateDao = rpslObjectUpdateDao;
         this.sourceContext = sourceContext;
@@ -156,7 +160,9 @@ public class ReferencesService {
 
     private void populateIncomingReferences(final Reference reference) {
 
-        for (final Map.Entry<RpslObjectInfo, RpslObject> entry : jdbcReferenceReadOnlyDao.findReferences(reference.getPrimaryKey(),  ObjectType.getByName(reference.getObjectType())).entrySet()) {
+        final RpslObject object =lookupObjectByKey(reference.getPrimaryKey(), reference.getObjectType(), rpslObjectReadOnlyDao);
+
+        for (final Map.Entry<RpslObjectInfo, RpslObject> entry : jdbcReferenceReadOnlyDao.findReferences(object).entrySet()) {
             final RpslObject referenceObject = entry.getValue();
             final Reference referenceToReference = new Reference(referenceObject.getKey().toString(), referenceObject.getType().getName());
             reference.getIncoming().add(referenceToReference);
@@ -408,7 +414,7 @@ public class ReferencesService {
 
         validateSource(sourceParam);
 
-        final RpslObject primaryObject = lookupObjectByKey(keyParam, objectTypeParam);
+        final RpslObject primaryObject = lookupObjectByKey(keyParam, objectTypeParam, rpslObjectDao);
         final Map<RpslObjectInfo, RpslObject> references = rpslObjectUpdateDao.findReferences(primaryObject);
         validateReferences(primaryObject, references);
 
@@ -591,7 +597,7 @@ public class ReferencesService {
 
     private void validateObjectNotFound(final WhoisResources whoisResources, final RpslObject rpslObject) {
         try {
-            lookupObjectByKey(rpslObject.getKey().toString(), rpslObject.getType());
+            lookupObjectByKey(rpslObject.getKey().toString(), rpslObject.getType(), rpslObjectDao);
             setErrorMessage(whoisResources, rpslObject.getType().getName() + " " + rpslObject.getKey() + " already exists");
             throw new ReferenceUpdateFailedException(Response.Status.BAD_REQUEST, whoisResources);
         } catch (EmptyResultDataAccessException e) {
@@ -709,13 +715,13 @@ public class ReferencesService {
 
     // DAO calls
 
-    private RpslObject lookupObjectByKey(final String primaryKey, final String objectType) {
-        return lookupObjectByKey(primaryKey, ObjectType.getByName(objectType));
+    private static RpslObject lookupObjectByKey(final String primaryKey, final String objectType, final RpslObjectDao objectDao) {
+        return lookupObjectByKey(primaryKey, ObjectType.getByName(objectType), objectDao);
     }
 
-    private RpslObject lookupObjectByKey(final String primaryKey, final ObjectType objectType) {
+    private static RpslObject lookupObjectByKey(final String primaryKey, final ObjectType objectType, final RpslObjectDao objectDao) {
         try {
-            return rpslObjectDao.getByKey(objectType, primaryKey);
+            return objectDao.getByKey(objectType, primaryKey);
         } catch (EmptyResultDataAccessException e) {
             throw e;
         } catch (DataAccessException e) {

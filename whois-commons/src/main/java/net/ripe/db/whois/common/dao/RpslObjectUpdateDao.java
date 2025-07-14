@@ -1,16 +1,9 @@
 package net.ripe.db.whois.common.dao;
 
-import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
-import javax.annotation.CheckForNull;
-import java.util.Map;
-import java.util.Set;
-
-public interface RpslObjectUpdateDao {
+public interface RpslObjectUpdateDao  extends ReferenceDao {
 
     RpslObjectUpdateInfo lookupObject(ObjectType type, String pkey);
 
@@ -21,15 +14,4 @@ public interface RpslObjectUpdateDao {
     RpslObjectUpdateInfo updateObject(int objectId, RpslObject object);
 
     RpslObjectUpdateInfo createObject(RpslObject object);
-
-    boolean isReferenced(RpslObject object);
-
-    Set<RpslObjectInfo> getReferences(RpslObject object);
-
-    Map<RpslAttribute, Set<CIString>> getInvalidReferences(RpslObject object);
-
-    @CheckForNull
-    RpslObjectInfo getAttributeReference(AttributeType attributeType, CIString keyValue);
-
-    Map<RpslObjectInfo, RpslObject> findReferences(RpslObject object);
 }
