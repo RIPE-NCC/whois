@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
+import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.TransactionConfiguration;
 import net.ripe.db.whois.common.dao.ReferenceDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -9,6 +10,8 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,5 +51,22 @@ public class JdbcReferenceReadOnlyDao implements ReferenceDao {
     @Override
     public RpslObjectInfo getAttributeReference(AttributeType attributeType, CIString keyValue) {
         return JdbcReferencesOperations.getAttributeReference(jdbcTemplate, attributeType, keyValue);
+    }
+
+
+    @Override
+    public Map<RpslObjectInfo, RpslObject> findReferences(final RpslObject rpslObject) {
+        final Map<RpslObjectInfo, RpslObject> references = Maps.newHashMap();
+        try {
+            for (final RpslObjectInfo rpslObjectInfo : getReferences(rpslObject)) {
+                references.put(rpslObjectInfo, JdbcRpslObjectOperations.getObjectById(jdbcTemplate, rpslObjectInfo.getObjectId()));
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw e;
+        } catch (DataAccessException e) {
+            throw new EmptyResultDataAccessException(1);
+        }
+
+        return references;
     }
 }
