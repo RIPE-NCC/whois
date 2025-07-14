@@ -33,7 +33,7 @@ public abstract class AbstractAutoritativeResourceImportTask {
         for (final String sourceName : sourceNames) {
             try {
                 final AuthoritativeResource authoritativeResource = fetchAuthoritativeResource(sourceName);
-                if (authoritativeResource != null) {
+                if (authoritativeResource != null && !authoritativeResource.getResources().isEmpty()) {
                     resourceDataDao.store(sourceName, authoritativeResource);
                 }
             } catch (Exception e) {

@@ -19,13 +19,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,10 +48,7 @@ public class AuthoritativeResourceImportTaskTest {
     @Test
     public void init_url_not_defined() {
         subject.run();
-        verify(resourceDataDao).store(eq("test"), resourceCaptor.capture());
-        assertThat(resourceCaptor.getValue().getNrAutNums(), is(0));
-        assertThat(resourceCaptor.getValue().getNrInet6nums(), is(0));
-        assertThat(resourceCaptor.getValue().getNrInetnums(), is(0));
+        verify(resourceDataDao, never()).store(anyString(), any());
     }
 
     @Test
@@ -84,9 +78,6 @@ public class AuthoritativeResourceImportTaskTest {
 
         subject.run();
 
-        verify(resourceDataDao).store(eq("test"), resourceCaptor.capture());
-        assertThat(resourceCaptor.getValue().getNrAutNums(), is(0));
-        assertThat(resourceCaptor.getValue().getNrInet6nums(), is(0));
-        assertThat(resourceCaptor.getValue().getNrInetnums(), is(0));
+        verify(resourceDataDao, never()).store(anyString(), any());
     }
 }
