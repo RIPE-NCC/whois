@@ -3,8 +3,6 @@ package net.ripe.db.whois.api.httpserver;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.rewrite.handler.Rule;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 
@@ -31,11 +29,11 @@ public class HttpMethodRule extends Rule {
     }
 
     @Override
-    public String matchAndApply(String target, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public Handler matchAndApply(Handler handler) throws IOException {
         try {
-        return methods.contains(HttpMethod.valueOf(request.getMethod()))?
-                delegate.matchAndApply(target, request, response) :
-                null;
+            return methods.contains(HttpMethod.valueOf(handler.getMethod())) ?
+                    delegate.matchAndApply(handler) :
+                    null;
         } catch (IllegalArgumentException iae) {
             return null;
         }
@@ -44,11 +42,6 @@ public class HttpMethodRule extends Rule {
     @Override
     public boolean isTerminating() {
         return delegate.isTerminating();
-    }
-
-    @Override
-    public boolean isHandling() {
-        return delegate.isHandling();
     }
 
 }

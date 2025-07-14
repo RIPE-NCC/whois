@@ -180,7 +180,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -223,7 +223,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -279,7 +279,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -337,7 +337,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -393,7 +393,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -449,7 +449,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -519,7 +519,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 delete:       comment
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -529,7 +529,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 0, 2, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 3)
+        ack.countErrorWarnInfo(0, 1, 3)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
@@ -593,7 +593,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -603,7 +603,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 1, 1, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 3)
+        ack.countErrorWarnInfo(0, 3, 3)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
@@ -627,7 +627,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 auth:    MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
                 source:  TEST
                 override: denis,override1
-                """.stripIndent())
+                """.stripIndent(true))
 
         expect:
         queryObject("-rBG -T person ff1-test", "person", "fred fred")
@@ -658,7 +658,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 remarks: version 2
                 source:  TEST
                 override:  denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -699,7 +699,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:  TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -751,7 +751,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:          TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -791,7 +791,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:  TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -831,7 +831,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:  TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -906,7 +906,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -986,7 +986,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1050,7 +1050,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1094,7 +1094,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1135,7 +1135,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1177,7 +1177,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1219,7 +1219,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1260,7 +1260,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1300,7 +1300,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1342,7 +1342,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1382,7 +1382,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1423,7 +1423,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1468,7 +1468,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1508,7 +1508,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1548,7 +1548,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1588,7 +1588,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1618,7 +1618,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -1674,7 +1674,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1731,7 +1731,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

@@ -118,7 +118,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getReferenceObject()).thenReturn(ORIGINAL_ORG);
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_SAME_NAME);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -131,7 +131,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(Collections.EMPTY_SET);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -146,7 +146,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_LIR);
         presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -159,7 +159,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         when(updateDao.getReferences(ORIGINAL_ORG)).thenReturn(Sets.newHashSet(new RpslObjectInfo(5, ObjectType.PERSON, "TEST-NIC")));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -172,7 +172,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         presetReferrers(REFERRER_MNT_BY_USER);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -187,10 +187,10 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")))).thenReturn(true);
         presetReferrers(REFERRER_MNT_BY_RS);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
+        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -202,10 +202,10 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("RIPE-NCC-LEGACY-MNT")))).thenReturn(true);
         presetReferrers(REFERRER_MNT_BY_LEGACY);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
+        verify(updateContext).addMessage(update, UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(UPDATED_ORG_NEW_NAME.findAttribute(AttributeType.ORG_NAME)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-LEGACY-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -217,7 +217,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         // HM and LEGACY maintainers belong to the same group of RS super-mntners
         // Any mntner from that group could be used to update such objects
@@ -234,7 +234,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         presetReferrers(REFERRER_MNT_BY_RS);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -248,7 +248,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         presetReferrers(REFERRER_MNT_BY_LEGACY);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -262,7 +262,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         presetReferrers(REFERRER_MNT_BY_RS);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -276,7 +276,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         presetReferrers(REFERRER_MNT_BY_LEGACY);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -290,7 +290,7 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(update.getUpdatedObject()).thenReturn(UPDATED_ORG_NEW_NAME);
         presetReferrers(REFERRER_MNT_BY_RS, REFERRER_MNT_BY_LEGACY);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -304,10 +304,10 @@ public class OrgNameAndCountryAttrValidatorTest {
         when(maintainers.isRsMaintainer(Sets.newHashSet(CIString.ciString("RIPE-NCC-HM-MNT")))).thenReturn(true);
         presetReferrers(REFERRER_MNT_BY_RS);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(AttributeType.ORG_NAME));
+        verify(updateContext).addMessage(update, ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME), UpdateMessages.canOnlyBeChangedByRipeNCC(ORIGINAL_ORG.findAttribute(AttributeType.ORG_NAME)));
         verify(maintainers).isRsMaintainer(ciSet("RIPE-NCC-HM-MNT"));
         verifyNoMoreInteractions(maintainers);
     }

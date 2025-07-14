@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -23,7 +22,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DirtiesContext
 @Tag("IntegrationTest")
@@ -46,7 +46,7 @@ public class GrsDaoIntegrationTest extends AbstractSchedulerIntegrationTest {
 
     @Test
     public void no_grs_datasource() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new GrsDao(logger, testDateTimeProvider, ciString("UNKNOWN"), sourceContext);
             subject.cleanDatabase();
         });
@@ -72,7 +72,7 @@ public class GrsDaoIntegrationTest extends AbstractSchedulerIntegrationTest {
 
     @Test
     public void find_not_existing_object() {
-        assertNull(subject.find("DEV-MNT", ObjectType.MNTNER));
+        assertThat(subject.find("DEV-MNT", ObjectType.MNTNER), is(nullValue()));
     }
 
     @Test

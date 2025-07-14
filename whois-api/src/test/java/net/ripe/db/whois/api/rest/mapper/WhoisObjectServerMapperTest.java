@@ -9,7 +9,6 @@ import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.search.AbuseContactSearch;
-import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.api.rest.search.ResourceHolderSearch;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.domain.CIString;
@@ -17,6 +16,7 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.search.ManagedAttributeSearch;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,7 +67,7 @@ public class WhoisObjectServerMapperTest {
                 new FormattedServerAttributeMapper(referencedTypeResolver, sourceResolver, BASE_URL),
                 new FormattedClientAttributeMapper()
         });
-        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper, resourceHolderSearch, abuseContactSearch, managedAttributeSearch);
+        whoisObjectServerMapper = new WhoisObjectServerMapper(whoisObjectMapper, resourceHolderSearch, abuseContactSearch, managedAttributeSearch, Lists.newArrayList());
         lenient().when(parameters.getUnformatted()).thenReturn(Boolean.FALSE);
         lenient().when(sourceResolver.getSource(anyString(), any(CIString.class), anyString())).thenReturn("test");
     }

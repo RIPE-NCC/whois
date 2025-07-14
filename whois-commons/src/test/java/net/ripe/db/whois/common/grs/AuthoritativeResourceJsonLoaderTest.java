@@ -10,9 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AuthoritativeResourceJsonLoaderTest {
 
@@ -24,19 +25,19 @@ public class AuthoritativeResourceJsonLoaderTest {
                 new ObjectMapper().readValue(IOUtils.toString(getClass().getResourceAsStream("/grs/rirstats.json"), Charset.defaultCharset()), JsonNode.class)
         );
 
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS7")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS1877")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS2849")));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS7")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS1877")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.AUT_NUM, ciString("AS2849")), is(true));
 
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("2.0.0.0-2.15.255.255")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("2.56.168.0-2.56.171.255")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("5.44.248.0-5.44.255.255")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("13.116.0.0-13.123.255.255")));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("2.0.0.0-2.15.255.255")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("2.56.168.0-2.56.171.255")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("5.44.248.0-5.44.255.255")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INETNUM, ciString("13.116.0.0-13.123.255.255")), is(true));
 
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:600::/32")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:678::/48")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:678:1::/48")));
-        assertTrue(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:601::/32")));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:600::/32")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:678::/48")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:678:1::/48")), is(true));
+        assertThat(authoritativeResource.isMaintainedInRirSpace(ObjectType.INET6NUM, ciString("2001:601::/32")), is(true));
     }
 
 }

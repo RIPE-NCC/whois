@@ -2,32 +2,30 @@ package net.ripe.db.whois.common.ip;
 
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Ipv4ResourceTest {
 
     private Ipv4Resource subject;
 
     // Some sugar
-    private Matcher<Long> eq(long value) {
-        return org.hamcrest.Matchers.is(value);
+    private Matcher<Long> eq(final long value) {
+        return is(value);
     }
 
-    private Matcher<Integer> eq(int value) {
-        return org.hamcrest.Matchers.is(value);
+    private Matcher<Integer> eq(final int value) {
+        return is(value);
     }
 
     @Test
     public void parseValidIPv4Range() {
         subject = Ipv4Resource.parse("212.219.1.0 - 212.219.1.255");
+
         assertThat(subject.begin(), eq(3571122432L));
         assertThat(subject.end(), eq(3571122687L));
     }
@@ -35,6 +33,7 @@ public class Ipv4ResourceTest {
     @Test
     public void parseValidIPv4Address() {
         subject = Ipv4Resource.parse("212.219.1.0");
+
         assertThat(subject.begin(), eq(3571122432L));
         assertThat(subject.end(), eq(3571122432L));
     }
@@ -42,6 +41,7 @@ public class Ipv4ResourceTest {
     @Test
     public void parseValidIPv4ARangeWithSlash() {
         subject = Ipv4Resource.parse("212.219.1.0/24");
+
         assertThat(subject.begin(), eq(3571122432L));
         assertThat(subject.end(), eq(3571122687L));
     }
@@ -49,48 +49,49 @@ public class Ipv4ResourceTest {
     @Test
     public void parseValidIPv4ARangeWithSlashAndNewLine() {
         subject = Ipv4Resource.parse("212.219.1.0/24\r\n");
+
         assertThat(subject.begin(), eq(3571122432L));
         assertThat(subject.end(), eq(3571122687L));
     }
 
     @Test
     public void ipv4_with_prefix_21_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("151.64.0.1/21\r\n");
         });
     }
 
     @Test
     public void ipv4_with_prefix_23_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("109.73.65.0/23\r\n");
         });
     }
 
     @Test
     public void ipv4_with_prefix_28_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("62.219.43.72/28\r\n");
         });
     }
 
     @Test
     public void ipv4_with_huge_prefix_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("128.0.0.0/0\r\n");
         });
     }
 
     @Test
     public void ipv4_with_tiny_prefix_fails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("192.192.192.1/31\r\n");
         });
     }
 
     @Test
     public void ipv4_with_prefix_21() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = Ipv4Resource.parse("151.64.0.1/21\r\n");
         });
     }
@@ -98,6 +99,7 @@ public class Ipv4ResourceTest {
     @Test
     public void ipv4_with_tiny_prefix() {
         subject = Ipv4Resource.parse("192.192.192.2/31\r\n");
+
         assertThat(subject.begin(), eq(3233857538L));
         assertThat(subject.end(), eq(3233857539L));
     }
@@ -105,6 +107,7 @@ public class Ipv4ResourceTest {
     @Test
     public void ipv4_with_prefix_23() {
         subject = Ipv4Resource.parse("109.73.64.0/23\r\n");
+
         assertThat(subject.begin(), eq(1833517056L));
         assertThat(subject.end(), eq(1833517567L));
     }
@@ -112,6 +115,7 @@ public class Ipv4ResourceTest {
     @Test
     public void ipv4_with_prefix_28() {
         subject = Ipv4Resource.parse("62.219.43.64/28\r\n");
+
         assertThat(subject.begin(), eq(1054550848L));
         assertThat(subject.end(), eq(1054550863L));
     }
@@ -119,6 +123,7 @@ public class Ipv4ResourceTest {
     @Test
     public void ipv4_with_prefix_31() {
         subject = Ipv4Resource.parse("162.219.43.72/31\r\n");
+
         assertThat(subject.begin(), eq(2732272456L));
         assertThat(subject.end(), eq(2732272457L));
     }
@@ -126,6 +131,7 @@ public class Ipv4ResourceTest {
     @Test
     public void ipv4_with_prefix_32() {
         subject = Ipv4Resource.parse("162.219.43.72/32\r\n");
+
         assertThat(subject.begin(), eq(2732272456L));
         assertThat(subject.end(), eq(2732272456L));
     }
@@ -133,6 +139,7 @@ public class Ipv4ResourceTest {
     @Test
     public void ipv4_with_huge_prefix() {
         subject = Ipv4Resource.parse("128.0.0.0/1\r\n");
+
         assertThat(subject.begin(), eq(2147483648L));
         assertThat(subject.end(), eq(4294967295L));
     }
@@ -140,6 +147,7 @@ public class Ipv4ResourceTest {
     @Test
     public void zero_slash_zero_with_prefix_32() {
         subject = Ipv4Resource.parse("0/32\r\n");
+
         assertThat(subject.begin(), eq(0L));
         assertThat(subject.end(), eq(0L));
     }
@@ -147,6 +155,7 @@ public class Ipv4ResourceTest {
     @Test
     public void leading_zeroes() {
         subject = Ipv4Resource.parse("162.219.043.072/32");
+
         assertThat(subject.begin(), eq(2732272456L));
         assertThat(subject.end(), eq(2732272456L));
     }
@@ -154,27 +163,28 @@ public class Ipv4ResourceTest {
     @Test
     public void zero_slash_zero_with_prefix_zero() {
         subject = Ipv4Resource.parse("0/0\r\n");
+
         assertThat(subject.begin(), eq(0L));
         assertThat(subject.end(), eq(4294967295L));
     }
 
     @Test
     public void invalidResource() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parse("invalid resource");
         });
     }
 
     @Test
     public void invalidResourceType() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parse("::0");
         });
     }
 
     @Test
     public void createWithBeginEndBeforeBeginFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new Ipv4Resource(2, 1);
         });
 
@@ -182,14 +192,14 @@ public class Ipv4ResourceTest {
 
     @Test
     public void createWithBeginOutOfBoundsFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new Ipv4Resource(Long.MIN_VALUE, 1);
         });
     }
 
     @Test
     public void createWithEndOutOfBoundsFails() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             subject = new Ipv4Resource(1, Long.MAX_VALUE);
         });
     }
@@ -204,22 +214,22 @@ public class Ipv4ResourceTest {
 
     @Test
     public void maxRangeContainsEverything() {
-        assertTrue(Ipv4Resource.MAX_RANGE.contains(new Ipv4Resource(Ipv4Resource.MAX_RANGE.begin(), Ipv4Resource.MAX_RANGE.begin())));
-        assertTrue(Ipv4Resource.MAX_RANGE.contains(new Ipv4Resource(Ipv4Resource.MAX_RANGE.end(), Ipv4Resource.MAX_RANGE.end())));
-        assertTrue(Ipv4Resource.MAX_RANGE.contains(new Ipv4Resource(Ipv4Resource.MAX_RANGE.begin(), Ipv4Resource.MAX_RANGE.end())));
-        assertTrue(Ipv4Resource.MAX_RANGE.contains(new Ipv4Resource(1231250, 123097120)));
+        assertThat(Ipv4Resource.MAX_RANGE.contains(new Ipv4Resource(Ipv4Resource.MAX_RANGE.begin(), Ipv4Resource.MAX_RANGE.begin())), is(true));
+        assertThat(Ipv4Resource.MAX_RANGE.contains(new Ipv4Resource(Ipv4Resource.MAX_RANGE.end(), Ipv4Resource.MAX_RANGE.end())), is(true));
+        assertThat(Ipv4Resource.MAX_RANGE.contains(new Ipv4Resource(Ipv4Resource.MAX_RANGE.begin(), Ipv4Resource.MAX_RANGE.end())), is(true));
+        assertThat(Ipv4Resource.MAX_RANGE.contains(new Ipv4Resource(1231250, 123097120)), is(true));
     }
 
     @Test
     public void compareUpperBounds() {
-        assertEquals(0, Ipv4Resource.MAX_RANGE.compareUpperBound(Ipv4Resource.MAX_RANGE));
-        assertEquals(-1, Ipv4Resource.parse("127.0.0.0/8").compareUpperBound(Ipv4Resource.MAX_RANGE));
-        assertEquals(1, Ipv4Resource.MAX_RANGE.compareUpperBound(Ipv4Resource.parse("127.0.0.0/8")));
+        assertThat(Ipv4Resource.MAX_RANGE.compareUpperBound(Ipv4Resource.MAX_RANGE), is(0));
+        assertThat(Ipv4Resource.parse("127.0.0.0/8").compareUpperBound(Ipv4Resource.MAX_RANGE), is(-1));
+        assertThat(Ipv4Resource.MAX_RANGE.compareUpperBound(Ipv4Resource.parse("127.0.0.0/8")), is(1));
     }
 
     @Test
     public void singletonIntervalAtLowerBound() {
-        assertEquals(Ipv4Resource.parse("127.0.0.0/32"), Ipv4Resource.parse("127.0.0.0/8").singletonIntervalAtLowerBound());
+        assertThat(Ipv4Resource.parse("127.0.0.0/8").singletonIntervalAtLowerBound(), equalTo(Ipv4Resource.parse("127.0.0.0/32")));
     }
 
     @Test
@@ -246,28 +256,28 @@ public class Ipv4ResourceTest {
     public void verifyIntersects() {
         subject = new Ipv4Resource(10, 20);
 
-        assertTrue(subject.intersects(subject));
-        assertTrue(subject.intersects(Ipv4Resource.MAX_RANGE));
+        assertThat(subject.intersects(subject), is(true));
+        assertThat(subject.intersects(Ipv4Resource.MAX_RANGE), is(true));
 
-        assertFalse(subject.intersects(new Ipv4Resource(9, 9)));
-        assertTrue(subject.intersects(new Ipv4Resource(9, 10)));
-        assertTrue(subject.intersects(new Ipv4Resource(10, 11)));
-        Assertions.assertTrue(subject.intersects(new Ipv4Resource(5, 15)));
+        assertThat(subject.intersects(new Ipv4Resource(9, 9)), is(false));
+        assertThat(subject.intersects(new Ipv4Resource(9, 10)), is(true));
+        assertThat(subject.intersects(new Ipv4Resource(10, 11)), is(true));
+        assertThat(subject.intersects(new Ipv4Resource(5, 15)), is(true));
 
-        assertFalse(subject.intersects(new Ipv4Resource(21, 21)));
-        assertTrue(subject.intersects(new Ipv4Resource(19, 20)));
-        assertTrue(subject.intersects(new Ipv4Resource(20, 21)));
-        assertTrue(subject.intersects(new Ipv4Resource(15, 25)));
+        assertThat(subject.intersects(new Ipv4Resource(21, 21)), is(false));
+        assertThat(subject.intersects(new Ipv4Resource(19, 20)), is(true));
+        assertThat(subject.intersects(new Ipv4Resource(20, 21)), is(true));
+        assertThat(subject.intersects(new Ipv4Resource(15, 25)), is(true));
     }
 
     @Test
     public void verifyEquals() {
         subject = Ipv4Resource.parse("212.219.1.0/24");
 
-        assertTrue(subject.equals(subject));
-        assertFalse(subject.equals(Ipv4Resource.MAX_RANGE));
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals("Random object"));
+        assertThat(subject, equalTo(subject));
+        assertThat(subject, not(equalTo(Ipv4Resource.MAX_RANGE)));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo("Random object")));
         assertThat(subject, not(Ipv4Resource.parse("212.218.1.0/24")));
 
         assertThat(subject, is(Ipv4Resource.parse("212.219.1.0 - 212.219.1.255")));
@@ -276,7 +286,7 @@ public class Ipv4ResourceTest {
     @Test
     public void verifyHashcode() {
         subject = Ipv4Resource.parse("212.219.1.0/24");
-        Ipv4Resource test = Ipv4Resource.parse("212.219.1.0 - 212.219.1.255");
+        final Ipv4Resource test = Ipv4Resource.parse("212.219.1.0 - 212.219.1.255");
 
         assertThat(subject, is(test));
         assertThat(subject.hashCode(), is(test.hashCode()));
@@ -284,77 +294,77 @@ public class Ipv4ResourceTest {
 
     @Test
     public void toStringOfSlashNotation() {
-        Ipv4Resource subject = Ipv4Resource.parse("212.219.1.0/24");
+        final Ipv4Resource subject = Ipv4Resource.parse("212.219.1.0/24");
 
         assertThat(subject.toString(), is("212.219.1.0/24"));
     }
 
     @Test
     public void toStringOfDashNotation() {
-        Ipv4Resource subject = Ipv4Resource.parse("212.219.1.0 - 212.219.1.255");
+        final Ipv4Resource subject = Ipv4Resource.parse("212.219.1.0 - 212.219.1.255");
 
         assertThat(subject.toString(), is("212.219.1.0/24"));
     }
 
     @Test
     public void toStringOfSingleResource() {
-        Ipv4Resource subject = Ipv4Resource.parse("212.219.1.0");
+        final Ipv4Resource subject = Ipv4Resource.parse("212.219.1.0");
 
         assertThat(subject.toString(), is("212.219.1.0/32"));
     }
 
     @Test
     public void reverse_empty() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("");
         });
     }
 
     @Test
     public void reverse_null() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain(null);
         });
     }
 
     @Test
     public void reverse_no_inaddrarpa() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("1.2.3.4");
         });
     }
 
     @Test
     public void reverse_no_octets() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain(".in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_more_than_four_octets() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("8.7.6.5.4.3.2.1.in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_dash_not_in_fourth_octet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("1-1.1.1.in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_non_numeric_input() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("1-1.b.a.in-addr.arpa");
         });
     }
 
     @Test
     public void reverse_multiple_dashes() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("1-1.2-2.3-3.4-4.in-addr.arpa");
         });
     }
@@ -382,7 +392,7 @@ public class Ipv4ResourceTest {
 
     @Test
     public void reverse_inverse_range() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain("80-28.79.198.195.in-addr.arpa");
         });
     }

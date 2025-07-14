@@ -1,6 +1,9 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 import com.google.common.collect.Lists;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.UpdatesParser;
 import net.ripe.db.whois.api.mail.MailMessage;
@@ -16,10 +19,9 @@ import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
 import net.ripe.db.whois.update.log.LoggerContext;
 import net.ripe.db.whois.update.log.UpdateLog;
-import net.ripe.db.whois.update.mail.MailGateway;
 import net.ripe.db.whois.update.mail.MailMessageLogCallback;
+import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,15 +32,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.mail.Message;
-import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyString;
@@ -55,8 +57,10 @@ import static org.mockito.Mockito.when;
 public class MessageDequeueTest {
     private static final int TIMEOUT = 1000;
 
+    private static final Session SESSION = Session.getInstance(new Properties());
+
     @Mock MaintenanceMode maintenanceMode;
-    @Mock MailGateway mailGateway;
+    @Mock WhoisMailGatewaySmtp mailGateway;
     @Mock MailMessageDao mailMessageDao;
     @Mock MessageFilter messageFilter;
     @Mock MessageParser messageParser;
@@ -65,6 +69,7 @@ public class MessageDequeueTest {
     @Mock LoggerContext loggerContext;
     @Mock UpdateLog updateLog;
     @Mock DateTimeProvider dateTimeProvider;
+    @Mock MessageService messageService;
     @InjectMocks MessageDequeue subject;
 
     @BeforeEach
@@ -76,13 +81,13 @@ public class MessageDequeueTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         subject.stop(true);
     }
 
     @Test
     public void start_twice() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             subject.start();
             subject.start();
         });
@@ -166,7 +171,7 @@ public class MessageDequeueTest {
 
     @Test
     public void handleMessage_invalidReplyTo() throws Exception {
-        final MimeMessage message = new MimeMessage(null, new ByteArrayInputStream("Reply-To: <respondera: ventas@amusing.cl>".getBytes()));
+        final MimeMessage message = new MimeMessage(SESSION, new ByteArrayInputStream("Reply-To: <respondera: ventas@amusing.cl>".getBytes()));
 
         when(messageFilter.shouldProcess(any(MailMessage.class))).thenReturn(false);
         when(messageParser.parse(eq(message), any(UpdateContext.class))).thenReturn(
@@ -217,7 +222,7 @@ public class MessageDequeueTest {
 
     @Test
     public void malformed_from_header_is_detected() throws Exception {
-        final MimeMessage message = new MimeMessage(null, new ByteArrayInputStream(("From: <\"abrahamgv@gmail.com\">\n" +
+        final MimeMessage message = new MimeMessage(SESSION, new ByteArrayInputStream(("From: <\"abrahamgv@gmail.com\">\n" +
                 "Subject: blabla\n" +
                 "To: bitbucket@ripe.net\n" +
                 "\n" +

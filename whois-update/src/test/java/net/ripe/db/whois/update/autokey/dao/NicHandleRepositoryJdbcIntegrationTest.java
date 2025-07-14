@@ -13,10 +13,9 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("IntegrationTest")
 @Transactional
@@ -32,10 +31,10 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
     @Test
     public void claimSpecified_twice() {
         final NicHandle nicHandle = new NicHandle("DW", 0, "RIPE");
-        assertTrue(subject.claimSpecified(nicHandle));
+        assertThat(subject.claimSpecified(nicHandle), is(true));
         assertRows(1);
 
-        assertFalse(subject.claimSpecified(nicHandle));
+        assertThat(subject.claimSpecified(nicHandle), is(false));
         assertRows(1);
     }
 
@@ -125,7 +124,7 @@ public class NicHandleRepositoryJdbcIntegrationTest extends AbstractUpdateDaoInt
 
         for (final Map<String, Object> objectMap : list) {
             for (final Map.Entry<String, Object> entry : objectMap.entrySet()) {
-                assertNotNull( entry.getValue(), entry.getKey());
+                assertThat(entry.getValue(), not(nullValue()));
             }
 
             final String source = objectMap.get("source").toString();

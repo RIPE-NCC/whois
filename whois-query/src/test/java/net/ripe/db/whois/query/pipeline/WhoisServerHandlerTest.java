@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,7 +78,7 @@ public class WhoisServerHandlerTest {
 
         final ArgumentCaptor<QueryCompletedEvent> channelEventCapture = ArgumentCaptor.forClass(QueryCompletedEvent.class);
         verify(pipeline).write(channelEventCapture.capture());
-        assertNull(channelEventCapture.getValue().getCompletionInfo());
+        assertThat(channelEventCapture.getValue().getCompletionInfo(), is(nullValue()));
     }
 
     @Test

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.domain
 
-import javax.mail.internet.MimeMessage
+import jakarta.mail.internet.MimeMessage
 
 class AckResponse extends Response {
 

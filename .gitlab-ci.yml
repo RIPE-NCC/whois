@@ -1,7 +1,8 @@
-image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:6113670d
+image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:v0.0.10
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  ES_JAVA_OPTS: '-Xms1g -Xmx4g'
   TZ: Europe/Amsterdam
   WS_MAVEN_AGGREGATEMODULES: "true"
   PROJECT_NAME: "whois"
@@ -14,8 +15,6 @@ include:
     file: '/templates/release-template.yml'
   - project: 'swe-database-team/gitlab-ci'
     file: '/templates/deployment-template.yml'
-  - project: 'swe-database-team/gitlab-ci'
-    file: '/templates/deployment-salt-template.yml'
 
 stages:
   - build
@@ -39,10 +38,10 @@ build:
   artifacts:
     paths:
       - "*/target/*.jar"
+    expire_in: 6 months
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
-        - "*/target/failsafe-reports/TEST-*.xml"
 
 release:
   stage: release
@@ -67,26 +66,24 @@ release:
   artifacts:
     reports:
       junit:
-        - "*/target/surefire-reports/TEST-*.xml"
         - "*/target/failsafe-reports/TEST-*.xml"
-    paths:
-      - "*/target/*.jar"
 
 .mariadb_template: &mariadb_configuration
   variables:
     MYSQL_ROOT_PASSWORD: root
     TZ: Europe/Amsterdam
   before_script:
-    - mysql -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
-    - mysql -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 2147483648;"
-    - mysql -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
+    - mariadb -uroot -proot -h mariadb -e "CREATE USER 'dbint'@'%' IDENTIFIED BY '';"
+    - mariadb -uroot -proot -h mariadb -e "GRANT ALL ON *.* TO 'dbint'@'%' WITH GRANT OPTION;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_file_per_table = 0;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_buffer_pool_size = 1073741824;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_lock_wait_timeout = 1000;"
+    - mariadb -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   services: &mariadb_service
-    - mariadb:10.2
+    - mariadb:11.4
 
 
-whois-groovy:
+whois-endtoend:
   <<:
     - *it_env
     - *mariadb_configuration
@@ -100,11 +97,11 @@ whois-api:
     - *mariadb_configuration
   services:
     - *mariadb_service
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
       alias: "elasticsearch"
       command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
   script:
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pintegration -pl whois-api
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-api
 
 whois-client:
   <<:
@@ -136,6 +133,12 @@ whois-nrtm:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm
 
+whois-nrtm4:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm4
 
 whois-query:
   <<:
@@ -144,6 +147,17 @@ whois-query:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-query -T 1
 
+whois-rdap:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  services:
+    - *mariadb_service
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+      alias: "elasticsearch"
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-rdap
 
 whois-rpsl:
   <<:
@@ -160,6 +174,12 @@ whois-scheduler:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-scheduler
 
+whois-smtp:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-smtp
 
 whois-update:
   <<:
@@ -170,7 +190,6 @@ whois-update:
 
 
 sonar:
-  <<: *mariadb_configuration
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
     GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
@@ -180,17 +199,5 @@ sonar:
   tags:
     - whois
   script:
-    - mvn install
-    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -Pall -fn # ignore failing (non deterministic) tests, we want QA output regardless
     - echo PWD=$PWD
-    - mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectName=whois -Dsonar.coverage.jacoco.xmlReportPaths=$PWD/whois-api/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-client/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-commons/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-db/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-query/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco-merged-test-coverage-report/jacoco.xml -Dsonar.test.exclusions=**/test/*
-  artifacts:
-    reports:
-      junit:
-        - "*/target/surefire-reports/TEST-*.xml"
-        - "*/target/failsafe-reports/TEST-*.xml"
-
-deploy_salt_prod:
-  stage: deploy
-  only:
-    - /^never$/
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectName=whois -Dsonar.coverage.jacoco.xmlReportPaths=$PWD/whois-api/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-client/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-commons/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-db/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm4/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-query/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco-merged-test-coverage-report/jacoco.xml -DskipITs -Dsonar.test.exclusions=**/test/*

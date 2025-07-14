@@ -1,11 +1,8 @@
 package net.ripe.db.whois.api.httpserver;
 
-import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.rewrite.handler.Rule;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 
 public class FixedResponseRule extends Rule {
 
@@ -16,22 +13,21 @@ public class FixedResponseRule extends Rule {
     }
 
     @Override
-    public String matchAndApply(String target, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (HttpStatus.isClientError(responseCode) || HttpStatus.isServerError(responseCode)) {
-            response.sendError(responseCode);
-        } else {
-            response.setStatus(responseCode);
-        }
-        return null;
+    public Handler matchAndApply(Rule.Handler handler) {
+        return new Handler(handler)
+        {
+            @Override
+            protected boolean handle(final Response response, final Callback callback)
+            {
+                response.setStatus(responseCode);
+                callback.succeeded();
+                return true;
+            }
+        };
     }
 
     @Override
     public boolean isTerminating() {
-        return true;
-    }
-
-    @Override
-    public boolean isHandling() {
         return true;
     }
 }

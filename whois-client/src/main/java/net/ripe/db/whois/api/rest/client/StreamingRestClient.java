@@ -1,11 +1,11 @@
 package net.ripe.db.whois.api.rest.client;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -23,8 +23,10 @@ public class StreamingRestClient implements Iterator<WhoisObject>, Closeable {
 
     static {
         try {
-            jaxbContext = JAXBContext.newInstance(WhoisResources.class.getPackage().getName());
+            jaxbContext = JAXBContext.newInstance(WhoisResources.class);
             xmlInputFactory = XMLInputFactory.newFactory();
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
         } catch (JAXBException e) {
             throw new IllegalStateException(e);
         }

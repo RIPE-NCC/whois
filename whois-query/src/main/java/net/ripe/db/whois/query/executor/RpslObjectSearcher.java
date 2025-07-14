@@ -48,7 +48,8 @@ import java.util.Set;
 class RpslObjectSearcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectSearcher.class);
     private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES = EnumSet.noneOf(AttributeType.class);
-    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES_OVERRIDE = EnumSet.of(AttributeType.SPONSORING_ORG);
+
+    private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES_OVERRIDE = EnumSet.of(AttributeType.E_MAIL);
 
     static {
         for (final ObjectType objectType : ObjectType.values()) {
@@ -183,14 +184,11 @@ class RpslObjectSearcher {
             return Collections.emptyList();
         }
 
-        switch (ipInterval.getAttributeType()) {
-            case INETNUM:
-                return proxy(ipTreeLookup(ipv4DomainTree, ipInterval, query));
-            case INET6NUM:
-                return proxy(ipTreeLookup(ipv6DomainTree, ipInterval, query));
-            default:
-                throw new IllegalArgumentException(String.format("Unexpected type: %s", ipInterval.getAttributeType()));
-        }
+        return switch (ipInterval.getAttributeType()) {
+            case INETNUM -> proxy(ipTreeLookup(ipv4DomainTree, ipInterval, query));
+            case INET6NUM -> proxy(ipTreeLookup(ipv6DomainTree, ipInterval, query));
+            default -> throw new IllegalArgumentException(String.format("Unexpected type: %s", ipInterval.getAttributeType()));
+        };
     }
 
     private List<IpEntry> ipTreeLookup(final IpTree tree, final IpInterval<?> key, Query query) {

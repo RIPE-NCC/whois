@@ -1,22 +1,22 @@
 package net.ripe.db.whois.common.domain;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CIStringTest {
     @Test
     public void create_null() {
-        assertNull(ciString(null));
+        assertThat(ciString(null), is(nullValue()));
     }
 
     @Test
@@ -26,12 +26,12 @@ public class CIStringTest {
         assertThat(ciString("ABC"), is(ciString("aBc")));
 
         final CIString ripe = CIString.ciString("RIPE");
-        assertFalse(ripe.equals(null));
-        assertTrue(ripe.equals(ripe));
-        assertTrue(ripe.equals(CIString.ciString("RIPE")));
+        assertThat(ripe, not(equalTo(null)));
+        assertThat(ripe, equalTo(ripe));
+        assertThat(ripe, equalTo(CIString.ciString("RIPE")));
 
-        assertTrue(ripe.equals("ripe"));
-        assertTrue(ripe.equals("RIPE"));
+        assertThat(ripe, equalTo("ripe"));
+        assertThat(ripe, equalTo("RIPE"));
     }
 
     @Test
@@ -134,14 +134,14 @@ public class CIStringTest {
 
     @Test
     public void toInt_empty() {
-        Assertions.assertThrows(NumberFormatException.class, () -> {
+        assertThrows(NumberFormatException.class, () -> {
             ciString("").toInt();
         });
     }
 
     @Test
     public void toInt_invalid() {
-        Assertions.assertThrows(NumberFormatException.class, () -> {
+        assertThrows(NumberFormatException.class, () -> {
             ciString("a").toInt();
         });
     }

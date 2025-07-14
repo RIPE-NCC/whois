@@ -2,6 +2,10 @@ package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotAcceptableException;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.autocomplete.ElasticAutocompleteSearch;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -9,14 +13,11 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotAcceptableException;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -26,11 +27,11 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
@@ -63,7 +64,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         databaseHelper.addObject("mntner: random1-mnt");
         databaseHelper.addObject("mntner: random2-mnt");
 
-        elasticFullTextIndex.update();
+        rebuildIndex();
         Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
     }
 
@@ -188,6 +189,29 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
     }
 
     @Test
+    public void query_returns_maximum_results_and_alphabetical_sorted() {
+        databaseHelper.addObject("mntner: ABCA-MNT");
+        databaseHelper.addObject("mntner: ABCC-MNT");
+        databaseHelper.addObject("mntner: ABCE-MNT");
+        databaseHelper.addObject("mntner: ABCB-MNT");
+        databaseHelper.addObject("mntner: ABCD-MNT");
+        databaseHelper.addObject("mntner: ABCÑ-MNT");
+        databaseHelper.addObject("mntner: ABCM-MNT");
+
+        rebuildIndex();
+        
+        assertThat(getValues(query("ABC", "mntner"), "key"),
+                contains(
+                        "ABCA-MNT",
+                        "ABCB-MNT",
+                        "ABCC-MNT",
+                        "ABCD-MNT",
+                        "ABCE-MNT",
+                        "ABCM-MNT",
+                        "ABCÑ-MNT"));
+    }
+
+    @Test
     public void field_reference_matched_one_result_case_insensitive() {
         databaseHelper.addObject(
                 "person:  Admin1\n" +
@@ -257,6 +281,17 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
                                 "} ]"));
     }
 
+    @Test
+    public void search_using_asterisk() {
+        databaseHelper.addObject(
+                "mntner:        test-mnt\n" +
+                        "source:        TEST");
+        rebuildIndex();
+
+        assertThat(
+                query("*test", "mnt-by"),
+                hasSize(1));
+    }
     @Test
     public void multiple_matches_no_duplicates() {
         databaseHelper.addObject("mntner:  bla-bla-mnt\n");
@@ -330,6 +365,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
                                 "} ]"));
     }
 
+
     @Test
     public void wildcard_not_allowed_as_first_character() {
         databaseHelper.addObject("inetnum: 0.0.0.0 - 255.255.255.255\nsource: TEST");
@@ -338,7 +374,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         final String result = RestTest.target(getPort(), "whois/autocomplete?field=inetnum&query=81.26.54.100+-+").request().get(String.class);
 
-        assertTrue(result.contains("81.26.54.100 - 81.26.54.107"));
+        assertThat(result, containsString("81.26.54.100 - 81.26.54.107"));
     }
 
     @Test
@@ -350,7 +386,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         final List<String> keys = getValues(query("AUTH", "mnt-by"), "key");
 
-        assertThat(keys.size(), is(3));
+        assertThat(keys, hasSize(3));
         assertThat(keys.get(0), is("AUTH"));
     }
 
@@ -364,11 +400,11 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         final List<String> keys = getValues(query("telecom", "mnt-by"), "key");
 
-        assertThat(keys.size(), is(4));
-        assertThat(keys.get(0), is("telecom"));
-        assertThat(keys.get(1), is("AB-TELECOM-MNT"));
-        assertThat(keys.get(2), is("ADM-RUS-TELECOM"));
-        assertThat(keys.get(3), is("AIRNET-TELECOM-MNT"));
+        assertThat(keys, hasSize(4));
+        assertThat(keys.get(0), is("AB-TELECOM-MNT"));
+        assertThat(keys.get(1), is("ADM-RUS-TELECOM"));
+        assertThat(keys.get(2), is("AIRNET-TELECOM-MNT"));
+        assertThat(keys.get(3), is("telecom"));
     }
 
     @Test
@@ -464,6 +500,15 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
         assertThat(getValues(query("AA1", "organisation", "org-name"), "org-name"), contains("Any"));
     }
 
+    @Test
+    @Disabled("TODO: [MH] migrated from Lucene, issue with ':' in ES")
+    public void filter_comment_multiple_values() {
+        databaseHelper.addObject("route-set: AS34086:RS-OTC\nmembers: 46.29.103.32/27\nmembers: 46.29.96.0/24\nmnt-ref:AA1-MNT, # first\n+AA2-MNT,    # second\n\tAA3-MNT\t#third\nsource: TEST");
+        rebuildIndex();
+
+        assertThat(getValues(query("AS34086:RS-OTC", "route-set", "mnt-ref"), "mnt-ref"), contains("AA1-MNT,"));
+    }
+
     // complex lookups (specify attributes)
 
     @Test
@@ -556,8 +601,8 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
                         Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
                         "tr1");
 
-        assertThat(getValues(response, "key"), contains("tr1-test", "tr2-test"));
-        assertThat(getValues(response, "abuse-mailbox"), contains(null, "tr1@host.org"));
+        assertThat(getValues(response, "key"), containsInAnyOrder("tr1-test", "tr2-test"));
+        assertThat(getValues(response, "abuse-mailbox"), containsInAnyOrder(null, "tr1@host.org"));
     }
 
     @Test
@@ -650,6 +695,24 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
 
         assertThat(response, hasSize(1));
         assertThat(getValues(response, "key"), contains("tr1-test"));
+    }
+
+    @Test
+    public void search_using_asterisk_filtering() {
+        databaseHelper.addObject(
+                "role:          test role\n" +
+                        "nic-hdl:       tr1-test\n" +
+                        "abuse-mailbox: noreply@ripe.net\n" +
+                        "source:        TEST");
+        rebuildIndex();
+
+        assertThat(
+                query(
+                        Lists.newArrayList(AttributeType.ABUSE_MAILBOX),
+                        Lists.newArrayList(ObjectType.ROLE),
+                        Lists.newArrayList(AttributeType.NIC_HDL, AttributeType.ABUSE_MAILBOX),
+                        "*noreply"),
+                hasSize(1));
     }
 
     @Test

@@ -1,7 +1,6 @@
 package net.ripe.db.whois.common.rpsl;
 
 import net.ripe.db.whois.common.Message;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +13,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ObjectTemplateTest {
@@ -40,7 +40,7 @@ public class ObjectTemplateTest {
 
     @Test
     public void getObjectSpec_null() {
-        Assertions.assertThrows(IllegalStateException.class, () -> {
+        assertThrows(IllegalStateException.class, () -> {
             ObjectTemplate.getTemplate(null);
         });
     }
@@ -61,7 +61,7 @@ public class ObjectTemplateTest {
     public void getMultipleAttributes(){
         final ObjectTemplate template = ObjectTemplate.getTemplate(ObjectType.AS_BLOCK);
         Set<AttributeType> multipleAttributes = template.getMultipleAttributes();
-        assertThat(multipleAttributes.size(), is(6));
+        assertThat(multipleAttributes, hasSize(6));
     }
 
   @Test
@@ -134,67 +134,73 @@ public class ObjectTemplateTest {
     @Test
     public void stringTemplate() {
         final String template = ObjectTemplate.getTemplate(ObjectType.INETNUM).toString();
-        assertThat(template, is("" +
-                "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
-                "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [optional]   [multiple]   [ ]\n" +
-                "country:        [mandatory]  [multiple]   [ ]\n" +
-                "geofeed:        [optional]   [single]     [ ]\n" +
-                "geoloc:         [optional]   [single]     [ ]\n" +
-                "language:       [optional]   [multiple]   [ ]\n" +
-                "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [ ]\n" +
-                "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
-                "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
-                "abuse-c:        [optional]   [single]     [inverse key]\n" +
-                "status:         [mandatory]  [single]     [ ]\n" +
-                "remarks:        [optional]   [multiple]   [ ]\n" +
-                "notify:         [optional]   [multiple]   [inverse key]\n" +
-                "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
-                "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
-                "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
-                "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "created:        [generated]  [single]     [ ]\n" +
-                "last-modified:  [generated]  [single]     [ ]\n" +
-                "source:         [mandatory]  [single]     [ ]\n"));
+        assertThat(template, is("""
+                inetnum:        [mandatory]  [single]     [primary/lookup key]
+                netname:        [mandatory]  [single]     [lookup key]
+                descr:          [optional]   [multiple]   [ ]
+                country:        [mandatory]  [multiple]   [ ]
+                geofeed:        [optional]   [single]     [ ]
+                geoloc:         [optional]   [single]     [ ]
+                prefixlen:      [optional]   [single]     [ ]
+                language:       [optional]   [multiple]   [ ]
+                org:            [optional]   [single]     [inverse key]
+                sponsoring-org: [optional]   [single]     [inverse key]
+                admin-c:        [mandatory]  [multiple]   [inverse key]
+                tech-c:         [mandatory]  [multiple]   [inverse key]
+                abuse-c:        [optional]   [single]     [inverse key]
+                status:         [mandatory]  [single]     [ ]
+                assignment-size:[optional]   [single]     [ ]
+                remarks:        [optional]   [multiple]   [ ]
+                notify:         [optional]   [multiple]   [inverse key]
+                mnt-by:         [mandatory]  [multiple]   [inverse key]
+                mnt-lower:      [optional]   [multiple]   [inverse key]
+                mnt-domains:    [optional]   [multiple]   [inverse key]
+                mnt-routes:     [optional]   [multiple]   [inverse key]
+                mnt-irt:        [optional]   [multiple]   [inverse key]
+                created:        [generated]  [single]     [ ]
+                last-modified:  [generated]  [single]     [ ]
+                source:         [mandatory]  [single]     [ ]
+                """));
     }
 
     @Test
     public void verboseStringTemplate() {
         final String template = ObjectTemplate.getTemplate(ObjectType.INETNUM).toVerboseString();
-        assertThat(template, containsString("" +
-                "The inetnum class:\n" +
-                "\n" +
-                "      An inetnum object contains information on allocations and\n" +
-                "      assignments of IPv4 address space.\n" +
-                "\n" +
-                "inetnum:        [mandatory]  [single]     [primary/lookup key]\n" +
-                "netname:        [mandatory]  [single]     [lookup key]\n" +
-                "descr:          [optional]   [multiple]   [ ]\n" +
-                "country:        [mandatory]  [multiple]   [ ]\n" +
-                "geofeed:        [optional]   [single]     [ ]\n" +
-                "geoloc:         [optional]   [single]     [ ]\n" +
-                "language:       [optional]   [multiple]   [ ]\n" +
-                "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [ ]\n" +
-                "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
-                "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
-                "abuse-c:        [optional]   [single]     [inverse key]\n" +
-                "status:         [mandatory]  [single]     [ ]\n" +
-                "remarks:        [optional]   [multiple]   [ ]\n" +
-                "notify:         [optional]   [multiple]   [inverse key]\n" +
-                "mnt-by:         [mandatory]  [multiple]   [inverse key]\n" +
-                "mnt-lower:      [optional]   [multiple]   [inverse key]\n" +
-                "mnt-domains:    [optional]   [multiple]   [inverse key]\n" +
-                "mnt-routes:     [optional]   [multiple]   [inverse key]\n" +
-                "mnt-irt:        [optional]   [multiple]   [inverse key]\n" +
-                "created:        [generated]  [single]     [ ]\n" +
-                "last-modified:  [generated]  [single]     [ ]\n" +
-                "source:         [mandatory]  [single]     [ ]\n" +
-                "\n" +
-                "The content of the attributes of the inetnum class are defined below:\n" +
-                "\n"));
+        assertThat(template, containsString("""
+                The inetnum class:
+
+                      An inetnum object contains information on allocations and
+                      assignments of IPv4 address space.
+
+                inetnum:        [mandatory]  [single]     [primary/lookup key]
+                netname:        [mandatory]  [single]     [lookup key]
+                descr:          [optional]   [multiple]   [ ]
+                country:        [mandatory]  [multiple]   [ ]
+                geofeed:        [optional]   [single]     [ ]
+                geoloc:         [optional]   [single]     [ ]
+                prefixlen:      [optional]   [single]     [ ]
+                language:       [optional]   [multiple]   [ ]
+                org:            [optional]   [single]     [inverse key]
+                sponsoring-org: [optional]   [single]     [inverse key]
+                admin-c:        [mandatory]  [multiple]   [inverse key]
+                tech-c:         [mandatory]  [multiple]   [inverse key]
+                abuse-c:        [optional]   [single]     [inverse key]
+                status:         [mandatory]  [single]     [ ]
+                assignment-size:[optional]   [single]     [ ]
+                remarks:        [optional]   [multiple]   [ ]
+                notify:         [optional]   [multiple]   [inverse key]
+                mnt-by:         [mandatory]  [multiple]   [inverse key]
+                mnt-lower:      [optional]   [multiple]   [inverse key]
+                mnt-domains:    [optional]   [multiple]   [inverse key]
+                mnt-routes:     [optional]   [multiple]   [inverse key]
+                mnt-irt:        [optional]   [multiple]   [inverse key]
+                created:        [generated]  [single]     [ ]
+                last-modified:  [generated]  [single]     [ ]
+                source:         [mandatory]  [single]     [ ]
+
+                The content of the attributes of the inetnum class are defined below:
+
+                """));
     }
 
     @Test

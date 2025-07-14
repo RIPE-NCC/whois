@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.ip.Interval;
 import org.apache.commons.lang.Validate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -108,7 +107,6 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
         Validate.notNull(key);
         return mapToValues(internalFindFirstMoreSpecific(key));
     }
-
     @Override
     public List<V> findAllMoreSpecific(K key) {
         Validate.notNull(key);
@@ -119,6 +117,12 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
     public List<V> findExactAndAllMoreSpecific(K key) {
         Validate.notNull(key);
         return mapToValues(internalFindExactAndAllMoreSpecific(key));
+    }
+
+    @Override
+    public List<V> findMostSpecific(K key) {
+        Validate.notNull(key);
+        return mapToValues(internalFindMostSpecific(key));
     }
 
     /**
@@ -149,12 +153,19 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
         return children.toString();
     }
 
+    public List<V> mapToValues(){
+        List<V> values = Lists.newArrayList();
+        for (InternalNode<K, V> node : children.values()) {
+            values.add(node.getValue());
+        }
+        return values;
+    }
     private List<V> mapToValues(InternalNode<K, V> node) {
         if (node == null) {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(node.getValue());
+        return Collections.singletonList(node.getValue());
     }
 
     private List<V> mapToValues(Collection<InternalNode<K, V>> nodes) {
@@ -219,6 +230,12 @@ public final class NestedIntervalMap<K extends Interval<K>, V> implements Interv
             container.getChildren().findFirstMoreSpecific(result, range);
         }
         return result;
+    }
+
+    private List<InternalNode<K, V>> internalFindMostSpecific(K range){
+        return internalFindAllMoreSpecific(range).parallelStream()
+                .filter( kvInternalNode -> kvInternalNode.getChildren().isEmpty())
+                .toList();
     }
 
     private List<InternalNode<K, V>> internalFindAllMoreSpecific(K range) {

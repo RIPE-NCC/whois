@@ -87,7 +87,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -98,7 +98,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Delete", "[person] FP1-TEST   First Person") == [
                 "Object [person] FP1-TEST First Person does not exist in the database"]
@@ -129,7 +129,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
@@ -156,7 +156,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 delete:  testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -168,7 +168,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Delete", "[person] FP1-TEST   First Person") ==
                 ["Object [person] FP1-TEST First Person doesn't match version in database"]
@@ -197,7 +197,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
@@ -224,7 +224,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Delete", "[person] FP1-TEST   First Person") ==
                 ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
@@ -254,7 +254,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-rGBT person FP1-TEST", "person", "First Person")
@@ -284,7 +284,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Delete", "[person] FP1-TEST   First Person") == [
                 "Object [person] FP1-TEST is referenced from other objects"]
@@ -313,7 +313,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -324,7 +324,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "No operation" && it.key == "[person] FP1-TEST   First Person"}
         ack.warningSuccessMessagesFor("No operation", "[person] FP1-TEST   First Person") ==
                 ["Submitted object identical to database object"]
@@ -353,7 +353,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -364,7 +364,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
         query_object_matches("-rBT person FP1-TEST", "person", "First Person", "mnt-by:\\s*OWNER-MNT")
@@ -389,7 +389,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -431,7 +431,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -442,7 +442,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Modify", "[person] FP1-TEST   First Person") ==
                 ["Mandatory attribute \"mnt-by\" is missing"]
@@ -471,7 +471,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -482,7 +482,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   Second Person"}
 
         queryObject("-rBT person Second Person", "person", "Second Person")
@@ -509,7 +509,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -520,7 +520,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[role] FR1-TEST   Changed Role"}
 
         queryObject("-rBT role FR1-TEST", "role", "Changed Role")
@@ -544,7 +544,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -555,7 +555,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["Mandatory attribute \"mnt-by\" is missing"]
@@ -581,7 +581,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -592,7 +592,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] F   First Person"}
         ack.errorMessagesFor("Create", "[person] F   First Person") ==
                 ["Syntax error in F"]
@@ -618,7 +618,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -629,7 +629,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] Fuddd   First Person"}
         ack.errorMessagesFor("Create", "[person] Fuddd   First Person") ==
                 ["Syntax error in Fuddd"]
@@ -655,7 +655,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -666,7 +666,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1234567   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1234567   First Person") ==
                 ["Syntax error in FP1234567"]
@@ -692,7 +692,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -703,7 +703,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP012345   First Person"}
         ack.errorMessagesFor("Create", "[person] FP012345   First Person") ==
                 ["Syntax error in FP012345"]
@@ -729,7 +729,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -740,7 +740,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] 1234   First Person"}
         ack.errorMessagesFor("Create", "[person] 1234   First Person") ==
                 ["Syntax error in 1234"]
@@ -766,7 +766,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -777,7 +777,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP11-NL   First Person"}
 
         queryObject("-rBT person FP11-NL", "person", "First Person")
@@ -801,7 +801,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -812,7 +812,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP11-apNIc   First Person"}
 
         queryObject("-rBT person FP11-apnic", "person", "First Person")
@@ -836,7 +836,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -847,7 +847,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP11-ripE   First Person"}
 
         queryObject("-rBT person FP11-ripE", "person", "First Person")
@@ -871,7 +871,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -882,7 +882,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-fred   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1-fred   First Person") ==
                 ["Syntax error in FP1-fred"]
@@ -908,7 +908,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -919,7 +919,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1TEST   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1TEST   First Person") ==
                 ["Syntax error in FP1TEST"]
@@ -945,7 +945,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -956,7 +956,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP1   First Person"}
 //        ack.errorMessagesFor("Create", "[person] FP1   First Person") ==          // TODO
  //               ["Syntax error in FP1"]
@@ -987,7 +987,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -998,7 +998,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["The nic-hdl \"FP1-TEST\" is not available"]
@@ -1024,7 +1024,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1035,7 +1035,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(3, 0, 1)
+        ack.countErrorWarnInfo(3, 1, 1)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
 
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
@@ -1047,7 +1047,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 "Error:   Authorisation for \\[person\\] FP1-TEST failed\n\\s+using \"mnt-by:\"\n\\s+no valid maintainer found"
 
         ack.infoMessagesFor("Create", "[person] FP1-TEST   First Person") ==
-                ["To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/startup/"]
+                ["To create the first person/mntner pair of objects for an organisation see https://apps.db.ripe.net/db-web-ui/webupdates/create/RIPE/person/self"]
 
         ack.objErrorContains("Create", "FAILED", "person", "FP1-TEST   First Person", "Unknown object referenced non-exist-mnt")
 
@@ -1072,7 +1072,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1083,7 +1083,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["Syntax error in invalid"]
@@ -1115,7 +1115,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1126,7 +1126,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FOP1-TEST   First Optional Person"}
 
         queryObject("-rBT person FOP1-TEST", "person", "First Optional Person")
@@ -1172,7 +1172,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
 
                 password: owner
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1183,7 +1183,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FOP1-TEST   First Optional Person"}
 
         def notif = notificationFor "dbtest-nfy@ripe.net"
@@ -1229,7 +1229,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1240,7 +1240,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] F1-TEST   First"}
         ack.errorMessagesFor("Create", "[person] F1-TEST   First") ==
                 ["Syntax error in First",
@@ -1267,7 +1267,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1278,7 +1278,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-TEST   -First Person"}
         ack.errorMessagesFor("Create", "[person] FP1-TEST   -First Person") ==
                 ["Syntax error in -First Person"]
@@ -1304,7 +1304,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1315,7 +1315,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First _Person"}
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First _Person") ==
                 ["Syntax error in First _Person"]
@@ -1341,7 +1341,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1351,7 +1351,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person 352"}
 
         queryObject("-rBT person FP1-TEST", "person", "First Person 352")
@@ -1375,7 +1375,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1386,7 +1386,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First__ Person-Smith--" }
 
         queryObject("-rBT person FP1-TEST", "person", "First__ Person-Smith--")
@@ -1410,7 +1410,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1421,7 +1421,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] AA1-TEST   Anthony Anthony" }
 
         queryObject("-rBT person AA1-TEST", "person", "Anthony Anthony")
@@ -1449,7 +1449,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: test
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1460,7 +1460,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP2-TEST   Second Person"}
 
         query_object_not_matches("-r -T person FP2-TEST", "person", "Second Person", "20121016")
@@ -1488,7 +1488,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
                 password: owner
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1516,7 +1516,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
                 password: owner
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1526,7 +1526,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errorMessagesFor("Create", "[person] FP1-TEST") ==
                 [ "\"abuse-mailbox\" is not valid for this object type"]
     }
@@ -1561,7 +1561,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1571,7 +1571,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errorMessagesFor("Modify", "[person] FP1-TEST") ==
                 [ "\"abuse-mailbox\" is not valid for this object type"]
     }
@@ -1606,7 +1606,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1616,7 +1616,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
 }

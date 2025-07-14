@@ -17,13 +17,13 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest {
 
-    private static final String END_OF_HEADER = "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n\n";
+    private static final String END_OF_HEADER = "% See https://docs.db.ripe.net/terms-conditions.html\n\n";
     private static final String READ_TIMEOUT_FRAGMENT = "has been closed after a period of inactivity";
 
     @BeforeAll
@@ -59,7 +59,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
 
     @Test
     public void kFlagShouldKeepTheConnectionOpenUntilTheSecondKWithoutArguments() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
 
@@ -72,12 +72,12 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
         client.sendLine("-k");
         client.waitForClose();
 
-        assertTrue(client.getSuccess());
+        assertThat(client.getSuccess(), is(true));
     }
 
     @Test
     public void readTimeoutShouldPrintErrorMessage() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
 
@@ -93,7 +93,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
 
     @Test
     public void kFlagShouldKeepTheConnectionOpenAfterSupportedQuery() throws Exception {
-        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(QueryServer.port);
+        final WhoisClientHandler client = NettyWhoisClientFactory.newLocalClient(queryServer.getPort());
 
         ChannelFuture channelFuture = client.connectAndWait();
         channelFuture.sync();
@@ -111,7 +111,7 @@ public class SimpleKeepaliveTestIntegration extends AbstractQueryIntegrationTest
         client.sendLine("-k");
         client.waitForClose();
 
-        assertTrue(client.getSuccess());
+        assertThat(client.getSuccess(), is(true));
     }
 
 

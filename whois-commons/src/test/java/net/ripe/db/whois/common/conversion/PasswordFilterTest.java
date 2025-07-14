@@ -1,8 +1,7 @@
 package net.ripe.db.whois.common.conversion;
 
+import jakarta.ws.rs.core.UriBuilder;
 import org.junit.jupiter.api.Test;
-
-import javax.ws.rs.core.UriBuilder;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -45,6 +44,38 @@ public class PasswordFilterTest {
                 "password%3AFILTERED\n" +
                 "delete: adsf\n"));
     }
+
+    @Test
+    public void testFilterBasicAuthHeadersInMessage() {
+        final String input = "" +
+                "Header: Authorization=Basic dDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==\n" +
+                "blue: asdfasdfasdf\n" +
+                "yellow%3A++asdfasdfasdf\n" +
+                "green: asdfasdfasdf # password: test\n" +
+                "purple: password\n" +
+                "password:   test1 \n" +
+                "password:test2\n" +
+                "password: test3\n" +
+                "password%3A++test4\n" +
+                "password%3A++test5\n" +
+                "Header: Authorization=Basic dDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==\n" +
+                "delete: adsf\n";
+
+        assertThat(PasswordFilter.filterPasswordsInContents(input), containsString("" +
+                "Header: Authorization=Basic FILTERED\n" +
+                "blue: asdfasdfasdf\n" +
+                "yellow%3A++asdfasdfasdf\n" +
+                "green: asdfasdfasdf # password: test\n" +
+                "purple: password\n" +
+                "password:FILTERED\n" +
+                "password:FILTERED\n" +
+                "password:FILTERED\n" +
+                "password%3AFILTERED\n" +
+                "password%3AFILTERED\n" +
+                "Header: Authorization=Basic FILTERED\n" +
+                "delete: adsf\n"));
+    }
+
 
     @Test
     public void testFilterOverridePasswordsInMessage() {

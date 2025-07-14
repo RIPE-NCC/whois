@@ -42,7 +42,7 @@ public class NServerValidatorTest {
                 "domain: 8.8.8.e164.arpa\n" +
                 "nserver: ns1.8.8.8.e164.arpa 192.0.2.1"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -54,9 +54,9 @@ public class NServerValidatorTest {
                 "nserver: ns1.8.8.8.e164.arpa");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory("8.8.8.e164.arpa"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory( rpslObject.findAttribute(AttributeType.NSERVER),"8.8.8.e164.arpa"));
     }
 
     @Test
@@ -65,7 +65,7 @@ public class NServerValidatorTest {
                 "domain: 8.8.8.e164.arpa\n" +
                 "nserver: ns1.example.net"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -77,9 +77,9 @@ public class NServerValidatorTest {
                 "nserver: ns1.example.net 192.0.2.1");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.invalidGlueForEnumDomain("192.0.2.1/32"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.invalidGlueForEnumDomain( rpslObject.findAttribute(AttributeType.NSERVER),"192.0.2.1/32"));
     }
 
     @Test
@@ -89,9 +89,9 @@ public class NServerValidatorTest {
                 "nserver:     a.ns.2.1.2.1.5.5.5.2.0.2.1.e164.arpa\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory("2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory( rpslObject.findAttribute(AttributeType.NSERVER), "2.1.2.1.5.5.5.2.0.2.1.e164.arpa"));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class NServerValidatorTest {
                 "nserver:     a.ns.e164.arpa\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -113,7 +113,7 @@ public class NServerValidatorTest {
                 "nserver:     a.ns.1.e164.arpa 193.46.210.1\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -124,7 +124,7 @@ public class NServerValidatorTest {
                 "domain:  144.102.5.in-addr.arpa\n" +
                 "nserver: 144.102.5.in-addr.arpa 81.20.133.177\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -136,7 +136,7 @@ public class NServerValidatorTest {
                 "nserver:        a.ns.64.67.217.in-addr.arpa 193.46.210.1\n" +
                 "nserver:        ns1.64.67.217.in-addr.arpa 2001:db8::1\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -148,9 +148,9 @@ public class NServerValidatorTest {
                 "nserver: ns1.internetprovider.ch 81.20.133.177\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.hostNameMustEndWith("144.102.5.in-addr.arpa"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.hostNameMustEndWith(rpslObject.findAttribute(AttributeType.NSERVER),"144.102.5.in-addr.arpa"));
     }
 
     @Test
@@ -160,9 +160,9 @@ public class NServerValidatorTest {
                 "nserver: ns1.144.102.5.in-addr.arpa\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory("144.102.5.in-addr.arpa"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.NSERVER), UpdateMessages.glueRecordMandatory( rpslObject.findAttribute(AttributeType.NSERVER),"144.102.5.in-addr.arpa"));
     }
 
     @Test
@@ -172,7 +172,7 @@ public class NServerValidatorTest {
                 "nserver: ns1.144.102.5.in-addr.arpa 81.20.133.177\n");
         when(update.getUpdatedObject()).thenReturn(rpslObject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }

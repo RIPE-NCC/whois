@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.dao.VersionDao;
+import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -17,10 +18,10 @@ import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterPersonalDataFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.ResponseHandler;
+import net.ripe.db.whois.query.domain.VersionDiffResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.query.Query;
@@ -156,6 +157,11 @@ public class VersionQueryExecutor implements QueryExecutor {
 
         messages.add(new MessageObject(String.format("%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
 
+        if (versionInfos.isEmpty()) {
+            // if there is no version history present, do not add trailing EOL
+            return messages;
+        }
+
         for (int i = 0; i < versionInfos.size(); i++) {
             final VersionInfo versionInfo = versionInfos.get(i);
             messages.add(new VersionResponseObject(versionPadding, versionInfo.getOperation(), i + 1, versionInfo.getTimestamp(), objectType, pkey));
@@ -188,7 +194,7 @@ public class VersionQueryExecutor implements QueryExecutor {
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
-                new MessageObject(RpslObjectFilter.diff(firstObject, secondObject)));
+                new VersionDiffResponseObject(RpslObjectFilter.diff(firstObject, secondObject)));
     }
 
     private Collection<ObjectType> getObjectType(final Query query) {

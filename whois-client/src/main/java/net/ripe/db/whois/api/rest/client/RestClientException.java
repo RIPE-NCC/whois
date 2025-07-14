@@ -1,12 +1,12 @@
 package net.ripe.db.whois.api.rest.client;
 
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 

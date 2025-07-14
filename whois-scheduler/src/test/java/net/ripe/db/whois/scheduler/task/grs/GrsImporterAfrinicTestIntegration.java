@@ -144,7 +144,7 @@ public class GrsImporterAfrinicTestIntegration extends AbstractSchedulerIntegrat
     }
 
     private String query(final String query) throws Exception {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 
     private static String getUrl(final File file) throws MalformedURLException {

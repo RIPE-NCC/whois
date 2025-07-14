@@ -51,7 +51,7 @@ public class ReferencedObjectsExistValidatorTest {
     public void validate_no_invalid_references() {
         when(update.getUpdatedObject()).thenReturn(object);
         when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(Collections.<RpslAttribute, Set<CIString>>emptyMap());
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).getMessages(update);
         verifyNoMoreInteractions(updateContext);
@@ -69,8 +69,8 @@ public class ReferencedObjectsExistValidatorTest {
 
         when(updateContext.getMessages(update)).thenReturn(new ObjectMessages());
         when(rpslObjectUpdateDao.getInvalidReferences(object)).thenReturn(invalidReferences);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).addMessage(update, invalidAttribute, UpdateMessages.unknownObjectReferenced("ADMIN_NC"));
+        verify(updateContext).addMessage(update, invalidAttribute, UpdateMessages.unknownObjectReferenced(invalidAttribute,"ADMIN_NC"));
     }
 }

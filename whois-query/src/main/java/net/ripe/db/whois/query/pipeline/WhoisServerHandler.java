@@ -11,6 +11,7 @@ import net.ripe.db.whois.query.domain.ResponseHandler;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
 
+
 /**
  * The worker threads are asynchronously pushing data down the Netty pipeline.
  * Make sure IO threads can handle the flow.
@@ -38,7 +39,6 @@ public class WhoisServerHandler extends ChannelInboundHandlerAdapter {
                 if (closed) { // Prevent hammering a closed channel
                     throw new QueryException(QueryCompletionInfo.DISCONNECTED);
                 }
-
                 channel.write(responseObject);
             }
         });

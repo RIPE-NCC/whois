@@ -2,6 +2,18 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAllowedException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServiceUnavailableException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Variant;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -16,8 +28,10 @@ import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
@@ -32,8 +46,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.GZipEncoder;
-import org.glassfish.jersey.uri.UriComponent;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -43,19 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAllowedException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServiceUnavailableException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Variant;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,7 +76,6 @@ import java.util.zip.GZIPInputStream;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -91,12 +89,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
 @Tag("IntegrationTest")
 public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
+
+    @Autowired QueryServer queryServer;
 
     public static final String TEST_PERSON_STRING = "" +
             "person:         Test Person\n" +
@@ -124,6 +124,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "e-mail:    noreply@ripe.net\n" +
             "mnt-by:    OWNER-MNT\n" +
             "nic-hdl:   PP2-TEST\n" +
+            "remarks:   remark\n" +
+            "source:    TEST\n");
+
+    private static final RpslObject NOTIFY_PERSON = RpslObject.parse("" +
+            "person:    Pauleth Palthen \n" +
+            "address:   Singel 258\n" +
+            "phone:     +31-1234567890\n" +
+            "e-mail:    noreply@ripe.net\n" +
+            "notify:    test@ripe.net\n" +
+            "mnt-by:    OWNER-MNT\n" +
+            "nic-hdl:   PP3-TEST\n" +
             "remarks:   remark\n" +
             "source:    TEST\n");
 
@@ -165,7 +176,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "upd-to:         noreply@ripe.net\n" +
             "source:         TEST");
 
-    private static String TEST_ROLE_STRING = "" +
+    private static final String TEST_ROLE_STRING = "" +
             "role:           Test Role\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +
@@ -197,6 +208,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private MailSenderStub mailSenderStub;
     @Autowired private TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
+
+    @Autowired private EmailStatusDao emailStatusDao;
 
     @BeforeEach
     public void setup() {
@@ -312,7 +325,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         );
         ipTreeUpdater.rebuild();
 
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/inet6num/2001:2002:2003::").request().get(WhoisResources.class);
         });
     }
@@ -706,7 +719,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+                    "https://docs.db.ripe.net/terms-conditions.html", getPort())));
         }
     }
 
@@ -725,7 +738,49 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "\n" +
                     "No entries found in source %%s.\n" +
                     "[TEST]\n" +
-                    "http://www.ripe.net/db/support/db-terms-conditions.pdf", getPort())));
+                    "https://docs.db.ripe.net/terms-conditions.html", getPort())));
+        }
+    }
+
+    @Test
+    public void lookup_object_text_plain_bad_source_accept_header() {
+        try {
+            RestTest.target(getPort(), "whois/oez/org/MKQ-RIPE.txt")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is("Severity: Error\n" +
+                    "Text: Invalid source 'oez'\n" +
+                    "locator: https://docs.db.ripe.net/terms-conditions.html"));
+        }
+    }
+
+    @Test
+    public void lookup_object_text_plain_bad_format_accept_header() {
+        try {
+            RestTest.target(getPort(), "whois/test/org/MKQ-RIPE.txt")
+                    .request()
+                    .get(String.class);
+            fail();
+        } catch (BadRequestException e) {
+            final String response = e.getResponse().readEntity(String.class);
+            assertThat(response, is("Severity: Error\n" +
+                    "Text: Invalid object type: org\n" +
+                    "locator: https://docs.db.ripe.net/terms-conditions.html"));
+        }
+    }
+
+    @Test
+    public void lookup_person_utf8_normalised() {
+        try {
+            RestTest.target(getPort(), "whois/test/person/\u03A3-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(WhoisResources.class);
+            fail();
+        } catch (NotFoundException e) {
+            assertThat(e.getResponse().readEntity(String.class), containsString("no entries found"));
         }
     }
 
@@ -748,6 +803,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void create_person_json_ipv4_address() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test", true)
+                .request()
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://0.0.0.0:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+    }
+
+    @Test
+    public void create_person_json_ipv6_address() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test", false)
+                .request()
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getLink().getHref(), is(String.format("http://[::1]:%s/test/person", getPort())));
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
     }
 
 
@@ -782,7 +857,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources, containsString("" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "}"));
     }
 
@@ -835,14 +910,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_object_not_found() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(WhoisResources.class);
         });
     }
 
     @Test
     public void lookup_object_wrong_source() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test-grs/person/TP1-TEST").request().get(String.class);
         });
     }
@@ -869,7 +944,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         Attribute expected = new Attribute("auth", "SSO test@ripe.net", null, null, null, null);
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(expected));
     }
-
     @Test
     public void grs_lookup_object_wrong_source() {
         try {
@@ -1240,7 +1314,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
@@ -1320,7 +1394,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                         "},\n" +
                         "\"terms-and-conditions\" : {\n" +
                         "\"type\" : \"locator\",\n" +
-                        "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                        "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                         "},\n" +
                         "\"version\" : {\n" +
                         "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1382,7 +1456,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "},\n" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "},\n" +
                 "\"version\" : {\n" +
                 "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1476,7 +1550,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "},\n" +
                 "\"terms-and-conditions\" : {\n" +
                 "\"type\" : \"locator\",\n" +
-                "\"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "\"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "},\n" +
                 "\"version\" : {\n" +
                 "\"version\" : \"" + applicationVersion.getVersion() + "\",\n" +
@@ -1530,7 +1604,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </attributes>\n" +
                 "</object>\n" +
                 "</objects>\n" +
-                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "<terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "<version " +
                 "version=\"" + applicationVersion.getVersion() + "\" " +
                 "timestamp=\"" + applicationVersion.getTimestamp() + "\" " +
@@ -1767,6 +1841,140 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getWhoisObjects().get(0).getAttributes().get(0).getManaged(), is(nullValue()));     // inetnum attribute
     }
 
+
+    @Test
+    public void lookup_with_override_succeeds() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("mherran", "zoh", ObjectType.MNTNER));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("mherran,zoh,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "SSO person@net.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void lookup_with_multiple_override_succeeds() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("mherran", "zoh", ObjectType.MNTNER));
+
+        // Just the first override is taken into consideration
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("mherran,zoh,reason {notify=false}"))
+                .queryParam("override", encode("mherran,zohadfasfd,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "SSO person@net.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void lookup_with_override_non_trusted_ip_with_sso_succeeds() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.MNTNER));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .queryParam("clientIp", "2001:fff:001::")
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "db_e2e_1")
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
+                new Attribute("auth", "SSO person@net.net"),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST")));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void lookup_with_override_non_trusted_ip_without_sso_then_filtered() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.MNTNER));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .queryParam("clientIp", "2001:fff:001::")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST", "Filtered", null, null, null)));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void lookup_with_override_with_null_username_then_filtered() {
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("null,zoh,reason {notify=false}"))
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
+
+        assertThat(object.getAttributes(), containsInAnyOrder(
+                new Attribute("mntner", "OWNER-MNT"),
+                new Attribute("descr", "Owner Maintainer"),
+                new Attribute("upd-to", "noreply@ripe.net"),
+                new Attribute("admin-c", "TP1-TEST", null, "person", Link.create("http://rest-test.db.ripe.net/test/person/TP1-TEST"), null),
+                new Attribute("auth", "MD5-PW", "Filtered", null, null, null),
+                new Attribute("auth", "SSO", "Filtered", null, null, null),
+                new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
+                new Attribute("source", "TEST", "Filtered", null, null, null)));
+
+        assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
     // create
 
     @Test
@@ -1792,6 +2000,371 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
+    }
+
+    @Test
+    public void create_asSet_same_source_aut_num_succeeds() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS3333:AS-TEST
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST-NONAUTH
+                """);
+
+        databaseHelper.addObject("""
+                    aut-num:    AS3333
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set?password=test")
+                .request()
+                .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), hasSize(0));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getSource().getId(), is("test-nonauth"));
+    }
+    @Test
+    public void create_asSet_non_auth_aut_num_succeeds() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS3333:AS-TEST
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST
+                """);
+
+        databaseHelper.addObject("""
+                    aut-num:    AS3333
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set?password=test")
+                .request()
+                .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3333\""));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getSource().getId(), is("test-nonauth"));
+    }
+
+
+    @Test
+    public void create_asSet_non_auth_two_aut_num_succeeds() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS3333:AS-TEST:AS12654
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST
+                """);
+
+        databaseHelper.addObject("""
+                    aut-num:    AS3333
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+        databaseHelper.addObject("""
+                    as-set:     AS3333:AS-TEST
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST
+                    """);
+
+        databaseHelper.addObject("""
+                    mntner:      ANOTHER-MNT
+                    descr:       Owner Maintainer
+                    admin-c:     TP1-TEST
+                    upd-to:      noreply@ripe.net
+                    auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/
+                    auth:        SSO person@net.net
+                    source:      TEST
+                    """);
+
+        databaseHelper.addObject("""
+                    aut-num:    AS12654
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     ANOTHER-MNT
+                    source:     TEST
+                    """);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set?password=test")
+                .request()
+                .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3333\""));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getSource().getId(), is("test-nonauth"));
+    }
+
+    @Test
+    public void create_nonauth_asSet_test_aut_num_succed() {
+
+            final RpslObject TEST_AS_SET = RpslObject.parse("""
+                    as-set:     AS3333:AS-TEST
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+            databaseHelper.addObject("""
+                    aut-num:    AS3333
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST
+                    """);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set?password=test")
+                    .request()
+                    .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("The \"source:\" attribute value has been updated from \"TEST-NONAUTH\" to \"TEST\" to match the referenced AUT-NUM \"AS3333\""));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertThat(object.getSource().getId(), is("test"));
+    }
+
+    @Test
+    public void update_person_add_ripe_ncc_remarks_fails() {
+        try {
+            final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                    .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                    .get();
+
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                    .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
+                                    WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                    containsString("The \"remarks\" attribute can only be added or removed by the RIPE NCC"));
+        }
+    }
+
+    @Test
+    public void update_person_remove_ripe_ncc_remarks_fails() {
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        databaseHelper.updateObject(update);
+
+        try {
+
+            final RpslObject updatedRemovedRemarks = new RpslObjectBuilder(TEST_PERSON)
+                    .removeAttribute(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                    .get();
+
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                    .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedRemovedRemarks), MediaType.APPLICATION_XML),
+                                    WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                    containsString("The \"remarks\" attribute can only be added or removed by the RIPE NCC"));
+        }
+    }
+
+    @Test
+    public void update_person_edit_ripe_ncc_remarks_fails() {
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        databaseHelper.updateObject(update);
+
+        try {
+
+            final RpslObject updatedRemovedRemarks = new RpslObjectBuilder(TEST_PERSON)
+                    .removeAttribute(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: 123 Test 123"))
+                    .get();
+
+            RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                    .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedRemovedRemarks), MediaType.APPLICATION_XML),
+                            WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                    containsString("The \"remarks\" attribute can only be added or removed by the RIPE NCC"));
+        }
+    }
+
+    @Test
+    public void update_person_add_ripe_ncc_remarks_override_success() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                    .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                    .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                .queryParam("override", "agoston,zoh,reason")
+                .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
+                            Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST").getValueForAttribute(AttributeType.REMARKS).toString(), is("Remark added by the RIPE NCC: Test"));
+    }
+
+    @Test
+    public void update_person_remove_ripe_ncc_remarks_override_sucess() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        databaseHelper.updateObject(update);
+
+        final RpslObject updatedRemovedRemarks = new RpslObjectBuilder(TEST_PERSON)
+                    .removeAttribute(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                    .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
+                    .queryParam("override", "agoston,zoh,reason")
+                    .request()
+                    .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedRemovedRemarks), MediaType.APPLICATION_XML),
+                            Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
+    public void update_person_remove_ripe_ncc_remarks_rs_sucess() {
+        databaseHelper.addObject(
+                "mntner:       RIPE-NCC-HM-MNT\n" +
+                "auth:        MD5-PW $1$mV2gSZtj$1oVwjZr0ecFZQHsNbw2Ss.  #hm\n" +
+                        "source:   TEST");
+
+        final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                .addAttributeSorted(new RpslAttribute(AttributeType.MNT_BY, "RIPE-NCC-HM-MNT"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        databaseHelper.updateObject(update);
+
+        final RpslObject updatedRemovedRemarks = new RpslObjectBuilder(TEST_PERSON)
+                .removeAttribute(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=hm")
+                .request()
+                .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedRemovedRemarks), MediaType.APPLICATION_XML),
+                        Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
+    public void create_object_add_ripe_ncc_remarks_override_success() {
+        databaseHelper.insertUser(User.createWithPlainTextPassword("agoston", "zoh", ObjectType.PERSON));
+
+        final RpslObject update = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+        final Response whoisResources = RestTest.target(getPort(), "whois/test/person")
+                .queryParam("override", "agoston,zoh,reason")
+                .request()
+                .post(Entity.entity(map(update), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(whoisResources.getStatus(), is(HttpStatus.OK_200));
+    }
+
+    @Test
+    public void create_object_add_ripe_ncc_remarks_fails() {
+
+        final RpslObject update = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "Remark added by the RIPE NCC: Test"))
+                .get();
+
+       try {
+           RestTest.target(getPort(), "whois/test/person?password=test")
+                   .request()
+                   .post(Entity.entity(map(update), MediaType.APPLICATION_XML), WhoisResources.class);
+           fail();
+       } catch (BadRequestException e) {
+           assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                   containsString("The \"remarks\" attribute can only be added or removed by the RIPE NCC"));
+       }
+    }
+
+    @Test
+    public void create_asSet_non_existing_aut_num_bad_request() {
+        try {
+            final RpslObject TEST_AS_SET = RpslObject.parse("""
+                    as-set:    AS3333:AS-TEST
+                    tech-c:   TP1-TEST
+                    admin-c:  TP1-TEST
+                    mnt-by:    OWNER-MNT
+                    source:    TEST
+                    """);
+            RestTest.target(getPort(), "whois/test/as-set?password=test")
+                    .request()
+                    .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            assertThat(e.getResponse().readEntity(WhoisResources.class).getErrorMessages().get(0).toString(),
+                    containsString("Parent object AS3333 not found"));
+        }
+    }
+
+    @Test
+    public void create_flat_asSet_bad_request() {
+        try {
+            final RpslObject TEST_AS_SET = RpslObject.parse("""
+                    as-set:     AS-TEST
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+            databaseHelper.addObject("""
+                    aut-num:    AS3333
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST
+                    """);
+
+            RestTest.target(getPort(), "whois/test/as-set?password=test")
+                    .request()
+                    .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (BadRequestException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            assertThat(whoisResources.getErrorMessages().get(0).toString(), containsString("Cannot create AS-SET " +
+                    "object with a " +
+                    "short format name. Only hierarchical AS-SET creation is allowed, i.e. at least one ASN must be referenced"));
+        }
     }
 
     @Test
@@ -2346,7 +2919,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                     "  },\n" +
                     "  \"terms-and-conditions\" : {\n" +
                     "    \"type\" : \"locator\",\n" +
-                    "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                    "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                     "  }\n" +
                     "}"));
         }
@@ -2413,7 +2986,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_bad_input_empty_objects_element() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("<whois-resources>\n<objects/>\n</whois-resources>", MediaType.APPLICATION_XML), String.class);
@@ -2423,7 +2996,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_bad_input_no_objects_element() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("<whois-resources/>", MediaType.APPLICATION_XML), String.class);
@@ -2433,7 +3006,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_bad_input_empty_body() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/person?password=test")
                     .request()
                     .post(Entity.entity("", MediaType.APPLICATION_XML), String.class);
@@ -2442,7 +3015,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_bad_input_null_body() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/mntner")
                     .request()
                     .post( null, WhoisResources.class);
@@ -2619,7 +3192,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void get_method_without_primary_key_not_allowed() {
-        Assertions.assertThrows(NotAllowedException.class, () -> {
+        assertThrows(NotAllowedException.class, () -> {
             RestTest.target(getPort(), "whois/ripe/route6")
                     .request()
                     .get(String.class);
@@ -2628,7 +3201,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void delete_method_without_primary_key_not_allowed() {
-        Assertions.assertThrows(NotAllowedException.class, () -> {
+        assertThrows(NotAllowedException.class, () -> {
             RestTest.target(getPort(), "whois/test/person")
                     .request()
                     .delete(String.class);
@@ -2699,7 +3272,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            </attributes>\n" +
                 "        </object>\n" +
                 "    </objects>\n" +
-                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"http://www.ripe.net/db/support/db-terms-conditions.pdf\"/>\n" +
+                "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "</whois-resources>", getPort())));
     }
 
@@ -2810,7 +3383,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}", getPort())));
     }
@@ -3153,7 +3726,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3187,7 +3760,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotAuthorizedException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 
@@ -3222,7 +3795,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3254,7 +3827,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3453,7 +4026,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void delete_nonexistant() {
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/NON-EXISTANT")
                     .request()
                     .delete(String.class);
@@ -3543,7 +4116,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3578,7 +4151,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotAuthorizedException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 
@@ -3613,7 +4186,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -3645,15 +4218,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .delete(String.class);
 
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
     public void delete_dryrun() {
         databaseHelper.addObject(PAULETH_PALTHEN);
+
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test&dry-run")
                 .request()
                 .delete(WhoisResources.class);
+
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(1));
         assertThat(messages.get(0).getText(), is("Dry-run performed, no changes to the database have been made"));
@@ -3712,6 +4287,141 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(object.getAttributes().get(object.getAttributes().size() - 1).getValue(), is("TEST"));
     }
 
+    @Test
+    public void update_as_set_succeeds() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS3334:AS-TEST
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST
+                """);
+
+        databaseHelper.addObject(TEST_AS_SET);
+        databaseHelper.addObject("""
+                    aut-num:    AS3334
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
+                        new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set/AS3334:AS-TEST?password" +
+                        "=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getSource().getId(), is("test-nonauth"));
+    }
+
+
+    @Test
+    public void update_as_set_when_aut_num_deleted_succeeds() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS3334:AS-TEST
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST
+                """);
+
+        databaseHelper.addObject(TEST_AS_SET);
+
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
+                new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set/AS3334:AS-TEST?password" +
+                        "=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getSource().getId(), is("test-nonauth"));
+    }
+    @Test
+    public void update_as_set_with_wrong_source_succeeds() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS3334:AS-TEST
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST-NONAUTH
+                """);
+
+        databaseHelper.addObject(TEST_AS_SET);
+        databaseHelper.addObject("""
+                    aut-num:    AS3334
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
+                new RpslAttribute(AttributeType.SOURCE, "TEST")).sort().get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/as-set/AS3334:AS-TEST?password" +
+                        "=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3334\""));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getSource().getId(), is("test-nonauth"));
+    }
+
+
+    @Test
+    public void update_flat_as_set_change_source_bad_request() {
+        final RpslObject TEST_AS_SET = RpslObject.parse("""
+                as-set:     AS-TEST
+                tech-c:     TP1-TEST
+                admin-c:    TP1-TEST
+                mnt-by:     OWNER-MNT
+                source:     TEST
+                """);
+
+        databaseHelper.addObject(TEST_AS_SET);
+        databaseHelper.addObject("""
+                    aut-num:    AS3334
+                    as-name:    End-User-1
+                    tech-c:     TP1-TEST
+                    admin-c:    TP1-TEST
+                    mnt-by:     OWNER-MNT
+                    source:     TEST-NONAUTH
+                    """);
+
+
+        final RpslObject updatedObject = new RpslObjectBuilder(TEST_AS_SET).replaceAttribute(TEST_AS_SET.findAttribute(AttributeType.SOURCE),
+                new RpslAttribute(AttributeType.SOURCE, "TEST-NONAUTH")).sort().get();
+
+
+        final WhoisResources whoisResources =RestTest.target(getPort(), "whois/test/as-set/AS-TEST?password" +
+                            "=test")
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(0).toString(), is("Supplied attribute 'source' has been replaced with a generated value"));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(object.getSource().getId(), is("test"));
+    }
     @Test
     public void update_missing_attribute_value() {
         try {
@@ -3951,7 +4661,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
                 "    \"type\" : \"locator\",\n" +
-                "    \"href\" : \"http://www.ripe.net/db/support/db-terms-conditions.pdf\"\n" +
+                "    \"href\" : \"https://docs.db.ripe.net/terms-conditions.html\"\n" +
                 "  }\n" +
                 "}", getPort())));
     }
@@ -3996,7 +4706,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_post_not_allowed() {
-        Assertions.assertThrows(NotAllowedException.class, () -> {
+        assertThrows(NotAllowedException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), String.class);
@@ -4091,7 +4801,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_bad_input_empty_body() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
                     .request(MediaType.APPLICATION_XML)
                     .put(Entity.entity("", MediaType.APPLICATION_XML), WhoisResources.class);
@@ -4214,7 +4924,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -4251,7 +4961,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         } catch (NotAuthorizedException e) {
             final String message = mailSenderStub.getMessage("upd-to@ripe.net").getContent().toString();
             assertThat(message, containsString("Pauleth Palthen"));
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 
@@ -4313,7 +5023,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             fail();
         } catch (BadRequestException e) {
             assertThat(e.getResponse().readEntity(String.class), containsString("Syntax error"));
-            assertFalse(mailSenderStub.anyMoreMessages());
+            assertThat(mailSenderStub.anyMoreMessages(), is(false));
         }
     }
 
@@ -4350,7 +5060,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final String message = mailSenderStub.getMessage("mnt-nfy@ripe.net").getContent().toString();
         assertThat(message, containsString("Pauleth Palthen"));
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -4385,7 +5095,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertFalse(mailSenderStub.anyMoreMessages());
+        assertThat(mailSenderStub.anyMoreMessages(), is(false));
     }
 
     @Test
@@ -4579,7 +5289,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void maintenance_mode_readonly_update() {
-        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+        assertThrows(ServiceUnavailableException.class, () -> {
             maintenanceMode.set("READONLY,READONLY");
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                     .request(MediaType.APPLICATION_XML)
@@ -4596,7 +5306,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void maintenance_mode_none_update() {
-        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+        assertThrows(ServiceUnavailableException.class, () -> {
             maintenanceMode.set("NONE,NONE");
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")
                     .request(MediaType.APPLICATION_XML)
@@ -4606,7 +5316,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void maintenance_mode_none_query() {
-        Assertions.assertThrows(ServiceUnavailableException.class, () -> {
+        assertThrows(ServiceUnavailableException.class, () -> {
             maintenanceMode.set("NONE,NONE");
             RestTest.target(getPort(), "whois/test/person/TP1-TEST").request().get(WhoisResources.class);
         });
@@ -4653,7 +5363,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.assertErrorMessage(updateResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
         assertThat(updateResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # update comment")));
     }
-
     @Test
     public void comment_separator_not_included_in_response() {
         databaseHelper.addObject(
@@ -4696,149 +5405,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(person.getAttributes().get(6).getName(), is("remarks"));
         assertThat(person.getAttributes().get(6).getValue(), is("remark"));
         assertThat(person.getAttributes().get(6).getComment(), is("comment"));
-    }
-
-    // Cross-origin requests
-
-    @Test
-    public void cross_origin_preflight_request_from_apps_db_ripe_net_is_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-    }
-
-    @Test
-    public void cross_origin_preflight_request_from_outside_ripe_net_is_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-    }
-
-    @Test
-    public void cross_origin_preflight_post_request_from_apps_db_ripe_net_is_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET","POST","HEAD"));
-    }
-
-    @Test
-    public void cross_origin_preflight_post_request_from_outside_ripe_net_is_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-    }
-
-    @Test
-    public void cross_origin_get_request_from_apps_db_ripe_net_is_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .get();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_get_request_from_outside_ripe_net_is_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.foo.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .get();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-
-        // actual request is still allowed (it's the browsers responsibility to honor the restriction)
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_post_request_from_apps_db_ripe_net_is_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML));
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_post_request_from_outside_ripe_net_is_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.foo.net")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML));
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-
-        // actual request is still allowed (it's the browsers responsibility to honor the restriction)
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("PP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_preflight_request_malformed_origin() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "?invalid?")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-    }
-
-    @Test
-    public void cross_origin_get_request_malformed_origin_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "?invalid?")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .get();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_get_request_host_and_port_not_allowed() {
-        final Response response = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .request()
-                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://www.ripe.net:8443")
-                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
-                .get();
-
-        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.readEntity(WhoisResources.class).getWhoisObjects().get(0).getPrimaryKey().get(0).getValue(), is("TP1-TEST"));
     }
 
     @Test
@@ -5379,11 +5945,159 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     }
 
+    @Test
+    public void unsubscribed_notify_user_gets_warn_when_updating() {
+        databaseHelper.addObject(NOTIFY_PERSON);
+        final String unsubscribedEmail = "test@ripe.net";
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:    Pauleth Palthen \n" +
+                        "address:   Singel 258 test\n" +
+                        "phone:     +31-1234567890\n" +
+                        "e-mail:    noreply@ripe.net\n" +
+                        "notify:    test@ripe.net\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "nic-hdl:   PP3-TEST\n" +
+                        "remarks:   remark\n" +
+                        "source:    TEST\n");
+
+        emailStatusDao.createEmailStatus(unsubscribedEmail, EmailStatusType.UNSUBSCRIBE);
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertWarningCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
+                unsubscribedEmail, EmailStatusType.UNSUBSCRIBE.getValue());
+    }
+
+
+    @Test
+    public void undeliverable_notify_user_gets_warn_when_updating() {
+        databaseHelper.addObject(NOTIFY_PERSON);
+        final String undeliverableEmail = "test@ripe.net";
+
+        final RpslObject rpslObject = RpslObject.parse("" +
+                "person:    Pauleth Palthen \n" +
+                "address:   Singel 258 test\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "notify:    test@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP3-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        emailStatusDao.createEmailStatus(undeliverableEmail, EmailStatusType.UNDELIVERABLE);
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/person/PP3-TEST?password=test")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(map(rpslObject), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        RestTest.assertWarningCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Warning", "Not sending notification to %s because it is %s.",
+                undeliverableEmail, EmailStatusType.UNDELIVERABLE.getValue());
+    }
+
+
+    @Test
+    public void create_too_big_address_then_error() {
+        final RpslObject PAULETH_PALTHEN_LONG_EMAIL = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl" +
+                    "noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                    "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreply" +
+                    "noreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/" +
+                    "@noreply.ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            RestTest.target(getPort(), "whois/test/person?password=test")
+                    .request()
+                    .post(Entity.entity(map(PAULETH_PALTHEN_LONG_EMAIL), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        });
+
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        final WhoisResources whoisResources = RestTest.mapClientException(badRequestException);
+        RestTest.assertErrorCount(whoisResources, 1);
+        RestTest.assertErrorMessage(whoisResources, 0, "Error", "Syntax error in %s",
+                    "G=noreply/S=noreply/O=noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl" +
+                    "noreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreply" +
+                    "noreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreply" +
+                    "noreplnoreplynoreplynoreplnoreplynoreplynoreplnoreplynoreplynorepl/P=AA/A=ripe.net/C=SP/" +
+                    "@noreply.ripe.net");
+    }
+
+    @Test
+    public void mp_memebers_should_have_referenced_link_when_as_set() {
+        databaseHelper.addObject(
+                """
+                route-set:    AS7775535:RS-CUSTOMERS:AS94967295
+                descr:        test route-set
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """
+        );
+
+        databaseHelper.addObject(
+                """
+                route-set:    AS1234:RS-CUSTOMERS:AS1234
+                descr:        test route-set
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """
+        );
+
+
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                route-set:    RS-CUSTOMERS
+                descr:        test route-set
+                members:      AS7775535:RS-CUSTOMERS:AS94967295
+                mp-members:   AS1234:RS-CUSTOMERS:AS1234
+                tech-c:       TP1-TEST
+                admin-c:      TP1-TEST
+                mnt-by:       OWNER-MNT
+                mnt-lower:    OWNER-MNT
+                source:  TEST
+                """));
+
+        final WhoisResources response = RestTest.target(getPort(), "whois/test/route-set/RS-CUSTOMERS?password=test")
+                    .request()
+                    .get(WhoisResources.class);
+
+        final List<Attribute> memberAttributes = response.getWhoisObjects().getFirst()
+                .getAttributes().stream()
+                .filter(attribute -> attribute.getName().equals("members") || attribute.getName().equals("mp-members"))
+                .toList();
+
+        assertThat(memberAttributes.size(), is(2));
+
+        assertAsSetMember(memberAttributes.get(0), "members");
+        assertAsSetMember(memberAttributes.get(1), "mp-members");
+
+    }
+
+
+
     // helper methods
 
-    private String encode(final String input) {
-        // do not interpret template parameters
-        return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
+    private static void assertAsSetMember(final Attribute member, final String attributeExpectedType) {
+        assertThat(member.getName(), is(attributeExpectedType));
+        assertThat(member.getReferencedType(), is("route-set"));
+        assertThat(member.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route-set/" + member.getValue()));
     }
 
     private WhoisResources map(final RpslObject ... rpslObjects) {
@@ -5399,7 +6113,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     private String queryTelnet(final String query) {
-        return TelnetWhoisClient.queryLocalhost(QueryServer.port, query);
+        return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
     }
 
     private static String gunzip(final byte[] bytes) {

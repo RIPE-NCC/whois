@@ -2,6 +2,8 @@ package net.ripe.db.whois.update.keycert;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.x509.KeyWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;

@@ -37,7 +37,7 @@ public class ReservedWordValidatorTest {
     public void not_reserved_word() {
         mockUpdate("mntner: OWNER-MNT\nsource: TEST");
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyOk();
     }
@@ -46,7 +46,7 @@ public class ReservedWordValidatorTest {
     public void reserved_word_as_any_not_ok() {
         mockUpdate("as-set: AS-ANy\nsource: TEST");
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyReservedName("as-any");
     }
@@ -55,7 +55,7 @@ public class ReservedWordValidatorTest {
     public void reserved_prefix_as_not_ok() {
         mockUpdate("mntner: AS-TEST\nsource: TEST");
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyReservedPrefixUsed("as-", ObjectType.AS_SET);
     }
@@ -64,7 +64,7 @@ public class ReservedWordValidatorTest {
     public void reserved_prefix_org_not_ok() {
         mockUpdate("mntner: ORG-TEST\nsource: TEST");
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyReservedPrefixUsed("org-", ObjectType.ORGANISATION);
     }
@@ -73,7 +73,7 @@ public class ReservedWordValidatorTest {
     public void reserved_prefix_as_ok() {
         mockUpdate("as-set: AS-TEST\nsource: TEST");
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyOk();
     }

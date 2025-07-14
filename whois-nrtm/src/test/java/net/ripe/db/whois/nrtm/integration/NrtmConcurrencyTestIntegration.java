@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations.loadScripts;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -66,10 +66,10 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
     @Test
     @Disabled // FIXME [SB] fix this test
     public void dontHangOnHugeAutNumObject() {
-        String response = TelnetWhoisClient.queryLocalhost(NrtmServer.getPort(), String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
+        String response = TelnetWhoisClient.queryLocalhost(nrtmServer.getPort(), String.format("-g TEST:3:%d-%d", MIN_RANGE, MAX_RANGE), 5 * 1000);
 
-        assertTrue(response.contains(String.format("ADD %d", MIN_RANGE)), response);  // serial 21486000 is a huge aut-num
-        assertTrue(response.contains(String.format("DEL %d", MIN_RANGE + 1)), response);
+        assertThat(response, containsString(String.format("ADD %d", MIN_RANGE)));  // serial 21486000 is a huge aut-num
+        assertThat(response, containsString(String.format("DEL %d", MIN_RANGE + 1)));
     }
 
     @Test
@@ -193,7 +193,7 @@ public class NrtmConcurrencyTestIntegration extends AbstractNrtmIntegrationBase 
 
         @Override
         public void run() {
-            try (final Socket socket = new Socket("localhost", NrtmServer.getPort())) {
+            try (final Socket socket = new Socket("localhost", nrtmServer.getPort())) {
                 socket.setSoTimeout(1000);
 
                 try (final PrintWriter out = new PrintWriter(socket.getOutputStream(), true);

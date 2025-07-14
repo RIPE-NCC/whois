@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>whois</artifactId>
+        <groupId>net.ripe.db</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>whois-nrtm4</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-rewrite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
+        <!-- Jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+            <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jakarta-xmlbind-annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+
+
+
+
+        <!-- test -->
+
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-commons</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-query</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-update</artifactId>
+            <type>test-jar</type>
+        </dependency>
+
+        <!-- JSON testing -->
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.co.datumedge</groupId>
+            <artifactId>hamcrest-json</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.15.0</version>
+                <configuration>
+                    <aspectLibraries>
+                        <aspectLibrary>
+                            <groupId>org.springframework</groupId>
+                            <artifactId>spring-aspects</artifactId>
+                        </aspectLibrary>
+                        <aspectLibrary>
+                            <groupId>net.ripe.db</groupId>
+                            <artifactId>whois-commons</artifactId>
+                        </aspectLibrary>
+                    </aspectLibraries>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Ignore dependencies coming from another dependencies that we are already using, and for
+                    which we don't want to take control -->
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-tx</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.aspectj:aspectjweaver</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-annotations</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-core</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-codec:commons-codec</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-beans</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.google.guava:guava</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-context</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>net.javacrumbs.shedlock:shedlock-spring</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-servlet-api:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.annotation:jakarta.annotation-api:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>org.springframework:spring-core:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>com.mchange:c3p0:jar</ignoredUsedUndeclaredDependency>
+                        <ignoredUsedUndeclaredDependency>jakarta.ws.rs:jakarta.ws.rs-api:jar</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

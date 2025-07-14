@@ -2,11 +2,13 @@ package net.ripe.db.whois.api.syncupdate;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import org.springframework.util.FileCopyUtils;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -22,9 +24,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO: split into "insecure" builder for testing only
 public class SyncUpdateBuilder {
 
     private String url;
+    private String protocol;
     private String host;
     private Integer port;
     private String source;
@@ -43,6 +47,11 @@ public class SyncUpdateBuilder {
 
     public SyncUpdateBuilder setUrl(final String url) {
         this.url = url;
+        return this;
+    }
+
+    public SyncUpdateBuilder setProtocol(final String protocol) {
+        this.protocol = protocol;
         return this;
     }
 
@@ -92,10 +101,13 @@ public class SyncUpdateBuilder {
     }
 
     public Client build() {
-        return new Client(url, host, port, source, headers, data, help, diff, aNew, redirect, charset);
+        return new Client(url, protocol, host, port, source, headers, data, help, diff, aNew, redirect, charset);
     }
 
     public static class Client {
+
+        private static final String HTTP_PROTOCOL = "http";
+        private static final String HTTPS_PROTOCOL = "https";
 
         private static final Joiner.MapJoiner PARAM_JOINER = Joiner.on('&').withKeyValueSeparator("=");
         private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
@@ -112,6 +124,7 @@ public class SyncUpdateBuilder {
 
         public Client(
                 final String url,
+                final String protocol,
                 final String host,
                 final Integer port,
                 final String source,
@@ -126,7 +139,7 @@ public class SyncUpdateBuilder {
                 this.url = getUrl(url);
             } else {
                 if (host != null && port != null && source != null) {
-                    this.url = getUrl(host, port, source);
+                    this.url = getUrl(protocol, host, port, source);
                 } else {
                     throw new IllegalStateException("Either (host, port, source) or (url) should not be null");
                 }
@@ -151,6 +164,11 @@ public class SyncUpdateBuilder {
         public String post() {
             try {
                 final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                if (HTTPS_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {
+                    final HttpsURLConnection httpsConnection = (HttpsURLConnection) connection;
+                    httpsConnection.setHostnameVerifier((hostname, session) -> true);
+                    httpsConnection.setSSLSocketFactory(RestClientUtils.trustAllSSLContext().getSocketFactory());
+                }
 
                 final String body = getBody();
                 connection.setRequestProperty(HttpHeaders.CONTENT_LENGTH, Integer.toString(body.length()));
@@ -216,8 +234,12 @@ public class SyncUpdateBuilder {
             }
         }
 
-        private static URL getUrl(final String host, final int port, final String source) {
-            return getUrl(String.format("http://%s%s/whois/syncupdates/%s", host, (port != 0 ? ":" + port : ""), source));
+        private static URL getUrl(final String protocol, final String host, final int port, final String source) {
+            return getUrl(String.format("%s://%s%s/whois/syncupdates/%s",
+                (protocol != null ? protocol : HTTP_PROTOCOL),
+                host,
+                (port != 0 ? ":" + port : ""),
+                source));
         }
 
         private static URL getUrl(final String url){

@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -83,8 +83,9 @@ public class GrsImporter implements DailyScheduledTask {
         executorService.shutdownNow();
     }
 
+    // N.B. The GrsImporter job must run *after* the AuthoritativeResourceImportTask so we know which resources belong in the GRS mirror
     @Override
-    @Scheduled(cron = "0 0 0 * * *", zone = EUROPE_AMSTERDAM)
+    @Scheduled(cron = "0 20 0 * * *", zone = EUROPE_AMSTERDAM)
     @SchedulerLock(name = "GrsImporter")
     public void run() {
         if (!grsImportEnabled) {

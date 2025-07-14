@@ -34,7 +34,7 @@ public class ObjectReferencedValidatorTest {
 
     @Test
     public void validate_no_original_object() {
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -42,7 +42,7 @@ public class ObjectReferencedValidatorTest {
     @Test
     public void validate_not_referenced() {
         final RpslObject object = RpslObject.parse("mntner: TST-MNT");
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }
@@ -55,7 +55,7 @@ public class ObjectReferencedValidatorTest {
         when(update.hasOriginalObject()).thenReturn(true);
         when(update.getReferenceObject()).thenReturn(object);
         when(rpslObjectUpdateDao.isReferenced(object)).thenReturn(true);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectInUse(object));
     }
@@ -67,7 +67,7 @@ public class ObjectReferencedValidatorTest {
         when(update.getType()).thenReturn(ObjectType.AUT_NUM);
         when(update.hasOriginalObject()).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verifyNoMoreInteractions(updateContext);
     }

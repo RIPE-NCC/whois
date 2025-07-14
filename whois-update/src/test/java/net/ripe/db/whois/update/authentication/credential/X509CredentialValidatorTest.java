@@ -7,6 +7,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
+import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -29,7 +30,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class X509CredentialValidatorTest {
 
-    @Mock private PreparedUpdate update;
+    @Mock private PreparedUpdate preparedUpdate;
+    @Mock private Update update;
     @Mock private UpdateContext updateContext;
     @Mock private RpslObjectDao rpslObjectDao;
     @Mock private X509Credential offeredCredential;
@@ -40,6 +42,7 @@ public class X509CredentialValidatorTest {
 
     @Test
     public void authentication_success() {
+        when(preparedUpdate.getUpdate()).thenReturn(update);
         when(dateTimeProvider.getCurrentDateTime()).thenReturn(LocalDateTime.now());
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenAnswer(invocation ->
                 RpslObject.parse("" +
@@ -74,7 +77,7 @@ public class X509CredentialValidatorTest {
         when(knownCredential.getKeyId()).thenReturn("X509-1");
         when(offeredCredential.verify(any(X509Certificate.class))).thenReturn(true);
 
-        final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(result, is(true));
     }
@@ -83,7 +86,7 @@ public class X509CredentialValidatorTest {
     public void authentication_keycert_not_found() {
         when(rpslObjectDao.getByKey(ObjectType.KEY_CERT, "X509-1")).thenThrow(new EmptyResultDataAccessException(1));
 
-        final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(result, is(false));
     }
@@ -97,7 +100,7 @@ public class X509CredentialValidatorTest {
                         "mnt-by:         OWNER-MNT\n" +
                         "source:         TEST\n"));
 
-        final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(result, is(false));
     }
@@ -145,7 +148,7 @@ public class X509CredentialValidatorTest {
                         "source:         TEST\n"));
         when(knownCredential.getKeyId()).thenReturn("X509-1");
 
-        final boolean result = subject.hasValidCredential(update, updateContext, Sets.newHashSet(offeredCredential), knownCredential);
+        final boolean result = subject.hasValidCredential(preparedUpdate, updateContext, Sets.newHashSet(offeredCredential), knownCredential, null);
 
         assertThat(result, is(false));
     }

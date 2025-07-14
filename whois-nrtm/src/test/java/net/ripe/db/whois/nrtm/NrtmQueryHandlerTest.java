@@ -78,10 +78,10 @@ public class NrtmQueryHandlerTest {
         lenient().when(channelMock.attr(any())).thenReturn(attributeMock);
         lenient().doNothing().when(attributeMock).set(any());
         lenient().when(serialDaoMock.getSerials()).thenReturn(new SerialRange(1, 2));
-        lenient().when(serialDaoMock.getByIdForNrtm(1)).thenReturn(new SerialEntry(Operation.UPDATE, true, 1, 1000, 1000, inetnum.toByteArray()));
+        lenient().when(serialDaoMock.getByIdForNrtm(1)).thenReturn(new SerialEntry(1, Operation.UPDATE, true, 1, 1000, 1000, inetnum.toByteArray(), "one"));
         lenient().when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(true);
         lenient().when(dummifierMock.dummify(NrtmServer.NRTM_VERSION, inetnum)).thenReturn(inetnum);
-        lenient().when(serialDaoMock.getByIdForNrtm(2)).thenReturn(new SerialEntry(Operation.UPDATE, true, 2, 1000, 1000, person.toByteArray()));
+        lenient().when(serialDaoMock.getByIdForNrtm(2)).thenReturn(new SerialEntry(2, Operation.UPDATE, true, 2, 1000, 1000, person.toByteArray(), "two"));
         lenient().when(dummifierMock.isAllowed(NrtmServer.NRTM_VERSION, person)).thenReturn(false);
         lenient().when(applicationVersion.getVersion()).thenReturn("1.0-SNAPSHOT");
 

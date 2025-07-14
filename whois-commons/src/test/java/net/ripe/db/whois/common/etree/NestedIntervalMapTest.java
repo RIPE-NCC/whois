@@ -9,12 +9,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class NestedIntervalMapTest {
@@ -85,8 +86,8 @@ public class NestedIntervalMapTest {
             subject.put(new Ipv4Resource(8, 13), N1_1);
             fail("Exception expected");
         } catch (IntersectingIntervalException expected) {
-            assertEquals(new Ipv4Resource(8, 13), expected.getInterval());
-            assertEquals(asList(N1_12), expected.getIntersections());
+            assertThat(expected.getInterval(), equalTo(new Ipv4Resource(8, 13)));
+            assertThat(expected.getIntersections(), equalTo(asList(N1_12)));
         }
     }
 
@@ -99,7 +100,7 @@ public class NestedIntervalMapTest {
 
     @Test
     public void test_remove_n5_8() {
-        assertEquals(asList(N5_5, N6_6, N7_7), subject.findFirstMoreSpecific(N5_8));
+        assertThat(subject.findFirstMoreSpecific(N5_8), equalTo(asList(N5_5, N6_6, N7_7)));
         subject.remove(N5_8);
         assertThat(subject.findExact(N5_8), hasSize(0));
         assertThat(subject.findFirstMoreSpecific(N5_8), contains(N5_5, N6_6, N7_7));
@@ -107,7 +108,7 @@ public class NestedIntervalMapTest {
 
     @Test
     public void test_remove_key_value() {
-        assertEquals(asList(N5_5, N6_6, N7_7), subject.findFirstMoreSpecific(N5_8));
+        assertThat(subject.findFirstMoreSpecific(N5_8), equalTo(asList(N5_5, N6_6, N7_7)));
         subject.remove(N5_8, N5_8);
         assertThat(subject.findExact(N5_8), hasSize(0));
         assertThat(subject.findFirstMoreSpecific(N5_8), contains(N5_5, N6_6, N7_7));
@@ -119,7 +120,7 @@ public class NestedIntervalMapTest {
 
         final Ipv4Resource resource = new Ipv4Resource(0, 100);
         subject.remove(resource, resource);
-        assertEquals(copy, subject);
+        assertThat(subject, equalTo(copy));
     }
 
     @Test
@@ -127,44 +128,44 @@ public class NestedIntervalMapTest {
         NestedIntervalMap<Ipv4Resource, Ipv4Resource> copy = new NestedIntervalMap<>(subject);
 
         subject.remove(new Ipv4Resource(0, 100));
-        assertEquals(copy, subject);
+        assertThat(subject, equalTo(copy));
 
         subject.remove(new Ipv4Resource(1, 7));
-        assertEquals(copy, subject);
+        assertThat(subject, equalTo(copy));
 
         subject.remove(new Ipv4Resource(12, 12));
-        assertEquals(copy, subject);
+        assertThat(subject, equalTo(copy));
     }
 
     @Test
     public void test_equals_hashcode() {
-        assertFalse(subject.equals(null));
-        assertEquals(subject, subject);
-        assertFalse(subject.equals(new Object()));
-        assertFalse(subject.equals(new NestedIntervalMap<Ipv4Resource, Ipv4Resource>()));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, equalTo(subject));
+        assertThat(subject, not(equalTo(new Object())));
+        assertThat(subject, not(equalTo(new NestedIntervalMap<Ipv4Resource, Ipv4Resource>())));
 
-        assertEquals(subject.hashCode(), subject.hashCode());
-        assertFalse(subject.hashCode() == new NestedIntervalMap<Ipv4Resource, Ipv4Resource>().hashCode());
+        assertThat(subject.hashCode(), equalTo(subject.hashCode()));
+        assertThat(subject.hashCode(), is(not(new NestedIntervalMap<Ipv4Resource, Ipv4Resource>().hashCode())));
     }
 
     @Test
     public void test_find_all_less_specific() {
-        assertEquals(Collections.emptyList(), subject.findAllLessSpecific(new Ipv4Resource(0, 100)));
-        assertEquals(Collections.emptyList(), subject.findAllLessSpecific(new Ipv4Resource(5, 13)));
-        assertEquals(Collections.emptyList(), subject.findAllLessSpecific(N1_12));
-        assertEquals(asList(N1_12, N5_10, N5_8), subject.findAllLessSpecific(N6_6));
-        assertEquals(asList(N1_12, N5_10, N5_8), subject.findAllLessSpecific(N8_8));
-        assertEquals(asList(N1_12, N1_4), subject.findAllLessSpecific(N2_2));
+        assertThat(subject.findAllLessSpecific(new Ipv4Resource(0, 100)), is(empty()));
+        assertThat(subject.findAllLessSpecific(new Ipv4Resource(5, 13)), is(empty()));
+        assertThat(subject.findAllLessSpecific(N1_12), is(empty()));
+        assertThat(subject.findAllLessSpecific(N6_6), contains(N1_12, N5_10, N5_8));
+        assertThat(subject.findAllLessSpecific(N8_8),contains(N1_12, N5_10, N5_8));
+        assertThat(subject.findAllLessSpecific(N2_2), contains(N1_12, N1_4));
     }
 
     @Test
     public void test_find_exact_and_all_less_specific() {
-        assertEquals(Collections.emptyList(), subject.findExactAndAllLessSpecific(new Ipv4Resource(0, 100)));
-        assertEquals(Collections.emptyList(), subject.findExactAndAllLessSpecific(new Ipv4Resource(5, 13)));
-        assertEquals(asList(N1_12), subject.findExactAndAllLessSpecific(N1_12));
-        assertEquals(asList(N1_12, N5_10, N5_8, N6_6), subject.findExactAndAllLessSpecific(N6_6));
-        assertEquals(asList(N1_12, N5_10, N5_8), subject.findExactAndAllLessSpecific(N8_8));
-        assertEquals(asList(N1_12, N1_4, N2_2), subject.findExactAndAllLessSpecific(N2_2));
+        assertThat(subject.findExactAndAllLessSpecific(new Ipv4Resource(0, 100)), is(empty()));
+        assertThat(subject.findExactAndAllLessSpecific(new Ipv4Resource(5, 13)), is(empty()));
+        assertThat(subject.findExactAndAllLessSpecific(N1_12), contains(N1_12));
+        assertThat(subject.findExactAndAllLessSpecific(N6_6), contains(N1_12, N5_10, N5_8, N6_6));
+        assertThat(subject.findExactAndAllLessSpecific(N8_8), contains(N1_12, N5_10, N5_8));
+        assertThat(subject.findExactAndAllLessSpecific(N2_2), contains(N1_12, N1_4, N2_2));
     }
 
     @Test
@@ -190,16 +191,16 @@ public class NestedIntervalMapTest {
 
     @Test
     public void testFindEverything() {
-        assertEquals(all, subject.findExactAndAllMoreSpecific(Ipv4Resource.MAX_RANGE));
+        assertThat(subject.findExactAndAllMoreSpecific(Ipv4Resource.MAX_RANGE), equalTo(all));
         subject.put(Ipv4Resource.MAX_RANGE, Ipv4Resource.MAX_RANGE);
     }
 
     @Test
     public void testFindFirstMoreSpecific() {
-        assertEquals(asList(N5_8, N9_10), subject.findFirstMoreSpecific(N5_10));
-        assertEquals(asList(N1_1, N2_2, N3_4), subject.findFirstMoreSpecific(N1_4));
-        assertEquals(asList(N7_7, N9_9), subject.findFirstMoreSpecific(new Ipv4Resource(7, 9)));
-        assertEquals(asList(N9_9), subject.findFirstMoreSpecific(new Ipv4Resource(8, 9)));
+        assertThat(subject.findFirstMoreSpecific(N5_10), contains(N5_8, N9_10));
+        assertThat(subject.findFirstMoreSpecific(N1_4), contains(N1_1, N2_2, N3_4));
+        assertThat(subject.findFirstMoreSpecific(new Ipv4Resource(7, 9)), contains(N7_7, N9_9));
+        assertThat(subject.findFirstMoreSpecific(new Ipv4Resource(8, 9)), contains(N9_9));
     }
 
     @Test
@@ -211,15 +212,15 @@ public class NestedIntervalMapTest {
 
     @Test
     public void testFindAllMoreSpecific() {
-        assertEquals(all.subList(1, all.size()), subject.findAllMoreSpecific(N1_12));
-        assertEquals(asList(N3_4, N3_3, N4_4, N5_5, N6_6, N7_7), subject.findAllMoreSpecific(new Ipv4Resource(3, 7)));
-        assertEquals(asList(N9_9), subject.findAllMoreSpecific(new Ipv4Resource(8, 9)));
+        assertThat(subject.findAllMoreSpecific(N1_12), equalTo(all.subList(1, all.size())));
+        assertThat(subject.findAllMoreSpecific(new Ipv4Resource(3, 7)), contains(N3_4, N3_3, N4_4, N5_5, N6_6, N7_7));
+        assertThat(subject.findAllMoreSpecific(new Ipv4Resource(8, 9)), contains(N9_9));
     }
 
     @Test
     public void testFindExactAndAllMoreSpecific() {
-        assertEquals(all, subject.findExactAndAllMoreSpecific(N1_12));
-        assertEquals(asList(N1_4, N1_1, N2_2, N3_4, N3_3, N4_4), subject.findExactAndAllMoreSpecific(N1_4));
+        assertThat(subject.findExactAndAllMoreSpecific(N1_12), equalTo(all));
+        assertThat(subject.findExactAndAllMoreSpecific(N1_4), contains(N1_4, N1_1, N2_2, N3_4, N3_3, N4_4));
     }
 
     @Test
@@ -237,8 +238,8 @@ public class NestedIntervalMapTest {
             test.put(intersect, intersect);
             fail("Exception expected");
         } catch (IntersectingIntervalException expected) {
-            assertEquals(intersect, expected.getInterval());
-            assertEquals(asList(child1), expected.getIntersections());
+            assertThat(intersect, equalTo(expected.getInterval()));
+            assertThat(asList(child1), equalTo(expected.getIntersections()));
         }
 
         assertThat(subject.findExact(intersect), hasSize(0));
@@ -259,8 +260,8 @@ public class NestedIntervalMapTest {
             test.put(intersect, intersect);
             fail("Exception expected");
         } catch (IntersectingIntervalException expected) {
-            assertEquals(intersect, expected.getInterval());
-            assertEquals(asList(child3), expected.getIntersections());
+            assertThat(intersect, equalTo(expected.getInterval()));
+            assertThat(asList(child3), equalTo(expected.getIntersections()));
         }
 
         assertThat(subject.findExact(intersect), hasSize(0));
@@ -281,8 +282,8 @@ public class NestedIntervalMapTest {
             test.put(intersect, intersect);
             fail("Exception expected");
         } catch (IntersectingIntervalException expected) {
-            assertEquals(intersect, expected.getInterval());
-            assertEquals(asList(child1, child3), expected.getIntersections());
+            assertThat(intersect, equalTo(expected.getInterval()));
+            assertThat(asList(child1, child3), equalTo(expected.getIntersections()));
         }
 
         assertThat(subject.findExact(intersect), hasSize(0));

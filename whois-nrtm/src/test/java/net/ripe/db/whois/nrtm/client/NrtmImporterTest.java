@@ -3,7 +3,6 @@ package net.ripe.db.whois.nrtm.client;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.StringValueResolver;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -35,7 +35,7 @@ public class NrtmImporterTest {
 
     @Test
     public void invalid_source() {
-        Assertions.assertThrows(NrtmException.class, () -> {
+        assertThrows(NrtmException.class, () -> {
             when(sourceContext.isVirtual(CIString.ciString("1-GRS"))).thenReturn(true);
 
             subject.checkSources();

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Set;

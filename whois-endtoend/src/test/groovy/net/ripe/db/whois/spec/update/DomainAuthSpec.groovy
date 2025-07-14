@@ -265,7 +265,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -304,7 +304,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -343,7 +343,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -380,7 +380,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir3
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -419,7 +419,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   hm
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -458,7 +458,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner
-               """.stripIndent()
+               """.stripIndent(true)
         )
 
       then:
@@ -497,7 +497,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir3
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -536,7 +536,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   hm
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -573,7 +573,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   hm
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -610,7 +610,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir3
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -649,7 +649,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -686,7 +686,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir3
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -725,7 +725,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   hm
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -764,7 +764,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -801,7 +801,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir3
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -840,7 +840,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   hm
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -879,7 +879,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   hm
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -916,7 +916,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir3
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -954,7 +954,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:  denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -992,7 +992,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1030,7 +1030,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1068,7 +1068,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1106,7 +1106,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1144,7 +1144,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1182,7 +1182,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1220,7 +1220,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1258,7 +1258,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1297,7 +1297,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1336,7 +1336,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1373,7 +1373,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1414,7 +1414,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1449,7 +1449,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1486,7 +1486,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1523,7 +1523,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1560,7 +1560,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1597,7 +1597,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1638,7 +1638,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  testing delete
 
                 password:   mb-dom
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1677,7 +1677,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  testing delete
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1717,7 +1717,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  testing delete
 
                 password:   lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1760,7 +1760,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  testing delete
 
                 password:   lir3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1803,7 +1803,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  testing delete
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1841,7 +1841,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  testing delete
 
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -1879,7 +1879,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   mb-dom
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1917,7 +1917,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1959,7 +1959,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-dom
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2001,7 +2001,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   mb-dom
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2040,7 +2040,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2077,7 +2077,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2114,7 +2114,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2156,7 +2156,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   mb-dom
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2197,7 +2197,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2238,7 +2238,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2275,7 +2275,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   owner
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2312,7 +2312,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2352,7 +2352,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2390,7 +2390,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  testing
 
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2427,7 +2427,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2465,7 +2465,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2507,7 +2507,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2549,7 +2549,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2592,7 +2592,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2631,7 +2631,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2675,7 +2675,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2715,7 +2715,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2755,7 +2755,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2794,7 +2794,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 password:   owner
                 password:   lir2
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2830,7 +2830,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2868,7 +2868,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 override:    denis,override1
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2904,7 +2904,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:       gii
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2941,7 +2941,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:       gii
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2978,7 +2978,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:       owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3015,7 +3015,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:    denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3024,7 +3024,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 4.4.e164.arpa" }
         ack.infoSuccessMessagesFor("Create", "[domain] 4.4.e164.arpa") == [
                 "Authorisation override used"]
@@ -3054,7 +3054,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:       gii
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3091,7 +3091,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3130,7 +3130,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:       owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3167,7 +3167,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  test ing
 
                 password:       owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3204,7 +3204,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
                 delete:  test ing
 
                 password:       gii
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -3240,7 +3240,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   lir2
                 password:   owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.domain;
 
 import com.google.common.collect.ImmutableList;
+import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
@@ -18,6 +19,8 @@ import net.ripe.db.whois.update.handler.validator.BusinessRuleValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -37,10 +40,10 @@ public class IpDomainUniqueHierarchyValidator implements BusinessRuleValidator {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void validate(final PreparedUpdate update, final UpdateContext updateContext) {
+    public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Domain domain = Domain.parse(update.getUpdatedObject().getKey());
         if (domain.getType() == Domain.Type.E164) {
-            return;
+            return Collections.emptyList();
         }
 
         final IpInterval reverseIp = domain.getReverseIp();
@@ -48,24 +51,23 @@ public class IpDomainUniqueHierarchyValidator implements BusinessRuleValidator {
 
         final List<IpEntry> lessSpecific = ipTree.findFirstLessSpecific(reverseIp);
         if (!lessSpecific.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.lessSpecificDomainFound(lessSpecific.get(0).getKey().toString()));
-            return;
+            return Arrays.asList(UpdateMessages.lessSpecificDomainFound(lessSpecific.get(0).getKey().toString()));
         }
 
         final List<IpEntry> moreSpecific = ipTree.findFirstMoreSpecific(reverseIp);
         if (!moreSpecific.isEmpty()) {
-            updateContext.addMessage(update, UpdateMessages.moreSpecificDomainFound(moreSpecific.get(0).getKey().toString()));
+            return Arrays.asList(UpdateMessages.moreSpecificDomainFound(moreSpecific.get(0).getKey().toString()));
         }
+
+        return Collections.emptyList();
     }
 
     private IpTree getIpTree(final IpInterval reverseIp) {
-        if (reverseIp instanceof Ipv4Resource) {
-            return ipv4DomainTree;
-        } else if (reverseIp instanceof Ipv6Resource) {
-            return ipv6DomainTree;
-        }
-
-        throw new IllegalArgumentException("Unexpected reverse ip: " + reverseIp);
+        return switch (reverseIp) {
+            case Ipv4Resource ipv4Resource -> ipv4DomainTree;
+            case Ipv6Resource ipv6Resource -> ipv6DomainTree;
+            case null -> throw new IllegalArgumentException("Unexpected reverse ip: " + reverseIp);
+        };
     }
 
     @Override

@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.handler.validator.common;
 
 import net.ripe.db.whois.common.Message;
+import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -64,7 +65,7 @@ public class DeleteRsMaintainedObjectValidatorTest {
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(eq(update), any(Message.class));
+        verify(updateContext, never()).addMessage(eq(update), eq(UpdateMessages.authorisationRequiredForDeleteRsMaintainedObject()));
         verify(maintainers).isRsMaintainer(ciSet("DEV-MNT"));
         verifyNoMoreInteractions(maintainers);
     }
@@ -78,7 +79,7 @@ public class DeleteRsMaintainedObjectValidatorTest {
                 "mnt-by: DEV-MNT\n" +
                 "mnt-by: RS-MNT\n"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForDeleteRsMaintainedObject());
         verify(maintainers).isRsMaintainer(ciSet("DEV-MNT", "RS-MNT"));
@@ -88,18 +89,23 @@ public class DeleteRsMaintainedObjectValidatorTest {
     @Test
     public void validate_no_rs_auth_rs_maintainer_override() {
         when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
+
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("" +
+                "mntner: DEV-MNT\n" +
+                "mnt-by: DEV-MNT\n" +
+                "mnt-by: RS-MNT\n"));
 
         subject.validate(update, updateContext);
 
-        verify(updateContext, never()).addMessage(eq(update), any(Message.class));
-        verifyNoMoreInteractions(maintainers);
+        verify(updateContext).addMessage(eq(update), eq(new Message(Messages.Type.WARNING, UpdateMessages.authorisationRequiredForDeleteRsMaintainedObject().getText())));
     }
 
     @Test
     public void validate_rs_auth_rs_maintainer() {
         lenient().when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
         verifyNoMoreInteractions(maintainers);

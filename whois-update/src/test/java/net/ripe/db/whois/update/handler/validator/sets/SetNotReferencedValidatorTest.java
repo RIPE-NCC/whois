@@ -46,7 +46,7 @@ public class SetNotReferencedValidatorTest {
         when(update.getUpdatedObject()).thenReturn(routeSet);
         when(objectDao.findMemberOfByObjectTypeWithoutMbrsByRef(ObjectType.ROUTE_SET, "rs-AH")).thenReturn(Lists.newArrayList(new RpslObjectInfo(1, ObjectType.ROUTE, "192.168.0.1/32")));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.objectInUse(routeSet));
     }
@@ -57,7 +57,7 @@ public class SetNotReferencedValidatorTest {
         final RpslObject asSet = RpslObject.parse("as-set: AS1325:AS-lopp");
         when(update.getUpdatedObject()).thenReturn(asSet);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(update, UpdateMessages.objectInUse(asSet));
     }

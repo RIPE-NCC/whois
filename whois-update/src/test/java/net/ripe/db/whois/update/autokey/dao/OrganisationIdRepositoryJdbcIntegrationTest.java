@@ -13,8 +13,9 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("IntegrationTest")
 @Transactional
@@ -48,7 +49,7 @@ public class OrganisationIdRepositoryJdbcIntegrationTest extends AbstractUpdateD
 
         for (final Map<String, Object> objectMap : list) {
             for (final Map.Entry<String, Object> entry : objectMap.entrySet()) {
-                assertNotNull(entry.getValue(), entry.getKey());
+                assertThat(entry.getValue(), not(nullValue()));
             }
 
             final String source = objectMap.get("source").toString();

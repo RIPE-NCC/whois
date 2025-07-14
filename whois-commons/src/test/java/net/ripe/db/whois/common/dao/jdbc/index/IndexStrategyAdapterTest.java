@@ -6,10 +6,10 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 
 public class IndexStrategyAdapterTest {
     public static final AttributeType ATTRIBUTE_TYPE = AttributeType.ORG;
@@ -45,11 +45,11 @@ public class IndexStrategyAdapterTest {
 
     @Test
     public void getLookupTableName() {
-        assertNull(subject.getLookupTableName());
+        assertThat(subject.getLookupTableName(), is(nullValue()));
     }
 
     @Test
     public void getLookupColumnName() {
-        assertNull(subject.getLookupColumnName());
+        assertThat(subject.getLookupColumnName(), is(nullValue()));
     }
 }

@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.CheckForNull;
 import java.util.Arrays;
@@ -77,6 +77,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PHONE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PINGABLE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POEM_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.POETIC_FORM_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.PREFIXLEN_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE6_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SET_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.ROUTE_SYNTAX;
@@ -123,7 +124,8 @@ public enum AttributeType implements Documented {
             .syntax(ALIAS_SYNTAX)),
 
     ASSIGNMENT_SIZE(new Builder("assignment-size", "ae")
-            .doc("Specifies the size of blocks assigned to end users from this aggregated inet6num assignment.")
+            .doc("Specifies the size of blocks assigned to end users from this aggregated inet(6)num assignment.\n" +
+                    "The maximum assignment size for inetnum is 32 and for inet6num is 128")
             .syntax(NUMBER_SYNTAX)),
 
     AS_BLOCK(new Builder("as-block", "ak")
@@ -180,7 +182,7 @@ public enum AttributeType implements Documented {
             .syntax(DEFAULT_SYNTAX)),
 
     DESCR(new Builder("descr", "de")
-            .doc("A short decription related to the object.")
+            .doc("A short description related to the object.")
             .syntax(FREE_FORM_SYNTAX)),
 
     DOMAIN(new Builder("domain", "dn")
@@ -562,6 +564,10 @@ public enum AttributeType implements Documented {
     POETIC_FORM(new Builder("poetic-form", "pf")
             .doc("Specifies the poem type.")
             .syntax(POETIC_FORM_SYNTAX)),
+
+    PREFIXLEN(new Builder("prefixlen",  "pl")
+            .doc("A URL referencing a CSV file containing prefix length data for the resource.")
+            .syntax(PREFIXLEN_SYNTAX)),
 
     REF_NFY(new Builder("ref-nfy", "rn")
             .doc("Specifies the e-mail address to be notified when a reference to the organisation object is added " +

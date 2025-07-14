@@ -2,6 +2,15 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.domain.GeolocationAttributes;
 import net.ripe.db.whois.api.rest.domain.Language;
 import net.ripe.db.whois.api.rest.domain.Link;
@@ -29,15 +38,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 
@@ -55,6 +55,7 @@ public class GeolocationService {
             InetnumStatus.ASSIGNED_PI,
             InetnumStatus.ASSIGNED_ANYCAST,
             InetnumStatus.ALLOCATED_PA,
+            InetnumStatus.ALLOCATED_ASSIGNED_PA,
             InetnumStatus.ALLOCATED_UNSPECIFIED);
 
     private static final Set<Inet6numStatus> STOP_AT_STATUS_IPV6 = Sets.immutableEnumSet(
@@ -146,13 +147,11 @@ public class GeolocationService {
     }
 
     private List<? extends IpEntry> lookupEntries(final IpInterval interval) {
-        if (interval instanceof Ipv4Resource) {
-            return ipv4Tree.findExactAndAllLessSpecific((Ipv4Resource)interval);
-        } else if (interval instanceof Ipv6Resource) {
-            return ipv6Tree.findExactAndAllLessSpecific((Ipv6Resource)interval);
-        } else {
-            throw new IllegalStateException();
-        }
+        return switch (interval) {
+            case Ipv4Resource ipv4Resource -> ipv4Tree.findExactAndAllLessSpecific(ipv4Resource);
+            case Ipv6Resource ipv6Resource -> ipv6Tree.findExactAndAllLessSpecific(ipv6Resource);
+            case null -> throw new IllegalStateException();
+        };
     }
 
     private RpslObject lookup(final IpEntry ipEntry) {

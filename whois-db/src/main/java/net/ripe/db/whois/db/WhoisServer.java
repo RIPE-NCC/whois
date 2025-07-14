@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.ReadinessHealthCheck;
 import net.ripe.db.whois.common.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.io.IOUtils;
@@ -11,11 +12,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AdviceMode;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.ContextStoppedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.Closeable;
 import java.security.Security;
@@ -25,6 +35,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
+@Configuration
+@EnableSpringConfigured
+//@EnableAspectJAutoProxy(proxyTargetClass = true)
 @Component
 public class WhoisServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisServer.class);
@@ -89,11 +102,9 @@ public class WhoisServer {
     }
 
     public void stop() {
-        // This sleep is needed to also prevent other applicationServices from shutting
-        // within the grace period the jetty server indicates to be taken out of the loadbalancer pool
-        Uninterruptibles.sleepUninterruptibly(preShutdownPause, TimeUnit.SECONDS);
-
         final Stopwatch stopwatch = Stopwatch.createStarted();
+
+        markServiceAsDown(applicationContext);
 
         for (final ApplicationService applicationService : applicationServices) {
             stopService(applicationService, false);
@@ -108,6 +119,16 @@ public class WhoisServer {
         }
 
         LOGGER.info("Whois server stopped in {}", stopwatch.stop());
+    }
+
+    private void markServiceAsDown(final ApplicationContext context) {
+        context.getBean(ReadinessHealthCheck.class).down();
+
+        LOGGER.info("waiting for {} seconds before starting to close spring context", preShutdownPause);
+        // This sleep is needed to also prevent other applicationServices from shutting
+        // within the grace period the jetty server indicates to be taken out of the loadbalancer pool
+        Uninterruptibles.sleepUninterruptibly(this.preShutdownPause, TimeUnit.SECONDS);
+        LOGGER.info("starting to destroy beans");
     }
 
     private void stopService(final ApplicationService applicationService, boolean forced) {

@@ -2,13 +2,12 @@ package net.ripe.db.whois.update.authentication.strategy;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.commons.lang.exception.NestableRuntimeException;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class AuthenticationFailedException extends NestableRuntimeException {
+public class AuthenticationFailedException extends RuntimeException {
     private final Collection<Message> authenticationMessages;
     private final Collection<RpslObject> candidates;
 

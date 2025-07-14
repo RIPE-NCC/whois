@@ -1,16 +1,23 @@
 package net.ripe.db.whois.api;
 
 import com.google.common.collect.Maps;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.UserSession;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +25,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Profile({WhoisProfile.TEST})
@@ -41,7 +44,7 @@ public class AuthServiceServerDummy implements Stub {
         this.authServiceClient = crowdClient;
     }
 
-    private class SSOTestHandler extends AbstractHandler {
+    private class SSOTestHandler extends Handler.Abstract {
         final Map<String, SSOUser> usermap;
 
         {
@@ -54,6 +57,7 @@ public class AuthServiceServerDummy implements Stub {
             usermap.put("ed7cd420-6402-11e3-949a-0800200c9a66", new SSOUser("db-test@ripe.net","Db","User","ed7cd420-6402-11e3-949a-0800200c9a66", true));
             usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", new SSOUser("random@ripe.net", "Random","User", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", true));
             usermap.put("8ffe29be-89ef-41c8-ba7f-0e1553a623e5", new SSOUser("test@ripe.net", "Ripe","User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", true));
+            usermap.put("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia", new SSOUser("test@ripe.net", "Ripe","User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", true));
             usermap.put("906635c2-0405-429a-800b-0602bd716124", new SSOUser("person@net.net", "Test","User", "906635c2-0405-429a-800b-0602bd716124", true));
 
             // for e2e integration test
@@ -81,28 +85,31 @@ public class AuthServiceServerDummy implements Stub {
         }
 
         @Override
-        public void handle(final String target, final Request baseRequest,
-                           final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
-            response.setContentType("text/xml;charset=utf-8");
-            baseRequest.setHandled(true);
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
 
-            if(!request.getRequestURI().contains("/authorisation-service/v2/authresource/")) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
+            if(!request.getHttpURI().getPath().contains("/authorisation-service/v2/authresource/")) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return false;
             }
 
-            final String userKey = request.getRequestURI().contains("validate") ? StringUtils.substringAfter(request.getHeader("Authorization"), "Bearer").trim() :
-                                                        StringUtils.substringAfterLast(request.getRequestURI(), "/");
+            final String userKey = request.getHttpURI().getPath().contains("validate") ? StringUtils.substringAfter(request.getHeaders().get("Authorization"), "Bearer").trim() :
+                                                        StringUtils.substringAfterLast(request.getHttpURI().getPath(), "/");
 
             final SSOUser user = usermap.get(userKey);
             if (user == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return false;
             }
 
             response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("application/json");
-            response.getWriter().println(serializeUuid(user));
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+            response.write(true,
+                    request.getHttpURI().getPath().contains("history") ? ByteBuffer.wrap(serializeHistoricalDetails(user).getBytes(StandardCharsets.UTF_8)) : ByteBuffer.wrap(serializeUuid(user).getBytes(StandardCharsets.UTF_8)),
+                    callback);
+
+            callback.succeeded();
+            return true;
         }
 
         private String serializeUuid(final SSOUser user) {
@@ -122,10 +129,33 @@ public class AuthServiceServerDummy implements Stub {
                     "      \"active\": %s,\n" +
                     "      \"accessRoles\": [\n" +
                     "      ]\n" +
-                    "\n" +
                     "    }\n" +
                     "  }\n" +
                     "}", user.getFirstName(), user.getLastName(), user.getEmail(), user.getUuid(), user.isActive());
+        }
+
+        private String serializeHistoricalDetails(final SSOUser user){
+            return String.format("{\n" +
+                    "  \"response\": {\n" +
+                    "    \"results\": [\n " +
+                    "    {\n" +
+                    "      \"eventDateTime\": \"2015-05-08T12:32:01.275379Z\",\n" +
+                    "      \"action\": \"EMAIL_CHANGE\",\n" +
+                    "      \"uuid\": \"%s\",\n" +
+                    "      \"actor\": \"%s\",\n" +
+                    "      \"actingService\": \"crowd_email_migration\",\n" +
+                    "      \"staff\": false,\n" +
+                    "      \"attributeChanges\": [\n" +
+                    "      {\n" +
+                    "         \"name\": \"email\",\n" +
+                    "         \"oldValue\": \"%s\",\n" +
+                    "         \"newValue\": \"%s\"\n" +
+                    "      }\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "    ]\n" +
+                    "  }\n" +
+                    "}",  user.getUuid(), user.getEmail(), user.getEmail(), user.getEmail());
         }
     }
 

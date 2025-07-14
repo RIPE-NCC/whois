@@ -108,34 +108,6 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 mnt-domains:  LIR2-MNT
                 source:       TEST
                 """,
-            "ALLOC-PI": """\
-                inetnum:      192.168.0.0 - 192.169.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PI
-                mnt-by:       RIPE-NCC-HM-MNT
-                mnt-lower:    LIR-MNT
-                mnt-lower:    LIR2-MNT
-                source:       TEST
-                """,
-            "ERX-ALLOC-PI": """\
-                inetnum:      192.0.0.0 - 192.255.255.255
-                netname:      TEST-NET-NAME
-                descr:        TEST network
-                country:      NL
-                org:          ORG-LIR1-TEST
-                admin-c:      TP1-TEST
-                tech-c:       TP1-TEST
-                status:       ALLOCATED PI
-                mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
-                mnt-lower:    LIR2-MNT
-                source:       TEST
-                """,
             "PART-PA": """\
                 inetnum:      192.168.0.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
@@ -223,7 +195,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -264,7 +236,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -303,7 +275,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -342,7 +314,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir reclaim
 
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -385,7 +357,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -424,7 +396,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -463,7 +435,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -505,7 +477,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -515,10 +487,12 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Deleting this object requires administrative authorisation"]
+        ack.warningMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["Status ALLOCATED UNSPECIFIED not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LIR-PARTITIONED PA"]
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
     }
@@ -549,7 +523,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  RS
 
                 password: hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -559,8 +533,10 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
+        ack.warningMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
+                ["Status ALLOCATED UNSPECIFIED not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LIR-PARTITIONED PA"]
 
         queryObjectNotFound("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
     }
@@ -587,7 +563,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 delete:  lir override
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -630,7 +606,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -673,7 +649,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -714,7 +690,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -755,7 +731,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir
                 override: denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -765,7 +741,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
         ack.infoSuccessMessagesFor("Delete", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
                 "Authorisation override used"]
@@ -795,7 +771,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir override
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -836,7 +812,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  asdf
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -865,7 +841,7 @@ class ReclaimSpec extends BaseQueryUpdateSpec {
                 delete:  lir reclaim
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

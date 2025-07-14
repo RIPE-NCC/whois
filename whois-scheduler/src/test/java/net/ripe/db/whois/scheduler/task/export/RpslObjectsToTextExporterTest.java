@@ -6,7 +6,6 @@ import net.ripe.db.whois.scheduler.task.export.dao.ExportCallbackHandler;
 import net.ripe.db.whois.scheduler.task.export.dao.ExportDao;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,12 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +61,7 @@ public class RpslObjectsToTextExporterTest {
 
     @Test
     public void export_invalid_dir() {
-        Assertions.assertThrows(RuntimeException.class, () -> {
+        assertThrows(RuntimeException.class, () -> {
             Mockito.reset(exportFileWriterFactory);
 
             subject.export();
@@ -140,11 +140,11 @@ public class RpslObjectsToTextExporterTest {
 
         Mockito.doThrow(IOException.class).when(exportFileWriter).write(rpslObject1);
 
-
         try {
             subject.export();
-            Assertions.fail("Expected exception");
+            fail("Expected exception");
         } catch (RuntimeException ignored) {
+            // expected
         }
 
         Mockito.verify(exportFileWriter).write(rpslObject1);
@@ -156,8 +156,8 @@ public class RpslObjectsToTextExporterTest {
     public void export_check_files() {
         subject.export();
 
-        assertThat(exportDir.exists(), Matchers.is(true));
-        assertThat(tmpDir.exists(), Matchers.is(false));
+        assertThat(exportDir.exists(), is(true));
+        assertThat(tmpDir.exists(), is(false));
     }
 
     @Test
@@ -184,8 +184,9 @@ public class RpslObjectsToTextExporterTest {
         try {
             startLatch.await(5, TimeUnit.SECONDS);
             subject.export();
-            Assertions.fail("Expected exception");
+            fail("Expected exception");
         } catch (IllegalStateException ignored) {
+            // expected
         } finally {
             waitLatch.countDown();
         }

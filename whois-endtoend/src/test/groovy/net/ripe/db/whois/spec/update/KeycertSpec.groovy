@@ -192,7 +192,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -202,7 +202,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -251,7 +251,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -261,7 +261,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-2" }
 
         queryObject("-rGBT key-cert X509-2", "key-cert", "X509-2")
@@ -344,7 +344,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -354,7 +354,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-3" }
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-4" }
 
@@ -433,7 +433,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -443,7 +443,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
@@ -537,7 +537,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 notify:       dbtest@ripe.net
                 mnt-by:       LIR2-MNT
                 source:       TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -547,7 +547,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 2, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-2" }
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT" }
@@ -651,7 +651,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password:    test2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -661,7 +661,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 2, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-2" }
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT" }
@@ -715,7 +715,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -725,7 +725,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -773,7 +773,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -783,7 +783,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.warningSuccessMessagesFor("Create", "[key-cert] X509-1") == [
                 "Supplied attribute 'method' has been replaced with a generated value",
@@ -850,7 +850,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -929,7 +929,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -990,7 +990,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1055,7 +1055,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1122,7 +1122,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1179,7 +1179,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1324,7 +1324,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1428,7 +1428,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1532,7 +1532,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1601,7 +1601,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1611,7 +1611,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -1662,7 +1662,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1672,7 +1672,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.warningSuccessMessagesFor("Modify", "[key-cert] X509-1") == [
                 "Supplied attribute 'method' has been replaced with a generated value",
@@ -1727,7 +1727,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1737,7 +1737,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.warningSuccessMessagesFor("Modify", "[key-cert] X509-1") == [
                 "Supplied attribute 'method' has been replaced with a generated value",
@@ -1789,7 +1789,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1799,7 +1799,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -1850,7 +1850,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1860,7 +1860,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -1911,7 +1911,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1921,7 +1921,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.warningSuccessMessagesFor("Modify", "[key-cert] X509-1") == [
                 "Supplied attribute 'method' has been replaced with a generated value",
@@ -1973,7 +1973,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1983,7 +1983,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.errorMessagesFor("Modify", "[key-cert] X509-1") == [
                 "Invalid X509 Certificate"]
@@ -2029,7 +2029,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2039,7 +2039,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
                 "Invalid X509 Certificate"]
@@ -2085,7 +2085,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2095,7 +2095,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
                 "The supplied object has no key"]
@@ -2142,7 +2142,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2152,7 +2152,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
                 "The supplied object has no key"]
@@ -2198,7 +2198,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2208,7 +2208,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
                 "The supplied object has no key"]
@@ -2266,7 +2266,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2333,7 +2333,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2344,7 +2344,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-5763950D" }
         ack.warningSuccessMessagesFor("Modify", "[key-cert] PGPKEY-5763950D") == [
@@ -2537,7 +2537,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2548,7 +2548,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-5763950D" }
         ack.errorMessagesFor("Modify", "[key-cert] PGPKEY-5763950D") ==
                 ["The supplied object has multiple keys"]
@@ -2593,7 +2593,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2676,7 +2676,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
                 delete:  reason
                 password: lir
-            """.stripIndent())
+            """.stripIndent(true))
       then:
         def ack = ackFor message
 
@@ -2684,7 +2684,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-F6A10C2D" }
     }
 
@@ -2726,7 +2726,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def createAck = new AckResponse("", createResponse)
@@ -2775,7 +2775,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def updateAck = new AckResponse("", updateResponse)
@@ -2822,7 +2822,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 delete: reason
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
       then:
         def deleteAck = new AckResponse("", deleteResponse)
@@ -2880,7 +2880,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def createAck = new AckResponse("", createResponse)
@@ -2928,7 +2928,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent())
+                """.stripIndent(true))
 
         then:
         def createAck = new AckResponse("", createResponse)

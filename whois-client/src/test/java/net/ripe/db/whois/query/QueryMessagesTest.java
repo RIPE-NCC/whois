@@ -6,10 +6,11 @@ import org.junit.jupiter.api.Test;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class QueryMessagesTest {
 
@@ -22,17 +23,17 @@ public class QueryMessagesTest {
 
         assertThat(subject, is(subject));
         assertThat(subject, is(clone));
-        assertFalse(subject.equals(null));
-        assertFalse(subject.equals(1));
-        assertFalse(subject.equals(noClone));
-        assertFalse(noClone.equals(sameArgs));
+        assertThat(subject, not(equalTo(null)));
+        assertThat(subject, not(equalTo(1)));
+        assertThat(subject, not(equalTo(noClone)));
+        assertThat(noClone, not(equalTo(sameArgs)));
 
         assertThat(subject.hashCode(), is(clone.hashCode()));
     }
 
     @Test
     public void headerShouldContainLinkToTermsAndConditions() {
-        assertThat(QueryMessages.termsAndConditions().toString(), containsString("http://www.ripe.net/db/support/db-terms-conditions.pdf"));
+        assertThat(QueryMessages.termsAndConditions().toString(), containsString("https://docs.db.ripe.net/terms-conditions.html"));
     }
 
     @Test
@@ -63,12 +64,12 @@ public class QueryMessagesTest {
 
     @Test
     public void accessDeniedPermanentlyShouldContainErrorCode() throws UnknownHostException {
-        assertThat(QueryMessages.accessDeniedPermanently(InetAddress.getLocalHost()).toString(), containsString("%ERROR:201:"));
+        assertThat(QueryMessages.accessDeniedPermanently(InetAddress.getLocalHost().getHostAddress()).toString(), containsString("%ERROR:201:"));
     }
 
     @Test
     public void accessDeniedTemporarilyMessageShouldContainErrorCode() throws UnknownHostException {
-        assertThat(QueryMessages.accessDeniedTemporarily(InetAddress.getLocalHost()).toString(), containsString("%ERROR:201:"));
+        assertThat(QueryMessages.accessDeniedTemporarily(InetAddress.getLocalHost().getHostAddress()).toString(), containsString("%ERROR:201:"));
     }
 
     @Test

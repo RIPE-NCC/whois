@@ -17,9 +17,9 @@ import javax.sql.DataSource;
 import java.util.Scanner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Tag("IntegrationTest")
 public class ResourceDataDaoIntegrationTest extends AbstractDaoIntegrationTest {
@@ -42,7 +42,7 @@ public class ResourceDataDaoIntegrationTest extends AbstractDaoIntegrationTest {
 
         subject.store("test", resourceData);
         final AuthoritativeResource loadedData = subject.load("test");
-        assertEquals(resourceData, loadedData);
+        assertThat(resourceData, equalTo(loadedData));
     }
 
     @Test

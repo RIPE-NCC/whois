@@ -110,7 +110,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
 
             password:     update
             dry-run:      some reason
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
@@ -131,7 +131,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
 
             password:     update
             dry-run:      some reason
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         response2 =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
@@ -152,7 +152,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             mnt-ref:      TST-MNT
             source:       TEST
             password:     update
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         create =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
@@ -171,7 +171,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
 
             password:     update
             dry-run:      some reason
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         modify =~ /Modify SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
@@ -183,7 +183,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             -org-name:       Ripe NCC organisation
             +org-name:       Updated name
              org-type:       OTHER
-            """.stripIndent())
+            """.stripIndent(true))
 
         query_object_matches("ORG-RNO1-TEST", "organisation", "ORG-RNO1-TEST", "Ripe NCC organisation")
         noMoreMessages()
@@ -203,7 +203,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
                 mnt-by:       TST-MNT2
                 source:       TEST
                 password:     update
-                dry-run:""".stripIndent())
+                dry-run:""".stripIndent(true))
 
       then:
         response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
@@ -222,14 +222,14 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             source:       TEST
             password:     invalid
             dry-run:
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         response =~ """
             \\*\\*\\*Error:   Authorisation for \\[organisation\\] ORG-RNO1-TEST failed
                         using "mnt-by:"
                         not authenticated by: TST-MNT
-            """.stripIndent()
+            """.stripIndent(true)
 
         response =~ /\*\*\*Info:    Dry-run performed, no changes to the database have been made/
     }
@@ -247,7 +247,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
             source:       TEST
 
             password:     update
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         response =~ /Create SUCCEEDED: \[organisation\] ORG-RNO1-TEST/
@@ -268,7 +268,7 @@ class DryRunIntegrationSpec extends BaseWhoisSourceSpec {
 
             password:     update
             dry-run:      some reason
-            """.stripIndent())
+            """.stripIndent(true))
 
       then:
         delete =~ /Delete SUCCEEDED: \[organisation\] ORG-RNO1-TEST/

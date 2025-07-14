@@ -119,7 +119,7 @@ public class JdbcRpslObjectUpdateDaoCtdIntegrationTest extends AbstractDaoIntegr
 
         final Set<RpslObjectInfo> roleReferences = subject.getReferences(role);
 
-        assertThat(roleReferences.size(), is(1));
+        assertThat(roleReferences, hasSize(1));
         assertThat(roleReferences.iterator().next().getKey(), is("ORG-TEST"));
     }
 
@@ -133,7 +133,7 @@ public class JdbcRpslObjectUpdateDaoCtdIntegrationTest extends AbstractDaoIntegr
 
         final Set<RpslObjectInfo> roleReferences = subject.getReferences(role);
 
-        assertThat(roleReferences.size(), is(0));
+        assertThat(roleReferences, hasSize(0));
     }
 
 }

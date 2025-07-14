@@ -160,24 +160,20 @@ public class MntByAuthentication extends AuthenticationStrategyBase {
 
     @SuppressWarnings("unchecked")
     private List<? extends IpEntry> findExactAndAllLessSpecific(final IpInterval ipInterval) {
-        if (ipInterval instanceof Ipv4Resource) {
-            return ipv4Tree.findExactAndAllLessSpecific((Ipv4Resource) ipInterval);
-        } else if (ipInterval instanceof Ipv6Resource) {
-            return ipv6Tree.findExactAndAllLessSpecific((Ipv6Resource) ipInterval);
-        }
-
-        throw new IllegalArgumentException("Unexpected ip object: " + ipInterval);
+        return switch (ipInterval) {
+            case Ipv4Resource ipv4Resource -> ipv4Tree.findExactAndAllLessSpecific(ipv4Resource);
+            case Ipv6Resource ipv6Resource -> ipv6Tree.findExactAndAllLessSpecific(ipv6Resource);
+            case null -> throw new IllegalArgumentException("Unexpected ip object: " + ipInterval);
+        };
     }
 
     @SuppressWarnings("unchecked")
     private List<? extends IpEntry> findExact(final IpInterval ipInterval) {
-        if (ipInterval instanceof Ipv4Resource) {
-            return ipv4Tree.findExact((Ipv4Resource) ipInterval);
-        } else if (ipInterval instanceof Ipv6Resource) {
-            return ipv6Tree.findExact((Ipv6Resource) ipInterval);
-        }
-
-        throw new IllegalArgumentException("Unexpected ip object: " + ipInterval);
+        return switch (ipInterval) {
+            case Ipv4Resource ipv4Resource -> ipv4Tree.findExact(ipv4Resource);
+            case Ipv6Resource ipv6Resource -> ipv6Tree.findExact(ipv6Resource);
+            case null -> throw new IllegalArgumentException("Unexpected ip object: " + ipInterval);
+        };
     }
 
     @CheckForNull

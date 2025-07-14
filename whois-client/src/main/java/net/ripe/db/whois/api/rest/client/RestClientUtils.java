@@ -7,6 +7,10 @@ import net.ripe.db.whois.api.rest.mapper.DirtyClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public class RestClientUtils {
@@ -36,4 +40,16 @@ public class RestClientUtils {
                         }));
         return restClient;
     }
+
+    // Trust all server-side certificates (including self-signed)
+    public static SSLContext trustAllSSLContext() {
+        try {
+            final SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{new DummyTrustManager()}, new java.security.SecureRandom());
+            return sslContext;
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
 }

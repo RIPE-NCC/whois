@@ -1,13 +1,12 @@
 package net.ripe.db.whois.api.healthcheck;
 
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.HealthCheck;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.util.List;
 
 @Component
@@ -25,7 +24,7 @@ public class HealthCheckService {
     public Response check() {
         for (HealthCheck healthCheck : healthChecks) {
             if (!healthCheck.check()) {
-                return Response.status(Status.SERVICE_UNAVAILABLE).entity("DISABLED").build();
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE).entity("DISABLED").build();
             }
         }
 

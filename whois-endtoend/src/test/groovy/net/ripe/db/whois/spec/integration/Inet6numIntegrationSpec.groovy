@@ -134,14 +134,14 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                 password: update
             """
 
-        def object = new SyncUpdate(data: inet6num.stripIndent())
+        def object = new SyncUpdate(data: inet6num.stripIndent(true))
         def insert = syncUpdate object
 
       expect:
         insert =~ /SUCCESS/
 
       when:
-        def delete = new SyncUpdate(data: inet6num.stripIndent() + "delete:yes\npassword:update")
+        def delete = new SyncUpdate(data: inet6num.stripIndent(true) + "delete:yes\npassword:update")
         def response = syncUpdate delete
 
       then:
@@ -162,7 +162,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                 source: TEST
             """
 
-        def delete = new SyncUpdate(data: inet6num.stripIndent() + "delete:yes\npassword:update")
+        def delete = new SyncUpdate(data: inet6num.stripIndent(true) + "delete:yes\npassword:update")
 
       when:
         def response = syncUpdate delete
@@ -187,7 +187,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     password: update
                     password: emptypassword
                 """
-        def insert = syncUpdate(new SyncUpdate(data: inet6num.stripIndent()));
+        def insert = syncUpdate(new SyncUpdate(data: inet6num.stripIndent(true)));
 
       expect:
         insert =~ /SUCCESS/
@@ -204,7 +204,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by: TEST-MNT
                     source: TEST
                     password: update
-                """.stripIndent()))
+                """.stripIndent(true)))
 
       then:
         modify =~ /FAIL/
@@ -225,7 +225,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -241,7 +241,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /SUCCESS/
         update =~ /No operation: \[inet6num\] 2001::\/64/
@@ -261,7 +261,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
         expect:
         insert =~ /SUCCESS/
 
@@ -278,7 +278,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
         then:
         update =~ /SUCCESS/
     }
@@ -297,7 +297,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -313,7 +313,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ "Error:   status value cannot be changed, you must delete and re-create the\n            object"
@@ -334,7 +334,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -350,7 +350,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ /Error:   Missing required "org:" attribute/
@@ -370,7 +370,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -386,7 +386,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /SUCCESS/
     }
@@ -405,7 +405,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -422,7 +422,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ /Error:   Referenced organisation has wrong "org-type"/
@@ -444,7 +444,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -461,7 +461,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ /Error:   "assignment-size:" value cannot be changed/
@@ -483,7 +483,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
 
         def child = syncUpdate(new SyncUpdate(data: """\
                                         inet6num: 2001::/64
@@ -497,7 +497,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: emptypassword
                                         password: otherpassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
         expect:
         parent =~ /SUCCESS/
         child =~ /SUCCESS/
@@ -516,7 +516,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: emptypassword
                                         password: otherpassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
 
         then:
         update.contains("" +
@@ -541,7 +541,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-lower: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ /Error:   Changing "mnt-lower:" value requires administrative authorisation/
@@ -561,7 +561,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
 
@@ -578,7 +578,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-routes: TEST-MNT {2002::/64,2001::/24}
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ /Error:   2002::\/64 is outside the range of this object/
@@ -600,7 +600,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ /Error:   Missing required "org:" attribute/
@@ -620,7 +620,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: TEST-MNT
                                         source: TEST
                                         password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ "Error:   Status ALLOCATED-BY-RIR can only be created by the database\n" +
@@ -643,7 +643,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /SUCCESS/
     }
@@ -662,7 +662,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ /Error:   inet6num parent has incorrect status: ASSIGNED ANYCAST/
@@ -683,7 +683,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         grandparent =~ /SUCCESS/
 
@@ -700,7 +700,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
 
       and:
         parent =~ /SUCCESS/
@@ -719,7 +719,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         assignment-size: 68
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /SUCCESS/
     }
@@ -740,7 +740,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         grandparent =~ /SUCCESS/
 
@@ -758,7 +758,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
 
       then:
         parent =~ /SUCCESS/
@@ -778,7 +778,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         assignment-size: 72
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         update =~ /FAIL/
         update =~ /Error:   Only two levels of hierarchy allowed with status AGGREGATED-BY-LIR/
@@ -800,7 +800,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         parent =~ /SUCCESS/
 
@@ -817,7 +817,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: emptypassword
                                         password: otherpassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
 
       then:
         update =~ /SUCCESS/
@@ -839,7 +839,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         parent =~ /SUCCESS/
 
@@ -856,7 +856,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: emptypassword
                                         password: otherpassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
 
       then:
         update.contains("***Error:   Prefix length for 2001::/32 must be 64")
@@ -877,7 +877,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         parent.contains("Missing required \"assignment-size\" attribute")
     }
@@ -898,7 +898,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: update
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         parent =~ /SUCCESS/
 
@@ -916,7 +916,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         source: TEST
                                         password: emptypassword
                                         password: otherpassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
 
       then:
         update.contains("" +
@@ -940,7 +940,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         assignment-size: 64
                                         source: TEST
                                         password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         parent =~ /SUCCESS/
 
@@ -956,7 +956,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         mnt-by: OTHER-MNT
                                         source: TEST
                                         password: otherpassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
 
       then:
         update =~ /FAIL/
@@ -981,7 +981,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         insert =~ /SUCCESS/
     }
@@ -1001,7 +1001,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        org: ORG-TOL1-TEST
                                        source: TEST
                                        password: update
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         insert =~ /FAIL/
         insert =~ /Authorisation for \[inet6num\] 2001::\/64 failed/
@@ -1025,7 +1025,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: wrong_password
                                        override: denis,override1
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       then:
         insert.contains("Create SUCCEEDED: [inet6num] 2001::/64")
     }
@@ -1044,7 +1044,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
         insert =~ /Create SUCCEEDED: \[inet6num\] 2005:11:fe::\/64/
@@ -1066,10 +1066,94 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                        source: TEST
                                        password: update
                                        password: emptypassword
-                                    """.stripIndent()))
+                                    """.stripIndent(true)))
       expect:
         insert =~ /SUCCESS/
         insert =~ /Modify SUCCEEDED: \[inet6num\] a000:11:fe::\/64/
         insert =~ /Value A000:0011:fE:00::012c\/64 converted to a000:11:fe::\/64/
+    }
+
+    def "update, not more specific allowed status with mnt-lower attribute"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2221::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        update =~ /FAIL/
+        update =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED:"
+            status/
+    }
+
+    def "update, not more specific allowed status with mnt-lower attribute override"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2221::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        update.contains("Modify SUCCEEDED: [inet6num] 2221::/64")
+        update.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\"\n            status");
+    }
+
+    def "create, not more specific allowed status with mnt-lower attribute"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2001::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        status: ASSIGNED
+                                        tech-c: TEST-PN
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        insert =~ /FAIL/
+        insert =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED:"
+            status/
+    }
+
+    def "create, not more specific allowed status with mnt-lower attribute with override"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num:  2001::/64
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        status: ASSIGNED
+                                        tech-c: TEST-PN
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        insert.contains("Create SUCCEEDED: [inet6num] 2001::/64")
+        insert.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED:\"\n            status")
     }
 }

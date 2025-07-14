@@ -1,11 +1,11 @@
 package net.ripe.db.whois.api.rest.marshal;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.rest.client.StreamingException;
 import net.ripe.db.whois.common.Message;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -56,8 +56,8 @@ public class StreamingMarshalTextPlain implements StreamingMarshal {
 
     @Override
     public void throwNotFoundError(
-            HttpServletRequest request,
-            List<Message> errorMessages
+            final HttpServletRequest request,
+            final List<Message> errorMessages
     ) {
         throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
                 .entity(createErrorStringEntity(request, errorMessages))

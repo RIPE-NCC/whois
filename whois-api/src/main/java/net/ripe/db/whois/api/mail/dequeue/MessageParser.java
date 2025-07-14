@@ -2,12 +2,24 @@ package net.ripe.db.whois.api.mail.dequeue;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
+import jakarta.mail.Address;
+import jakarta.mail.Header;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Part;
+import jakarta.mail.Session;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimeUtility;
 import net.ripe.db.whois.api.mail.MailMessage;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.ContentWithCredentials;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -15,7 +27,7 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +35,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.mail.Address;
-import javax.mail.Header;
-import javax.mail.MessagingException;
-import javax.mail.Part;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.MimeUtility;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -45,6 +47,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,6 +62,7 @@ public class MessageParser {
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
     private static final Pattern HEADER_BASE_64 = Pattern.compile("Content-Transfer-Encoding:\\s+base64*");
+    private static final Session SESSION = Session.getInstance(new Properties());
 
     private final LoggerContext loggerContext;
     private final DateTimeProvider dateTimeProvider;
@@ -67,6 +71,14 @@ public class MessageParser {
     public MessageParser(final LoggerContext loggerContext, final DateTimeProvider dateTimeProvider) {
         this.loggerContext = loggerContext;
         this.dateTimeProvider = dateTimeProvider;
+    }
+
+    public MailMessage parse(final String message, final UpdateContext updateContext) throws MessagingException {
+        return parse(new MimeMessage(SESSION, new ByteArrayInputStream(message.getBytes())), updateContext);
+    }
+
+    public MailMessage parse(final InputStream message, final UpdateContext updateContext) throws MessagingException {
+        return parse(new MimeMessage(SESSION, message), updateContext);
     }
 
     public MailMessage parse(final MimeMessage message, final UpdateContext updateContext) throws MessagingException {
@@ -165,6 +177,7 @@ public class MessageParser {
     }
 
     private void parseContents(@Nonnull final MessageParts messageParts, @Nonnull final Part part, @Nullable final Part parentPart) throws MessagingException, IOException {
+        handleInvalidTypes(part);
         final ContentType contentType = new ContentType(part.getContentType());
         final Object content = getContent(part, contentType);
         final Charset charset = getCharset(contentType);
@@ -210,6 +223,12 @@ public class MessageParser {
                     parseContents(messageParts, bodyPart, part);
                 }
             }
+        }
+    }
+
+    private static void handleInvalidTypes(Part part) throws MessagingException {
+        if ("text".equals(part.getContentType())){
+            part.setHeader("Content-Type", "text/plain;");
         }
     }
 

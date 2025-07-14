@@ -1,24 +1,28 @@
 package net.ripe.db.whois.update.keycert;
 
+import net.ripe.db.whois.common.x509.KeyWrapper;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 @ExtendWith(MockitoExtension.class)
 public class KeyWrapperFactoryTest {
     @Mock UpdateContainer updateContainer;
     @Mock UpdateContext updateContext;
 
-    @InjectMocks KeyWrapperFactory subject;
+    @InjectMocks
+    KeyWrapperFactory subject;
 
     @Test
     public void createKeyWrapper_invalid_pgp_key() {
@@ -37,7 +41,8 @@ public class KeyWrapperFactoryTest {
         );
 
         final KeyWrapper keyWrapper = subject.createKeyWrapper(rpslObject, updateContainer, updateContext);
-        assertNull(keyWrapper);
+
+        assertThat(keyWrapper, is(nullValue()));
     }
 
     @Test
@@ -55,7 +60,8 @@ public class KeyWrapperFactoryTest {
         );
 
         final KeyWrapper keyWrapper = subject.createKeyWrapper(rpslObject, updateContainer, updateContext);
-        assertNull(keyWrapper);
+
+        assertThat(keyWrapper, is(nullValue()));
     }
 
     @Test
@@ -88,7 +94,8 @@ public class KeyWrapperFactoryTest {
         );
 
         final KeyWrapper keyWrapper = subject.createKeyWrapper(rpslObject, updateContainer, updateContext);
-        assertTrue(keyWrapper instanceof X509CertificateWrapper);
+
+        assertThat(keyWrapper, instanceOf(X509CertificateWrapper.class));
     }
 
     @Test
@@ -135,6 +142,7 @@ public class KeyWrapperFactoryTest {
         );
 
         final KeyWrapper keyWrapper = subject.createKeyWrapper(rpslObject, updateContainer, updateContext);
-        assertTrue(keyWrapper instanceof PgpPublicKeyWrapper);
+
+        assertThat(keyWrapper, instanceOf(PgpPublicKeyWrapper.class));
     }
 }

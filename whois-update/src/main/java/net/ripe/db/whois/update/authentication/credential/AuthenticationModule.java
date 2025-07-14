@@ -8,12 +8,12 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
-import net.ripe.db.whois.update.domain.Credential;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
-import net.ripe.db.whois.update.domain.PasswordCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.update.domain.PgpCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.X509Credential;
@@ -93,7 +93,7 @@ public class AuthenticationModule {
 
             final Class<? extends Credential> credentialClass = credential.getClass();
             for (CredentialValidator credentialValidator : credentialValidatorMap.get(credentialClass)) {
-                if (credentialValidator.hasValidCredential(update, updateContext, offered.ofType(credentialValidator.getSupportedOfferedCredentialType()), credential)) {
+                if (credentialValidator.hasValidCredential(update, updateContext, offered.ofType(credentialValidator.getSupportedOfferedCredentialType()), credential, maintainer)) {
                     return true;
                 }
             }

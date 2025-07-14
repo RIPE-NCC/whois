@@ -1,0 +1,94 @@
+From MAILER-DAEMON Tue Mar 05 12:54:05 2024
+Received: from mail-mx-1.ripe.net ([2001:67c:2e8:11::c100:1311])
+	by gaolao.ripe.net with esmtps  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.97.1)
+	id 1rhUJ3-0000000Bgim-2sn4
+	for rc-dbm@gaolao.ripe.net;
+	Tue, 05 Mar 2024 12:54:05 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=ripe.net;
+	s=s1-ripe-net; h=Date:Message-Id:Subject:MIME-Version:Content-Type:References
+	:To:From:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive:List-Unsubscribe-Post;
+	bh=Pyvr21nA316yIOcnxnDTsugfpGPtFisdYpw5mifDL5k=; b=QYk7cc1xiwIXW5glmXhISVOCX9
+	lX7RcffTErtJz1NmxTTfUncxmPZwPNrZiTR+pRjjIHhj7wz2eFUGJYgle+fKLVuOJHx7RHmnFeoOM
+	ZlnTfJ2bdjfnxDxEzzdYQ+OVJRPIpEBTdNeZrekySEfzw/oM14vKzQxjG04lZ1zNcCt4RjXvIlzTO
+	qoyBoR+AW/nbT/u1F9qYM1Ycz/Dx3erBshyHeTun5u/22mePrpsJcAfAD50GhWtwuYXPVZB8mn3jE
+	VNH4wHyLLWsdDn3fy0mDZGAj6VmGWVJeJZwXrpWEP9kj+Qrio3WnVius1za9QdLGLruVh7mjMPJ+O
+	otBqN5TQ==;
+Received: from imap-01.ripe.net ([2001:67c:2e8:23::c100:170e]:39074)
+	by mail-mx-1.ripe.net with esmtps  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	id 1rhUJ3-00884N-23
+	for rc-dbm@gaolao.ripe.net;
+	Tue, 05 Mar 2024 12:54:05 +0000
+Received: from exim by imap-01.ripe.net with local (Exim 4.96.2)
+	id 1rhUJ3-007USk-1V
+	for test-dbm@ripe.net;
+	Tue, 05 Mar 2024 12:54:05 +0000
+X-Failed-Recipients: testing4@ripe.net
+Auto-Submitted: auto-replied
+From: Mail Delivery System <Mailer-Daemon@ripe.net>
+To: test-dbm@ripe.net
+References: <796892877.6.1709643245290@gaolao.ripe.net>
+Content-Type: multipart/report; report-type=delivery-status; boundary=1709643245-eximdsn-532317978
+MIME-Version: 1.0
+Subject: Mail delivery failed: returning message to sender
+Message-Id: <E1rhUJ3-007USk-1V@imap-01.ripe.net>
+Date: Tue, 05 Mar 2024 12:54:05 +0000
+X-RIPE-Signature: f85d5efa577a0f1310ceb23a83926cd6e984b85389d215326a30d445d4fbd628
+
+--1709643245-eximdsn-532317978
+Content-type: text/plain; charset=us-ascii
+
+This message was created automatically by mail delivery software.
+
+A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error. The following address(es) failed:
+
+  testing4@ripe.net
+    Unknown user
+
+--1709643245-eximdsn-532317978
+Content-type: message/delivery-status
+
+Reporting-MTA: dns; imap-01.ripe.net
+
+Action: failed
+Final-Recipient: rfc822;testing4@ripe.net
+Status: 5.0.0
+
+--1709643245-eximdsn-532317978
+Content-type: text/rfc822-headers
+
+Return-path: <test-dbm@ripe.net>
+Received: from pikapika.ripe.net ([2001:67c:2e8:11::c100:1315])
+	by imap-01.ripe.net with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <test-dbm@ripe.net>)
+	id 1rhUJ3-007USg-1N
+	for testing4@ripe.net;
+	Tue, 05 Mar 2024 12:54:05 +0000
+Received: from [193.0.7.248] (helo=gaolao.ripe.net)
+	by pikapika.ripe.net with esmtp (Exim 4.96.2)
+	(envelope-from <test-dbm@ripe.net>)
+	id 1rhUJ3-0000nd-0x
+	for testing4@ripe.net;
+	Tue, 05 Mar 2024 12:54:05 +0000
+Date: Tue, 5 Mar 2024 12:54:05 +0000 (UTC)
+From: RIPE Database Administration RC <unread@ripe.net>
+Reply-To: mherran@ripe.net
+To: testing4@ripe.net
+Message-ID: <796892877.6.1709643245290@gaolao.ripe.net>
+Subject: Notification of RIPE Database changes
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Precedence: bulk
+Auto-Submitted: auto-generated
+List-Unsubscribe: <https://test.db.ripe.net/db-web-ui/api/unsubscribe/0326d5d7-6e1f-4dfb-b5f5-deab26b8894e@ripe.net>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+
+
+--1709643245-eximdsn-532317978--

@@ -116,7 +116,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -127,7 +127,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -152,7 +152,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -163,7 +163,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -190,7 +190,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -201,7 +201,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
         ack.errorMessagesFor("Create", "[filter-set] fltr-customers") == [
                 "A filter-set object cannot contain both filter and mp-filter attributes"]
@@ -226,7 +226,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -237,7 +237,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
         ack.errorMessagesFor("Create", "[filter-set] fltr-customers") == [
                 "A filter-set object must contain either filter or mp-filter attribute"]
@@ -275,7 +275,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -286,7 +286,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(2, 2, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
         ack.errorMessagesFor("Create", "[filter-set] fltr-customers") == [
                 "Syntax error in <^AS4294967299> OR <^AS8501 AS20965> AND community.contains(12345:7295) AND as-customers:AS94967295:as-test OR rs-customers:AS94967295:rs-test"]
@@ -324,7 +324,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -335,7 +335,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers"}
 
         queryObject("-rBT filter-set AS123:fltr-customers", "filter-set", "AS123:fltr-customers")
@@ -366,7 +366,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -377,7 +377,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers"}
         ack.errorMessagesFor("Create", "[filter-set] AS123:fltr-customers") == [
                 "Parent object AS123 not found"]
@@ -412,7 +412,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -423,7 +423,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers:AS123"}
 
         queryObject("-rBT filter-set fltr-customers:AS123", "filter-set", "fltr-customers:AS123")
@@ -456,7 +456,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -467,7 +467,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
 
         queryObject("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352")
@@ -499,7 +499,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -510,7 +510,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
 
         queryObject("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352")
@@ -565,7 +565,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -576,7 +576,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 1, 1, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[filter-set] AS123:fltr-customers"}
         ack.successes.any {it.operation == "Modify" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
@@ -647,7 +647,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -658,7 +658,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 2, 1, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[filter-set] AS123:fltr-customers"}
         ack.successes.any {it.operation == "Modify" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
@@ -695,7 +695,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -706,7 +706,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] AS123"}
         ack.errorMessagesFor("Create", "[filter-set] AS123") == [
                 "Syntax error in AS123"]
@@ -741,7 +741,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -752,7 +752,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
         ack.errorMessagesFor("Create", "[filter-set] AS123:fltr-customers:AS352") == [
                 "Syntax error in <^AS7775535@ AND as-customers:AS94967295:as-test OR rs-customers:AS94967295:rs-test"]
@@ -786,7 +786,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -797,7 +797,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
         ack.errorMessagesFor("Create", "[filter-set] AS123:fltr-customers:AS352") == [
                 "Syntax error in <^AS7775535> OR <^AS8501 AS20965> AND community.contains(94967295999999:7295) AND as-customers:AS94967295:as-test OR rs-customers:AS94967295:rs-test"]
@@ -831,7 +831,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -842,7 +842,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
         ack.errorMessagesFor("Create", "[filter-set] AS123:fltr-customers:AS352") == [
                 "Syntax error in <^AS7775535> OR <^AS8501 AS20965> AND community.contains(94967295:7295999999) AND as-customers:AS94967295:as-test OR rs-customers:AS94967295:rs-test"]
@@ -883,7 +883,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -894,7 +894,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
         ack.errorMessagesFor("Create", "[filter-set] AS123:fltr-customers:AS352") == [
                 "Attribute \"filter\" appears more than once",
@@ -921,7 +921,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -932,7 +932,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -956,7 +956,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -967,7 +967,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -996,7 +996,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1007,7 +1007,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1031,7 +1031,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1042,7 +1042,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1078,7 +1078,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1089,7 +1089,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1130,7 +1130,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1141,7 +1141,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1248,7 +1248,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1259,7 +1259,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1366,7 +1366,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1377,7 +1377,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
         ack.errorMessagesFor("Create", "[filter-set] fltr-customers") == [
                 "Syntax error in { 1.0.0.0/8^- , 2.0.0.0/8^- , 5.0.0.0/8^- , 7.0.0.0/8^- , 10.0.0.0/8^- , 23.0.0.0/8^- , 27.0.0.0/8^- , 31.0.0.0/8^- , 36.0.0.0/8^- , 37.0.0.0/8^- , 39.0.0.0/8^- , 41.0.0.0/8^- , 42.0.0.0/8^- , 49.0.0.0/8^- , 50.0.0.0/8^- , 58.0.0.0/8^- , 59.0.0.0/8^- , 60.0.0.0/8^- , 70.0.0.0/8^- , 71.0.0.0/8^- , 72.0.0.0/8^- , 73.0.0.0/8^- , 74.0.0.0/8^- , 75.0.0.0/8^- , 76.0.0.0/8^- , 77.0.0.0/8^- , 78.0.0.0/8^- , 79.0.0.0/8^- , 83.0.0.0/8^- , 84.0.0.0/8^- , 85.0.0.0/8^- , 86.0.0.0/8^- , 87.0.0.0/8^- , 88.0.0.0/8^- , 89.0.0.0/8^- , 90.0.0.0/8^- , 91.0.0.0/8^- , 92.0.0.0/8^- , 93.0.0.0/8^- , 94.0.0.0/8^- , 95.0.0.0/8^- , 96.0.0.0/8^- , 97.0.0.0/8^- , 98.0.0.0/8^- , 99.0.0.0/8^- , 100.0.0.0/8^- 101.0.0.0/8^- , 102.0.0.0/8^- , 103.0.0.0/8^- , 104.0.0.0/8^- , 105.0.0.0/8^- , 106.0.0.0/8^- , 107.0.0.0/8^- , 108.0.0.0/8^- , 109.0.0.0/8^- , 110.0.0.0/8^- , 111.0.0.0/8^- , 112.0.0.0/8^- , 113.0.0.0/8^- , 114.0.0.0/8^- , 115.0.0.0/8^- , 116.0.0.0/8^- , 117.0.0.0/8^- , 118.0.0.0/8^- , 119.0.0.0/8^- , 120.0.0.0/8^- , 121.0.0.0/8^- , 122.0.0.0/8^- , 123.0.0.0/8^- , 124.0.0.0/8^- , 125.0.0.0/8^- , 126.0.0.0/8^- , 127.0.0.0/8^- , 169.254.0.0/16^- , 172.16.0.0/12^- , 192.0.2.0/24^- , 192.168.0.0/16^- , 197.0.0.0/8^- , 201.0.0.0/8^- , 222.0.0.0/8^- , 223.0.0.0/8^- , 224.0.0.0/3^- }"]

@@ -12,7 +12,6 @@ import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.planner.RpslResponseDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -61,13 +60,13 @@ public class SearchQueryExecutorTest {
     @Test
     public void all_attributes_handled() {
         for (final AttributeType attributeType : AttributeType.values()) {
-            assertTrue(subject.supports(Query.parse("-i " + attributeType.getName() + " query")));
+            assertThat(subject.supports(Query.parse("-i " + attributeType.getName() + " query")), is(true));
         }
     }
 
     @Test
     public void test_supports_no_attributes() {
-        Assertions.assertThrows(QueryException.class, () -> {
+        assertThrows(QueryException.class, () -> {
             assertThat(subject.supports(Query.parse("-i")), is(false));
         });
 
@@ -192,7 +191,7 @@ public class SearchQueryExecutorTest {
 
     @Test
     public void query_no_source_specified() {
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
+        when(sourceContext.getSlaveSource()).thenReturn(Source.slave("RIPE"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();
@@ -218,7 +217,7 @@ public class SearchQueryExecutorTest {
     @Test
     public void query_additional_sources() {
         when(sourceContext.getAdditionalSourceNames()).thenReturn(ciSet("APNIC-GRS", "ARIN-GRS"));
-        when(sourceContext.getWhoisSlaveSource()).thenReturn(Source.slave("RIPE"));
+        when(sourceContext.getSlaveSource()).thenReturn(Source.slave("RIPE"));
 
         final Query query = Query.parse("10.0.0.0");
         final CaptureResponseHandler responseHandler = new CaptureResponseHandler();

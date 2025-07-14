@@ -5,9 +5,7 @@ import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.QueryMessage;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Hosts;
-import org.apache.commons.lang.StringUtils;
-
-import java.net.InetAddress;
+import org.apache.commons.lang3.StringUtils;
 
 import static net.ripe.db.whois.common.Messages.Type;
 
@@ -24,7 +22,7 @@ public final class QueryMessages {
                 + "% The objects are in RPSL format.\n"
                 + "%\n"
                 + "% The RIPE Database is subject to Terms and Conditions.\n"
-                + "% See http://www.ripe.net/db/support/db-terms-conditions.pdf\n");
+                + "% See https://docs.db.ripe.net/terms-conditions.html\n");
     }
 
     // solely used by port43 pipeline handler
@@ -41,7 +39,7 @@ public final class QueryMessages {
                 "# The contents of this file are subject to \n" +
                 "# RIPE Database Terms and Conditions\n" +
                 "#\n" +
-                "# http://www.ripe.net/db/support/db-terms-conditions.pdf\n" +
+                "# https://docs.db.ripe.net/terms-conditions.html\n" +
                 "#\n");
     }
 
@@ -60,6 +58,30 @@ public final class QueryMessages {
     public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value, final CharSequence orgId) {
         return new QueryMessage(Type.INFO, "Abuse contact for '%s' is '%s'" +
                 "\nAbuse-mailbox validation failed. Please refer to %s for further information.", key, value, orgId);
+    }
+
+    public static Message roaRouteOriginConflicts(final String objectType, final String prefix, final int maxLength, final long asn){
+        return new QueryMessage(Type.WARNING, ""
+                + "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a maximum length /%s but a different origin AS%s."
+                + "\n"
+                + "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. "
+                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, maxLength, asn);
+    }
+
+    public static Message roaRoutePrefixLengthConflicts(final String objectType, final String prefix, final int prefixLength, final long asn){
+        return new QueryMessage(Type.WARNING, ""
+                + "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a less specific maximum length /%s but same origin AS%s."
+                + "\n"
+                + "As a result, many autonomous systems may reject a BGP announcement even if it matches the ROUTE object. "
+                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, prefixLength, asn);
+    }
+
+    public static Message roaRouteConflicts(final String objectType, final String prefix, final int prefixLength, final long asn){
+        return new QueryMessage(Type.WARNING, ""
+                + "Warning: this %s object conflicts with an RPKI ROA with a prefix %s and a less specific maximum length /%s and a different origin AS%s."
+                + "\n"
+                + "As a result, many autonomous systems may reject an announcement even if it matches the ROUTE object. "
+                + "You should consider either removing this ROUTE object or updating/deleting the RPKI ROA.", objectType, prefix, prefixLength, asn);
     }
 
     public static Message unvalidatedAbuseCShown(final CharSequence key, final CharSequence value) {
@@ -258,26 +280,32 @@ public final class QueryMessages {
                 + "Too many arguments supplied.");
     }
 
-    public static Message accessDeniedPermanently(final InetAddress remoteAddress) {
+    public static Message accessDeniedPermanently(final String accountingId) {
         return new QueryMessage(Type.ERROR, ""
                 + "ERROR:201: access denied for %s\n"
                 + "\n"
                 + "Sorry, access from your host has been permanently\n"
                 + "denied because of a repeated excessive querying.\n"
                 + "For more information, see\n"
-                + "http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied",
-                remoteAddress.getHostAddress());
+                + "https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied",
+                accountingId);
     }
 
-    public static Message accessDeniedTemporarily(final InetAddress remoteAddress) {
+    public static Message accessDeniedForAbuse(final String accountingId) {
+        return new QueryMessage(Type.ERROR, ""
+                + "Your host %s has been blocked. Please contact support <ripe-dbm@ripe.net> for further assistance.",
+                accountingId);
+    }
+
+    public static Message accessDeniedTemporarily(final String accountingId) {
         return new QueryMessage(Type.ERROR, ""
                 + "ERROR:201: access denied for %s\n"
                 + "\n"
                 + "Queries from your IP address have passed the daily limit of controlled objects.\n"
                 + "Access from your host has been temporarily denied.\n"
                 + "For more information, see\n"
-                + "http://www.ripe.net/data-tools/db/faq/faq-db/why-did-you-receive-the-error-201-access-denied",
-                remoteAddress.getHostAddress());
+                + "https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied",
+                accountingId);
     }
 
     public static Message notAllowedToProxy() {
@@ -312,6 +340,10 @@ public final class QueryMessages {
                 + "WARNING:902: useless IP flag passed\n"
                 + "\n"
                 + "An IP flag (-l, -L, -m, -M, -x, -d or -b) used without an IP key.");
+    }
+
+    public static Message invalidCharsetPassed(final String charset){
+        return new QueryMessage(Type.ERROR, "Invalid character set %s", charset);
     }
 
     // FIXME: [AH] this message should be '*HAS* invalid syntax'

@@ -15,7 +15,6 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.sso.SsoTranslator;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -76,7 +76,7 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(maintainer));
 
         verifyNoMoreInteractions(updateContext);
@@ -85,7 +85,7 @@ public class MntByAuthenticationTest {
 
     @Test
     public void authenticate_fails() {
-        Assertions.assertThrows(AuthenticationFailedException.class, () -> {
+        assertThrows(AuthenticationFailedException.class, () -> {
             final RpslObject person = RpslObject.parse("person: Some One\nnic-hdl: TEST-NIC\nmnt-by: TEST-MNT");
             when(update.getAction()).thenReturn(Action.MODIFY);
             when(update.getReferenceObject()).thenReturn(person);
@@ -119,7 +119,7 @@ public class MntByAuthenticationTest {
 
         final List<RpslObject> result = subject.authenticate(update, updateContext);
 
-        assertThat(result.size(), is(1));
+        assertThat(result, hasSize(1));
         assertThat(result.get(0), is(mntner));
 
         verifyNoMoreInteractions(updateContext);

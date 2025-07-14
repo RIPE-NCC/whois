@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 @Tag("IntegrationTest")
 public class MailConfigurationTestIntegration extends AbstractUpdateDaoIntegrationTest {
@@ -14,11 +16,11 @@ public class MailConfigurationTestIntegration extends AbstractUpdateDaoIntegrati
 
     @Test
     public void getSession() {
-        assertNotNull(subject.getSession());
+        assertThat(subject.getSession(), not(nullValue()));
     }
 
     @Test
     public void from() throws Exception {
-        assertNotNull(subject.getFrom());
+        assertThat(subject.getFrom(), not(nullValue()));
     }
 }

@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.update.domain.SsoCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
@@ -58,7 +58,7 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(hasValidCredential, is(true));
     }
@@ -74,7 +74,7 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(update.getEffectiveCredential(), is("test@ripe.net" ));
         assertThat(update.getEffectiveCredentialType(), is(Update.EffectiveCredentialType.SSO));
@@ -91,7 +91,7 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.<SsoCredential>emptyList(),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(hasValidCredential, is(false));
     }
@@ -107,7 +107,7 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(hasValidCredential, is(true));
     }
@@ -124,7 +124,7 @@ public class SsoCredentialValidatorTest {
                 preparedUpdate,
                 updateContext,
                 Collections.singletonList(offeredCredential),
-                knownCredential);
+                knownCredential, null);
 
         assertThat(hasValidCredential, is(false));
     }

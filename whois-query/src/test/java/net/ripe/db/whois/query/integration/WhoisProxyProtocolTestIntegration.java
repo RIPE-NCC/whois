@@ -86,7 +86,7 @@ public class WhoisProxyProtocolTestIntegration extends AbstractQueryIntegrationT
     }
 
     private String send(final InetAddress clientIp, final String query) {
-        try (final Socket socket = new Socket("localhost", QueryServer.port);
+        try (final Socket socket = new Socket("localhost", queryServer.getPort());
              final OutputStream out = socket.getOutputStream();
              final InputStream in = socket.getInputStream()) {
 

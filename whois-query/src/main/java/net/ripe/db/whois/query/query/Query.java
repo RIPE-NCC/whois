@@ -8,18 +8,26 @@ import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.attrs.AsBlockRange;
+import net.ripe.db.whois.common.sso.UserSession;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryParser;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,11 +67,16 @@ public class Query {
 
     // TODO: [AH] these fields should be part of QueryContext, not Query
     private List<String> passwords;
-    private String ssoToken;
-    private Origin origin;
-    private boolean trusted;
+    private UserSession userSession;
+    private OAuthSession oAuthSession;
+    private final Origin origin;
+    private final boolean trusted;
     // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
     private boolean matchPrimaryKeyOnly;
+
+    private List<X509CertificateWrapper> certificates;
+
+    private User overrideUser;
 
     private Query(final String query, final Origin origin, final boolean trusted) {
         try {
@@ -90,14 +103,7 @@ public class Query {
         try {
             final Query query = new Query(args.trim(), origin, trusted);
 
-            for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
-                queryValidator.validate(query, query.messages);
-            }
-
-            final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
-            if (!errors.isEmpty()) {
-                throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
-            }
+            validateQuery(query);
 
             return query;
         } catch (OptionException e) {
@@ -105,10 +111,41 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final String ssoToken, final List<String> passwords, final boolean trusted) {
+    public static Query parse(final String args, final UserSession userSession, final User overrideUser, final Origin origin, final boolean trusted) {
+        try {
+            final Query query = new Query(args.trim(), origin, trusted);
+            query.userSession = userSession;
+            query.overrideUser = overrideUser;
+
+            validateQuery(query);
+
+            return query;
+        } catch (OptionException e) {
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.malformedQuery());
+        }
+    }
+
+    private static void validateQuery(Query query) {
+        for (final QueryValidator queryValidator : QUERY_VALIDATORS) {
+            queryValidator.validate(query, query.messages);
+        }
+
+        final Collection<Message> errors = query.messages.getMessages(Messages.Type.ERROR);
+        if (!errors.isEmpty()) {
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, errors);
+        }
+    }
+
+
+    public static Query parse(final String args, final UserSession userSession, final List<String> passwords,
+                              final User overrideUser, final boolean trusted,
+                              final List<X509CertificateWrapper> certificates, final OAuthSession oAuthSession) {
         final Query query = parse(args, Origin.REST, trusted);
-        query.ssoToken = ssoToken;
+        query.userSession = userSession;
         query.passwords = passwords;
+        query.certificates = certificates;
+        query.oAuthSession = oAuthSession;
+        query.overrideUser = overrideUser;
         return query;
     }
 
@@ -116,8 +153,16 @@ public class Query {
         return passwords;
     }
 
-    public String getSsoToken() {
-        return ssoToken;
+    public UserSession getUserSession() {
+        return userSession;
+    }
+
+    public OAuthSession getoAuthSession() {
+        return oAuthSession;
+    }
+
+    public List<X509CertificateWrapper> getCertificates() {
+        return certificates;
     }
 
     public boolean isTrusted() {
@@ -158,6 +203,10 @@ public class Query {
 
     public boolean isBriefAbuseContact() {
         return queryParser.hasOption(QueryFlag.ABUSE_CONTACT);
+    }
+
+    public boolean isCharsetSpecified(){
+        return queryParser.hasOption(QueryFlag.CHARSET);
     }
 
     public boolean isKeysOnly() {
@@ -318,6 +367,7 @@ public class Query {
         return suppliedObjectTypes;
     }
 
+    @Nullable
     public IpInterval<?> getIpKeyOrNull() {
         final IpInterval<?> ipKey = searchKey.getIpKeyOrNull();
         if (ipKey != null) {
@@ -331,6 +381,7 @@ public class Query {
         return null;
     }
 
+    @Nullable
     public IpInterval<?> getIpKeyOrNullReverse() {
         final IpInterval<?> ipKey = searchKey.getIpKeyOrNullReverse();
         if (ipKey != null) {
@@ -394,6 +445,7 @@ public class Query {
         return true;
     }
 
+    @Nullable
     public String getProxyIp() {
         if (!hasProxy()) {
             return null;
@@ -539,6 +591,7 @@ public class Query {
         return Collections.unmodifiableSet(ret);
     }
 
+    @Nullable
     private MatchOperation parseMatchOperations() {
         MatchOperation result = null;
 
@@ -587,6 +640,23 @@ public class Query {
         return this;
     }
 
+    public String getEffectiveUsername() {
+        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getEmail())) {
+            return oAuthSession.getEmail();
+        }
+
+        return userSession == null ? null : userSession.getUsername();
+    }
+
+    public String getEffectiveUuid() {
+        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getUuid())) {
+            return oAuthSession.getUuid();
+        }
+
+        return userSession == null ? null : userSession.getUuid();
+    }
+
+
     public enum MatchOperation {
         MATCH_EXACT_OR_FIRST_LEVEL_LESS_SPECIFIC(),
         MATCH_EXACT(QueryFlag.EXACT),
@@ -612,6 +682,35 @@ public class Query {
         public QueryFlag getQueryFlag() {
             return queryFlag;
         }
+    }
+
+    public String getCharsetName(){
+        if (!isCharsetSpecified()){
+            return getDefaultCharset().name();
+        }
+
+        final String queryCharset = queryParser.getOptionValue(QueryFlag.CHARSET);
+
+        try {
+            return getCharsetForName(queryCharset).name();
+        } catch (UnsupportedCharsetException ex){
+            throw new QueryException(QueryCompletionInfo.PARAMETER_ERROR, QueryMessages.invalidCharsetPassed(queryCharset));
+        }
+    }
+
+    public User getOverrideUser() {
+        return overrideUser;
+    }
+
+    private static Charset getCharsetForName(final String charsetName) {
+        if ("latin-1".equalsIgnoreCase(charsetName)) {
+            return getDefaultCharset();
+        }
+        return Charset.forName(charsetName);
+    }
+
+    private static Charset getDefaultCharset(){
+        return StandardCharsets.ISO_8859_1;
     }
 
     public enum SystemInfoOption {

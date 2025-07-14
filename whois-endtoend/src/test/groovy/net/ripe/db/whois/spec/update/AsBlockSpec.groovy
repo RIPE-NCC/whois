@@ -65,7 +65,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -103,7 +103,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -112,7 +112,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS655" }
         ack.errorMessagesFor("Create", "[as-block] AS655") ==
@@ -143,7 +143,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:       denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -152,7 +152,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
 
         ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
         ack.infoSuccessMessagesFor("Create", "[as-block] AS222 - AS333") == [
@@ -184,7 +184,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 mnt-lower:      RIPE-NCC-LOCKED-MNT
                 source:         TEST
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -227,7 +227,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -236,7 +236,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS655 - AS-2" }
         ack.errorMessagesFor("Create", "[as-block] AS655 - AS-2") ==
@@ -267,7 +267,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -276,7 +276,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS-1 - AS655" }
         ack.errorMessagesFor("Create", "[as-block] AS-1 - AS655") ==
@@ -308,7 +308,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -344,7 +344,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: test2
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -383,7 +383,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -392,7 +392,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS333 - AS222" }
         ack.errorMessagesFor("Create", "[as-block] AS333 - AS222") ==
@@ -421,7 +421,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -464,7 +464,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -497,7 +497,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -539,7 +539,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -581,7 +581,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -590,7 +590,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
         ack.errorMessagesFor("Modify", "[as-block] AS222 - AS333") == [
@@ -629,7 +629,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 delete:         reason
 
                 password:   dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -657,7 +657,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -684,7 +684,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -721,7 +721,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -765,7 +765,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -809,7 +809,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -851,7 +851,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password: dbm
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -884,7 +884,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -912,7 +912,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -940,7 +940,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -968,7 +968,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
 
                 password: dbm
 
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:

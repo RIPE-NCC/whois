@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.authentication.Subject;
@@ -19,8 +20,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -43,24 +46,26 @@ public class OrganisationTypeValidatorTest {
 
     @Test
     public void getActions() {
-        assertThat(subject.getActions().size(), is(2));
+        assertThat(subject.getActions(), hasSize(2));
         assertThat(subject.getActions().contains(Action.MODIFY), is(true));
         assertThat(subject.getActions().contains(Action.CREATE), is(true));
     }
 
     @Test
     public void getTypes() {
-        assertThat(subject.getTypes().size(), is(1));
+        assertThat(subject.getTypes(), hasSize(1));
         assertThat(subject.getTypes().get(0), is(ObjectType.ORGANISATION));
     }
 
     @Test
     public void update_is_override() {
         when(authenticationSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: other"));
+        when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
-        verify(updateContext).getSubject(any(UpdateContainer.class));
+        verify(updateContext, never()).addMessage(eq(update), eq(UpdateMessages.invalidMaintainerForOrganisationType(new RpslAttribute(AttributeType.ORG,"other"))));
         verifyNoMoreInteractions(update);
         verifyNoMoreInteractions(updateContext);
     }
@@ -69,7 +74,7 @@ public class OrganisationTypeValidatorTest {
     public void status_other() {
         when(update.getUpdatedObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: other"));
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -81,7 +86,7 @@ public class OrganisationTypeValidatorTest {
         when(updateContext.getSubject(update)).thenReturn(authenticationSubject);
         when(update.getReferenceObject()).thenReturn(RpslObject.parse("organisation: ORG-TST-RIPE\norg-type: RIR"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());
@@ -96,10 +101,10 @@ public class OrganisationTypeValidatorTest {
         when(update.getAction()).thenReturn(Action.MODIFY);
         lenient().when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
-        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ORG_TYPE), UpdateMessages.invalidMaintainerForOrganisationType("RIR"));
+        verify(updateContext).addMessage(update, rpslObject.findAttribute(AttributeType.ORG_TYPE), UpdateMessages.invalidMaintainerForOrganisationType(rpslObject.findAttribute(AttributeType.ORG_TYPE)));
     }
 
     @Test
@@ -110,7 +115,7 @@ public class OrganisationTypeValidatorTest {
         when(update.getAction()).thenReturn(Action.MODIFY);
         lenient().when(authenticationSubject.hasPrincipal(Principal.ALLOC_MAINTAINER)).thenReturn(true);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(updateContext, never()).addMessage(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any());

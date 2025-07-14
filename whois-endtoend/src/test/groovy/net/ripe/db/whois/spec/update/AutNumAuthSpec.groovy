@@ -274,7 +274,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -318,7 +318,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   dbm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -358,7 +358,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -399,7 +399,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:       denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -408,7 +408,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
         ack.infoSuccessMessagesFor("Create", "[aut-num] AS250") == [
                 "Authorisation override used"]
@@ -438,7 +438,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -474,7 +474,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:      denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -483,7 +483,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS650" }
         ack.infoSuccessMessagesFor("Create", "[aut-num] AS650") == [
                 "Authorisation override used"]
@@ -567,7 +567,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -629,7 +629,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -682,7 +682,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -743,7 +743,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -802,7 +802,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -847,7 +847,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -887,7 +887,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -931,7 +931,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -971,7 +971,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1015,7 +1015,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1059,7 +1059,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1102,7 +1102,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1147,7 +1147,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1156,7 +1156,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS-1" }
         ack.errorMessagesFor("Create", "[aut-num] AS-1") ==
                 ["Syntax error in AS-1"]
@@ -1193,7 +1193,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1202,7 +1202,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS01" }
         ack.errorMessagesFor("Create", "[aut-num] AS01") ==
                 ["Syntax error in AS01"]
@@ -1239,7 +1239,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1248,7 +1248,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS4294967299" }
         ack.errorMessagesFor("Create", "[aut-num] AS4294967299") ==
                 ["Syntax error in AS4294967299"]
@@ -1285,7 +1285,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1294,7 +1294,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS2.3" }
         ack.errorMessagesFor("Create", "[aut-num] AS2.3") ==
                 ["Syntax error in AS2.3"]
@@ -1330,7 +1330,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1375,7 +1375,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1384,7 +1384,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(3, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] As200" }
         ack.errorMessagesFor("Create", "[aut-num] As200") ==
                 ["Syntax error in as777.5535:as-test:AS94967295",
@@ -1423,7 +1423,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1466,7 +1466,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1508,7 +1508,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1551,7 +1551,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 delete:  RS delete
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1594,7 +1594,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 delete:  RS delete
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1603,7 +1603,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[aut-num] AS200" }
         ack.errorMessagesFor("Delete", "[aut-num] AS200") ==
                 ["Deleting this object requires administrative authorisation"]
@@ -1641,7 +1641,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 delete:  RS delete
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1686,7 +1686,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 delete:  RS delete
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1730,7 +1730,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 delete:  RS delete
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1774,7 +1774,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1783,7 +1783,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS200" }
 
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "just added")
@@ -1819,7 +1819,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1828,7 +1828,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS200" }
         ack.errorMessagesFor("Modify", "[aut-num] AS200") ==
                 ["You cannot add or remove a RIPE NCC maintainer"]
@@ -1865,7 +1865,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 mnt-routes:     ROUTES-MNT      # added
                 source:         TEST
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1874,7 +1874,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.warningSuccessMessagesFor("No operation", "[aut-num] AS200") ==
                 ["Deprecated attribute \"mnt-routes\". This attribute has been removed.",
                  "Submitted object identical to database object"]
@@ -1933,7 +1933,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1942,7 +1942,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(21, 0, 0)
+        ack.countErrorWarnInfo(21, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] As0" }
         ack.errorMessagesFor("Create", "[aut-num] As0") ==
                 ["Syntax error in from AS01 accept ANY",
@@ -2681,7 +2681,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
 
                 password:   nccend
                 password:   hm
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -2726,7 +2726,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -2767,7 +2767,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -2812,7 +2812,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2857,7 +2857,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -2898,7 +2898,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2940,7 +2940,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -2981,7 +2981,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3022,7 +3022,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3067,7 +3067,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -3110,7 +3110,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3153,7 +3153,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3198,7 +3198,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3207,7 +3207,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
                 ["\"status:\" attribute cannot be removed"]
@@ -3241,7 +3241,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3286,7 +3286,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3295,7 +3295,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
                 ["\"status:\" attribute cannot be removed","Supplied attribute 'source' has been replaced with a generated value"]
@@ -3329,7 +3329,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3374,7 +3374,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -3415,7 +3415,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -3458,7 +3458,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   nccend
-                """.stripIndent()
+                """.stripIndent(true)
             )
 
         then:
@@ -3501,7 +3501,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3544,7 +3544,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3589,7 +3589,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3646,7 +3646,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3702,7 +3702,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3745,7 +3745,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3789,7 +3789,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3837,7 +3837,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3846,7 +3846,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
                 ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -3885,7 +3885,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3894,7 +3894,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
                 ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -3931,7 +3931,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3940,7 +3940,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
@@ -3978,7 +3978,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -3987,7 +3987,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
@@ -4025,7 +4025,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4034,7 +4034,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
                 ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -4071,7 +4071,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
 
                 password:   lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4080,7 +4080,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
                 ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -4116,7 +4116,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 source:         TEST
                 override:   denis,override1
 
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4125,7 +4125,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12668" }
 
         query_object_matches("-rBG -T aut-num AS12668", "aut-num", "AS12668", "status:\\s*LEGACY")
@@ -4160,7 +4160,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -4186,7 +4186,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 nic-hdl:      AH2-TEST
                 mnt-by:       LIR-MNT
                 source:       TEST
-            """.stripIndent()
+            """.stripIndent(true)
         )
         syncUpdate(getTransient("AS222 - AS333") + "password: dbm\noverride: denis,override1")
         syncUpdate("                aut-num:        AS250\n" +
@@ -4233,7 +4233,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
                 password:   nccend
                 password:   hm
                 password:   owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:

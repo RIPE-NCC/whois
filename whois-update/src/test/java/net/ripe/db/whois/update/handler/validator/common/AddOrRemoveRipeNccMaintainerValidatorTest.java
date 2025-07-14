@@ -59,7 +59,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
 
         when(update.getDifferences(AttributeType.MNT_BY)).thenReturn(ciSet("DEV-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
     }
@@ -70,7 +70,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
 
         when(update.getDifferences(AttributeType.MNT_BY)).thenReturn(ciSet("RS-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
     }
@@ -80,7 +80,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
         lenient().when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         lenient().when(update.getDifferences(AttributeType.MNT_DOMAINS)).thenReturn(ciSet("RS-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
     }
@@ -90,7 +90,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
         lenient().when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         lenient().when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("RS-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
     }
@@ -101,7 +101,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
 
         lenient().when(update.getDifferences(AttributeType.MNT_ROUTES)).thenReturn(ciSet("RS-MNT ANY"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
     }
@@ -111,7 +111,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
         lenient().when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(true);
         lenient().when(update.getDifferences(AttributeType.MNT_BY)).thenReturn(ciSet("RS-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
     }
@@ -124,7 +124,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
         when(update.getDifferences(AttributeType.MNT_BY)).thenReturn(ciSet("DBM-MNT"));
         lenient().when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("HM-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
     }
@@ -137,7 +137,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
         when(update.getDifferences(AttributeType.MNT_BY)).thenReturn(ciSet("DBM-MNT"));
         lenient().when(update.getDifferences(AttributeType.MNT_LOWER)).thenReturn(ciSet("HM-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
     }
@@ -147,7 +147,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
         lenient().when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         lenient().when(update.getDifferences(AttributeType.MNT_REF)).thenReturn(ciSet("RS-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
     }
@@ -157,7 +157,7 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
         lenient().when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
         lenient().when(update.getDifferences(AttributeType.MNT_REF)).thenReturn(ciSet("DBM-MNT"));
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext).addMessage(update, UpdateMessages.authorisationRequiredForChangingRipeMaintainer());
     }
@@ -165,8 +165,10 @@ public class AddOrRemoveRipeNccMaintainerValidatorTest {
     @Test
     public void validate_added_override() {
         when(authSubject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(true);
+        when(authSubject.hasPrincipal(Principal.DBM_MAINTAINER)).thenReturn(false);
+        when(authSubject.hasPrincipal(Principal.RS_MAINTAINER)).thenReturn(false);
 
-        subject.validate(update, updateContext);
+       subject.validate(update, updateContext);
 
         verify(updateContext, never()).addMessage(eq(update), any(Message.class));
     }

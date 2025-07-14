@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.Assertions;
+import net.ripe.db.whois.common.credentials.Credential;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,7 +33,7 @@ public class ContentWithCredentialsTest {
 
     @Test
     public void credentials_are_immutable() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+        assertThrows(UnsupportedOperationException.class, () -> {
             final ContentWithCredentials subject = new ContentWithCredentials("test", Lists.newArrayList(credential));
             subject.getCredentials().add(mock(Credential.class));
         });

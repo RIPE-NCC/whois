@@ -45,7 +45,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -56,7 +56,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-r -T person FP1-TEST", "person", "FP1-TEST")
@@ -83,7 +83,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -94,7 +94,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-r -T person FP1-TEST", "person", "FP1-TEST")
@@ -117,7 +117,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -128,7 +128,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -151,7 +151,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -162,7 +162,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -187,7 +187,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -198,7 +198,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.successes.get(0).infos.get(0) == "Continuation lines are not allowed here and have been removed";
 
@@ -224,7 +224,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -235,7 +235,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.successes.get(0).infos.get(0) == "Continuation lines are not allowed here and have been removed";
 
@@ -264,7 +264,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -275,7 +275,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 1, 2)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Continuation lines are not allowed here and have been removed",
@@ -302,7 +302,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -313,7 +313,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -339,7 +339,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -350,7 +350,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -372,7 +372,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -383,7 +383,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Please use the \"remarks:\" attribute instead of end of line comment on primary key"]
@@ -407,7 +407,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -418,7 +418,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Please use the \"remarks:\" attribute instead of end of line comment on primary key"]
@@ -442,7 +442,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST     # source comment
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -452,7 +452,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["End of line comments not allowed on \"source:\" attribute"]
@@ -476,7 +476,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -487,7 +487,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Please use the \"remarks:\" attribute instead of end of line comment on primary key"]
@@ -512,7 +512,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -523,7 +523,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -546,7 +546,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -557,7 +557,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -585,7 +585,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
         then:
@@ -595,7 +595,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
 

@@ -120,7 +120,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -131,7 +131,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] rtrs-foo"}
 
         queryObject("-rBT rtr-set rtrs-foo", "rtr-set", "rtrs-foo")
@@ -159,7 +159,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -170,7 +170,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(6, 0, 0)
+        ack.countErrorWarnInfo(6, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] rtrs-foo"}
         ack.errorMessagesFor("Create", "[rtr-set] rtrs-foo") == [
                 "Syntax error in 47.2479.0.0/16",
@@ -204,7 +204,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -215,7 +215,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] AS7775535:rtrs-foo:AS94967295"}
 
         queryObject("-rBT rtr-set AS7775535:rtrs-foo:AS94967295", "rtr-set", "AS7775535:rtrs-foo:AS94967295")
@@ -238,7 +238,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -249,7 +249,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS7775535:rtrs-foo:AS94967295"}
         ack.errorMessagesFor("Create", "[rtr-set] AS7775535:rtrs-foo:AS94967295") == [
                 "Parent object AS7775535:rtrs-foo not found"]
@@ -278,7 +278,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -289,7 +289,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo"}
 
         queryObject("-rBT rtr-set AS123:rtrs-foo", "rtr-set", "AS123:rtrs-foo")
@@ -316,7 +316,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -327,7 +327,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] AS352:rtrs-foo"}
 
         queryObject("-rBT rtr-set AS352:rtrs-foo", "rtr-set", "AS352:rtrs-foo")
@@ -354,7 +354,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -365,7 +365,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS352:rtrs-foo"}
         ack.errorMessagesFor("Create", "[rtr-set] AS352:rtrs-foo") == [
                 "Authorisation for parent [aut-num] AS352 failed using \"mnt-lower:\" not authenticated by: OWNER2-MNT"]
@@ -393,7 +393,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -404,7 +404,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123:rtrs-foo") == [
                 "Authorisation for parent [aut-num] AS123 failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
@@ -429,7 +429,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -440,7 +440,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123:rtrs-foo") == [
                 "Parent object AS123 not found"]
@@ -469,7 +469,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -480,7 +480,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo:rtrs-foo2"}
 
         queryObject("-rBT rtr-set AS123:rtrs-foo:rtrs-foo2", "rtr-set", "AS123:rtrs-foo:rtrs-foo2")
@@ -506,7 +506,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -517,7 +517,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo:rtrs-foo2"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123:rtrs-foo:rtrs-foo2") == [
                 "Authorisation for parent [rtr-set] AS123:rtrs-foo failed using \"mnt-lower:\" not authenticated by: LIR2-MNT"]
@@ -542,7 +542,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -553,7 +553,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo:rtrs-foo2"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123:rtrs-foo:rtrs-foo2") == [
                 "Parent object AS123:rtrs-foo not found"]
@@ -582,7 +582,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -593,7 +593,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] rtrs-foo:rtrs-foo2"}
 
         queryObject("-rBT rtr-set rtrs-foo:rtrs-foo2", "rtr-set", "rtrs-foo:rtrs-foo2")
@@ -619,7 +619,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -630,7 +630,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] rtrs-foo:rtrs-foo2"}
         ack.errorMessagesFor("Create", "[rtr-set] rtrs-foo:rtrs-foo2") == [
                 "Authorisation for parent [rtr-set] rtrs-foo failed using \"mnt-lower:\" not authenticated by: LIR2-MNT"]
@@ -655,7 +655,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -666,7 +666,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] rtrs-foo:rtrs-foo2"}
         ack.errorMessagesFor("Create", "[rtr-set] rtrs-foo:rtrs-foo2") == [
                 "Parent object rtrs-foo not found"]
@@ -696,7 +696,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -707,7 +707,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo:rtrs-foo2"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123:rtrs-foo:rtrs-foo2") == [
                 "Parent object AS123:rtrs-foo not found"]
@@ -737,7 +737,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -776,7 +776,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -787,7 +787,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo"}
 
         queryObject("-rBT rtr-set AS123:rtrs-foo", "rtr-set", "AS123:rtrs-foo")
@@ -814,7 +814,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:       TEST
 
                 password: lir
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -825,7 +825,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123:rtrs-foo") == [
                 "Parent object AS123 not found"]
@@ -864,7 +864,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -912,7 +912,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 password: owner
                 password: owner3
                 password: locked
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -951,7 +951,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -962,7 +962,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] AS123:rtrs-foo:rtrs-foo2"}
 
         queryObject("-r -T rtr-set AS123:rtrs-foo:rtrs-foo2", "rtr-set", "AS123:rtrs-foo:rtrs-foo2")
@@ -991,7 +991,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1002,7 +1002,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123:AS123:rtrs-foo"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123:AS123:rtrs-foo") == [
                 "Parent object AS123:AS123 not found"]
@@ -1032,7 +1032,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1043,7 +1043,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123:AS123"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123:AS123") == [
                 "Syntax error in AS123:AS123"]
@@ -1073,7 +1073,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1084,7 +1084,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[rtr-set] AS123"}
         ack.errorMessagesFor("Create", "[rtr-set] AS123") == [
                 "Syntax error in AS123"]
@@ -1115,7 +1115,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1126,7 +1126,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] rtrs-foo:AS123"}
 
         queryObjectNotFound("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1155,7 +1155,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir
                 password: lir2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1166,7 +1166,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] rtrs-foo:rtrs-foo"}
 
         queryObject("-r -T rtr-set rtrs-foo:rtrs-foo", "rtr-set", "rtrs-foo:rtrs-foo")
@@ -1195,7 +1195,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1206,7 +1206,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[rtr-set] AS123:rtrs-foo"}
 
         query_object_matches("-rBT rtr-set AS123:rtrs-foo", "rtr-set", "AS123:rtrs-foo", "updated")
@@ -1234,7 +1234,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 source:  TEST
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1245,7 +1245,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[rtr-set] AS123:rtrs-foo"}
 
         query_object_matches("-rBT rtr-set AS123:rtrs-foo", "rtr-set", "AS123:rtrs-foo", "updated")
@@ -1274,7 +1274,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1285,7 +1285,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[rtr-set] AS123:rtrs-foo"}
 
         queryObjectNotFound("-r -T rtr-set AS123:rtrs-foo", "rtr-set", "AS123:rtrs-foo")
@@ -1315,7 +1315,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1326,7 +1326,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[aut-num] AS123"}
 
         queryObjectNotFound("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1355,7 +1355,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1366,7 +1366,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[rtr-set] rtrs-foo"}
 
         queryObjectNotFound("-r -T rtr-set rtrs-foo", "rtr-set", "rtrs-foo")
@@ -1397,7 +1397,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 delete:       testing
 
                 password: owner2
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1408,7 +1408,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[rtr-set] AS123:rtrs-foo"}
 
         queryObject("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1448,7 +1448,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
 
                 password: lir2
                 password: owner3
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1459,7 +1459,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[rtr-set] rtrs-foo"}
 
         queryObject("-rBT rtr-set rtrs-foo", "rtr-set", "rtrs-foo")
@@ -1483,7 +1483,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:  TEST
                 override:     denis,override1
-                """.stripIndent()
+                """.stripIndent(true)
         )
 
       then:
@@ -1493,7 +1493,7 @@ class RtrSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
 
         queryObject("-r -T rtr-set AS123:rtrs-foo:rtrs-foo2", "rtr-set", "AS123:rtrs-foo:rtrs-foo2")
     }

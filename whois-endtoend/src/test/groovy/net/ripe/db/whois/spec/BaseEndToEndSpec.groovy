@@ -1,5 +1,7 @@
 package net.ripe.db.whois.spec
 
+import jakarta.mail.Address
+import jakarta.ws.rs.core.MultivaluedMap
 import net.ripe.db.whois.WhoisFixture
 import net.ripe.db.whois.common.TestDateTimeProvider
 import net.ripe.db.whois.common.rpsl.AttributeType
@@ -14,8 +16,6 @@ import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.spec.domain.SyncUpdateResponse
 import net.ripe.db.whois.update.dns.DnsGatewayStub
 import spock.lang.Specification
-
-import javax.mail.Address
 
 class BaseEndToEndSpec extends Specification {
     static WhoisFixture whoisFixture
@@ -163,7 +163,7 @@ ${result}
     }
 
     def send(Message message) {
-        message.from = whoisFixture.send(message.subject, message.body.stripIndent())
+        message.from = whoisFixture.send(message.subject, message.body.stripIndent(true))
         print """\
 >>>>> SEND MESSAGE
 
@@ -172,7 +172,7 @@ subject: ${message.subject}
 
 ----
 
-${message.body.stripIndent()}
+${message.body.stripIndent(true)}
 
 <<<<<
 """
@@ -237,11 +237,11 @@ ${notification.contents}
     }
 
     String syncUpdate(String content) {
-        syncUpdate(content, null, false)
+        syncUpdate(content, null, false, null)
     }
 
-    String syncUpdate(String content, String charset, boolean notifications) {
-        def response = syncUpdate(new SyncUpdate(data: content, charset: charset))
+    String syncUpdate(String content, String charset, boolean notifications, MultivaluedMap<String, String> headers) {
+        def response = syncUpdate(new SyncUpdate(data: content, charset: charset, headers: headers))
         if (!notifications) {
             clearAllMails()
         }
@@ -264,7 +264,8 @@ ${syncUpdate.getData()}
 <<<<<
 """
 
-        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.getCharset(), syncUpdate.isHelp(), syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect())
+        def response = whoisFixture.syncupdate(syncUpdate.getData(), syncUpdate.getCharset(), syncUpdate.isHelp(),
+                syncUpdate.isDiff(), syncUpdate.isForceNew(), syncUpdate.isRedirect(), syncUpdate.getHeaders())
 
         print """\
 >>>>> RECEIVE SYNCUPDATE RESPONSE
@@ -285,7 +286,7 @@ ${response}
     }
 
     SyncUpdateResponse syncUpdateWithResponseWithNotifications(String content) {
-        new SyncUpdateResponse(syncUpdate(content, null, true));
+        new SyncUpdateResponse(syncUpdate(content, null, true, null));
     }
 
     def noMoreMessages() {
@@ -297,12 +298,16 @@ ${response}
     }
 
     def object(String string) {
-        return RpslObject.parse(string.stripIndent()).toString()
+        return RpslObject.parse(string.stripIndent(true)).toString()
     }
 
 
     def getDatabaseHelper() {
         return whoisFixture.getDatabaseHelper()
+    }
+
+    def getRpkiDataProvider(){
+        return whoisFixture.getRpkiDataProvider();
     }
 
     def getIpTreeUpdater() {
