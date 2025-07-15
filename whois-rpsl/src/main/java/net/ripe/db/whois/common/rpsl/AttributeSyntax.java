@@ -129,7 +129,7 @@ public interface AttributeSyntax extends Documented {
             "in the format YYYYMMDD.\n");
 
     AttributeSyntax COUNTRY_CODE_SYNTAX = new AttributeSyntaxRegexp(Pattern.compile("(?i)^[a-z]{2}$"),
-            "Valid two-letter ISO 3166 country code.");
+            "Valid two-letter ISO 3166 country code or \"EU\" (exceptionally reserved).");
 
     AttributeSyntax COMPONENTS_SYNTAX = new ComponentsSyntax();
 
