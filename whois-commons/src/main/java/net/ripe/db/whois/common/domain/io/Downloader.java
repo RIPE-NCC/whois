@@ -73,39 +73,49 @@ public class Downloader {
     public void downloadTo(final Logger logger, final URL url, final Path path) throws IOException {
         logger.debug("Downloading {} from {}", path, url);
 
-        final URLConnection uc = url.openConnection();
-        uc.setConnectTimeout(CONNECT_TIMEOUT);
-        uc.setReadTimeout(READ_TIMEOUT);
+        try {
+            final URLConnection uc = url.openConnection();
+            uc.setConnectTimeout(CONNECT_TIMEOUT);
+            uc.setReadTimeout(READ_TIMEOUT);
 
-        if ("https".equals(url.getProtocol()) && !Strings.isNullOrEmpty(url.getUserInfo())) {
-            uc.setRequestProperty(
-                HttpHeaders.AUTHORIZATION,
-                String.format("Basic %s",
-                    Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));
-        }
+            if ("https".equals(url.getProtocol()) && !Strings.isNullOrEmpty(url.getUserInfo())) {
+                uc.setRequestProperty(
+                        HttpHeaders.AUTHORIZATION,
+                        String.format("Basic %s",
+                                Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));
+            }
 
-        try (InputStream is = uc.getInputStream()) {
-            downloadToFile(logger, is, path);
-            setFileTimes(logger, uc, path);
+            try (InputStream is = uc.getInputStream()) {
+                downloadToFile(logger, is, path);
+                setFileTimes(logger, uc, path);
+            }
+        } catch (final IOException ex){
+            logger.error("Error downloading or setting connection for url {}", url, ex);
+            throw ex;
         }
     }
 
     void downloadToFile(final Logger logger, final InputStream is, final Path file) throws IOException {
-        Files.createDirectories(file.getParent());
+        try {
+            Files.createDirectories(file.getParent());
 
-        final Stopwatch stopwatch = Stopwatch.createStarted();
+            final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        try (ReadableByteChannel rbc = Channels.newChannel(is);
-             FileChannel fc = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-        ) {
-            fc.transferFrom(rbc, 0, Long.MAX_VALUE);
+            try (ReadableByteChannel rbc = Channels.newChannel(is);
+                 FileChannel fc = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+            ) {
+                fc.transferFrom(rbc, 0, Long.MAX_VALUE);
+            }
+
+            if (Files.size(file) == 0) {
+                throw new IllegalStateException(String.format("Empty file: %s", file));
+            }
+
+            logger.debug("Downloaded {} in {}", file, stopwatch.stop());
+        } catch (IOException ex){
+            logger.error("Error when downloading {}", file, ex);
+            throw ex;
         }
-
-        if (Files.size(file) == 0) {
-            throw new IllegalStateException(String.format("Empty file: %s", file));
-        }
-
-        logger.debug("Downloaded {} in {}", file, stopwatch.stop());
     }
 
     private void setFileTimes(final Logger logger, final URLConnection uc, final Path path) {
