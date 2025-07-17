@@ -118,12 +118,6 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
     public void verbose_description() {
         final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-v inetnum");
         assertThat(response, containsString("""
-                % This is the RIPE Database query service.
-                % The objects are in RPSL format.
-                %
-                % The RIPE Database is subject to Terms and Conditions.
-                % See https://docs.db.ripe.net/terms-conditions.html
-                                
                 The inetnum class:
                                 
                       An inetnum object contains information on allocations and
@@ -183,7 +177,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                                 
                    Identifies the country.
                                 
-                     Valid two-letter ISO 3166 country code or "EU" (exceptionally reserved).
+                     Officially Assigned two-letter ISO 3166 country code or "EU" (exceptionally reserved).
                                 
                 geofeed
                                 
@@ -431,13 +425,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                      Made up of letters, digits, the character underscore "_",
                      and the character hyphen "-"; the first character of a
                      registry name must be a letter, and the last character of a
-                     registry name must be a letter or a digit.
-                                
-                                
-                % This query was served by the RIPE Database Query Service version 0.1-TEST (MHERRAN-PRO)
-                                
-                                
-                """));
+                     registry name must be a letter or a digit."""));
     }
 
 
