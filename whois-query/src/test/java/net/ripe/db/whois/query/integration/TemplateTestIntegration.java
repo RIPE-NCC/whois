@@ -119,10 +119,10 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
         final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "-v inetnum");
         assertThat(response, containsString("""
                 The inetnum class:
-                                
+
                       An inetnum object contains information on allocations and
                       assignments of IPv4 address space.
-                                
+
                 inetnum:        [mandatory]  [single]     [primary/lookup key]
                 netname:        [mandatory]  [single]     [lookup key]
                 descr:          [optional]   [multiple]   [ ]
@@ -148,124 +148,124 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 created:        [generated]  [single]     [ ]
                 last-modified:  [generated]  [single]     [ ]
                 source:         [mandatory]  [single]     [ ]
-                                
+
                 The content of the attributes of the inetnum class are defined below:
-                                
+
                 inetnum
-                                
+
                    Specifies a range of IPv4 that inetnum object presents. The ending
                    address should be greater than the starting one.
-                                
+
                      <ipv4-address> - <ipv4-address>
-                                
+
                 netname
-                                
+
                    The name of a range of IP address space.
-                                
+
                      Made up of letters, digits, the character underscore "_",
                      and the character hyphen "-"; the first character of a name
                      must be a letter, and the last character of a name must be a
                      letter or a digit.
-                                
+
                 descr
-                                
+
                    A short description related to the object.
-                                
+
                      A sequence of ASCII characters.
-                                
+
                 country
-                                
+
                    Identifies the country.
-                                
+
                      Officially Assigned two-letter ISO 3166 country code or "EU" (exceptionally reserved).
-                                
+
                 geofeed
-                                
+
                    A URL referencing a CSV file containing geolocation data for the
                    resource.
-                                
+
                      Geofeed is a self-published format for IP geolocation data.
                      A URL referencing a CSV file (described by RFC8805) containing
                      geolocation data for the resource.
                      The URL must be valid and it must specify the HTTPS protocol.
-                                
+
                 geoloc
-                                
+
                    The location coordinates for the resource.
-                                
+
                      Location coordinates of the resource, in decimal degrees notation.
                      Format is latitude followed by longitude, separated by a space.
                      Latitude ranges from [-90,+90] and longitude from [-180,+180]
-                                
+
                 prefixlen
-                                
+
                    A URL referencing a CSV file containing prefix length data for the
                    resource.
-                                
+
                      A URL referencing a CSV file (described by draft-ietf-opsawg-prefix-lengths) containing
                      additional metadata about how the prefix is used or subdivided.
                      The URL must be valid and it must specify the HTTPS protocol.
-                                
+
                 language
-                                
+
                    Identifies the language.
-                                
+
                      Valid two-letter ISO 639-1 language code.
-                                
+
                 org
-                                
+
                    Points to an existing organisation object representing the entity that
                    holds the resource.
-                                
+
                      The 'ORG-' string followed by 2 to 4 characters, followed by up to 5 digits
                      followed by a source specification.  The first digit must not be "0".
                      Source specification starts with "-" followed by source name up to
                      9-character length.
-                                
+
                 sponsoring-org
-                                
+
                    Points to an existing organisation object representing the sponsoring
                    organisation responsible for the resource.
-                                
+
                      The 'ORG-' string followed by 2 to 4 characters, followed by up to 5 digits
                      followed by a source specification.  The first digit must not be "0".
                      Source specification starts with "-" followed by source name up to
                      9-character length.
-                                
+
                 admin-c
-                                
+
                    References an on-site administrative contact.
-                                
+
                      From 2 to 4 characters optionally followed by up to 6 digits
                      optionally followed by a source specification.  The first digit
                      must not be "0".  Source specification starts with "-" followed
                      by source name up to 9-character length.
-                                
+
                 tech-c
-                                
+
                    References a technical contact.
-                                
+
                      From 2 to 4 characters optionally followed by up to 6 digits
                      optionally followed by a source specification.  The first digit
                      must not be "0".  Source specification starts with "-" followed
                      by source name up to 9-character length.
-                                
+
                 abuse-c
-                                
+
                    References an abuse contact. This can only be a ROLE object containing
                    an "abuse-mailbox:" attribute. Making this reference will remove any
                    query limits for the ROLE object. These ROLE objects are considered to
                    include only commercial data.
-                                
+
                      From 2 to 4 characters optionally followed by up to 6 digits
                      optionally followed by a source specification.  The first digit
                      must not be "0".  Source specification starts with "-" followed
                      by source name up to 9-character length.
-                                
+
                 status
-                                
+
                    Specifies the status of the resource.
-                                
+
                      Status can have one of these values:
                     \s
                      o ALLOCATED PA
@@ -278,34 +278,34 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                      o ASSIGNED PI
                      o ASSIGNED ANYCAST
                      o LEGACY
-                                
+
                 assignment-size
-                                
+
                    Specifies the size of blocks assigned to end users from this aggregated inet(6)num assignment.
                    The maximum assignment size for inetnum is 32 and for inet6num is 128
-                                
+
                      Specifies a numeric value.
-                                
+
                 remarks
-                                
+
                    Contains remarks.
-                                
+
                      A sequence of ASCII characters.
-                                
+
                 notify
-                                
+
                    Specifies the e-mail address to which notifications of changes to an
                    object should be sent. This attribute is filtered from the default
                    whois output.
-                                
+
                      An e-mail address as defined in RFC 2822.
-                                
+
                 mnt-by
-                                
+
                    Specifies the identifier of a registered mntner object used for
                    authorisation of operations performed with the object that contains
                    this attribute.
-                                
+
                      Made up of letters, digits, the character underscore "_",
                      and the character hyphen "-"; the first character of a name
                      must be a letter, and the last character of a name must be a
@@ -324,16 +324,16 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                      "fltr-" are reserved for filter set names. Names starting
                      with "prng-" are reserved for peering set names. Names
                      starting with "irt-" are reserved for irt names.
-                                
+
                 mnt-lower
-                                
+
                    Specifies the identifier of a registered mntner object used for
                    hierarchical authorisation. Protects creation of objects directly (one
                    level) below in the hierarchy of an object type. The authentication
                    method of this maintainer object will then be used upon creation of
                    any object directly below the object that contains the "mnt-lower:"
                    attribute.
-                                
+
                      Made up of letters, digits, the character underscore "_",
                      and the character hyphen "-"; the first character of a name
                      must be a letter, and the last character of a name must be a
@@ -352,14 +352,14 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                      "fltr-" are reserved for filter set names. Names starting
                      with "prng-" are reserved for peering set names. Names
                      starting with "irt-" are reserved for irt names.
-                                
+
                 mnt-domains
-                                
+
                    Specifies the identifier of a registered mntner object used for
                    reverse domain authorisation. Protects domain objects. The
                    authentication method of this maintainer object will be used for any
                    encompassing reverse domain object.
-                                
+
                      Made up of letters, digits, the character underscore "_",
                      and the character hyphen "-"; the first character of a name
                      must be a letter, and the last character of a name must be a
@@ -378,9 +378,9 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                      "fltr-" are reserved for filter set names. Names starting
                      with "prng-" are reserved for peering set names. Names
                      starting with "irt-" are reserved for irt names.
-                                
+
                 mnt-routes
-                                
+
                    This attribute references a maintainer object which is used in
                    determining authorisation for the creation of route objects.
                    After the reference to the maintainer, an optional list of
@@ -388,40 +388,40 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                    follow. The default, when no additional set items are
                    specified, is "ANY" or all more specifics. Please refer to
                    RFC-2622 for more information.
-                                
+
                      <mnt-name> [ { list of <address-prefix-range> } | ANY ]
-                                
+
                 mnt-irt
-                                
+
                    May appear in an inetnum or inet6num object. It points to an irt
                    object representing a Computer Security Incident Response Team (CSIRT)
                    that handles security incidents for the address space specified by the
                    inetnum or inet6num object.
-                                
+
                      An irt name is made up of letters, digits, the character
                      underscore "_", and the character hyphen "-"; it must start
                      with "irt-", and the last character of a name must be a
                      letter or a digit.
-                                
+
                 created
-                                
+
                    This attributes reflects when the object was created in
                    ISO8601 format (yyyy-MM-dd'T'HH:mm:ssZ).
-                                
+
                      Attribute generated by server.
-                                
+
                 last-modified
-                                
+
                    This attributes reflects when the object was last changed in
                    ISO8601 format (yyyy-MM-dd'T'HH:mm:ssZ).
-                                
+
                      Attribute generated by server.
-                                
+
                 source
-                                
+
                    Specifies the registry where the object is registered. Should be
                    "RIPE" for the RIPE Database.
-                                
+
                      Made up of letters, digits, the character underscore "_",
                      and the character hyphen "-"; the first character of a
                      registry name must be a letter, and the last character of a
