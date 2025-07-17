@@ -177,7 +177,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
 
                    Identifies the country.
 
-                     Valid two-letter ISO 3166 country code.
+                     Officially Assigned two-letter ISO 3166 country code or "EU" (exceptionally reserved).
 
                 geofeed
 
