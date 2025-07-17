@@ -79,7 +79,7 @@ class LacnicGrsSource extends GrsSource {
         final Document loginPage = parse(get("https://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
         final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
 
-        post(loginAction); // TODO: [MH] Can this be removed?
+        post(loginAction);
 
         final String downloadAction = loginAction.replace("stini", "bulkWhoisLoader");
 
