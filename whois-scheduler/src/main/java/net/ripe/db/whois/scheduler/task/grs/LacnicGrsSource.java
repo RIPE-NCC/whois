@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -73,6 +74,7 @@ class LacnicGrsSource extends GrsSource {
     }
 
     @Override
+    @RetryFor(value = IOException.class, attempts = 5, intervalMs = 60000)
     public void acquireDump(final Path path) throws IOException {
         final Document loginPage = parse(get("https://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
         final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
@@ -96,8 +98,8 @@ class LacnicGrsSource extends GrsSource {
         return client.target(url).request().get(String.class);
     }
 
-    private String post(final String url) {
-        return client.target(url)
+    private void post(final String url) {
+        client.target(url)
                 .queryParam("handle", userId)
                 .queryParam("passwd", password)
                 .request()
