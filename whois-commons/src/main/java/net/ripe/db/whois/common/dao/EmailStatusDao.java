@@ -4,8 +4,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import net.ripe.db.whois.common.FormatHelper;
-import net.ripe.db.whois.common.domain.Timestamp;
 import net.ripe.db.whois.common.mail.EmailStatusType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +24,13 @@ import java.util.Set;
 @Repository
 public class EmailStatusDao {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+    private static final DateTimeFormatter LAST_UPDATE_FORMATTER =
+                                new DateTimeFormatterBuilder()
+                                        .parseCaseInsensitive()
+                                        .append(DateTimeFormatter.ISO_LOCAL_DATE)
+                                        .appendLiteral(' ')
+                                        .append(DateTimeFormatter.ISO_TIME)
+                                        .toFormatter();
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -81,7 +86,7 @@ public class EmailStatusDao {
                 resultSet -> {
                     final String email = resultSet.getString(1);
                     final EmailStatusType status = EmailStatusType.valueOf(resultSet.getString(2));
-                    final LocalDateTime date = LocalDateTime.parse(resultSet.getString(3), formatter);
+                    final LocalDateTime date = LocalDateTime.parse(resultSet.getString(3), LAST_UPDATE_FORMATTER);
                     results.add(new EmailStatus(email, status, date));
                 });
 

@@ -40,7 +40,7 @@ public class Database {
 
                 ResultSet rs = null;
                 try {
-                    rs = connection.getMetaData().getTables(null, null, "%", new String[]{"TABLE"});
+                    rs = connection.getMetaData().getTables(connection.getCatalog(), null, "%", new String[]{"TABLE"});
                     while (rs.next()) {
                         final String tableName = rs.getString("TABLE_NAME").toLowerCase();
 
