@@ -2,6 +2,7 @@ package net.ripe.db.nrtm4.servlet;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotAcceptableException;
 import jakarta.ws.rs.NotAllowedException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
@@ -22,11 +23,12 @@ public class NrtmExceptionMapper implements ExceptionMapper<Exception> {
         if (exception instanceof BadRequestException){
             return createErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
         }
-
         if (exception instanceof NotFoundException) {
             return createErrorResponse(HttpServletResponse.SC_NOT_FOUND, exception.getMessage());
         }
-
+        if (exception instanceof NotAcceptableException) {
+            return createErrorResponse(HttpServletResponse.SC_NOT_ACCEPTABLE, exception.getMessage());
+        }
         if (exception instanceof NotAllowedException) {
             return createErrorResponse(HttpServletResponse.SC_METHOD_NOT_ALLOWED, exception.getMessage());
         }
