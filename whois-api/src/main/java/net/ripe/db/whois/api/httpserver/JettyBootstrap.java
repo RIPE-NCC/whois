@@ -206,6 +206,8 @@ public class JettyBootstrap implements ApplicationService {
       */
     private Server createServer() {
         final ServletContextHandler context = new ServletContextHandler();
+        context.getServletHandler().setDecodeAmbiguousURIs(true);
+
         context.setContextPath("/");
 
         context.setInitParameter(DefaultServlet.CONTEXT_INIT + "dirAllowed", "false");
@@ -243,13 +245,7 @@ public class JettyBootstrap implements ApplicationService {
 
 
     private void setConnectors(final Server server) {
-        final HttpConfiguration httpConfiguration = new HttpConfiguration();
-
-        if (this.xForwardedForHttp){
-            httpConfiguration.addCustomizer(new ProtocolCustomizer());
-        }
-        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, this.xForwardedForHttp));
-        server.setConnectors(new Connector[]{createInsecureConnector(server, httpConfiguration)});
+        server.setConnectors(new Connector[]{createInsecureConnector(server)});
 
         if (isHttps()){
             server.addConnector(createSecureConnector(server, this.securePort, false));
@@ -259,7 +255,13 @@ public class JettyBootstrap implements ApplicationService {
         }
     }
 
-    private Connector createInsecureConnector(final Server server, final HttpConfiguration httpConfiguration) {
+    private Connector createInsecureConnector(final Server server) {
+        final HttpConfiguration httpConfiguration = new HttpConfiguration();
+        httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
+        if (this.xForwardedForHttp){
+            httpConfiguration.addCustomizer(new ProtocolCustomizer());
+        }
+        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, this.xForwardedForHttp));
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));

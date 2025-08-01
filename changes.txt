@@ -1,5 +1,9 @@
 # next
 
+# 1.118.1
+
+[api] Allow Ambiguous Encoding in HTTP Request URIs (#1843)
+
 # 1.118
 
 [all] Add prefixlen Attribute to Inet(6)num (#1816)
