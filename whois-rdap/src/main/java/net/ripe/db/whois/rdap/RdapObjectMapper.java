@@ -12,24 +12,6 @@ import net.ripe.commons.ip.AbstractIpRange;
 import net.ripe.commons.ip.Ipv4Range;
 import net.ripe.commons.ip.Ipv6Range;
 import net.ripe.db.whois.api.TopLevelFilter;
-import net.ripe.db.whois.rdap.domain.Action;
-import net.ripe.db.whois.rdap.domain.Autnum;
-import net.ripe.db.whois.rdap.domain.Domain;
-import net.ripe.db.whois.rdap.domain.Entity;
-import net.ripe.db.whois.rdap.domain.Event;
-import net.ripe.db.whois.rdap.domain.Ip;
-import net.ripe.db.whois.rdap.domain.IpCidr0;
-import net.ripe.db.whois.rdap.domain.Link;
-import net.ripe.db.whois.rdap.domain.LinkRelationType;
-import net.ripe.db.whois.rdap.domain.Nameserver;
-import net.ripe.db.whois.rdap.domain.Notice;
-import net.ripe.db.whois.rdap.domain.RdapObject;
-import net.ripe.db.whois.rdap.domain.RdapRequestType;
-import net.ripe.db.whois.rdap.domain.RelationType;
-import net.ripe.db.whois.rdap.domain.Remark;
-import net.ripe.db.whois.rdap.domain.Role;
-import net.ripe.db.whois.rdap.domain.SearchResult;
-import net.ripe.db.whois.rdap.domain.Status;
 import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -52,6 +34,24 @@ import net.ripe.db.whois.common.rpsl.attrs.DsRdata;
 import net.ripe.db.whois.common.rpsl.attrs.NServer;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.planner.AbuseContact;
+import net.ripe.db.whois.rdap.domain.Action;
+import net.ripe.db.whois.rdap.domain.Autnum;
+import net.ripe.db.whois.rdap.domain.Domain;
+import net.ripe.db.whois.rdap.domain.Entity;
+import net.ripe.db.whois.rdap.domain.Event;
+import net.ripe.db.whois.rdap.domain.Ip;
+import net.ripe.db.whois.rdap.domain.IpCidr0;
+import net.ripe.db.whois.rdap.domain.Link;
+import net.ripe.db.whois.rdap.domain.LinkRelationType;
+import net.ripe.db.whois.rdap.domain.Nameserver;
+import net.ripe.db.whois.rdap.domain.Notice;
+import net.ripe.db.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.rdap.domain.RdapRequestType;
+import net.ripe.db.whois.rdap.domain.RelationType;
+import net.ripe.db.whois.rdap.domain.Remark;
+import net.ripe.db.whois.rdap.domain.Role;
+import net.ripe.db.whois.rdap.domain.SearchResult;
+import net.ripe.db.whois.rdap.domain.Status;
 import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
@@ -76,14 +76,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.ripe.db.whois.rdap.RdapConformance.GEO_FEED_1;
-import static net.ripe.db.whois.rdap.RedactionObjectMapper.mapRedactions;
-import static net.ripe.db.whois.rdap.domain.Status.ACTIVE;
-import static net.ripe.db.whois.rdap.domain.Status.ADMINISTRATIVE;
-import static net.ripe.db.whois.rdap.domain.Status.RESERVED;
-import static net.ripe.db.whois.rdap.domain.vcard.VCardKind.GROUP;
-import static net.ripe.db.whois.rdap.domain.vcard.VCardKind.INDIVIDUAL;
-import static net.ripe.db.whois.rdap.domain.vcard.VCardKind.ORGANISATION;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
@@ -107,6 +99,14 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.TECH_C;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ZONE_C;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
+import static net.ripe.db.whois.rdap.RdapConformance.GEO_FEED_1;
+import static net.ripe.db.whois.rdap.RedactionObjectMapper.mapRedactions;
+import static net.ripe.db.whois.rdap.domain.Status.ACTIVE;
+import static net.ripe.db.whois.rdap.domain.Status.ADMINISTRATIVE;
+import static net.ripe.db.whois.rdap.domain.Status.RESERVED;
+import static net.ripe.db.whois.rdap.domain.vcard.VCardKind.GROUP;
+import static net.ripe.db.whois.rdap.domain.vcard.VCardKind.INDIVIDUAL;
+import static net.ripe.db.whois.rdap.domain.vcard.VCardKind.ORGANISATION;
 
 @Component
 public class RdapObjectMapper {
@@ -818,25 +818,25 @@ public class RdapObjectMapper {
     private void mapCommonRelationLinks(final RdapObject rdapResponse, final String requestUrl, final String objectType, final String handle){
 
         rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.UP.getValue(),
-                buildRirSearchUri(objectType, RelationType.UP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+                buildRirSearchUri(objectType, RelationType.UP.getValue(), handle), null, null, APPLICATION_RDAP_JSON));
 
         rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.concat(LinkRelationType.UP, LinkRelationType.ACTIVE),
                 buildRirSearchUri(objectType, RelationType.UP.getValue(), handle).concat("?status=active"),
-                APPLICATION_RDAP_JSON, null, null));
+                null, null, APPLICATION_RDAP_JSON));
 
         rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.DOWN.getValue(),
-                buildRirSearchUri(objectType, RelationType.DOWN.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+                buildRirSearchUri(objectType, RelationType.DOWN.getValue(), handle), null, null, APPLICATION_RDAP_JSON));
 
         rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.TOP.getValue(),
-                buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+                buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle), null, null, APPLICATION_RDAP_JSON));
 
         rdapResponse.getLinks().add(new Link(requestUrl,
                 LinkRelationType.concat(LinkRelationType.TOP, LinkRelationType.ACTIVE),
-                buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle).concat("?status=active"), APPLICATION_RDAP_JSON, null,
-                null));
+                buildRirSearchUri(objectType, RelationType.TOP.getValue(), handle).concat("?status=active"), null, null,
+                APPLICATION_RDAP_JSON));
 
         rdapResponse.getLinks().add(new Link(requestUrl, LinkRelationType.BOTTOM.getValue(),
-                buildRirSearchUri(objectType, RelationType.BOTTOM.getValue(), handle), APPLICATION_RDAP_JSON, null, null));
+                buildRirSearchUri(objectType, RelationType.BOTTOM.getValue(), handle), null, null, APPLICATION_RDAP_JSON));
     }
 
     public String buildRirSearchUri(final String objectType, final String relationType, final String hande) {
