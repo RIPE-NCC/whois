@@ -206,6 +206,8 @@ public class JettyBootstrap implements ApplicationService {
       */
     private Server createServer() {
         final ServletContextHandler context = new ServletContextHandler();
+        context.getServletHandler().setDecodeAmbiguousURIs(true);
+
         context.setContextPath("/");
 
         context.setInitParameter(DefaultServlet.CONTEXT_INIT + "dirAllowed", "false");
