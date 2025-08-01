@@ -808,7 +808,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inetnum_invalid_syntax_multislash() {
+    public void lookup_inetnum_invalid_syntax_empty_segment() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.255.255.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -828,7 +828,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Ip.class);
         });
 
-        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("Ambiguous URI encoding: AMBIGUOUS_EMPTY_SEGMENT"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("Ambiguous URI empty segment"));
     }
 
     @Test
