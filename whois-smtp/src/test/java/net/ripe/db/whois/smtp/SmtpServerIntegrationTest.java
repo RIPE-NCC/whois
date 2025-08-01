@@ -260,4 +260,32 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
         assertThat(smtpClient.readLine(), startsWith("221 "));
     }
 
+    @Test
+    public void sendMessageEmptyFromAddress() throws Exception {
+        final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
+        assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
+        smtpClient.writeLine("HELO testserver");
+        assertThat(smtpClient.readLine(), matchesPattern("250.*Hello testserver"));
+
+        smtpClient.writeLine("MAIL FROM:<> SIZE=1024");
+
+        assertThat(smtpClient.readLine(), is("250 OK"));
+        smtpClient.writeLine("QUIT");
+        assertThat(smtpClient.readLine(), startsWith("221 "));
+    }
+
+    @Test
+    public void sendMessageNoFromAddress() throws Exception {
+        final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort());
+        assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
+        smtpClient.writeLine("HELO testserver");
+        assertThat(smtpClient.readLine(), matchesPattern("250.*Hello testserver"));
+
+        smtpClient.writeLine("MAIL FROM:");
+
+        assertThat(smtpClient.readLine(), is("500 unrecognised command"));
+        smtpClient.writeLine("QUIT");
+        assertThat(smtpClient.readLine(), startsWith("221 "));
+    }
+
 }
