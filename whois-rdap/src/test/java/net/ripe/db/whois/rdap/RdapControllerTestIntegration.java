@@ -832,6 +832,35 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void lookup_inetnum_invalid_syntax_encoded_forward_slash() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.0.0%2F32")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getLang(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+        assertThat(ip.getStatus(), contains("active"));
+    }
+
+    @Test
     public void lookup_inetnum_empty_ip() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             createResource("ip/")
