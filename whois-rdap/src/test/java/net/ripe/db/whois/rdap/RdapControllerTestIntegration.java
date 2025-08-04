@@ -12,6 +12,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.minidev.json.JSONArray;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.rdap.domain.Action;
 import net.ripe.db.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.rdap.domain.Domain;
@@ -28,9 +31,6 @@ import net.ripe.db.whois.rdap.domain.RelationType;
 import net.ripe.db.whois.rdap.domain.Remark;
 import net.ripe.db.whois.rdap.domain.Role;
 import net.ripe.db.whois.rdap.domain.SearchResult;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.eclipse.jetty.http.HttpStatus;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
@@ -1837,32 +1837,32 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-up\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-up rdap-active\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102?status=active\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-down\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-down/AS102\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-top\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-top rdap-active\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102?status=active\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-bottom\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-bottom/AS102\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"self\",\n" +
@@ -1891,33 +1891,33 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-up\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-up rdap-active\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102?status=active\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-down\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-down/AS102\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-top\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-top rdap-active\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102?status=active\"," +
                         "\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-bottom\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-bottom/AS102\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"self\",\n" +
