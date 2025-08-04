@@ -565,6 +565,26 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_route_encoded_forward_slash_in_primary_key() {
+        databaseHelper.addObject(
+                "route:           193.254.30.0/24\n" +
+                "descr:           Test route\n" +
+                "origin:          AS12726\n" +
+                "mnt-by:          OWNER-MNT\n" +
+                "mnt-routes:      OWNER-MNT {192.168.0.0/16}\n" +
+                "source:          TEST\n");
+        ipTreeUpdater.rebuild();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/route/193.254.30.0%2F24AS12726").request().get(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisObject.getLink().getHref(), is("http://rest-test.db.ripe.net/test/route/193.254.30.0/24AS12726"));
+    }
+
+    @Test
     public void lookup_route6() {
         databaseHelper.addObject(
                 "route6:          2001::/32\n" +
