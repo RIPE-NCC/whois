@@ -1691,6 +1691,19 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(badRequestException, "RIPE NCC does not support forward domain queries.");
     }
 
+    @Test
+    public void lookup_e164_domain_object_then_not_implemented() {
+        final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
+            createResource("domain/1.2.3.4.e164.arpa")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Domain.class);
+        });
+
+        assertErrorStatus(notImplementedException, 501);
+        assertErrorTitle(notImplementedException, "Not Implemented");
+        assertErrorDescription(notImplementedException, "Support for ENUM-based resolution (e164.arpa) is currently not implemented");
+    }
+
     // autnum
 
     @Test
