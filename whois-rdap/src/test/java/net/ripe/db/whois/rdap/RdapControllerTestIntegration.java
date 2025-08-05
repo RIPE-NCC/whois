@@ -1701,7 +1701,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         assertErrorStatus(notImplementedException, 501);
         assertErrorTitle(notImplementedException, "Not Implemented");
-        assertErrorDescription(notImplementedException, "Support for ENUM-based resolution (e164.arpa) is currently not implemented");
+        assertErrorDescription(notImplementedException, "Support for ENUM zone (e164.arpa) is currently not implemented");
     }
 
     // autnum

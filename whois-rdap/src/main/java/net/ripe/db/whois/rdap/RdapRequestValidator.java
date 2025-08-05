@@ -31,8 +31,8 @@ public class RdapRequestValidator {
             throw new RdapException("Bad Request", "empty lookup term", HttpStatus.BAD_REQUEST_400);
         }
 
-        if (key.contains(E164_ENUM_ZONE)){
-            throw new RdapException("Not Implemented", "Support for ENUM-based resolution (e164.arpa) is currently not implemented", HttpStatus.NOT_IMPLEMENTED_501);
+        if (key.endsWith(E164_ENUM_ZONE)){
+            throw new RdapException("Not Implemented", "Support for ENUM zone (e164.arpa) is currently not implemented", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
         try {
