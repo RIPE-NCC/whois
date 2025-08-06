@@ -19,6 +19,8 @@ public class RdapRequestValidator {
 
     private final ReservedResources reservedResources;
 
+    private final static String E164_ENUM_ZONE = "e164.arpa";
+
     @Autowired
     public RdapRequestValidator(final ReservedResources reservedResources) {
         this.reservedResources = reservedResources;
@@ -27,6 +29,10 @@ public class RdapRequestValidator {
     public void validateDomain(final String key) {
         if (isEmpty(key)) {
             throw new RdapException("Bad Request", "empty lookup term", HttpStatus.BAD_REQUEST_400);
+        }
+
+        if (key.endsWith(E164_ENUM_ZONE)){
+            throw new RdapException("Not Implemented", "Support for ENUM zone (e164.arpa) is currently not implemented", HttpStatus.NOT_IMPLEMENTED_501);
         }
 
         try {
