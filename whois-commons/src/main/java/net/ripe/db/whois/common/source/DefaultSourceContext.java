@@ -146,7 +146,11 @@ public class DefaultSourceContext implements SourceContext {
 
     private String createGrsUrl(final String baseUrl, final CIString sourceName) {
         final URI uri = URI.create(URI.create(baseUrl).getRawSchemeSpecificPart());
-        return String.format("jdbc:mariadb://%s%s_%s?%s", uri.getHost(), uri.getPath(), sourceName.toString().replace('-', '_'), uri.getQuery());
+        return String.format("jdbc:mariadb://%s%s_%s%s",
+            uri.getHost(),
+            uri.getPath(),
+            sourceName.toString().replace('-', '_'),
+            (uri.getQuery() != null ? "?" + uri.getQuery() : ""));
     }
 
     public SourceConfiguration getCurrentSourceConfiguration() {
