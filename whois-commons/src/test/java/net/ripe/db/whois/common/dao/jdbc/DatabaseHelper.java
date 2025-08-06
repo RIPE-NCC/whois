@@ -176,27 +176,27 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
         setupDatabase(jdbcTemplate, "nrtm.client.info.database", "NRTM_CLIENT", "nrtm_client_schema.sql", "nrtm_client_data.sql");
         setupDatabase(jdbcTemplate, "nrtm.client.database", "NRTM_UPDATE", "whois_schema.sql", "whois_data.sql");
 
-        final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS;driver=%s", DB_HOST, dbBaseName, JDBC_DRIVER);
+        final String masterUrl = String.format("jdbc:log:mariadb://%s/%s_WHOIS?driver=%s&useServerPrepStmts=true", DB_HOST, dbBaseName, JDBC_DRIVER);
         System.setProperty("whois.db.master.url", masterUrl);
         System.setProperty("whois.db.master.driver", LoggingDriver.class.getName());
 
-        final String slaveUrl = String.format("jdbc:mariadb://%s/%s_WHOIS", DB_HOST, dbBaseName);
+        final String slaveUrl = String.format("jdbc:mariadb://%s/%s_WHOIS?useServerPrepStmts=true", DB_HOST, dbBaseName);
         System.setProperty("whois.db.slave.url", slaveUrl);
         System.setProperty("whois.db.driver", JDBC_DRIVER);
 
-        final String internalsSlaveUrl = String.format("jdbc:mariadb://%s/%s_INTERNALS", DB_HOST, dbBaseName);
+        final String internalsSlaveUrl = String.format("jdbc:mariadb://%s/%s_INTERNALS?useServerPrepStmts=true", DB_HOST, dbBaseName);
         System.setProperty("internals.slave.database.url", internalsSlaveUrl);
 
-        final String nrtmSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM", DB_HOST, dbBaseName);
+        final String nrtmSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM?useServerPrepStmts=true", DB_HOST, dbBaseName);
         System.setProperty("nrtm.slave.database.url", nrtmSlaveUrl);
 
-        final String nrtmClientInfoSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_CLIENT", DB_HOST, dbBaseName);
+        final String nrtmClientInfoSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_CLIENT?useServerPrepStmts=true", DB_HOST, dbBaseName);
         System.setProperty("nrtm.client.info.slave.database.url", nrtmClientInfoSlaveUrl);
 
-        final String nrtmClientSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_UPDATE", DB_HOST, dbBaseName);
+        final String nrtmClientSlaveUrl = String.format("jdbc:mariadb://%s/%s_NRTM_UPDATE?useServerPrepStmts=true", DB_HOST, dbBaseName);
         System.setProperty("nrtm.client.slave.database.url", nrtmClientSlaveUrl);
 
-        final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s", DB_HOST, dbBaseName);
+        final String grsSlaveUrl = String.format("jdbc:mariadb://%s/%s?useServerPrepStmts=true", DB_HOST, dbBaseName);
         System.setProperty("whois.db.grs.slave.baseurl", grsSlaveUrl);
         System.setProperty("whois.db.grs.master.baseurl", grsSlaveUrl);
     }
@@ -238,7 +238,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
         loadScripts(new JdbcTemplate(createDataSource(dbName)), sql);
 
-        System.setProperty(propertyBase + ".url", String.format("jdbc:mariadb://%s/%s", DB_HOST, dbName));
+        System.setProperty(propertyBase + ".url", String.format("jdbc:mariadb://%s/%s?useServerPrepStmts=true", DB_HOST, dbName));
         System.setProperty(propertyBase + ".username", "dbint");
         System.setProperty(propertyBase + ".password", "");
     }
@@ -254,7 +254,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
             final SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
             dataSource.setDriverClass(driverClass);
-            dataSource.setUrl(String.format("jdbc:mariadb://%s/%s", DB_HOST, databaseName));
+            dataSource.setUrl(String.format("jdbc:mariadb://%s/%s?useServerPrepStmts=true", DB_HOST, databaseName));
             dataSource.setUsername("dbint");
 
             return dataSource;
