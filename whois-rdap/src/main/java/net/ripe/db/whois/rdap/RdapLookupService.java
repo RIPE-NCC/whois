@@ -2,7 +2,6 @@ package net.ripe.db.whois.rdap;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.jdbc.JdbcReferenceReadOnlyDao;
@@ -117,8 +116,7 @@ public class RdapLookupService {
         final RpslObject inetnumObject = inetnumIterator.hasNext() ? inetnumIterator.next() : null;
 
         if (domainIterator.hasNext() || inetnumIterator.hasNext()) {
-            throw new RdapException("Internal Error", "Unexpected result size: " + Iterators.size(domainIterator),
-                    HttpStatus.INTERNAL_SERVER_ERROR_500);
+            throw new RdapException("Internal Error", "More than one object matches primary key", HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
         return rdapObjectMapper.mapDomainEntity(getRequestUrl(request), domainObject, inetnumObject);
     }
@@ -131,7 +129,7 @@ public class RdapLookupService {
                     throw new RdapException("Not Found", "Requested organisation not found: " + key, HttpStatus.NOT_FOUND_404);
             case 1 -> organisationResult.getFirst();
             default ->
-                    throw new RdapException("Internal Error", "Unexpected result size: " + organisationResult.size(), HttpStatus.INTERNAL_SERVER_ERROR_500);
+                    throw new RdapException("Internal Error", "More than one object matches primary key", HttpStatus.INTERNAL_SERVER_ERROR_500);
         };
 
         final Set<RpslObjectInfo> references = getReferences(organisation);
@@ -219,8 +217,7 @@ public class RdapLookupService {
         RpslObject resultObject = rpslIterator.next();
 
         if (rpslIterator.hasNext()) {
-            throw new RdapException("Internal Error", "Unexpected result size: " + Iterators.size(rpslIterator),
-                    HttpStatus.INTERNAL_SERVER_ERROR_500);
+            throw new RdapException("Internal Error", "More than one object matches primary key", HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
         if (RdapObjectMapper.isIANABlock(resultObject)){
