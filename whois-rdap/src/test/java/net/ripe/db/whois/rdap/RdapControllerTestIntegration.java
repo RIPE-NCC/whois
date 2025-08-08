@@ -5,6 +5,7 @@ import com.google.common.net.HttpHeaders;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotAcceptableException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ServerErrorException;
@@ -2870,6 +2871,31 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(serverErrorException, "Nameserver not supported");
     }
 
+    @Test
+    public void lookup_db_duplicated_key_correct_error(){
+
+        final RpslObject rpslObject = RpslObject.parse("""
+                mntner:        TP1-TEST
+                descr:         Owner Maintainer
+                admin-c:       TP1-TEST
+                upd-to:        noreply@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                mnt-by:        OWNER-MNT
+                mbrs-by-ref:   OWNER-MNT
+                created:         2011-07-28T00:35:42Z
+                last-modified:   2019-02-28T10:14:46Z
+                source:        TEST""");
+
+        databaseHelper.addObject(rpslObject);
+
+        final InternalServerErrorException internalServerErrorException = assertThrows(InternalServerErrorException.class, () -> createResource("entity/TP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class)
+        );
+        assertErrorStatus(internalServerErrorException, 500);
+        assertErrorTitle(internalServerErrorException, "Internal Error");
+        assertErrorDescription(internalServerErrorException, "More than one object matches primary key");
+    }
     // Redactions
 
     @Test
