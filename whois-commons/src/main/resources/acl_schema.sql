@@ -7,7 +7,7 @@
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,7 +21,7 @@
 
 DROP TABLE IF EXISTS `acl_denied`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_denied` (
   `prefix` varchar(50) NOT NULL,
   `comment` text,
@@ -36,7 +36,7 @@ CREATE TABLE `acl_denied` (
 
 DROP TABLE IF EXISTS `acl_event`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_event` (
   `prefix` varchar(50) NOT NULL,
   `event_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -79,7 +79,7 @@ CREATE TABLE `acl_sso_event` (
 
 DROP TABLE IF EXISTS `acl_limit`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_limit` (
   `prefix` varchar(50) NOT NULL,
   `daily_limit` int(11) NOT NULL DEFAULT '-1',
@@ -95,7 +95,7 @@ CREATE TABLE `acl_limit` (
 
 DROP TABLE IF EXISTS `acl_proxy`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `acl_proxy` (
   `prefix` varchar(50) NOT NULL,
   `comment` text,
@@ -109,7 +109,7 @@ CREATE TABLE `acl_proxy` (
 
 DROP TABLE IF EXISTS `override_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `override_users` (
   `username` varchar(255) NOT NULL,
   `password` varchar(64) NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE `override_users` (
 
 DROP TABLE IF EXISTS `apikeys`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `apikeys` (
   `apikey` varchar(128) NOT NULL,
   `uri_prefix` varchar(128) NOT NULL,
@@ -140,7 +140,7 @@ CREATE TABLE `apikeys` (
 
 DROP TABLE IF EXISTS `version`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `version` (
   `version` varchar(80) DEFAULT NULL,
    PRIMARY KEY (`version`)

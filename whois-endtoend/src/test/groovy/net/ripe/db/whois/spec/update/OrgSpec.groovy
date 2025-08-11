@@ -404,7 +404,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
     }
 
-    def "create organisation with auto-1 and latin-1 Supplement and non-latin-1 chars in name, missing auth"() {
+    def "create organisation with auto-1 and weird (invalid) chars in name, missing auth"() {
         expect:
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
 
@@ -435,10 +435,9 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
-        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäöÚ ?"]
-        ack.warningMessagesFor("Create", "[organisation] auto-1") == [
-                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
+        ack.countErrorWarnInfo(1, 0, 0)
+
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == ["Syntax error in Hö öns mö åäö ŐÚ"]
 
         queryObjectNotFound("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
     }
