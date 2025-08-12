@@ -260,13 +260,18 @@ public class AuthServiceClient {
             return null;
         }
 
-        return client.target(restUrl)
+        try {
+            return client.target(restUrl)
                     .path(ORGANISATION_MEMBERS_PATH)
                     .path(String.valueOf(membershipId))
                     .path(ACCOUNTS_PATH)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(MemberContactsResponse.class);
+        } catch (Exception e) {
+            LOGGER.error("Error getting member contact from {}", membershipId);
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Error getting member contact information");
+        }
     }
 
 }
