@@ -32,6 +32,7 @@ public class MemberContactsResponse {
         @XmlElement(required = true)
         public String email;
 
+        public String
         public String getEmail() {
             return email;
         }

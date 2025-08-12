@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ public class AuthServiceClient {
     private static final String HISTORICAL_USER_SEARCH_PATH = "/history/user";
 
     private static final String CONTACT_PATH = "/contacts";
+    private static final String ACCOUNTS_PATH = "/accounts";
     private static final String EMAIL_PATH = "/email";
     private static final String VALIDATE_TOKEN_PERMISSION = "portal";
 
@@ -250,4 +252,21 @@ public class AuthServiceClient {
 
         return Collections.emptyList();
     }
+
+    @Nullable
+    public MemberContactsResponse getOrgsContactsGroupsEmails(final Long membershipId) {
+        // Used by whois-internal. Do not remove
+        if (membershipId == null){
+            return null;
+        }
+
+        return client.target(restUrl)
+                    .path(ORGANISATION_MEMBERS_PATH)
+                    .path(String.valueOf(membershipId))
+                    .path(ACCOUNTS_PATH)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header(API_KEY, apiKey)
+                    .get(MemberContactsResponse.class);
+    }
+
 }
