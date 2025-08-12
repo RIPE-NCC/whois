@@ -268,9 +268,15 @@ public class AuthServiceClient {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(MemberContactsResponse.class);
-        } catch (Exception e) {
-            LOGGER.error("Error getting member contact from {}", membershipId);
-            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Error getting member contact information");
+        } catch (NotFoundException e) {
+            LOGGER.debug("Not found getting member contact response from {} due to {}:{}\n\tResponse: {}", membershipId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid membership Id.");
+        } catch (WebApplicationException e) {
+            LOGGER.debug("Failed to get member contact response from {} due to {}:{}\n\tResponse: {}", membershipId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        } catch (ProcessingException e) {
+            LOGGER.debug("Failed to get details for membership {} due to {}:{}", membershipId, e.getClass().getName(), e.getMessage());
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }
 
