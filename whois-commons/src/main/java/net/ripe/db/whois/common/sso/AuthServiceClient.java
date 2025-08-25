@@ -254,7 +254,7 @@ public class AuthServiceClient {
     }
 
     @Nullable
-    @Stopwatch(thresholdMs = 100L)
+    @Stopwatch
     public MemberContactsResponse getOrgsContactsGroupsEmails(final Long membershipId) {
         // Used by whois-internal. Do not remove
         if (membershipId == null){
