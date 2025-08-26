@@ -4,10 +4,12 @@ import com.google.common.base.Strings;
 import com.google.common.net.InetAddresses;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
@@ -156,6 +158,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     private TestDateTimeProvider testDateTimeProvider;
     @Autowired
     private ApplicationVersion applicationVersion;
+    @Autowired private RestClient restClient;
 
     @BeforeEach
     public void setup() {
@@ -188,28 +191,43 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:         OWNER-MNT\n" +
                 "source:         TEST\n");
 
-        (IntStream.rangeClosed(0, 1000)).parallel().forEach(i -> {
-            final String whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=AS102&source=TEST")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
+        final boolean result = (IntStream.rangeClosed(0, 10000)).parallel().map(i -> {
+            final String whoisResources;
 
-            assertThat(whoisResources, containsString("{\"service\" : {\n" +
+            try {
+                whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=AS102&type-filter=aut-num&type-filter=inet6num&flags=r&flags=m&limit=1000")
+                        .request(MediaType.APPLICATION_XML)
+                        .get(String.class);
+            } catch (WebApplicationException e) {
+                System.out.println("Error: " + e.getResponse().getStatus() + ": >>> " + e.getResponse().readEntity(String.class) + " <<<");
+                return 0;
+            }
+
+            return whoisResources.contains("{\"service\" : {\n" +
                     "  \"name\" : \"search\"\n" +
                     "},\n" +
                     "\"parameters\" : {\n" +
                     "  \"inverse-lookup\" : { },\n" +
-                    "  \"type-filters\" : { },\n" +
-                    "  \"flags\" : { },\n" +
+                    "  \"type-filters\" : {\n" +
+                    "    \"type-filter\" : [ {\n" +
+                    "      \"id\" : \"aut-num\"\n" +
+                    "    }, {\n" +
+                    "      \"id\" : \"inet6num\"\n" +
+                    "    } ]\n" +
+                    "  },\n" +
+                    "  \"flags\" : {\n" +
+                    "    \"flag\" : [ {\n" +
+                    "      \"value\" : \"no-referenced\"\n" +
+                    "    }, {\n" +
+                    "      \"value\" : \"one-more\"\n" +
+                    "    } ]\n" +
+                    "  },\n" +
                     "  \"query-strings\" : {\n" +
                     "    \"query-string\" : [ {\n" +
                     "      \"value\" : \"AS102\"\n" +
                     "    } ]\n" +
                     "  },\n" +
-                    "  \"sources\" : {\n" +
-                    "    \"source\" : [ {\n" +
-                    "      \"id\" : \"TEST\"\n" +
-                    "    } ]\n" +
-                    "  }\n" +
+                    "  \"sources\" : { }\n" +
                     "},\n" +
                     "\"objects\" : {\n" +
                     "  \"object\" : [ {\n" +
@@ -266,50 +284,11 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                     "        \"value\" : \"TEST\"\n" +
                     "      } ]\n" +
                     "    }\n" +
-                    "  }, {\n" +
-                    "    \"type\" : \"person\",\n" +
-                    "    \"link\" : {\n" +
-                    "      \"type\" : \"locator\",\n" +
-                    "      \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
-                    "    },\n" +
-                    "    \"source\" : {\n" +
-                    "      \"id\" : \"test\"\n" +
-                    "    },\n" +
-                    "    \"primary-key\" : {\n" +
-                    "      \"attribute\" : [ {\n" +
-                    "        \"name\" : \"nic-hdl\",\n" +
-                    "        \"value\" : \"TP1-TEST\"\n" +
-                    "      } ]\n" +
-                    "    },\n" +
-                    "    \"attributes\" : {\n" +
-                    "      \"attribute\" : [ {\n" +
-                    "        \"name\" : \"person\",\n" +
-                    "        \"value\" : \"Test Person\"\n" +
-                    "      }, {\n" +
-                    "        \"name\" : \"address\",\n" +
-                    "        \"value\" : \"Singel 258\"\n" +
-                    "      }, {\n" +
-                    "        \"name\" : \"phone\",\n" +
-                    "        \"value\" : \"+31 6 12345678\"\n" +
-                    "      }, {\n" +
-                    "        \"name\" : \"nic-hdl\",\n" +
-                    "        \"value\" : \"TP1-TEST\"\n" +
-                    "      }, {\n" +
-                    "        \"link\" : {\n" +
-                    "          \"type\" : \"locator\",\n" +
-                    "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
-                    "        },\n" +
-                    "        \"name\" : \"mnt-by\",\n" +
-                    "        \"value\" : \"OWNER-MNT\",\n" +
-                    "        \"referenced-type\" : \"mntner\"\n" +
-                    "      }, {\n" +
-                    "        \"name\" : \"source\",\n" +
-                    "        \"value\" : \"TEST\"\n" +
-                    "      } ]\n" +
-                    "    }\n" +
                     "  } ]\n" +
-                    "},\n"));
-        });
+                    "},") ? 1 : 0;
+                }).allMatch(i -> i == 1);
+
+        assertThat(result, is(true));
     }
 
 
