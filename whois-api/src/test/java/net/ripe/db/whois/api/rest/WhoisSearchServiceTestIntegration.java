@@ -48,6 +48,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -175,6 +176,142 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
         testPersonalObjectAccounting.resetAccounting();
         ipResourceConfiguration.reload();
     }
+
+    @Test
+    public void parallel_search_json() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        (IntStream.rangeClosed(0, 1000)).parallel().forEach(i -> {
+            final String whoisResources = RestTest.target(getPort(), "whois/search.json?query-string=AS102&source=TEST")
+                    .request(MediaType.APPLICATION_XML)
+                    .get(String.class);
+
+            assertThat(whoisResources, containsString("{\"service\" : {\n" +
+                    "  \"name\" : \"search\"\n" +
+                    "},\n" +
+                    "\"parameters\" : {\n" +
+                    "  \"inverse-lookup\" : { },\n" +
+                    "  \"type-filters\" : { },\n" +
+                    "  \"flags\" : { },\n" +
+                    "  \"query-strings\" : {\n" +
+                    "    \"query-string\" : [ {\n" +
+                    "      \"value\" : \"AS102\"\n" +
+                    "    } ]\n" +
+                    "  },\n" +
+                    "  \"sources\" : {\n" +
+                    "    \"source\" : [ {\n" +
+                    "      \"id\" : \"TEST\"\n" +
+                    "    } ]\n" +
+                    "  }\n" +
+                    "},\n" +
+                    "\"objects\" : {\n" +
+                    "  \"object\" : [ {\n" +
+                    "    \"type\" : \"aut-num\",\n" +
+                    "    \"link\" : {\n" +
+                    "      \"type\" : \"locator\",\n" +
+                    "      \"href\" : \"http://rest-test.db.ripe.net/test/aut-num/AS102\"\n" +
+                    "    },\n" +
+                    "    \"source\" : {\n" +
+                    "      \"id\" : \"test\"\n" +
+                    "    },\n" +
+                    "    \"primary-key\" : {\n" +
+                    "      \"attribute\" : [ {\n" +
+                    "        \"name\" : \"aut-num\",\n" +
+                    "        \"value\" : \"AS102\"\n" +
+                    "      } ]\n" +
+                    "    },\n" +
+                    "    \"attributes\" : {\n" +
+                    "      \"attribute\" : [ {\n" +
+                    "        \"name\" : \"aut-num\",\n" +
+                    "        \"value\" : \"AS102\"\n" +
+                    "      }, {\n" +
+                    "        \"name\" : \"as-name\",\n" +
+                    "        \"value\" : \"End-User-2\"\n" +
+                    "      }, {\n" +
+                    "        \"name\" : \"descr\",\n" +
+                    "        \"value\" : \"description\"\n" +
+                    "      }, {\n" +
+                    "        \"link\" : {\n" +
+                    "          \"type\" : \"locator\",\n" +
+                    "          \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                    "        },\n" +
+                    "        \"name\" : \"admin-c\",\n" +
+                    "        \"value\" : \"TP1-TEST\",\n" +
+                    "        \"referenced-type\" : \"person\"\n" +
+                    "      }, {\n" +
+                    "        \"link\" : {\n" +
+                    "          \"type\" : \"locator\",\n" +
+                    "          \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                    "        },\n" +
+                    "        \"name\" : \"tech-c\",\n" +
+                    "        \"value\" : \"TP1-TEST\",\n" +
+                    "        \"referenced-type\" : \"person\"\n" +
+                    "      }, {\n" +
+                    "        \"link\" : {\n" +
+                    "          \"type\" : \"locator\",\n" +
+                    "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                    "        },\n" +
+                    "        \"name\" : \"mnt-by\",\n" +
+                    "        \"value\" : \"OWNER-MNT\",\n" +
+                    "        \"referenced-type\" : \"mntner\"\n" +
+                    "      }, {\n" +
+                    "        \"name\" : \"source\",\n" +
+                    "        \"value\" : \"TEST\"\n" +
+                    "      } ]\n" +
+                    "    }\n" +
+                    "  }, {\n" +
+                    "    \"type\" : \"person\",\n" +
+                    "    \"link\" : {\n" +
+                    "      \"type\" : \"locator\",\n" +
+                    "      \"href\" : \"http://rest-test.db.ripe.net/test/person/TP1-TEST\"\n" +
+                    "    },\n" +
+                    "    \"source\" : {\n" +
+                    "      \"id\" : \"test\"\n" +
+                    "    },\n" +
+                    "    \"primary-key\" : {\n" +
+                    "      \"attribute\" : [ {\n" +
+                    "        \"name\" : \"nic-hdl\",\n" +
+                    "        \"value\" : \"TP1-TEST\"\n" +
+                    "      } ]\n" +
+                    "    },\n" +
+                    "    \"attributes\" : {\n" +
+                    "      \"attribute\" : [ {\n" +
+                    "        \"name\" : \"person\",\n" +
+                    "        \"value\" : \"Test Person\"\n" +
+                    "      }, {\n" +
+                    "        \"name\" : \"address\",\n" +
+                    "        \"value\" : \"Singel 258\"\n" +
+                    "      }, {\n" +
+                    "        \"name\" : \"phone\",\n" +
+                    "        \"value\" : \"+31 6 12345678\"\n" +
+                    "      }, {\n" +
+                    "        \"name\" : \"nic-hdl\",\n" +
+                    "        \"value\" : \"TP1-TEST\"\n" +
+                    "      }, {\n" +
+                    "        \"link\" : {\n" +
+                    "          \"type\" : \"locator\",\n" +
+                    "          \"href\" : \"http://rest-test.db.ripe.net/test/mntner/OWNER-MNT\"\n" +
+                    "        },\n" +
+                    "        \"name\" : \"mnt-by\",\n" +
+                    "        \"value\" : \"OWNER-MNT\",\n" +
+                    "        \"referenced-type\" : \"mntner\"\n" +
+                    "      }, {\n" +
+                    "        \"name\" : \"source\",\n" +
+                    "        \"value\" : \"TEST\"\n" +
+                    "      } ]\n" +
+                    "    }\n" +
+                    "  } ]\n" +
+                    "},\n"));
+        });
+    }
+
 
     @Test
     public void search() {
