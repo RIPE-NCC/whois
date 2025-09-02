@@ -3262,11 +3262,25 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
+        
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), containsString("GET"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), containsString("OPTION"));
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), is(nullValue()));
         assertThat(response.getHeaderString(HttpHeaders.ALLOW), containsString("GET"));
         assertThat(response.getHeaderString(HttpHeaders.ALLOW), not(containsString("POST")));
+    }
+
+    @Test
+    public void cross_origin_preflight_post_request_only_content_type_allow_header() {
+        final Response response = createResource("entity/PP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
+                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
+                .options();
+
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS), is("Content-Type"));
     }
 
     @Test
