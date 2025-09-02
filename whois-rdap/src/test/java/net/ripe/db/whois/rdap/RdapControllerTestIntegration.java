@@ -3262,7 +3262,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST)
                 .options();
-        
+
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), containsString("GET"));
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), containsString("OPTION"));
