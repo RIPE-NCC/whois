@@ -17,6 +17,16 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
+/**
+ * RDAP specific changes to Cross-Origin Resource Sharing (CORS).
+ * <p>
+ * "When responding to queries, it is RECOMMENDED that servers use the
+ *    Access-Control-Allow-Origin header field, as specified by
+ *    [W3C.REC-cors-20140116].  A value of "*" is suitable when RDAP is
+ *    used for public resources."
+ * <p>
+ * Ref. https://tools.ietf.org/html/rfc7480#section-5.6
+ */
 @Component
 public class RdapCrossOriginDeployer extends CrossOriginHandler implements ServletDeployer {
 
