@@ -77,7 +77,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-TEst   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-TEst") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -125,7 +125,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 1, 2)
         ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-TEst   First Person" }
         ack.successes.any { it.operation == "Create" && it.key == "[person] Sp11-TEst   Second Person" }
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-TEst") == [
@@ -167,7 +167,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-TEst   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-TEst") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -205,7 +205,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-TEst   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-TEst") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -243,7 +243,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-TEst   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-TEst") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -281,7 +281,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-TEst   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-TEst") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -319,7 +319,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[person] Fp11-TEst   First Person" }
         ack.infoSuccessMessagesFor("Create", "[person] Fp11-TEst") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -438,7 +438,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
         ack.infoSuccessMessagesFor("Modify", "[person] TP1-TEST") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -476,7 +476,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
         ack.infoSuccessMessagesFor("Modify", "[person] TP1-TEST") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -515,7 +515,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] TP1-TEST   Test Person" }
         ack.infoSuccessMessagesFor("Modify", "[person] TP1-TEST") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -558,7 +558,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] Fp11-TEst   First Person" }
         ack.infoSuccessMessagesFor("Delete", "[person] Fp11-TEst") == [
                 "Dry-run performed, no changes to the database have been made"]
@@ -610,7 +610,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 0, 0, 2, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 1, 2)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] Fp11-TEst   First Person" }
         ack.successes.any { it.operation == "Delete" && it.key == "[person] Sp11-TEst   Second Person" }
         ack.infoSuccessMessagesFor("Delete", "[person] Fp11-TEst") == [
@@ -665,7 +665,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 1, 2)
 
         noMoreMessages()
 
@@ -705,7 +705,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
         ack.infoSuccessMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") == [
                 "Dry-run performed, no changes to the database have been made"]

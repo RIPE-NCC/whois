@@ -401,7 +401,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
 
         queryObject("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
@@ -435,7 +435,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") ==
                 ["Unknown object referenced ORG-NULL1-TEST", "Reference \"ORG-NULL1-TEST\" not found"]
@@ -487,7 +487,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.0.0.0 - 192.255.255.255") ==
                 ["The \"abuse-c\" ROLE object 'AH2-TEST' has no \"abuse-mailbox:\" Add \"abuse-mailbox:\" to the ROLE object, then update the INETNUM object"]
@@ -541,7 +541,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.2 - 192.168.128.2" }
 
         queryObject("-rGBT inetnum 192.168.128.2 - 192.168.128.2", "inetnum", "192.168.128.2 - 192.168.128.2")
@@ -584,7 +584,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Status ALLOCATED UNSPECIFIED can only be created by the database administrator"]
@@ -622,7 +622,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
@@ -658,7 +658,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.128.0" }
 
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.128.0", "inetnum", "192.168.128.0 - 192.168.128.0")
@@ -747,7 +747,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(5, 5, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.128.2" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.128.0" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.1 - 192.168.128.2" }
@@ -797,7 +797,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
@@ -833,7 +833,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
@@ -868,7 +868,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
 
         ack.errorMessagesFor("Create", "[inetnum] 192.168.128.0 - 192.168.255.255") ==
@@ -906,7 +906,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
@@ -942,7 +942,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.128.0 - 192.168.255.255", "inetnum", "192.168.128.0 - 192.168.255.255")
@@ -980,7 +980,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1018,7 +1018,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
@@ -1059,7 +1059,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1100,7 +1100,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1140,7 +1140,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-lower", "LIR-MNT,\\s*LIR2-MNT")
 
@@ -1180,7 +1180,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-by", "RIPE-NCC-HM-MNT")
 
@@ -1220,7 +1220,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "END-USER-MNT")
 
@@ -1423,7 +1423,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 4, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 62.59.192.2 - 62.59.192.30" }
         ack.errorMessagesFor("Create", "[inetnum] 62.59.192.2 - 62.59.192.30") ==
                 ["This range overlaps with 62.59.192.0 - 62.59.192.7"]
@@ -1509,7 +1509,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 4, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 1)
+        ack.countErrorWarnInfo(2, 1, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 62.59.192.2 - 62.59.192.30" }
         ack.errorMessagesFor("Create", "[inetnum] 62.59.192.2 - 62.59.192.30") ==
                 ["Status ASSIGNED PA not allowed when more specific object '62.59.192.8 - 62.59.192.15' has status ALLOCATED PA",
@@ -1555,7 +1555,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Value 192.168.200/24 converted to 192.168.200.0 - 192.168.200.255"]
@@ -1598,7 +1598,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "LIR2-MNT")
 
@@ -1641,7 +1641,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1683,7 +1683,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
@@ -1724,7 +1724,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "", "inetnum", "192.168.200.0 - 192.168.200.255", "mnt-by", "LIR2-MNT")
 
@@ -1766,7 +1766,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.0" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.0", "inetnum", "192.168.200.0 - 192.168.200.0")
@@ -1806,7 +1806,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-lower", "LIR-MNT")
 
@@ -1847,7 +1847,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-by", "RIPE-NCC-HM-MNT")
 
@@ -1888,7 +1888,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.200.0 - 192.168.200.255", "parent", "inetnum", "192.168.128.0 - 192.168.255.255", "mnt-by", "RIPE-NCC-HM-MNT")
 
@@ -1930,7 +1930,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -1972,7 +1972,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2014,7 +2014,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2056,7 +2056,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "20020101")
@@ -2140,7 +2140,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.infoSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Value 192.168.200/24 converted to 192.168.200.0 - 192.168.200.255"]
@@ -2182,7 +2182,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Comments are not allowed on RIPE NCC managed Attribute \"status:\""]
@@ -2255,7 +2255,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2343,7 +2343,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2385,7 +2385,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2427,7 +2427,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "routes-mnt \\{ 192.168.200.0/24 \\}")
@@ -2469,7 +2469,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2512,7 +2512,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2555,7 +2555,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2645,7 +2645,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2687,7 +2687,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2729,7 +2729,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2857,7 +2857,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") == [
                 "Syntax error in routes-mnt { 192.168.200.0/24 } (ANY can only occur as a single value)",
@@ -2944,7 +2944,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2985,7 +2985,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["192.168.0.0/16 is outside the range of this object"]
@@ -3156,7 +3156,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["200:168::/48 is not a valid IPv4 address"]
@@ -3286,7 +3286,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3328,7 +3328,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3456,7 +3456,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3498,7 +3498,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3540,7 +3540,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3711,7 +3711,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3753,7 +3753,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3794,7 +3794,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3834,7 +3834,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.authFailCheck("Create", "FAILED", "inetnum", "192.168.0.0 - 192.168.255.255", "", "inetnum", "192.168.0.0 - 192.168.255.255", "mnt-irt", "irt-test")
 
@@ -3903,7 +3903,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Please use the \"remarks:\" attribute instead of end of line comment on primary key"]
@@ -4122,7 +4122,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
                 ["\"assignment-size:\" value must not be greater than the maximum prefix size 32"]
@@ -4168,7 +4168,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
                 ["\"assignment-size:\" value cannot be changed"]
@@ -4231,7 +4231,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.255 - 192.168.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.255 - 192.168.255.255") ==
                 ["\"assignment-size:\" value cannot be changed"]
@@ -4374,7 +4374,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
 
@@ -4417,7 +4417,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
 
         queryObject("-rGBT inetnum 192.168.0.100 - 192.168.0.100", "inetnum", "192.168.0.100 - 192.168.0.100")
@@ -4481,7 +4481,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 3, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.0.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.0.255", "inetnum", "192.168.0.0 - 192.168.0.255")
@@ -4533,7 +4533,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.191 - 192.169.0.194" }
 
         queryObject("-rGBT inetnum 192.168.0.190 - 192.169.0.195", "inetnum", "192.168.0.190 - 192.169.0.195")
@@ -4586,7 +4586,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.190 - 192.169.0.194" }
 
         queryObject("-rGBT inetnum 192.168.0.190 - 192.169.0.195", "inetnum", "192.168.0.190 - 192.169.0.195")
@@ -4639,7 +4639,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.190 - 192.169.0.195" }
 
         queryObject("-rGBT inetnum 192.168.0.190 - 192.169.0.195", "inetnum", "192.168.0.190 - 192.169.0.195")
@@ -4692,7 +4692,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.191 - 192.169.0.195" }
 
         queryObject("-rGBT inetnum 192.168.0.190 - 192.169.0.195", "inetnum", "192.168.0.190 - 192.169.0.195")
@@ -4745,7 +4745,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.190 - 192.169.0.195" }
 
         queryObject("-rGBT inetnum 192.168.0.190 - 192.169.0.195", "inetnum", "192.168.0.190 - 192.169.0.195")
@@ -4798,7 +4798,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.0.128" }
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.128 - 192.168.0.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.128 - 192.168.0.255") ==
@@ -4854,7 +4854,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.128 - 192.168.0.255" }
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.0.128" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.0.128") ==
@@ -4889,7 +4889,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.0.0.0 - 192.255.255.255") == [
                 "status value cannot be changed, you must delete and re-create the object"]
@@ -4957,7 +4957,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 0, 0, 2)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 3, 2)
+        ack.countErrorWarnInfo(1, 4, 2)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["status value cannot be changed, you must delete and re-create the object"]
@@ -5158,7 +5158,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(6, 3, 0, 3, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
         ack.warningSuccessMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
@@ -5258,7 +5258,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
@@ -5409,7 +5409,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Deleting this object requires administrative authorisation"]
@@ -5448,7 +5448,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["You cannot add or remove a RIPE NCC maintainer"]
@@ -5525,7 +5525,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["You cannot add or remove a RIPE NCC maintainer"]
@@ -5565,7 +5565,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["You cannot add or remove a RIPE NCC maintainer"]
@@ -5748,7 +5748,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
                 "Authorisation for parent [inetnum] 192.0.0.0 - 192.255.255.255 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT",
@@ -5825,7 +5825,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         query_object_matches("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255", "LIR2-MNT")
@@ -5931,7 +5931,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
                 "Only RIPE NCC can create/delete a top level object with status 'LEGACY' Contact legacy@ripe.net for more info"]
@@ -5974,7 +5974,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")

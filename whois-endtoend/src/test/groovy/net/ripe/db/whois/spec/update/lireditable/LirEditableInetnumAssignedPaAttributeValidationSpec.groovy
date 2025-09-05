@@ -90,7 +90,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
                 ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -140,7 +140,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
                 ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -180,7 +180,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -224,7 +224,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -270,7 +270,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -313,7 +313,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -357,7 +357,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -403,7 +403,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -443,7 +443,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
                 ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -481,7 +481,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
                 ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -527,7 +527,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
                 ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -562,7 +562,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
                 ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -598,7 +598,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\"",
@@ -642,7 +642,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -686,7 +686,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -732,7 +732,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "You cannot add or remove a RIPE NCC maintainer"
@@ -781,7 +781,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.warningSuccessMessagesFor("Modify", "[${resourceType}] ${resourceValue}") ==
                 ["${resourceType} parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -815,7 +815,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "Referenced organisation can only be removed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to remove this reference."
         ]
@@ -855,7 +855,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Modify", "[${resourceType}] ${resourceValue}") == [
                 "The \"sponsoring-org:\" attribute is not allowed with status value \"${resourceStatus}\""
@@ -895,7 +895,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[${resourceType}] ${resourceValue}" }
         ack.errorMessagesFor("Delete", "[${resourceType}] ${resourceValue}") == [
                 "Deleting this object requires administrative authorisation"

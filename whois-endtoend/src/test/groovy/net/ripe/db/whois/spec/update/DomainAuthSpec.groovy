@@ -274,7 +274,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
 
         queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
@@ -313,7 +313,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.0.192.in-addr.arpa" }
 
         queryObject("-rGBT domain 0.0.0.192.in-addr.arpa", "domain", "0.0.0.192.in-addr.arpa")
@@ -352,7 +352,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0-1.0.0.192.in-addr.arpa" }
 
         queryObject("-rGBT domain 0-1.0.0.192.in-addr.arpa", "domain", "0-1.0.0.192.in-addr.arpa")
@@ -389,7 +389,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-domains:\" not authenticated by: LIR2-MNT"]
@@ -428,7 +428,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-domains:\" not authenticated by: LIR2-MNT"]
@@ -467,7 +467,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
@@ -506,7 +506,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
@@ -545,7 +545,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
 
         queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
@@ -582,7 +582,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
 
         queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
@@ -619,7 +619,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
@@ -658,7 +658,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
 
         queryObject("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
@@ -695,7 +695,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-domains:\" not authenticated by: LIR2-MNT"]
@@ -734,7 +734,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-domains:\" not authenticated by: LIR2-MNT"]
@@ -773,7 +773,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
 
         queryObject("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
@@ -810,7 +810,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
@@ -849,7 +849,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
@@ -888,7 +888,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
 
         queryObject("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
@@ -925,7 +925,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") ==
                 ["Authorisation for [inetnum] 193.0.0.0 - 193.255.255.255 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
@@ -1306,7 +1306,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.infoSuccessMessagesFor("Create", "[domain] 193.in-addr.arpa") == [
                 "Value 193.in-addr.arpa. converted to 193.in-addr.arpa"]
@@ -1423,7 +1423,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 192-255.148.201.193.in-addr.arpa" }
 
         queryObject("-rGBT domain 192-255.148.201.193.in-addr.arpa", "domain", "192-255.148.201.193.in-addr.arpa")
@@ -1458,7 +1458,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 192-255.148.201.193.in-addr.arpa" }
         ack.infoSuccessMessagesFor("Create", "[domain] 192-255.148.201.193.in-addr.arpa") == [
                 "Value 192-255.148.201.193.in-addr.arpa. converted to 192-255.148.201.193.in-addr.arpa"]
@@ -1647,7 +1647,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 193.in-addr.arpa" }
 
         queryObjectNotFound("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
@@ -1812,7 +1812,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.0.193.in-addr.arpa" }
 
         queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
@@ -1850,7 +1850,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.0.193.in-addr.arpa" }
 
         queryObjectNotFound("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
@@ -1888,7 +1888,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[domain] 0.0.193.in-addr.arpa" }
 
         query_object_matches("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa", "just added")
@@ -1968,7 +1968,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") ==
                 ["Existing less specific domain object found 193.0.0.0/8"]
@@ -2010,7 +2010,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 193.in-addr.arpa") ==
                 ["Existing more specific domain object found 193.0.0.0/24"]
@@ -2049,7 +2049,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.IN-ADDR.ARpa" }
 
         queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.IN-ADDR.ARpa")
@@ -2086,7 +2086,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
 
         queryObject("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa")
@@ -2123,7 +2123,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 2)
+        ack.countErrorWarnInfo(0, 1, 2)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.infoSuccessMessagesFor("Create", "[domain] 193.in-addr.arpa") == [
                 "Value pri.authdns.ripe.net. converted to pri.authdns.ripe.net",
@@ -2165,7 +2165,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[domain] 193.in-addr.arpa" }
 
         query_object_matches("-rGBT domain 193.in-addr.arpa", "domain", "193.in-addr.arpa", "tinnie.arin.net")
@@ -2247,7 +2247,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa" }
 
         queryObject("-rGBT domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
@@ -2283,7 +2283,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 0.6.4.3.3.0.a.2.ip6.arpa" }
         ack.errorMessagesFor("Create", "[domain] 0.6.4.3.3.0.a.2.ip6.arpa") ==
                 ["Authorisation for [inet6num] 2a03:3460::/32 failed using \"mnt-by:\" not authenticated by: RIPE-NCC-HM-MNT"]
@@ -2361,7 +2361,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[domain] 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa" }
 
         query_object_matches("-rGBT domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "just added")
@@ -2399,7 +2399,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa" }
 
         queryObjectNotFound("-rGBT domain 0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa", "domain", "0.e.0.0.c.7.6.0.1.0.0.2.ip6.arpa")
@@ -2558,7 +2558,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
 
         queryObject("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
@@ -2601,7 +2601,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
         ack.infoSuccessMessagesFor("Create", "[domain] 0.0.193.in-addr.arpa") == [
                 "Value 17881 5 1 2e58131e5fe28ec965a 7b8e4efb52d0a028d7a78 converted to 17881 5 1 2e58131e5fe28ec965a7b8e4efb52d0a028d7a78"
@@ -2803,7 +2803,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 0.0.193.in-addr.arpa" }
 
         queryObject("-rGBT domain 0.0.193.in-addr.arpa", "domain", "0.0.193.in-addr.arpa")
@@ -2950,7 +2950,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 4.4.e164.arpa" }
 
         queryObject("-rGBT domain 4.4.e164.arpa", "domain", "4.4.e164.arpa")
@@ -2987,7 +2987,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 4.4.e164.arpa" }
         ack.errorMessagesFor("Create", "[domain] 4.4.e164.arpa") ==
                 ["Creating enum domain requires administrative authorisation"]
@@ -3063,7 +3063,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[domain] 4.4.e164.arpa" }
 
         query_object_matches("-rGBT domain 4.4.e164.arpa", "domain", "4.4.e164.arpa", "just added")
@@ -3139,7 +3139,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[domain] 4.4.e164.arpa" }
 
         query_object_matches("-rGBT domain 4.4.e164.arpa", "domain", "4.4.e164.arpa", "just added")
@@ -3176,7 +3176,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 4.4.e164.arpa" }
 
         queryObjectNotFound("-rGBT domain 4.4.e164.arpa", "domain", "4.4.e164.arpa")
@@ -3213,7 +3213,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 4.4.e164.arpa" }
 
         queryObjectNotFound("-rGBT domain 4.4.e164.arpa", "domain", "4.4.e164.arpa")
@@ -3249,7 +3249,7 @@ class DomainAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[domain] 191-193.0.0.193.in-addr.arpa" }
         ack.errorMessagesFor("Create", "[domain] 191-193.0.0.193.in-addr.arpa") ==
                 ["This domain overlaps with 128-191.0.0.193.in-addr.arpa"]
