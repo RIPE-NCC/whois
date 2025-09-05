@@ -5443,7 +5443,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.assertInfoCount(createResponse, 1);
         RestTest.assertErrorMessage(createResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end " +
                 "of line comment on primary key");
-        assertThat(createResponse.getErrorMessages().getFirst().getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # create comment")));
+        assertThat(createResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # create comment")));
 
         final RpslObject updatePerson = RpslObject.parse("" +
                 "person:    Pauleth Palthen # comment\n" +
@@ -5461,10 +5461,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .put(Entity.entity(map(updatePerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
         RestTest.assertInfoCount(updateResponse, 2);
-        RestTest.assertErrorMessage(updateResponse, 0, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
-        assertThat(updateResponse.getErrorMessages().get(0).getAttribute(), is(new Attribute("person", "Pauleth Palthen # comment")));
         RestTest.assertErrorMessage(updateResponse, 1, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
-        assertThat(updateResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # update comment")));
+        assertThat(updateResponse.getErrorMessages().get(1).getAttribute(), is(new Attribute("person", "Pauleth Palthen # comment")));
+        RestTest.assertErrorMessage(updateResponse, 2, "Info", "Please use the \"remarks:\" attribute instead of end of line comment on primary key");
+        assertThat(updateResponse.getErrorMessages().get(2).getAttribute(), is(new Attribute("nic-hdl", "PP1-TEST # update comment")));
     }
     @Test
     public void comment_separator_not_included_in_response() {
