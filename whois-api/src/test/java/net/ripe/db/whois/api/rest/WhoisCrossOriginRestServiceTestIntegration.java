@@ -380,7 +380,9 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST"), is(not(nullValue())));
     }
 
@@ -397,8 +399,8 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                             WhoisResources.class);
 
-        RestTest.assertWarningCount(response, 1);
-        RestTest.assertErrorMessage(response, 0, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+        RestTest.assertWarningCount(response, 2);
+        RestTest.assertErrorMessage(response, 1, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
 
         final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
         assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        ???????? ?????,??????"));
@@ -443,7 +445,9 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                 .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
                 .delete(WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
