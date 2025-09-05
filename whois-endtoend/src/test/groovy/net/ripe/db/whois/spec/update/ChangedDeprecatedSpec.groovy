@@ -787,8 +787,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         boolean found = false;
         for (ErrorMessage msg : errorsAndWarnings) {
             if( msg.toString().contains("Deprecated attribute \"changed\". This attribute has been removed.") ||
-                msg.toString().contains("MD5 hashed password authentication is deprecated and support will be \" +\n" +
-                        "    \"removed at the end of 2025. Please switch to an alternative authentication method before then.")) {
+                msg.toString().contains("MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.")) {
                 found = true;
                 break;
             }

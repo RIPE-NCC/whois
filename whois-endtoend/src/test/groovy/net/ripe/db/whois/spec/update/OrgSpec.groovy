@@ -470,7 +470,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 5, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
                 "Value '" + orgtype + "' can only be set by the RIPE NCC for this organisation."]
 
@@ -1998,7 +1998,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
@@ -2039,7 +2039,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         query_object_matches("-r -GBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "LIR")
     }

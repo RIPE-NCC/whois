@@ -816,7 +816,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 2
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
-            ack.countErrorWarnInfo(1, 2, 0)
+            ack.countErrorWarnInfo(1, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS350" }
             ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
@@ -858,7 +858,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 2
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
-            ack.countErrorWarnInfo(1, 0, 0)
+            ack.countErrorWarnInfo(1, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
             ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS350" }

@@ -2783,7 +2783,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         updateAck.summary.nrFound == 1
         updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
         updateAck.summary.assertErrors(0, 0, 0, 0)
-        updateAck.countErrorWarnInfo(0, 0, 0)
+        updateAck.countErrorWarnInfo(0, 1, 0)
 
       then:
         def deleteResponse = syncUpdate("""\
@@ -2830,7 +2830,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         deleteAck.summary.nrFound == 1
         deleteAck.summary.assertSuccess(1, 0, 0, 1, 0)
         deleteAck.summary.assertErrors(0, 0, 0, 0)
-        deleteAck.countErrorWarnInfo(0, 0, 0)
+        deleteAck.countErrorWarnInfo(0, 1, 0)
 
       then:
         queryObjectNotFound("-r -T key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
