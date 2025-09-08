@@ -710,7 +710,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
         updateAck.summary.assertErrors(0, 0, 0, 0)
 
-        updateAck.countErrorWarnInfo(0, 4, 0)
+        updateAck.countErrorWarnInfo(0, 5, 0)
         updateAck.successes.any { it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person" }
         updateAck.warningSuccessMessagesFor("Modify", "[person] FP1-TEST   First Person") == [
                 "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]

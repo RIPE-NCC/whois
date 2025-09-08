@@ -1303,7 +1303,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIRA-TEST" }
 
         query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "just added")
@@ -1343,7 +1343,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-CLR1-TEST" }
 
         query_object_matches("-r -T organisation ORG-CLR1-TEST", "organisation", "ORG-CLR1-TEST", "AH1-TEST")
@@ -1382,7 +1382,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-CLR1-TEST" }
 
         query_object_not_matches("-r -T organisation ORG-CLR1-TEST", "organisation", "ORG-CLR1-TEST", "abuse-c")
@@ -1423,7 +1423,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
 
         query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "abuse-c")
@@ -1702,7 +1702,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack2.summary.assertSuccess(1, 0, 1, 0, 0)
         ack2.summary.assertErrors(0, 0, 0, 0)
 
-        ack2.countErrorWarnInfo(0, 0, 0)
+        ack2.countErrorWarnInfo(0, 1, 0)
         ack2.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         query_object_not_matches("-rGBT role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
@@ -2308,7 +2308,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
         query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
@@ -2344,7 +2344,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-CRR1-TEST" }
 
         query_object_not_matches("-r -T organisation ORG-CRR1-TEST", "organisation", "ORG-CRR1-TEST", "abuse-c")
