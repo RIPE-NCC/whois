@@ -354,7 +354,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] SR2-TEST   Standard Role" }
 
         query_object_not_matches("-rGBT role SR2-TEST", "role", "Standard Role", "abuse-mailbox:")
@@ -393,7 +393,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] AH2-TEST   Abuse Handler" }
         ack.warningSuccessMessagesFor("Create", "[role] AH2-TEST   Abuse Handler") == [
                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
@@ -475,7 +475,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
                 ["The \"abuse-c\" ROLE object 'SR1-TEST' has no \"abuse-mailbox:\" Add \"abuse-mailbox:\" to the ROLE object, then update the ORGANISATION object"]
@@ -513,7 +513,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "AH1-TEST")
@@ -549,7 +549,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "AH1-TEST")
@@ -595,7 +595,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[domain] 193.in-addr.arpa" }
         ack.infoSuccessMessagesFor("Create", "[domain] 193.in-addr.arpa") == [
                 "Authorisation override used"]
@@ -638,7 +638,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS2000" }
         ack.infoSuccessMessagesFor("Create", "[route] 99.13.0.0/16") == [
                 "Authorisation override used"]
@@ -691,7 +691,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Authorisation override used"]
@@ -746,7 +746,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Authorisation override used"]
@@ -800,7 +800,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Authorisation override used"]
@@ -855,7 +855,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 1)
+        ack.countErrorWarnInfo(0, 3, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Authorisation override used"]
@@ -900,7 +900,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 2, 0)
+        ack.countErrorWarnInfo(2, 3, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] AH2-TEST   Abuse Handler" }
         ack.errorMessagesFor("Create", "[role] AH2-TEST   Abuse Handler") == [
                 "Self reference is not allowed for attribute type \"admin-c\"",
@@ -983,7 +983,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         query_object_not_matches("-rGBT role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
@@ -1024,7 +1024,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         query_object_matches("-rGBT role AR1-TEST", "role", "Abuse Role", "LIRabuse@lir.net")
@@ -1064,7 +1064,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] SR99-TEST   Standard Role" }
         ack.warningSuccessMessagesFor("Modify", "[role] SR99-TEST   Standard Role") == [
                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
@@ -1107,7 +1107,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] SR1-TEST   Standard Role" }
         ack.warningSuccessMessagesFor("Modify", "[role] SR1-TEST   Standard Role") == [
                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
@@ -1149,7 +1149,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AH1-TEST   Abuse Handler" }
 
         query_object_matches("-rGBT role AH1-TEST", "role", "Abuse Handler", "just added")
@@ -1191,7 +1191,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         queryObjectNotFound("-rGBT role AR1-TEST", "role", "Abuse Role")
@@ -1228,7 +1228,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "AH1-TEST")
@@ -1265,7 +1265,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "just added")
@@ -1303,7 +1303,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIRA-TEST" }
 
         query_object_matches("-r -T organisation ORG-LIRA-TEST", "organisation", "ORG-LIRA-TEST", "just added")
@@ -1343,7 +1343,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-CLR1-TEST" }
 
         query_object_matches("-r -T organisation ORG-CLR1-TEST", "organisation", "ORG-CLR1-TEST", "AH1-TEST")
@@ -1382,7 +1382,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-CLR1-TEST" }
 
         query_object_not_matches("-r -T organisation ORG-CLR1-TEST", "organisation", "ORG-CLR1-TEST", "abuse-c")
@@ -1423,7 +1423,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
 
         query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "abuse-c")
@@ -1464,7 +1464,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
 
         query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "just added")
@@ -1508,7 +1508,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
         query_object_matches("-r -T organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "just added")
@@ -1590,7 +1590,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
@@ -1641,7 +1641,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
@@ -1694,7 +1694,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
 
         def ack2 = new AckResponse("", roleMessage)
@@ -1702,7 +1702,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack2.summary.assertSuccess(1, 0, 1, 0, 0)
         ack2.summary.assertErrors(0, 0, 0, 0)
 
-        ack2.countErrorWarnInfo(0, 0, 0)
+        ack2.countErrorWarnInfo(0, 1, 0)
         ack2.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
         query_object_not_matches("-rGBT role AR1-TEST", "role", "Abuse Role", "abuse-mailbox:")
@@ -1753,7 +1753,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
@@ -1806,7 +1806,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.successes.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
@@ -1858,7 +1858,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errors.any { it.operation == "Modify" && it.key == "[role] AR1-TEST   Abuse Role" }
 
@@ -1898,7 +1898,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIRA-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIRA-TEST") ==
                 ["The \"abuse-c\" ROLE object 'SR1-TEST' has no \"abuse-mailbox:\" Add \"abuse-mailbox:\" to the ROLE object, then update the ORGANISATION object"]
@@ -1938,7 +1938,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIRA-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIRA-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
@@ -1978,7 +1978,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
         query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
@@ -2018,7 +2018,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
         query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
@@ -2058,7 +2058,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
         query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
@@ -2098,7 +2098,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
@@ -2140,7 +2140,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
@@ -2182,7 +2182,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
@@ -2224,7 +2224,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
@@ -2266,7 +2266,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA10-TEST") ==
                 ["\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object"]
@@ -2308,7 +2308,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
         query_object_not_matches("-rGBT organisation ORG-OFA10-TEST", "organisation", "ORG-OFA10-TEST", "abuse-c:")
@@ -2344,7 +2344,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-CRR1-TEST" }
 
         query_object_not_matches("-r -T organisation ORG-CRR1-TEST", "organisation", "ORG-CRR1-TEST", "abuse-c")
@@ -2383,7 +2383,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 92.0.0.0 - 92.255.255.255" }
 
         query_object_not_matches("-rGBT organisation ORG-RIR1-TEST", "organisation", "ORG-RIR1-TEST", "abuse-c:")
@@ -2436,7 +2436,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 92.0.0.0 - 92.255.255.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 92.0.0.0 - 92.255.255.255" }
 
@@ -2478,7 +2478,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         query_object_not_matches("-rGBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "abuse-c:")
@@ -2520,7 +2520,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
                 ["\"abuse-c:\" references a PERSON object This must reference a ROLE object with an \"abuse-mailbox:\""]
@@ -2703,7 +2703,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS1309" }
         ack.errorMessagesFor("Modify", "[aut-num] AS1309") ==
                 ["ORG-OR1-TEST must include an \"abuse-c:\" attribute"]
@@ -2739,7 +2739,7 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["ORG-OR1-TEST must include an \"abuse-c:\" attribute"]

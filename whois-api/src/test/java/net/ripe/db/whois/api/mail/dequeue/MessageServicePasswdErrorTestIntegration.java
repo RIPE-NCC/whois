@@ -146,6 +146,9 @@ public class MessageServicePasswdErrorTestIntegration extends AbstractMailMessag
         final String expectedGlobalWarn = String.format("""
                 DETAILED EXPLANATION:
                 
+                ***Warning: MD5 hashed password authentication is deprecated and support will be
+                            removed at the end of 2025. Please switch to an alternative
+                            authentication method before then.
                 %s
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 """, FORMATTED_PASSWORD_ERROR);

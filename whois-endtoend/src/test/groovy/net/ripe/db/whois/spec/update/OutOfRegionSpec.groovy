@@ -222,7 +222,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
       ack.errorMessagesFor("Create", "[aut-num] AS252") == [
@@ -264,7 +264,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rBG -T aut-num AS252", "aut-num", "AS252")
     }
@@ -299,7 +299,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS252") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
 
@@ -339,7 +339,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rBG -T aut-num AS252", "aut-num", "AS252")
     }
@@ -373,7 +373,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS252") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
 
@@ -452,7 +452,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
                  "Supplied attribute 'source' has been replaced with a generated value"]
@@ -557,7 +557,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
@@ -597,7 +597,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS251") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
@@ -637,7 +637,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
         ack.errorMessagesFor("Create", "[aut-num] AS252") == [
@@ -718,7 +718,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS252") ==
@@ -760,7 +760,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS252" }
 
@@ -834,7 +834,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 10.1.0.0 - 10.1.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 10.1.0.0 - 10.1.255.255") == [
@@ -864,7 +864,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[route] 213.152.64.0/24AS252" }
         ack.errorMessagesFor("Create", "[route] 213.152.64.0/24AS252") == [
@@ -894,7 +894,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
     }
@@ -940,7 +940,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Create", "[route] 10.1.0.0/16AS252") ==
             [ "Supplied attribute 'source' has been replaced with a generated value" ]
 
@@ -968,7 +968,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Create", "[route] 10.2.0.0/16AS252") ==
             [ "Supplied attribute 'source' has been replaced with a generated value" ]
 
@@ -1019,7 +1019,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[route] 213.152.64.0/24AS252" }
         ack.errorMessagesFor("Create", "[route] 213.152.64.0/24AS252") == [
@@ -1051,7 +1051,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Create", "[route] 213.152.64.0/24AS252") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
 
@@ -1104,7 +1104,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
     }
@@ -1131,7 +1131,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rGBT route 213.152.64.0/24", "route", "213.152.64.0/24")
     }
@@ -1183,7 +1183,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[route] 10.1.0.0/16AS252") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
 
@@ -1212,7 +1212,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[route] 10.1.0.0/16AS252") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
 
@@ -1269,7 +1269,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[route] 213.152.64.0/24AS252") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
 
@@ -1298,7 +1298,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[route] 213.152.64.0/24AS252") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
 
@@ -1351,7 +1351,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2001:400::/24AS252" }
         ack.errorMessagesFor("Create", "[route6] 2001:400::/24AS252") == [
@@ -1381,7 +1381,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rGBT route6 2001:400::/24", "route6", "2001:400::/24")
     }
@@ -1426,7 +1426,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         ack.warningSuccessMessagesFor("Create", "[route6] 2001:600::/25AS252") == [
                 "Supplied attribute 'source' has been replaced with a generated value"
@@ -1454,7 +1454,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         ack.warningSuccessMessagesFor("Create", "[route6] 2001:600::/25AS252") == [
                 "Supplied attribute 'source' has been replaced with a generated value"
@@ -1507,7 +1507,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2001:400::/24AS252" }
         ack.errorMessagesFor("Create", "[route6] 2001:400::/24AS252") == [
@@ -1540,7 +1540,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         ack.warningSuccessMessagesFor("Create", "[route6] 2001:400::/24AS252") == [
                 "Supplied attribute 'source' has been replaced with a generated value"
@@ -1599,7 +1599,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rGBT route6 2001:400::/24", "route6", "2001:400::/24")
     }
@@ -1626,7 +1626,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-rGBT route6 2001:400::/24", "route6", "2001:400::/24")
     }
@@ -1679,7 +1679,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[route6] 2001:600::/25AS252") == [
                 "Supplied attribute 'source' has been replaced with a generated value"
         ]
@@ -1709,7 +1709,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[route6] 2001:600::/25AS252") == [
                 "Supplied attribute 'source' has been replaced with a generated value"
         ]
@@ -1768,7 +1768,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[route6] 2001:400::/24") == [
                 "Supplied attribute 'source' has been replaced with a generated value"
         ]
@@ -1799,7 +1799,7 @@ class OutOfRegionSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[route6] 2001:400::/24AS252") == [
                 "Supplied attribute 'source' has been replaced with a generated value"
         ]

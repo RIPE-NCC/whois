@@ -127,7 +127,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -163,7 +163,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -201,7 +201,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
         ack.errorMessagesFor("Create", "[filter-set] fltr-customers") == [
                 "A filter-set object cannot contain both filter and mp-filter attributes"]
@@ -237,7 +237,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
         ack.errorMessagesFor("Create", "[filter-set] fltr-customers") == [
                 "A filter-set object must contain either filter or mp-filter attribute"]
@@ -335,7 +335,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers"}
 
         queryObject("-rBT filter-set AS123:fltr-customers", "filter-set", "AS123:fltr-customers")
@@ -377,7 +377,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers"}
         ack.errorMessagesFor("Create", "[filter-set] AS123:fltr-customers") == [
                 "Parent object AS123 not found"]
@@ -423,7 +423,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers:AS123"}
 
         queryObject("-rBT filter-set fltr-customers:AS123", "filter-set", "fltr-customers:AS123")
@@ -467,7 +467,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
 
         queryObject("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352")
@@ -510,7 +510,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
 
         queryObject("-rBT filter-set AS123:fltr-customers:AS352", "filter-set", "AS123:fltr-customers:AS352")
@@ -576,7 +576,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 1, 1, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[filter-set] AS123:fltr-customers"}
         ack.successes.any {it.operation == "Modify" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
@@ -658,7 +658,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 2, 1, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[filter-set] AS123:fltr-customers"}
         ack.successes.any {it.operation == "Modify" && it.key == "[filter-set] AS123:fltr-customers:AS352"}
@@ -932,7 +932,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -967,7 +967,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1007,7 +1007,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1042,7 +1042,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1089,7 +1089,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1141,7 +1141,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")
@@ -1259,7 +1259,7 @@ class FilterSetsSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[filter-set] fltr-customers"}
 
         queryObject("-rBT filter-set fltr-customers", "filter-set", "fltr-customers")

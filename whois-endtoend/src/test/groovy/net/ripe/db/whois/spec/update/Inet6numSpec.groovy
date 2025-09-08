@@ -239,7 +239,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 1)
+            ack.countErrorWarnInfo(0, 1, 1)
             ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
             ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == ["Value 0::/0 converted to ::/0"]
     }
@@ -312,7 +312,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 1)
+            ack.countErrorWarnInfo(0, 1, 1)
             ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] ::/0" }
             ack.infoSuccessMessagesFor("Modify", "[inet6num] ::/0") == [
                     "Value 1::/0 converted to ::/0"]
@@ -348,7 +348,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 1)
+            ack.countErrorWarnInfo(0, 1, 1)
             ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
             ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") ==
                     ["Value 2001:0600::/25 converted to 2001:600::/25"]
@@ -391,7 +391,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["Value 2001:600:0:0:0:0:0:0/64 converted to 2001:600::/64"]
@@ -434,7 +434,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1:1::/64" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600:1:1::/64") ==
                 ["Value 2001:600:1:1:1:1:1:1/64 converted to 2001:600:1:1::/64"]
@@ -477,7 +477,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/65" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/65") ==
                 [ "Minimum prefix size is 64" ]
@@ -528,7 +528,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/67" }
 
         queryObject("-rGBT inet6num 2001:600::/67", "inet6num", "2001:600::/67")
@@ -580,7 +580,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600:1:1::/64" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600:1:1::/64") ==
                 ["Value 2001:600:1:1:1:1:1:1/64 converted to 2001:600:1:1::/64"]
@@ -624,7 +624,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["Value 2001:600:0:0::0:0/64 converted to 2001:600::/64"]
@@ -781,7 +781,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(0, 0, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
 
-            ack.countErrorWarnInfo(1, 0, 0)
+            ack.countErrorWarnInfo(1, 1, 0)
             ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
             ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
                     ["Status ALLOCATED-BY-RIR can only be created by the database administrator"]
@@ -817,7 +817,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
 
             queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
@@ -851,7 +851,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
 
             queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
@@ -894,7 +894,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") == [
                 "You cannot add or remove a RIPE NCC maintainer",
@@ -939,7 +939,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/25" }
 
         query_object_matches("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25", "just")
@@ -1011,7 +1011,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 0, 1, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 1981:600::/25" }
 
             queryObjectNotFound("-rGBT inet6num 1981:600::/25", "inet6num", "1981:600::/25")
@@ -1053,7 +1053,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/64" }
 
         queryObjectNotFound("-rGBT inet6num 1981:600::/64", "inet6num", "2001:600::/64")
@@ -1094,7 +1094,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Delete", "[inet6num] 2001:600::/64") ==
                 ["Deleting this object requires administrative authorisation"]
@@ -1133,7 +1133,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 0, 1, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/64" }
 
             queryObjectNotFound("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
@@ -1173,7 +1173,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/25" }
         ack.errorMessagesFor("Delete", "[inet6num] 2001:600::/25") ==
                 ["Deleting this object requires administrative authorisation"]
@@ -1211,7 +1211,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 0, 1, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/25" }
 
             queryObjectNotFound("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
@@ -1289,7 +1289,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
 
             queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
@@ -1327,7 +1327,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(0, 0, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
 
-            ack.countErrorWarnInfo(1, 0, 0)
+            ack.countErrorWarnInfo(1, 1, 0)
             ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
             ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") ==
                     ["Authorisation for parent [inet6num] 2001:600::/25 failed using \"mnt-lower:\" not authenticated by: LIR-MNT"]
@@ -1369,7 +1369,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(0, 0, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
 
-            ack.countErrorWarnInfo(1, 0, 0)
+            ack.countErrorWarnInfo(1, 1, 0)
             ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
             ack.errorMessagesFor("Create", "[inet6num] 2001:600::/30") ==
                     ["Authorisation for parent [inet6num] 2001:600::/25 failed using \"mnt-lower:\" not authenticated by: LIR-MNT, OWNER2-MNT"]
@@ -1410,7 +1410,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
 
             queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
@@ -1449,7 +1449,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
 
             queryObject("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30")
@@ -1507,7 +1507,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 1)
+        ack.countErrorWarnInfo(0, 3, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/30" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/30") == [
                 "Authorisation override used"]
@@ -1562,7 +1562,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(2, 0, 2, 0)
 
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/32" }
         ack.errorMessagesFor("Modify", "[inet6num] 2001:600::/32") ==
                 ["status value cannot be changed, you must delete and re-create the object"]
@@ -1693,7 +1693,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 1, 0, 2, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/30" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
@@ -1738,7 +1738,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
 
         queryObject("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
@@ -1780,7 +1780,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
 
         queryObject("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
@@ -1822,7 +1822,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
 
         queryObject("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
@@ -1864,7 +1864,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
 
         queryObject("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
@@ -1909,7 +1909,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
 
         queryObject("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
@@ -1953,7 +1953,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["Authorisation for [inet6num] 2001:600::/64 failed using \"mnt-irt:\" not authenticated by: irt-test"]
@@ -2157,7 +2157,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["Please use the \"remarks:\" attribute instead of end of line comment on primary key"]
@@ -2200,7 +2200,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
 
         query_object_matches("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64", "just added")
@@ -2235,7 +2235,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/25") ==
                 ["Value 2001:0600::/25 converted to 2001:600::/25"]
@@ -2267,7 +2267,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
 
         queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
@@ -2362,7 +2362,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
                 ["Only one between the \"geofeed:\" and \"remark: geofeed:\" attributes is allowed."]
@@ -2396,7 +2396,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
 
         queryObject("-rGBT inet6num 2001:600::/25", "inet6num", "2001:600::/25")
@@ -2491,7 +2491,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/25" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/25") ==
                 ["Only one between the \"prefixlen:\" and \"remark: prefixlen:\" attributes is allowed."]

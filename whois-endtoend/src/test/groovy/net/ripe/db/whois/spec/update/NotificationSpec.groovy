@@ -205,7 +205,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] MOD-MNT"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         noMoreMessages()
 
@@ -235,7 +235,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] MOD-MNT"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         def notif = notificationFor "notify_test@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -267,7 +267,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[mntner] MOD-MNT" }
         query_object_matches("-rGBT mntner MOD-MNT", "mntner", "MOD-MNT", "notify:\\s*notify_test@ripe.net")
@@ -300,7 +300,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         ack.successes.any {it.operation == "Delete" && it.key == "[mntner] MOD-MNT"}
         queryNothing("-rGBT mntner MOD-MNT")
@@ -335,7 +335,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -368,7 +368,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT3"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         noMoreMessages()
 
@@ -432,7 +432,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Create" && it.key == "[mntner] CREATE-MNT"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -504,7 +504,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Delete" && it.key == "[mntner] TST-MNT4"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -588,7 +588,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] TST-MNT5"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         def notif = notificationFor "mntnfy_owner4@ripe.net"
         notif.subject =~ "Notification of RIPE Database changes"
@@ -715,7 +715,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "dbtest-org@ripe.net"
@@ -765,7 +765,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "dbtest-org@ripe.net"
@@ -813,7 +813,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
@@ -863,7 +863,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
@@ -909,7 +909,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
 
         def notif = notificationFor "mntnfy_owner@ripe.net"
@@ -960,7 +960,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
 
         def notif = notificationFor "dbtest-irt@ripe.net"
@@ -1011,7 +1011,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -1063,7 +1063,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -1112,7 +1112,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255"}
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -1165,7 +1165,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any {it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255"}
 
             def notif = notificationFor "dbtest-irt@ripe.net"
@@ -1212,7 +1212,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         def notif = notificationFor "dbtest@ripe.net"
@@ -1308,7 +1308,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
             def notif = notificationFor "dbtest@ripe.net"
@@ -1365,7 +1365,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 0, 1, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
             def notif = notificationFor "dbtest@ripe.net"
@@ -1420,7 +1420,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
             def notif = notificationFor "dbtest@ripe.net"
@@ -1477,7 +1477,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         def notif = notificationFor "dbtest@ripe.net"
@@ -1533,7 +1533,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 0, 0, 1, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
             def notif = notificationFor "dbtest@ripe.net"

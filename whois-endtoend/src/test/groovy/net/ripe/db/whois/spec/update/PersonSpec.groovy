@@ -129,7 +129,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
@@ -168,7 +168,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 4, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Delete", "[person] FP1-TEST   First Person") ==
                 ["Object [person] FP1-TEST First Person doesn't match version in database"]
@@ -197,7 +197,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-r -T person FP1-TEST", "person", "First Person")
@@ -284,7 +284,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 4, 0)
         ack.errors.any {it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Delete", "[person] FP1-TEST   First Person") == [
                 "Object [person] FP1-TEST is referenced from other objects"]
@@ -324,7 +324,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 5, 0)
         ack.successes.any {it.operation == "No operation" && it.key == "[person] FP1-TEST   First Person"}
         ack.warningSuccessMessagesFor("No operation", "[person] FP1-TEST   First Person") ==
                 ["Submitted object identical to database object"]
@@ -364,7 +364,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person"}
 
         query_object_matches("-rBT person FP1-TEST", "person", "First Person", "mnt-by:\\s*OWNER-MNT")
@@ -482,7 +482,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP1-TEST   Second Person"}
 
         queryObject("-rBT person Second Person", "person", "Second Person")
@@ -520,7 +520,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[role] FR1-TEST   Changed Role"}
 
         queryObject("-rBT role FR1-TEST", "role", "Changed Role")
@@ -777,7 +777,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP11-NL   First Person"}
 
         queryObject("-rBT person FP11-NL", "person", "First Person")
@@ -812,7 +812,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP11-apNIc   First Person"}
 
         queryObject("-rBT person FP11-apnic", "person", "First Person")
@@ -847,7 +847,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP11-ripE   First Person"}
 
         queryObject("-rBT person FP11-ripE", "person", "First Person")
@@ -882,7 +882,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 4, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-fred   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1-fred   First Person") ==
                 ["Syntax error in FP1-fred"]
@@ -956,7 +956,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP1   First Person"}
 //        ack.errorMessagesFor("Create", "[person] FP1   First Person") ==          // TODO
  //               ["Syntax error in FP1"]
@@ -998,7 +998,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person"}
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
                 ["The nic-hdl \"FP1-TEST\" is not available"]
@@ -1126,7 +1126,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FOP1-TEST   First Optional Person"}
 
         queryObject("-rBT person FOP1-TEST", "person", "First Optional Person")
@@ -1183,7 +1183,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FOP1-TEST   First Optional Person"}
 
         def notif = notificationFor "dbtest-nfy@ripe.net"
@@ -1351,7 +1351,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[person] FP1-TEST   First Person 352"}
 
         queryObject("-rBT person FP1-TEST", "person", "First Person 352")
@@ -1386,7 +1386,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First__ Person-Smith--" }
 
         queryObject("-rBT person FP1-TEST", "person", "First__ Person-Smith--")
@@ -1421,7 +1421,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] AA1-TEST   Anthony Anthony" }
 
         queryObject("-rBT person AA1-TEST", "person", "Anthony Anthony")
@@ -1460,7 +1460,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[person] FP2-TEST   Second Person"}
 
         query_object_not_matches("-r -T person FP2-TEST", "person", "Second Person", "20121016")
@@ -1616,7 +1616,7 @@ class PersonSpec extends BaseQueryUpdateSpec  {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
     }
 
 }

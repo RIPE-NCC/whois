@@ -323,7 +323,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 4, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
@@ -408,7 +408,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 4, 0, 0)
 
-        ack.countErrorWarnInfo(4, 0, 0)
+        ack.countErrorWarnInfo(4, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["This resource object must be created with a sponsoring-org attribute"]
@@ -544,7 +544,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         queryObject("192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
     }
 
@@ -611,7 +611,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(3, 3, 0, 0)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(3, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR"]
@@ -691,7 +691,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(3, 3, 0, 0)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(3, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR"]
@@ -770,7 +770,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 3, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS222" }
@@ -1233,7 +1233,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS222" }
         ack.errorMessagesFor("Modify", "[aut-num] AS222") ==
@@ -1324,7 +1324,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 0, 4, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
@@ -1418,7 +1418,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(4, 0, 0)
+        ack.countErrorWarnInfo(4, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["The \"sponsoring-org\" attribute can only be changed by the RIPE NCC"]
@@ -1519,7 +1519,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 0, 4, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/64" }
@@ -1703,7 +1703,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 0, 4, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.101.0 - 192.168.101.255" }
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:100::/64" }
@@ -1882,7 +1882,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(4, 0, 0)
+        ack.countErrorWarnInfo(4, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
                 ["The \"sponsoring-org\" attribute can only be added by the RIPE NCC"]
@@ -1980,7 +1980,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(4, 0, 0)
+        ack.countErrorWarnInfo(4, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["The \"sponsoring-org\" attribute can only be removed by the RIPE NCC"]
@@ -2046,7 +2046,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "modify inetnum modify sponsoring-org status legacy"() {
@@ -2096,7 +2096,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "modify inetnum remove sponsoring-org status legacy"() {
@@ -2145,7 +2145,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "delete inetnum with status legacy"() {
@@ -2196,7 +2196,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "delete organisation referenced as sponsoring org in inetnum with status ASSIGNED PI, with RS pw"() {
@@ -2234,7 +2234,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[organisation] ORG-LIRA-TEST" }
         ack.errorMessagesFor("Delete", "[organisation] ORG-LIRA-TEST") ==
                 ["Object [organisation] ORG-LIRA-TEST is referenced from other objects"]
@@ -2276,7 +2276,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-r -BG -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2358,7 +2358,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(8, 0, 0)
+        ack.countErrorWarnInfo(8, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
                 ["Referenced organisation must have org-type: LIR",
@@ -2461,7 +2461,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(4, 0, 0)
+        ack.countErrorWarnInfo(4, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.100.0 - 192.168.100.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.100.0 - 192.168.100.255") ==
                 ["Referenced organisation must have org-type: LIR"]
@@ -2662,7 +2662,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(8, 0, 0)
+        ack.countErrorWarnInfo(8, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR",
@@ -2771,7 +2771,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(4, 0, 4, 0)
 
-        ack.countErrorWarnInfo(4, 0, 0)
+        ack.countErrorWarnInfo(4, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Referenced organisation must have org-type: LIR"]
@@ -2927,7 +2927,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED",
@@ -2968,7 +2968,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["The \"sponsoring-org:\" attribute is not allowed with status value \"ASSIGNED\""]
@@ -3008,7 +3008,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["This resource object must be created with a sponsoring-org attribute"]
@@ -3048,7 +3048,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
                 ["This resource object must be created with a sponsoring-org attribute"]

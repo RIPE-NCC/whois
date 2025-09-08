@@ -5,17 +5,10 @@ import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.MimeMessageProvider;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.exception.MailParsingException;
-import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.mail.MailSenderStub;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 
@@ -43,6 +36,11 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
                         update method such as the REST API or Syncupdates.
             """;
 
+    private static final String PASSWORD_RELATED_WARN = FORMATTED_PASSWORD_WARN + """
+          ***Warning: MD5 hashed password authentication is deprecated and support will be
+                      removed at the end of 2025. Please switch to an alternative
+                      authentication method before then.
+          """;
 
     @Test
     public void testNoBouncedEmailFromCorrectEmail() throws MessagingException, MailParsingException {
@@ -175,10 +173,10 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
 
         final String expectedGlobalWarn = String.format("""
                 DETAILED EXPLANATION:
-                
+
                 %s
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                """, FORMATTED_PASSWORD_WARN);
+                """, PASSWORD_RELATED_WARN);
 
         // send message and read acknowledgement reply
         final String from = insertIncomingMessage("NEW", incomingMessage);

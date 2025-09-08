@@ -125,7 +125,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
     }
 
@@ -179,7 +179,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
     }
 
@@ -324,7 +324,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
     }
 
@@ -356,7 +356,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
     }
 
@@ -676,7 +676,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         createAck.summary.assertSuccess(1, 1, 0, 0, 0)
         createAck.summary.assertErrors(0, 0, 0, 0)
 
-        createAck.countErrorWarnInfo(0, 2, 0)
+        createAck.countErrorWarnInfo(0, 3, 0)
         createAck.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         createAck.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
@@ -710,7 +710,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
         updateAck.summary.assertErrors(0, 0, 0, 0)
 
-        updateAck.countErrorWarnInfo(0, 4, 0)
+        updateAck.countErrorWarnInfo(0, 5, 0)
         updateAck.successes.any { it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person" }
         updateAck.warningSuccessMessagesFor("Modify", "[person] FP1-TEST   First Person") == [
                 "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
@@ -742,7 +742,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.success
         ack.summary.nrFound == 1
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Invalid character(s) were substituted in attribute \"address\" value"]
@@ -802,7 +802,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.success
         ack.summary.nrFound == 1
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Value changed due to conversion of IDN email address(es) into Punycode"]
