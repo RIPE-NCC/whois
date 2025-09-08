@@ -32,11 +32,11 @@ public class CustomCrossOriginHandler extends CrossOriginHandler {
     public boolean handle(Request request, Response response, Callback callback) throws Exception {
 
         final String origin = request.getHeaders().get(HttpHeaders.ORIGIN);
-        if(StringUtils.isEmpty(origin)) {
-            return super.handle(request, response, callback);
-        }
 
-        if(request.getMethod().equalsIgnoreCase(HttpMethod.GET) && !getAllowedOriginPatterns().contains(origin)) {
+        if( !StringUtils.isEmpty(origin) &&
+            request.getMethod().equalsIgnoreCase(HttpMethod.GET) &&
+            !getAllowedOriginPatterns().contains(origin)) {
+
             response.getHeaders().put(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
             response.getHeaders().put(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "false");
         }
