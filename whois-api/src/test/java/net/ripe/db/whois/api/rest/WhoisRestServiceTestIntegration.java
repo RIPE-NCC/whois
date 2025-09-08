@@ -6195,7 +6195,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void bad_format_uri_then_not_found() {
-        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/person/?%ADs")
+        assertThrows(BadRequestException.class, () -> RestTest.target(getPort(), "whois/test/person/?%ADs")
                 .request()
                 .get(String.class));
     }
