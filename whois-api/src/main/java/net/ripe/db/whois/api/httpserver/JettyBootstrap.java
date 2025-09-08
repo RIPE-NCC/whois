@@ -31,6 +31,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -233,7 +234,7 @@ public class JettyBootstrap implements ApplicationService {
         server.setStopAtShutdown(false);
         server.setRequestLog(createRequestLog());
 
-        final CustomCrossOriginHandler crossOriginHandler = new CustomCrossOriginHandler(allowedHostsforCrossOrigin);
+        final CrossOriginHandler crossOriginHandler = new CustomCrossOriginHandler(allowedHostsforCrossOrigin);
         crossOriginHandler.setHandler(context);
 
         server.setHandler(crossOriginHandler);

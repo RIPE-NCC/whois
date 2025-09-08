@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 
 //TODO [MA] : remove this filter when WHOIS no longer supports MD5 Password for user as well as override restructured to not use passwords
@@ -67,8 +66,7 @@ public class WhoisCrossOriginFilter implements Filter {
         if(StringUtils.isEmpty(origin)) return true;
 
         try {
-            final URI uri = new URI(origin);
-            return Arrays.stream(allowedHostsforCrossOrigin).anyMatch( host -> host.equalsIgnoreCase(uri.getHost()));
+            return Arrays.stream(allowedHostsforCrossOrigin).anyMatch( host -> host.equalsIgnoreCase(origin));
         } catch (Exception e) {
             LOGGER.debug("Failed to parse origin header", e);
             return false;
