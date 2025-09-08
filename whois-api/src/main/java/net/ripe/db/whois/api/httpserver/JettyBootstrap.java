@@ -116,6 +116,7 @@ public class JettyBootstrap implements ApplicationService {
 
     private final IpBlockListFilter ipBlockListFilter;
 
+    private final String[] allowedHostsforCrossOrigin;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -126,6 +127,7 @@ public class JettyBootstrap implements ApplicationService {
                           final WhoisQueryDoSFilter whoisQueryDoSFilter,
                           final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
+                          @Value("${whois.allow.cross.origin.hosts}") final String[] allowedHostsforCrossOrigin,
                           @Value("${ssl.renegotiation.retries:2}") final int sslRenegotiationRetries,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
@@ -159,6 +161,7 @@ public class JettyBootstrap implements ApplicationService {
         this.whoisQueryDoSFilter = whoisQueryDoSFilter;
         this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
         this.ipBlockListFilter = ipBlockListFilter;
+        this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
     }
 
     @Override
@@ -230,9 +233,14 @@ public class JettyBootstrap implements ApplicationService {
         server.setStopAtShutdown(false);
         server.setRequestLog(createRequestLog());
 
+        final CustomCrossOriginHandler crossOriginHandler = new CustomCrossOriginHandler(allowedHostsforCrossOrigin);
+        crossOriginHandler.setHandler(context);
+
+        server.setHandler(crossOriginHandler);
+
         if (rewriteEngineEnabled) {
             final RewriteHandler rewriteHandler = rewriteEngine.getRewriteHandler();
-            rewriteHandler.setHandler(context);
+            rewriteHandler.setHandler(crossOriginHandler);
             server.setHandler(rewriteHandler);
         }
 
