@@ -134,7 +134,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                         }
                     }
                 }  catch (BadMessageException e) {
-                    LOGGER.warn("{} on query parameter {}: {}", e.getClass().getName(), paramName, e.getMessage());
+                    LOGGER.debug("{} on query parameter {}: {}", e.getClass().getName(), paramName, e.getMessage());
                 }
                 return null;
             }
