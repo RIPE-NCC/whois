@@ -31,17 +31,26 @@ public class CustomCrossOriginHandler extends CrossOriginHandler {
     @Override
     public boolean handle(Request request, Response response, Callback callback) throws Exception {
 
-        final String origin = request.getHeaders().get(HttpHeaders.ORIGIN);
-
-        if( !StringUtils.isEmpty(origin) &&
-            request.getMethod().equalsIgnoreCase(HttpMethod.GET) &&
-            !getAllowedOriginPatterns().contains(origin)) {
-
-            response.getHeaders().put(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-            response.getHeaders().put(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "false");
-        }
+       allowUnauthenticatedGetRequest(request, response);
 
        return super.handle(request, response, callback);
+    }
+
+    private void allowUnauthenticatedGetRequest(final Request request, final Response response) {
+        final String origin = request.getHeaders().get(HttpHeaders.ORIGIN);
+
+        if(StringUtils.isEmpty(origin) || !request.getMethod().equalsIgnoreCase(HttpMethod.GET)) {
+            return;
+        }
+
+        if(getAllowedOriginPatterns().contains(origin) ) {
+            //Authenticated GET requests are allowed
+            return;
+        }
+
+        //Unauthenticated GET requests
+        response.getHeaders().put(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+        response.getHeaders().put(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "false");
     }
 
     private static Set<String> getAllowedOriginPatterns(final String[] allowedHostsforCrossOrigin) {
