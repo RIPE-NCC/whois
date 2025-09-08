@@ -64,7 +64,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return new ConnectionMetaData.Wrapper(request.getConnectionMetaData()) {
                     @Override
                     public SocketAddress getRemoteSocketAddress() {
-                        return InetSocketAddress.createUnresolved(URLDecoder.decode(getHost()), Request.getRemotePort(request));
+                        return InetSocketAddress.createUnresolved(URLDecoder.decode(getRequestHost()), Request.getRemotePort(request));
                     }
 
                     @Override
@@ -72,7 +72,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                         return HttpScheme.HTTPS.name().equalsIgnoreCase(getScheme());
                     }
 
-                    private String getHost(){
+                    private String getRequestHost(){
                         final String remoteAddress = stripBrackets(getRemoteAddrFromRequest(request));
                         if (isURIValidEncoded()){
                             final String clientIp = getClientIp(request);
