@@ -16,6 +16,7 @@ import org.eclipse.jetty.server.ConnectionMetaData;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.util.Fields;
+import org.eclipse.jetty.util.UrlEncoded;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,19 +64,33 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                 return new ConnectionMetaData.Wrapper(request.getConnectionMetaData()) {
                     @Override
                     public SocketAddress getRemoteSocketAddress() {
-                        String remoteAddress = stripBrackets(getRemoteAddrFromRequest(request));
-                        final String clientIp = getClientIp(request);
-
-                        if (isTrusted(remoteAddress) && StringUtils.isNotEmpty(clientIp)){
-                            remoteAddress = clientIp;
-                        }
-
-                        return InetSocketAddress.createUnresolved(URLDecoder.decode(remoteAddress), Request.getRemotePort(request));
+                        return InetSocketAddress.createUnresolved(URLDecoder.decode(getHost()), Request.getRemotePort(request));
                     }
 
                     @Override
                     public boolean isSecure() {
                         return HttpScheme.HTTPS.name().equalsIgnoreCase(getScheme());
+                    }
+
+                    private String getHost(){
+                        final String remoteAddress = stripBrackets(getRemoteAddrFromRequest(request));
+                        if (isURIValidEncoded()){
+                            final String clientIp = getClientIp(request);
+
+                            if (isTrusted(remoteAddress) && StringUtils.isNotEmpty(clientIp)){
+                                return clientIp;
+                            }
+                        }
+                        return remoteAddress;
+                    }
+
+                    private boolean isURIValidEncoded(){
+                        try {
+                            UrlEncoded.decodeQuery(request.getHttpURI().getQuery());
+                            return true;
+                        } catch (Exception e) {
+                            return false;
+                        }
                     }
                 };
             }
