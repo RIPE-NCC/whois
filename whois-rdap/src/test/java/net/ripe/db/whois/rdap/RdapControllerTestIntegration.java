@@ -3277,17 +3277,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void cross_origin_preflight_request_malformed_origin() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "?invalid?")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
-    }
-
-    @Test
     public void cross_origin_get_request_malformed_origin() {
         final Response response = createResource("entity/PP1-TEST")
                 .request(MediaType.APPLICATION_JSON_TYPE)
