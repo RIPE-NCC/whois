@@ -1,6 +1,5 @@
 package net.ripe.db.whois.api.httpserver;
 
-import com.google.common.collect.Sets;
 import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang.StringUtils;
@@ -8,6 +7,10 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.util.Callback;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -18,8 +21,11 @@ import org.eclipse.jetty.util.Callback;
 public class CustomCrossOriginHandler extends CrossOriginHandler {
 
     public CustomCrossOriginHandler(final String[] allowedHostsforCrossOrigin) {
+
+        final Set<String> allowedOriginPatterns = getAllowedOriginPatterns(allowedHostsforCrossOrigin);
+
+        setAllowedOriginPatterns(allowedOriginPatterns);
         setAllowCredentials(true);
-        setAllowedOriginPatterns(Sets.newHashSet(allowedHostsforCrossOrigin));
     }
 
     @Override
@@ -36,5 +42,11 @@ public class CustomCrossOriginHandler extends CrossOriginHandler {
         }
 
        return super.handle(request, response, callback);
+    }
+
+    private static Set<String> getAllowedOriginPatterns(final String[] allowedHostsforCrossOrigin) {
+        return Stream.of(allowedHostsforCrossOrigin)
+                .map(allowedHost -> String.format("https?://%s", allowedHost.replace(".", "\\.")))
+                .collect(Collectors.toSet());
     }
 }
