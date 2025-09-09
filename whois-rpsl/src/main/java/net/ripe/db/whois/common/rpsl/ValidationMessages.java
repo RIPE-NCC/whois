@@ -60,4 +60,8 @@ public final class ValidationMessages {
         return new Message(Messages.Type.WARNING, "Deprecated attribute \"%s\". This attribute will be removed in the future.", type.getName());
     }
 
+    public static Message deprecatedPasswordAuthentication() {
+        return new Message(Messages.Type.WARNING, "MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.");
+    }
+
 }

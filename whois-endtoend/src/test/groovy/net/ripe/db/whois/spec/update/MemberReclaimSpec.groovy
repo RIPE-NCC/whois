@@ -276,7 +276,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-rx -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -318,7 +318,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-rx -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -592,7 +592,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-rx -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -640,7 +640,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObjectNotFound("-rx -T inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -689,7 +689,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
 
         queryObjectNotFound("-rx -T inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255")
@@ -739,7 +739,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.200.0 - 192.168.255.255" }
 
         queryObjectNotFound("-rx -T inetnum 192.168.200.0 - 192.168.255.255", "inetnum", "192.168.200.0 - 192.168.255.255")
@@ -894,7 +894,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 200.168.192.in-addr.arpa" }
 
         queryObjectNotFound("-r -T domain 200.168.192.in-addr.arpa", "domain", "200.168.192.in-addr.arpa")
@@ -944,7 +944,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[domain] 200.168.192.in-addr.arpa" }
 
         queryObjectNotFound("-r -T domain 200.168.192.in-addr.arpa", "domain", "200.168.192.in-addr.arpa")
@@ -993,7 +993,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[route] 192.168.200.0/24AS10000" }
 
         queryObjectNotFound("-r -T route 192.168.200.0/24", "route", "192.168.200.0/24")
@@ -1043,7 +1043,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[route] 192.168.200.0/24AS10000" }
 
         queryObjectNotFound("-r -T route 192.168.200.0/24", "route", "192.168.200.0/24")
@@ -1161,7 +1161,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Delete", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Deleting this object requires administrative authorisation"]
@@ -1276,7 +1276,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 0, 0, 4, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/30" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/48" }
@@ -1397,7 +1397,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(5, 0, 0, 5, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/30" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/48" }
@@ -1592,7 +1592,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(8, 0, 0, 8, 0)
         ack.summary.assertErrors(3, 0, 0, 3)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(3, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/30" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/32" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inet6num] 2001:600::/48" }

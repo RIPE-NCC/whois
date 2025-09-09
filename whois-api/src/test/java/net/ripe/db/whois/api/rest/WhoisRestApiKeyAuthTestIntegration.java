@@ -618,7 +618,9 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
         assertPersonObject(whoisResources, object);

@@ -207,7 +207,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -249,7 +249,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
@@ -293,7 +293,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ALLOCATED-ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
@@ -337,7 +337,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status LIR-PARTITIONED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
@@ -381,7 +381,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status SUB-ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
@@ -425,7 +425,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
@@ -468,7 +468,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PI not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
@@ -511,7 +511,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
@@ -556,7 +556,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status LEGACY not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED UNSPECIFIED"]
@@ -601,7 +601,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -643,7 +643,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
@@ -687,7 +687,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ALLOCATED-ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
@@ -731,7 +731,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status LIR-PARTITIONED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
@@ -775,7 +775,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status SUB-ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
@@ -819,7 +819,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
@@ -862,7 +862,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PI not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
@@ -905,7 +905,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
@@ -950,7 +950,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status LEGACY not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status ALLOCATED PA"]
@@ -996,7 +996,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -1037,7 +1037,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -1078,7 +1078,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status SUB-ALLOCATED PA"]
@@ -1123,7 +1123,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LIR-PARTITIONED PA"]
@@ -1168,7 +1168,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -1209,7 +1209,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status AGGREGATED-BY-LIR not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LIR-PARTITIONED PA"]
@@ -1252,7 +1252,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status AGGREGATED-BY-LIR not allowed when more specific object '192.168.0.0 - 192.169.255.255' has status SUB-ALLOCATED PA"]
@@ -1297,7 +1297,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -1338,7 +1338,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -1383,7 +1383,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED PA"]
@@ -1473,7 +1473,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -1515,7 +1515,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ALLOCATED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
@@ -1559,7 +1559,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status LIR-PARTITIONED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
@@ -1603,7 +1603,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status SUB-ALLOCATED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
@@ -1647,7 +1647,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PA not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
@@ -1690,7 +1690,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PI not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
@@ -1733,7 +1733,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
@@ -1777,7 +1777,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status LEGACY not allowed when more specific object '192.168.200.0 - 192.168.200.255' has status ASSIGNED ANYCAST"]
@@ -1823,7 +1823,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-rGBT inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -1866,7 +1866,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ALLOCATED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
@@ -1911,7 +1911,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status LIR-PARTITIONED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
@@ -1956,7 +1956,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PA not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
@@ -2001,7 +2001,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED PI not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
@@ -2045,7 +2045,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.100.0.0 - 192.200.255.255") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '192.168.0.0 - 192.168.255.255' has status LEGACY"]
@@ -2090,7 +2090,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.100.0.0 - 192.200.255.255" }
 
         queryObject("-r -T inetnum 192.100.0.0 - 192.200.255.255", "inetnum", "192.100.0.0 - 192.200.255.255")
@@ -2134,7 +2134,7 @@ class InetnumStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.100.0 - 192.168.200.255" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.100.0 - 192.168.200.255") ==
                 ["Value ASSIGNED PA converted to LEGACY"]

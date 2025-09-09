@@ -92,7 +92,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
     }
 
     def "create child route, no origin exists, override"() {
@@ -192,7 +192,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -230,7 +230,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -268,7 +268,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -306,7 +306,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -344,7 +344,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         query_object_matches("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16", "just added")
@@ -381,7 +381,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-rGBT route 255.13.0.0/16", "route", "255.13.0.0/16")
     }
@@ -415,7 +415,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[route] 255.13.0.0/16AS999000" }
 
         queryObjectNotFound("-rGBT route 255.13.0.0/16AS999000", "route", "255.13.0.0/16AS999000")
@@ -451,7 +451,7 @@ class RouteAuthASSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObjectNotFound("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")

@@ -283,7 +283,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-FO1-TEST" }
 
         queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
@@ -325,7 +325,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -T organisation ORG-FO2-TEST", "organisation", "ORG-FO2-TEST")
     }
@@ -362,7 +362,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -T organisation ORG-AA1-TEST", "organisation", "ORG-AA1-TEST")
     }
@@ -399,7 +399,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -T organisation ORG-XA1-TEST", "organisation", "ORG-XA1-TEST")
     }
@@ -470,7 +470,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
                 "Value '" + orgtype + "' can only be set by the RIPE NCC for this organisation."]
 
@@ -514,7 +514,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -548,7 +548,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -582,7 +582,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -616,7 +616,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
 
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -650,7 +650,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -T organisation ORG-FA1-TEST", "organisation", "ORG-FA1-TEST")
     }
@@ -758,7 +758,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -T organisation ORG-FSTF1-TEST", "organisation", "ORG-FSTF1-TEST")
     }
@@ -859,7 +859,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-rBT person TP1-TEST", "person", "Test Person")
         queryObject("-r -T organisation ORG-TP1-TEST", "organisation", "ORG-TP1-TEST")
@@ -899,7 +899,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
 
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
                 "Tab characters, multiple lines, or multiple whitespaces are not allowed in the \"org-name:\" value."]
@@ -964,7 +964,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -T organisation ORG-ABCD1-TEST", "organisation", "ORG-ABCD1-TEST")
     }
@@ -998,7 +998,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         def qry = query("-r -T organisation ORG-AA1-TEST")
         qry.contains(/org-name:       ABZ 0123456789 . _ " * (qwerty) @, & :!'`+\/-/)
@@ -1045,7 +1045,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -GBT organisation ORG-AMH1-TEST", "organisation", "ORG-AMH1-TEST")
     }
@@ -1081,7 +1081,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -GBT organisation ORG-AMH1-TEST", "organisation", "ORG-AMH1-TEST")
     }
@@ -1117,7 +1117,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -GBT organisation ORG-AMH1-TEST", "organisation", "ORG-AMH1-TEST")
     }
@@ -1153,7 +1153,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -GBT organisation ORG-AMH1-TEST", "organisation", "ORG-AMH1-TEST")
     }
@@ -1189,7 +1189,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         query_object_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "eN")
     }
@@ -1225,7 +1225,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Modify", "[organisation] ORG-OTO1-TEST") == [
                 "Language not recognised: qq"]
 
@@ -1263,7 +1263,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         query_object_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "-8.632 99.5")
     }
@@ -1361,7 +1361,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-r -GBT organisation ORG-AMH1-TEST", "organisation", "ORG-AMH1-TEST")
     }
@@ -1429,7 +1429,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ackForCreate.summary.assertSuccess(0, 0, 0, 0, 0)
         ackForCreate.summary.assertErrors(1, 1, 0, 0)
 
-        ackForCreate.countErrorWarnInfo(1, 1, 0)
+        ackForCreate.countErrorWarnInfo(1, 2, 0)
         ackForCreate.errors.any { it.operation == "Create" && it.key == "[organisation] ORG-FO1-TEST" }
         ackForCreate.errorMessagesFor("Create", "[organisation] ORG-FO1-TEST") =~
                 ["Syntax error in.*(must be AUTO-nnn for create)"]
@@ -1475,7 +1475,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[organisation] ORG-FO1-TEST" }
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
@@ -1532,7 +1532,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errors.any { it.operation == "Delete" && it.key == "[organisation] ORG-FO1-TEST" }
         ack.errorMessagesFor("Delete", "[organisation] ORG-FO1-TEST") == [
@@ -1574,7 +1574,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-ABC1-TEST" }
 
         queryObject("-r -T organisation ORG-ABC1-TEST", "organisation", "ORG-ABC1-TEST")
@@ -1615,7 +1615,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-FO1-TEST" }
 
         queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
@@ -1669,7 +1669,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-FO1-TEST" }
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-FO2-TEST" }
 
@@ -1726,7 +1726,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(2, 2, 0, 0)
 
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
         ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-2" }
         ack.errorMessagesFor("Create", "[organisation] auto-1") ==
@@ -1785,7 +1785,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-ABC1-TEST" }
         ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1deF" }
         ack.errorMessagesFor("Create", "[organisation] auto-1deF") ==
@@ -1843,7 +1843,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-ABC1-TEST" }
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-DEF1-TEST" }
 
@@ -1880,7 +1880,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR1-TEST") == [
                 "Attribute \"org-type:\" can only be changed by the RIPE NCC for this object. Please contact \"ncc@ripe.net\" to change it."]
@@ -1998,7 +1998,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-LIR2-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-LIR2-TEST") ==
@@ -2039,7 +2039,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         query_object_matches("-r -GBT organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "LIR")
     }
@@ -2189,7 +2189,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         query_object_matches("-r -T organisation ORG-LIR2-TEST", "organisation", "ORG-LIR2-TEST", "My Registry")
     }
@@ -2227,7 +2227,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         query_object_matches("-r -T organisation ORG-OR1-TEST", "organisation", "ORG-OR1-TEST", "Changed Other Registry")
     }
@@ -2265,7 +2265,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
@@ -2309,7 +2309,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA10-TEST" }
 
@@ -2350,7 +2350,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
 
@@ -2390,7 +2390,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
@@ -2433,7 +2433,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference.",
@@ -2514,7 +2514,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         query_object_matches("-r -T inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2555,7 +2555,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 10.168.0.0 - 10.169.255.255") == [
                 "inetnum parent has incorrect status: ALLOCATED PA"]
 
@@ -2593,7 +2593,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 10.168.0.0 - 10.169.255.255") == [
                 "inetnum parent has incorrect status: ALLOCATED PA"]
     }
@@ -2634,7 +2634,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2674,7 +2674,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2716,7 +2716,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         query_object_matches("-r -T role FR1-TEST", "role", "First Role", "org:\\s*ORG-LIRA-TEST")
     }
@@ -2755,7 +2755,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.255.0 - 192.168.255.255") ==
                 ["Referenced organisation can only be changed by the RIPE NCC for this resource. Please contact \"ncc@ripe.net\" to change this reference."]
@@ -2837,7 +2837,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.255.0 - 192.168.255.255" }
 
         query_object_matches("-r -T inetnum 192.168.255.0 - 192.168.255.255", "inetnum", "192.168.255.0 - 192.168.255.255", "org:\\s*ORG-LIRA-TEST")
@@ -2981,7 +2981,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-SO1-TEST" }
     }
 
@@ -3071,7 +3071,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
     }
 
     def "create organisation org-type LIR with country, rs maintainer"() {
@@ -3104,7 +3104,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
@@ -3153,7 +3153,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "update organisation, remove country, user maintainer"() {
@@ -3200,7 +3200,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "delete organisation, with country, user maintainer"() {
@@ -3249,7 +3249,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "update organisation, add country, rs maintainer"() {
@@ -3298,7 +3298,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "update organisation, remove country, rs maintainer"() {
@@ -3347,7 +3347,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "delete organisation, with country, rs maintainer"() {
@@ -3398,7 +3398,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "create other organisation, with country, override"() {
@@ -3614,7 +3614,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "update organisation, add non existent country, override"() {
@@ -3709,7 +3709,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "modify organisation, org-type:OTHER, ref from PI, add country"() {
@@ -3746,7 +3746,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OR1-TEST") ==
@@ -3786,7 +3786,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
@@ -3825,7 +3825,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") ==
@@ -3898,7 +3898,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-HR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-HR1-TEST") ==
@@ -3931,7 +3931,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-HR1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-HR1-TEST") ==
@@ -4088,7 +4088,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
         ack.errorMessagesFor("Create", "[organisation] auto-1") == [
@@ -4130,7 +4130,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-OFA11-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-OFA11-TEST") == [

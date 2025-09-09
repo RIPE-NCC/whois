@@ -77,7 +77,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[poem] POEM-OUR-SQL" }
 
         query_object_matches("-rGBT poem POEM-OUR-SQL", "poem", "POEM-OUR-SQL", "mnt-by:         LIM-MNT")
@@ -115,7 +115,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[poem] POEM-OUR-SQL" }
         queryObjectNotFound("-rGBT poem POEM-OUR-SQL", "poem", "POEM-OUR-SQL")
         ack.errorMessagesFor("Create", "[poem] POEM-OUR-SQL") ==
@@ -154,7 +154,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[poem] POEM-OUR-SQL" }
 
         query_object_matches("-rGBT poem POEM-OUR-SQL", "poem", "POEM-OUR-SQL", "mnt-by:         LIM-MNT")
@@ -196,7 +196,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[poem] POEM-EXISTING" }
 
         query_object_matches("-rGBT poem POEM-EXISTING", "poem", "POEM-EXISTING", "descr:          Adding Description")
@@ -241,7 +241,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[poem] POEM-EXISTING" }
 
         query_object_matches("-rGBT poem POEM-EXISTING", "poem", "POEM-EXISTING", "descr:          Adding Description")
@@ -284,7 +284,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[poem] POEM-EXISTING" }
 
         queryObjectNotFound("-rGBT poem POEM-EXISTING", "poem", "POEM-EXISTING")

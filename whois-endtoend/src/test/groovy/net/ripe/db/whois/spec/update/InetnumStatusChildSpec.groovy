@@ -214,7 +214,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.169.0.0 - 192.170.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.169.0.0 - 192.170.255.255") == [
                 "Status ASSIGNED PA not allowed when more specific object '192.170.0.0 - 192.170.255.255' has status ALLOCATED PA",
@@ -257,7 +257,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.169.0.0 - 192.170.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.169.0.0 - 192.170.255.255") == [
                 "This range overlaps with 192.168.0.0 - 192.169.255.255"
@@ -301,7 +301,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.169.0.0 - 192.171.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.169.0.0 - 192.171.255.255") == [
                 "Status ALLOCATED PA not allowed when more specific object '192.171.0.0 - 192.171.255.255' has status ALLOCATED PA",
@@ -342,7 +342,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.0.0.0 - 192.255.255.255" }
 
         queryObject("-rGBT inetnum 192.0.0.0 - 192.255.255.255", "inetnum", "192.0.0.0 - 192.255.255.255")
@@ -382,7 +382,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED PA"]
@@ -559,7 +559,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -674,7 +674,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: AGGREGATED-BY-LIR"]
@@ -729,7 +729,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.128.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
@@ -840,7 +840,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED-ASSIGNED PA"]
@@ -896,7 +896,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED-ASSIGNED PA"]
@@ -940,7 +940,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.127.255") ==
                 ["inetnum parent has incorrect status: LIR-PARTITIONED PA"]
@@ -984,7 +984,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: SUB-ALLOCATED PA"]
@@ -1025,7 +1025,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PI"]
@@ -1068,7 +1068,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
@@ -1112,7 +1112,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Value ALLOCATED UNSPECIFIED converted to LEGACY"]
@@ -1151,7 +1151,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Missing required \"org:\" attribute"]
@@ -1192,7 +1192,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]"]
@@ -1233,7 +1233,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -1272,7 +1272,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [IANA, RIR, LIR]"]
@@ -1313,7 +1313,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -1354,7 +1354,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -1394,7 +1394,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED PA"]
@@ -1436,7 +1436,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED-ASSIGNED PA"]
@@ -1479,7 +1479,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -1519,7 +1519,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED PA"]
@@ -1604,7 +1604,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.127.255") ==
                 ["inetnum parent has incorrect status: LIR-PARTITIONED PA"]
@@ -1648,7 +1648,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: SUB-ALLOCATED PA"]
@@ -1689,7 +1689,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PI"]
@@ -1732,7 +1732,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
@@ -1774,7 +1774,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["Value ALLOCATED PA converted to LEGACY"]
@@ -1813,7 +1813,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Missing required \"org:\" attribute"]
@@ -1854,7 +1854,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [RIR, LIR]"]
@@ -1895,7 +1895,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.169.255.255", "inetnum", "192.168.0.0 - 192.169.255.255")
@@ -1934,7 +1934,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [RIR, LIR]"]
@@ -1975,7 +1975,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [RIR, LIR]"]
@@ -2019,7 +2019,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -2060,7 +2060,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -2102,7 +2102,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.100 - 192.168.0.100" }
 
         queryObject("-rGBT inetnum 192.168.0.100 - 192.168.0.100", "inetnum", "192.168.0.100 - 192.168.0.100")
@@ -2146,7 +2146,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.127.255", "inetnum", "192.168.0.0 - 192.168.127.255")
@@ -2191,7 +2191,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -2246,7 +2246,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ASSIGNED PI"]
@@ -2290,7 +2290,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
@@ -2332,7 +2332,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Value SUB-ALLOCATED PA converted to LEGACY"]
@@ -2374,7 +2374,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -2416,7 +2416,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -2458,7 +2458,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -2502,7 +2502,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -2546,7 +2546,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -2589,7 +2589,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -2712,7 +2712,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PI"]
@@ -2756,7 +2756,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
@@ -2798,7 +2798,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["Value LIR-PARTITIONED PA converted to LEGACY"]
@@ -2840,7 +2840,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -2882,7 +2882,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -2924,7 +2924,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -2968,7 +2968,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -3012,7 +3012,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -3055,7 +3055,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3095,7 +3095,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED PA"]
@@ -3136,7 +3136,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") == [
                 "Authorisation for parent [inetnum] 192.168.0.0 - 192.169.255.255 failed using \"mnt-lower:\" not authenticated by: LIR-MNT, LIR2-MNT",
@@ -3181,7 +3181,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.127.255") ==
                 ["inetnum parent has incorrect status: LIR-PARTITIONED PA"]
@@ -3225,7 +3225,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: SUB-ALLOCATED PA"]
@@ -3266,7 +3266,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PI"]
@@ -3309,7 +3309,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
@@ -3350,7 +3350,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Value ASSIGNED ANYCAST converted to LEGACY"]
@@ -3393,7 +3393,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3433,7 +3433,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED PA"]
@@ -3477,7 +3477,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.127.255") ==
                 ["inetnum parent has incorrect status: LIR-PARTITIONED PA"]
@@ -3521,7 +3521,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: SUB-ALLOCATED PA"]
@@ -3562,7 +3562,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PI"]
@@ -3604,7 +3604,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PI"]
@@ -3647,7 +3647,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
@@ -3688,7 +3688,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") == [
                 "Value ASSIGNED PI converted to LEGACY"]
@@ -3732,7 +3732,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -3771,7 +3771,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -3815,7 +3815,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.127.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.127.255", "inetnum", "192.168.0.0 - 192.168.127.255")
@@ -3860,7 +3860,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
 
         queryObject("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255")
@@ -3907,7 +3907,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PA"]
@@ -3949,7 +3949,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PI"]
@@ -3993,7 +3993,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED ANYCAST"]
@@ -4035,7 +4035,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 1)
+        ack.countErrorWarnInfo(0, 1, 1)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.infoSuccessMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["Value ASSIGNED PA converted to LEGACY"]
@@ -4077,7 +4077,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -4119,7 +4119,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
 
         queryObject("-rGBT inetnum 192.168.0.0 - 192.168.255.255", "inetnum", "192.168.0.0 - 192.168.255.255")
@@ -4161,7 +4161,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -4205,7 +4205,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -4249,7 +4249,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.0.0 - 192.168.255.255" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.0.0 - 192.168.255.255") ==
                 ["Referenced organisation has wrong \"org-type\". Allowed values are [LIR, OTHER]"]
@@ -4339,7 +4339,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(5, 5, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.201.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.128 - 192.168.200.255" }
@@ -4390,7 +4390,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127" }
         ack.errorMessagesFor("Create", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PA"]
@@ -4443,7 +4443,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.127"}
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.127") ==
                 ["inetnum parent has incorrect status: ASSIGNED PA"]
@@ -4492,7 +4492,7 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.0.0 - 192.169.255.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.0.0 - 192.169.255.255") ==
                 ["Status ALLOCATED-ASSIGNED PA not allowed when more specific object '192.168.200.0 - 192.168.200.127' has status ASSIGNED PA"]

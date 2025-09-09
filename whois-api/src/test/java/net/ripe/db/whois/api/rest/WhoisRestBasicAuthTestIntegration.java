@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
@@ -153,8 +151,10 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
         assertPersonObject(whoisResources, object);
     }
@@ -167,8 +167,10 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
         assertPersonObject(whoisResources, object);
     }
@@ -181,8 +183,10 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person",getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
         assertPersonObject(whoisResources, object);
     }
@@ -233,15 +237,17 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
     }
 
     @Test
-    public void create_succeeds_with_correct_basic_auth_and_wrong_password_query() throws NoSuchAlgorithmException, KeyManagementException {
+    public void create_succeeds_with_correct_basic_auth_and_wrong_password_query() {
         final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person?password=incorrect")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader("test", "test"))
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person", getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
         assertPersonObject(whoisResources, object);
     }
@@ -272,8 +278,10 @@ public class WhoisRestBasicAuthTestIntegration extends AbstractHttpsIntegrationT
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person", getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
         assertPersonObject(whoisResources, object);
     }
