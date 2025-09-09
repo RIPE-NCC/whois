@@ -72,7 +72,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
             queryObject("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
@@ -315,7 +315,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS222" }
             queryObject("-rGBT as-block AS222 - AS222", "as-block", "AS222 - AS222")
@@ -351,7 +351,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(0, 0, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
-            ack.countErrorWarnInfo(2, 0, 0)
+            ack.countErrorWarnInfo(2, 1, 0)
 
             ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
             ack.errorMessagesFor("Create", "[as-block] AS222 - AS333") == [
@@ -428,7 +428,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
 
@@ -471,7 +471,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
             query_object_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "mnt-by:\\s*RIPE-DBM-STARTUP-MNT")
@@ -504,7 +504,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
             query_object_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "org:\\s*ORG-LIR1-TEST")
@@ -546,7 +546,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
         query_object_matches("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333", "mnt-by:\\s*RIPE-DBM-STARTUP-MNT")
@@ -636,7 +636,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 0, 1, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Delete" && it.key == "[as-block] AS222 - AS333" }
             queryObjectNotFound("-rGBT as-block AS222 - AS333", "as-block", "AS222 - AS333")
@@ -664,7 +664,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0 - AS65535" }
             queryObject("-rGBT as-block AS0 - AS65535", "as-block", "AS0 - AS65535")
@@ -691,7 +691,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS655 - AS7775535" }
             queryObject("-rGBT as-block AS655 - AS7775535", "as-block", "AS655 - AS7775535")
@@ -730,7 +730,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS300" }
@@ -774,7 +774,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS300" }
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
@@ -816,7 +816,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 2
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
-            ack.countErrorWarnInfo(1, 0, 0)
+            ack.countErrorWarnInfo(1, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS350" }
             ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
@@ -858,7 +858,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 2
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
-            ack.countErrorWarnInfo(1, 0, 0)
+            ack.countErrorWarnInfo(1, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS222 - AS333" }
             ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS250 - AS350" }
@@ -891,7 +891,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS777 - AS7775535" }
             queryObject("-rGBT as-block AS777 - AS7775535", "as-block", "AS777 - AS7775535")
@@ -919,7 +919,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0-AS0" }
             queryObject("-rGBT as-block AS0-AS0", "as-block", "AS0-AS0")
@@ -947,7 +947,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS4294967295 - AS4294967295" }
             queryObject("-rGBT as-block AS4294967295 - AS4294967295", "as-block", "AS4294967295 - AS4294967295")
@@ -975,7 +975,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
 
             ack.successes.any { it.operation == "Create" && it.key == "[as-block] AS0 - AS4294967295" }
             queryObject("-rGBT as-block AS0 - AS4294967295", "as-block", "AS0 - AS4294967295")

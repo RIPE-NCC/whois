@@ -109,7 +109,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[peering-set] prng-partners"}
         ack.errorMessagesFor("Create", "[peering-set] prng-partners") == [
                 "A peering-set object cannot contain both peering and mp-peering attributes"]
@@ -204,7 +204,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[peering-set] AS123:prng-partners"}
 
         queryObject("-rBT peering-set AS123:prng-partners", "peering-set", "AS123:prng-partners")
@@ -245,7 +245,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[peering-set] AS123:prng-partners"}
         ack.errorMessagesFor("Create", "[peering-set] AS123:prng-partners") == [
                 "Parent object AS123 not found"]
@@ -291,7 +291,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[peering-set] prng-partners:AS123"}
 
         queryObject("-rBT peering-set prng-partners:AS123", "peering-set", "prng-partners:AS123")
@@ -334,7 +334,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[peering-set] AS123:prng-partners:AS352"}
 
         queryObject("-rBT peering-set AS123:prng-partners:AS352", "peering-set", "AS123:prng-partners:AS352")
@@ -376,7 +376,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[peering-set] AS123:prng-partners:AS352"}
 
         queryObject("-rBT peering-set AS123:prng-partners:AS352", "peering-set", "AS123:prng-partners:AS352")
@@ -441,7 +441,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 1, 1, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[peering-set] AS123:prng-partners:AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[peering-set] AS123:prng-partners"}
         ack.successes.any {it.operation == "Modify" && it.key == "[peering-set] AS123:prng-partners:AS352"}
@@ -522,7 +522,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 2, 1, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[peering-set] AS123:prng-partners:AS352"}
         ack.successes.any {it.operation == "Delete" && it.key == "[peering-set] AS123:prng-partners"}
         ack.successes.any {it.operation == "Modify" && it.key == "[peering-set] AS123:prng-partners:AS352"}
@@ -662,7 +662,7 @@ class PeeringSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[peering-set] prng-partners"}
         ack.errorMessagesFor("Create", "[peering-set] prng-partners") == [
                 "A peering-set object must contain either peering or mp-peering attribute"]

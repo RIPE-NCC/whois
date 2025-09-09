@@ -289,7 +289,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 1)
+        ack.countErrorWarnInfo(1, 2, 1)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "Unrecognized source: OWNER"
         ]
@@ -474,7 +474,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         queryObject("-rGBT person FP1-TEST", "person", "First Person")
     }
@@ -617,7 +617,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Modify", "[person] FOP1-TEST   First Optional Person") ==
                 ["End of line comments not allowed on \"source:\" attribute"]
 

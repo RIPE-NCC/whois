@@ -44,7 +44,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route6] 2013:600::/32AS2000" }
 
         queryObject("-rGBT route6 2013:600::/32", "route6", "2013:600::/32")
@@ -76,7 +76,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route6] 2013:600::/32AS2000" }
 
         queryObject("-rGBT route6 2013:600::/32", "route6", "2013:600::/32")
@@ -115,7 +115,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS2000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -154,7 +154,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS2000" }
         ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS2000") ==
               ["2013:600:: is not a valid IPv4 address"]
@@ -193,7 +193,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2013:600::/32AS2000" }
         ack.errorMessagesFor("Create", "[route6] 2013:600::/32AS2000") =~
               ["99.13.0.1 is not a valid IPv6 address"]
@@ -227,7 +227,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2013:600::/32AS2000" }
         ack.errorMessagesFor("Create", "[route6] 2013:600::/32AS2000") ==
               ["2014:600:: is outside the range of this object"]
@@ -265,7 +265,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS2000" }
         ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS2000") ==
               ["100.13.0.1 is outside the range of this object"]
@@ -345,7 +345,7 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS2000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")

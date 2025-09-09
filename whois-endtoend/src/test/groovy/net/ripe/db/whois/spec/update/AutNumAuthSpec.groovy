@@ -281,7 +281,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -325,7 +325,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -365,7 +365,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
         ack.errorMessagesFor("Create", "[aut-num] AS250") ==
               ["Authorisation for [as-block] AS222 - AS333 failed using \"mnt-lower:\" not authenticated by: RIPE-NCC-HM-MNT"]
@@ -445,7 +445,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] AS650" }
         ack.errorMessagesFor("Create", "[aut-num] AS650") ==
               ["No parent as-block found for AS650"]
@@ -752,7 +752,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -811,7 +811,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
@@ -856,7 +856,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -896,7 +896,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -938,7 +938,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS94967295" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS94967295") ==
               ["Supplied attribute 'source' has been replaced with a generated value"]
@@ -978,7 +978,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS4294967295" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS4294967295") ==
               ["Supplied attribute 'source' has been replaced with a generated value"]
@@ -1022,7 +1022,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS65535" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS65535") ==
             ["Supplied attribute 'source' has been replaced with a generated value"]
@@ -1066,7 +1066,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] As0" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] As0") ==
               ["Supplied attribute 'source' has been replaced with a generated value"]
@@ -1337,7 +1337,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] As200" }
 
         queryObject("-rGBT aut-num As200", "aut-num", "As200")
@@ -1430,7 +1430,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] As200" }
         ack.errorMessagesFor("Create", "[aut-num] As200") ==
                 ["Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [as7775535:as-test:AS94967295]"]
@@ -1473,7 +1473,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] As200" }
         ack.errorMessagesFor("Create", "[aut-num] As200") ==
                 ["Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [as7775535:as-test:AS94967295]"]
@@ -1515,7 +1515,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[aut-num] As200" }
         ack.errorMessagesFor("Create", "[aut-num] As200") ==
                 ["Unknown object referenced as7775535:as-test:AS94967295"]
@@ -1558,7 +1558,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[aut-num] AS200" }
 
         queryObjectNotFound("-rGBT aut-num AS200", "aut-num", "AS200")
@@ -1603,7 +1603,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[aut-num] AS200" }
         ack.errorMessagesFor("Delete", "[aut-num] AS200") ==
                 ["Deleting this object requires administrative authorisation"]
@@ -1648,7 +1648,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[aut-num] AS200" }
 
         queryObjectNotFound("-rGBT aut-num AS200", "aut-num", "AS200")
@@ -1693,7 +1693,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[aut-num] AS200" }
 
         queryObjectNotFound("-rGBT aut-num AS200", "aut-num", "AS200")
@@ -1737,7 +1737,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[aut-num] AS200" }
 
         queryObjectNotFound("-rGBT aut-num AS200", "aut-num", "AS200")
@@ -1783,7 +1783,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS200" }
 
         query_object_matches("-rGBT aut-num AS200", "aut-num", "AS200", "just added")
@@ -1828,7 +1828,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS200" }
         ack.errorMessagesFor("Modify", "[aut-num] AS200") ==
                 ["You cannot add or remove a RIPE NCC maintainer"]
@@ -1874,7 +1874,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.warningSuccessMessagesFor("No operation", "[aut-num] AS200") ==
                 ["Deprecated attribute \"mnt-routes\". This attribute has been removed.",
                  "Submitted object identical to database object"]
@@ -2688,7 +2688,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS702" }
         ack.warningSuccessMessagesFor("Create", "[aut-num] AS702") ==
               ["Supplied attribute 'source' has been replaced with a generated value"]
@@ -2733,7 +2733,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
             query_object_matches("-rBG -T aut-num AS250", "aut-num", "AS250", "status:\\s*ASSIGNED")
@@ -2774,7 +2774,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 1, 0)
+            ack.countErrorWarnInfo(0, 2, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS260" }
             ack.warningSuccessMessagesFor("Create", "[aut-num] AS260") ==
                 ["Supplied attribute 'source' has been replaced with a generated value"]
@@ -2819,7 +2819,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 1, 0)
+            ack.countErrorWarnInfo(0, 2, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
             ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
                     ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -2864,7 +2864,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 1, 0)
+            ack.countErrorWarnInfo(0, 2, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
             ack.warningSuccessMessagesFor("Create", "[aut-num] AS250") ==
                     ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -3074,7 +3074,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 1, 0)
+            ack.countErrorWarnInfo(0, 2, 0)
             ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
             ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
                     ["\"status:\" attribute cannot be removed"]
@@ -3117,7 +3117,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 1, 0)
+            ack.countErrorWarnInfo(0, 2, 0)
             ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
             ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
                     ["\"status:\" attribute cannot be removed"]
@@ -3207,7 +3207,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
                 ["\"status:\" attribute cannot be removed"]
@@ -3295,7 +3295,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
                 ["\"status:\" attribute cannot be removed","Supplied attribute 'source' has been replaced with a generated value"]
@@ -3381,7 +3381,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
 
             query_object_matches("-rBG -T aut-num AS251", "aut-num", "AS251", "status:\\s*ASSIGNED")
@@ -3422,7 +3422,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 1, 0)
+            ack.countErrorWarnInfo(0, 2, 0)
             ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
             ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
                     ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -3465,7 +3465,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 0, 1, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 1, 0)
+            ack.countErrorWarnInfo(0, 2, 0)
             ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS251" }
             ack.warningSuccessMessagesFor("Modify", "[aut-num] AS251") ==
                     ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -3846,7 +3846,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
                 ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -3894,7 +3894,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS250") ==
                 ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -3940,7 +3940,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
@@ -3987,7 +3987,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS444" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS444") ==
                 ["Supplied attribute 'status' has been replaced with a generated value",
@@ -4034,7 +4034,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
                 ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -4080,7 +4080,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[aut-num] AS12666" }
         ack.warningSuccessMessagesFor("Modify", "[aut-num] AS12666") ==
                 ["Supplied attribute 'status' has been replaced with a generated value"]
@@ -4167,7 +4167,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[aut-num] AS250" }
 
         queryObject("-rGBT aut-num AS250", "aut-num", "AS250")
@@ -4241,7 +4241,7 @@ class AutNumAuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[aut-num] AS250" }
         ack.errorMessagesFor("Modify", "[aut-num] AS250") ==
                 ["The \"abuse-c\" ROLE object 'AH2-TEST' has no \"abuse-mailbox:\" Add \"abuse-mailbox:\" to the ROLE object, then update the AUT-NUM object"]

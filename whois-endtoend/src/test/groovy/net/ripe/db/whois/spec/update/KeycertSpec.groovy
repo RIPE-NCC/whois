@@ -202,7 +202,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -261,7 +261,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-2" }
 
         queryObject("-rGBT key-cert X509-2", "key-cert", "X509-2")
@@ -354,7 +354,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-3" }
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-4" }
 
@@ -443,7 +443,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
@@ -547,7 +547,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 2, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-2" }
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT" }
@@ -661,7 +661,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 2, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-2" }
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT" }
@@ -725,7 +725,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -783,7 +783,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 5, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.warningSuccessMessagesFor("Create", "[key-cert] X509-1") == [
                 "Supplied attribute 'method' has been replaced with a generated value",
@@ -860,7 +860,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(3, 2, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT" }
@@ -939,7 +939,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(2, 0, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errors.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT" }
@@ -1065,7 +1065,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.errors.any { it.operation == "Create" && it.key == "[person] aUtO-1   First Person" }
         ack.errorMessagesFor("Create", "[person] aUtO-1") ==
@@ -1132,7 +1132,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
         ack.errors.any { it.operation == "Modify" && it.key == "[mntner] TST-MNT" }
         ack.errorMessagesFor("Modify", "[mntner] TST-MNT") ==
@@ -1189,7 +1189,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] X509-99" }
         ack.errorMessagesFor("Create", "[key-cert] X509-99") ==
                 ["Syntax error in X509-99 (must be AUTO-nnn for create)"]
@@ -1438,7 +1438,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 3, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-FO1-TEST" }
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
@@ -1542,7 +1542,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(4, 3, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.successes.any { it.operation == "Create" && it.key == "[organisation] ORG-FO1-TEST" }
         ack.successes.any { it.operation == "Create" && it.key == "[key-cert] X509-1" }
@@ -1611,7 +1611,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -1672,7 +1672,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 5, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.warningSuccessMessagesFor("Modify", "[key-cert] X509-1") == [
                 "Supplied attribute 'method' has been replaced with a generated value",
@@ -1737,7 +1737,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 5, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.warningSuccessMessagesFor("Modify", "[key-cert] X509-1") == [
                 "Supplied attribute 'method' has been replaced with a generated value",
@@ -1799,7 +1799,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -1860,7 +1860,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
 
         queryObject("-rGBT key-cert X509-1", "key-cert", "X509-1")
@@ -1921,7 +1921,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 5, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.warningSuccessMessagesFor("Modify", "[key-cert] X509-1") == [
                 "Supplied attribute 'method' has been replaced with a generated value",
@@ -1983,7 +1983,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[key-cert] X509-1" }
         ack.errorMessagesFor("Modify", "[key-cert] X509-1") == [
                 "Invalid X509 Certificate"]
@@ -2039,7 +2039,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
                 "Invalid X509 Certificate"]
@@ -2095,7 +2095,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
                 "The supplied object has no key"]
@@ -2152,7 +2152,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
                 "The supplied object has no key"]
@@ -2208,7 +2208,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") == [
                 "The supplied object has no key"]
@@ -2276,7 +2276,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] AUTO-1" }
         ack.errorMessagesFor("Create", "[key-cert] AUTO-1") ==
@@ -2344,7 +2344,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 5, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-5763950D" }
         ack.warningSuccessMessagesFor("Modify", "[key-cert] PGPKEY-5763950D") == [
@@ -2548,7 +2548,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[key-cert] PGPKEY-5763950D" }
         ack.errorMessagesFor("Modify", "[key-cert] PGPKEY-5763950D") ==
                 ["The supplied object has multiple keys"]
@@ -2603,7 +2603,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[key-cert] X509-99" }
         ack.errorMessagesFor("Create", "[key-cert] X509-99") ==
                 ["Syntax error in X509-99 (must be AUTO-nnn for create)"]
@@ -2684,7 +2684,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[key-cert] PGPKEY-F6A10C2D" }
     }
 
@@ -2734,7 +2734,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         createAck.summary.nrFound == 1
         createAck.summary.assertSuccess(1, 1, 0, 0, 0)
         createAck.summary.assertErrors(0, 0, 0, 0)
-        createAck.countErrorWarnInfo(0, 0, 0)
+        createAck.countErrorWarnInfo(0, 1, 0)
 
       then:
         def createdKeycert = queryObject("-rGBT key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
@@ -2783,7 +2783,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         updateAck.summary.nrFound == 1
         updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
         updateAck.summary.assertErrors(0, 0, 0, 0)
-        updateAck.countErrorWarnInfo(0, 0, 0)
+        updateAck.countErrorWarnInfo(0, 1, 0)
 
       then:
         def deleteResponse = syncUpdate("""\
@@ -2830,7 +2830,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         deleteAck.summary.nrFound == 1
         deleteAck.summary.assertSuccess(1, 0, 0, 1, 0)
         deleteAck.summary.assertErrors(0, 0, 0, 0)
-        deleteAck.countErrorWarnInfo(0, 0, 0)
+        deleteAck.countErrorWarnInfo(0, 1, 0)
 
       then:
         queryObjectNotFound("-r -T key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
@@ -2888,7 +2888,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         createAck.summary.nrFound == 1
         createAck.summary.assertSuccess(1, 1, 0, 0, 0)
         createAck.summary.assertErrors(0, 0, 0, 0)
-        createAck.countErrorWarnInfo(0, 0, 0)
+        createAck.countErrorWarnInfo(0, 1, 0)
 
         then:
         def createdKeycert = queryObject("-rGBT key-cert PGPKEY-A9B98446", "key-cert", "PGPKEY-A9B98446")
@@ -2936,7 +2936,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
         createAck.summary.nrFound == 1
         createAck.summary.assertSuccess(1, 1, 0, 0, 0)
         createAck.summary.assertErrors(0, 0, 0, 0)
-        createAck.countErrorWarnInfo(0, 0, 0)
+        createAck.countErrorWarnInfo(0, 1, 0)
 
         then:
         def createdKeycert = queryObject("-rGBT key-cert PGPKEY-81530CE5", "key-cert", "PGPKEY-81530CE5")

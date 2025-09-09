@@ -131,7 +131,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -248,7 +248,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -293,7 +293,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -339,7 +339,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
         ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS10000") ==
               ["Unknown object referenced AS200200:rs-test",
@@ -380,7 +380,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
     }
@@ -473,7 +473,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
         ack.errors.any { it.operation == "Delete" && it.key == "[route-set] AS200:rs-test" }
         ack.errorMessagesFor("Delete", "[route-set] AS200:rs-test") ==
@@ -526,7 +526,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 99.13.0.0/16AS10000" }
 
@@ -577,7 +577,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 99.13.0.0/16AS10000" }
 
@@ -619,7 +619,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS10000" }
 
         queryObject("-rGBT route 99.13.0.0/16", "route", "99.13.0.0/16")
@@ -666,7 +666,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS10000" }
 
         queryObject("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
@@ -713,7 +713,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS10000" }
         ack.errorMessagesFor("Create", "[route6] 2001:600::/32AS10000") ==
                 ["2001::/30 is outside the range of this object"]
@@ -765,7 +765,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route6] 2001:600::/32AS10000" }
 
         query_object_matches("-rGBT route6 2001:600::/32", "route6", "2001:600::/32", "just added")
@@ -815,7 +815,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 1)
+        ack.countErrorWarnInfo(0, 2, 1)
         ack.successes.any { it.operation == "Modify" && it.key == "[route6] 2001:600::/32AS10000" }
         ack.infoSuccessMessagesFor("Modify", "[route6] 2001:600::/32AS10000") == [
                 "Value 2001:600::1/32 converted to 2001:600::/32"]
@@ -860,7 +860,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[route6] 2001:600::/32AS10000" }
 
         queryObjectNotFound("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
@@ -905,7 +905,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route6] ::/16AS10000" }
 
         queryObject("-rGBT route6 ::/16", "route6", "::/16")
@@ -1063,7 +1063,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS200200" }
 
         queryObject("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
@@ -1110,7 +1110,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS10000" }
 
         queryObject("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
@@ -1156,7 +1156,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS10000" }
         ack.errorMessagesFor("Create", "[route6] 2001:600::/32AS10000") ==
               ["Membership claim is not supported by mbrs-by-ref: attribute of the referenced set [AS200200:rs-test2]"]
@@ -1201,7 +1201,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS10000" }
         ack.errorMessagesFor("Create", "[route6] 2001:600::/32AS10000") ==
               ["Unknown object referenced AS300300:rs-test",
@@ -1262,7 +1262,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route6] 2001:600::/32AS10000" }
         ack.errors.any { it.operation == "Delete" && it.key == "[route-set] AS200200:rs-test" }
         ack.errorMessagesFor("Delete", "[route-set] AS200200:rs-test") ==
@@ -1306,7 +1306,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
 
         queryObject("-rGBT route6 2001:600::/32", "route6", "2001:600::/32")
     }
@@ -1333,7 +1333,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route] 99.13.0.0/16AS64496" }
         ack.errorMessagesFor("Create", "[route] 99.13.0.0/16AS64496") ==
                 ["Cannot use reserved AS number 64496"]
@@ -1363,7 +1363,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.warningSuccessMessagesFor("Create", "[route] 99.13.0.0/16AS12666") ==
                 ["Specified origin AS number 12666 is allocated to the RIPE region but doesn't exist in the RIPE database"]
 
@@ -1394,7 +1394,7 @@ class RouteSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(0, 0, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
 
-            ack.countErrorWarnInfo(1, 1, 0)
+            ack.countErrorWarnInfo(1, 2, 0)
             ack.errors.any { it.operation == "Create" && it.key == "[route] 10.1.224.0/21AS1000" }
             ack.errorMessagesFor("Create", "[route] 10.1.224.0/21AS1000") ==
                     ["10.1.0.0/16 is outside the range of this object"]

@@ -98,7 +98,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(7, 0, 0)
+        ack.countErrorWarnInfo(7, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
@@ -146,7 +146,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(3, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
                 "\"abuse-c:\" cannot be removed from an ORGANISATION object referenced by a resource object",
@@ -194,7 +194,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
     }
 
@@ -237,7 +237,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
     }
 
@@ -280,7 +280,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
     }
 
@@ -321,7 +321,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(8, 0, 0)
+        ack.countErrorWarnInfo(8, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
@@ -376,7 +376,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(7, 0, 0)
+        ack.countErrorWarnInfo(7, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
@@ -425,7 +425,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(3, 0, 0)
+        ack.countErrorWarnInfo(3, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
 
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
@@ -516,7 +516,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
     }
 
@@ -557,7 +557,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
     }
 
@@ -593,7 +593,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
         ack.errorMessagesFor("Modify", "[organisation] ORG-RIEN1-TEST") == [
                 "Multiple user-'mnt-by:' are not allowed, found are: 'LIR-MNT, LIR2-MNT'"
@@ -631,7 +631,7 @@ class LirEditableOrganisationAttributeValidationSpec extends BaseQueryUpdateSpec
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[organisation] ORG-RIEN1-TEST" }
     }
 
