@@ -32,7 +32,7 @@ public class StreamingMarshalJson implements StreamingMarshal {
 
     StreamingMarshalJson(OutputStream outputStream) {
         try {
-            this.generator = OBJECT_MAPPER.writer(new DefaultPrettyPrinter()).createGenerator(outputStream);
+            this.generator = OBJECT_MAPPER.writer(new DefaultPrettyPrinter()).getFactory().createGenerator(outputStream);
         } catch (IOException e) {
             throw new StreamingException(e);
         }
