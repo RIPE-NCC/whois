@@ -6194,11 +6194,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void bad_format_uri_then_not_found() {
+    public void bad_format_uri_then_bad_request() {
         assertThrows(BadRequestException.class, () -> RestTest.target(getPort(), "whois/test/person/?%ADs")
                 .request()
                 .get(String.class));
     }
+
 
     // helper methods
 

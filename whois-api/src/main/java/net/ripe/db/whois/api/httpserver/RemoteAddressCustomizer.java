@@ -77,7 +77,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                         if (isURIValidEncoded()){
                             final String clientIp = getClientIp(request);
 
-                            if (isTrusted(remoteAddress) && StringUtils.isNotEmpty(clientIp)){
+                            if (isTrusted(remoteAddress) && (StringUtils.isNotEmpty(clientIp))){
                                 return clientIp;
                             }
                         }
@@ -149,7 +149,7 @@ public class RemoteAddressCustomizer implements HttpConfiguration.Customizer {
                         }
                     }
                 }  catch (BadMessageException e) {
-                    LOGGER.debug("{} on query parameter {}: {}", e.getClass().getName(), paramName, e.getMessage());
+                    LOGGER.warn("{} on query parameter {}: {}", e.getClass().getName(), paramName, e.getMessage());
                 }
                 return null;
             }
