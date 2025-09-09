@@ -79,7 +79,7 @@ public class RemoteAddressCustomizerTestIntegration extends AbstractIntegrationT
     }
 
     @Test
-    public void help_client_ip_trusted_ip_with_wrong_clientIp() {
+    public void wrong_client_ip_trusted_ip_then_ignored() {
         final String index = RestTest.target(getPort(), "whois/syncupdates/TEST?HELP=yes&clientIp=zzz")
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "127.0.0.1")
