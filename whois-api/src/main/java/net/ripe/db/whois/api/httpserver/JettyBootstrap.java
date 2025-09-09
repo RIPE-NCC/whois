@@ -128,7 +128,7 @@ public class JettyBootstrap implements ApplicationService {
                           final WhoisQueryDoSFilter whoisQueryDoSFilter,
                           final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
-                          @Value("${whois.allow.cross.origin.hosts}") final String[] allowedHostsforCrossOrigin,
+                          @Value("${whois.allow.cross.origin.hosts:}") final String[] allowedHostsforCrossOrigin,
                           @Value("${ssl.renegotiation.retries:2}") final int sslRenegotiationRetries,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,

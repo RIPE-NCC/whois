@@ -29,7 +29,7 @@ public class WhoisCrossOriginFilter implements Filter {
     final protected String[] allowedHostsforCrossOrigin;
 
     @Autowired
-    public WhoisCrossOriginFilter(@Value("${whois.allow.cross.origin.hosts}") final String[] allowedHostsforCrossOrigin) {
+    public WhoisCrossOriginFilter(@Value("${whois.allow.cross.origin.hosts:}") final String[] allowedHostsforCrossOrigin) {
         this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
     }
 
@@ -65,6 +65,8 @@ public class WhoisCrossOriginFilter implements Filter {
         final String origin = request.getHeader(HttpHeaders.ORIGIN);
 
         if(StringUtils.isEmpty(origin)) return true;
+
+        if(allowedHostsforCrossOrigin.length == 0 ) return false;
 
         try {
             final URI uri = new URI(origin);

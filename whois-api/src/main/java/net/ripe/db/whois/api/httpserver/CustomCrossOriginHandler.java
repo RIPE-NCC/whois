@@ -23,9 +23,10 @@ public class CustomCrossOriginHandler extends CrossOriginHandler {
     public CustomCrossOriginHandler(final String[] allowedHostsforCrossOrigin) {
 
         final Set<String> allowedOriginPatterns = getAllowedOriginPatterns(allowedHostsforCrossOrigin);
-
-        setAllowedOriginPatterns(allowedOriginPatterns);
-        setAllowCredentials(true);
+        if(!allowedOriginPatterns.isEmpty()) {
+            setAllowedOriginPatterns(allowedOriginPatterns);
+            setAllowCredentials(true);
+        }
     }
 
     @Override
