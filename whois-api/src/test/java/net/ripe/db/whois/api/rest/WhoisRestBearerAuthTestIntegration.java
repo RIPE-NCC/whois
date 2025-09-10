@@ -52,6 +52,7 @@ import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INACTIVE_TO
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_ANY_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_MNT_EXCEED_LIMIT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_MULTIPLE_MNT;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_MULTIPLE_MNT_WITH_ANY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NULL_SCOPE;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
@@ -333,6 +334,26 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: Whois scope can not be empty"));
+    }
+
+    @Test
+    public void create_mntner_only_data_parameter_with_apiKey_fails_multiple_scope_with_any() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_MULTIPLE_MNT_WITH_ANY))
+                .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+        assertThat(response, containsString("***Warning: Whois scopes can either have ANY or specific maintainers"));
     }
 
     @Test
