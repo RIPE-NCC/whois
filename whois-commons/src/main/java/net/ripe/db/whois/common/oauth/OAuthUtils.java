@@ -1,6 +1,5 @@
 package net.ripe.db.whois.common.oauth;
 
-import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
@@ -9,11 +8,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class OAuthUtils {
 
@@ -28,26 +25,29 @@ public class OAuthUtils {
 
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
 
-        final Optional<String> whoisScope = getWhoisScope(oAuthSession.getScope());
-        if(whoisScope.isEmpty()) {
+        final List<String> whoisScopes = getWhoisScopes(oAuthSession.getScopes());
+        if(whoisScopes.isEmpty()) {
             return false;
         }
 
-        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope.get());
+        for (final String whoisScope : whoisScopes) {
+            final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope);
 
-        if(StringUtils.isEmpty(scopeFormatter.getScopeKey())) {
-            return false;
+            if(StringUtils.isEmpty(scopeFormatter.getScopeKey())) {
+                continue;
+            }
+
+            if(scopeFormatter.getScopeKey().equals("ANY") ||
+                    maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()))) {
+                return true;
+            }
         }
 
-        return scopeFormatter.getScopeKey().equals("ANY")  || maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
+        return false;
     }
 
-    public static Optional<String> getWhoisScope(final String scopes) {
-        if(StringUtils.isEmpty(scopes)) {
-            return Optional.empty();
-        }
-
-        return Arrays.stream(StringUtils.split(scopes, " ")).filter(scope -> scope.startsWith("whois.mntner")).findFirst();
+    public static List<String> getWhoisScopes(final List<String> scopes) {
+        return scopes.stream().filter(scope -> scope.startsWith("whois.mntner")).collect(Collectors.toList());
     }
 
     public static boolean hasValidOauthSession(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {

@@ -1,19 +1,19 @@
 package net.ripe.db.whois.api.oauth;
 
 import com.google.common.net.HttpHeaders;
-import com.nimbusds.jose.proc.BadJWSException;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
+import com.nimbusds.jose.proc.BadJWSException;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimNames;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionRequest;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
@@ -26,11 +26,11 @@ import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import jakarta.servlet.http.HttpServletRequest;
+import net.ripe.db.whois.common.aspects.Stopwatch;
 import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.lang3.StringUtils;
-import net.ripe.db.whois.common.aspects.Stopwatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_ANY_MNTNR_SCOPE;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_AZP_PARAM;
@@ -52,7 +51,7 @@ import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_EMAIL_PARAM
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_JTI_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_SCOPE_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_UUID_PARAM;
-import static net.ripe.db.whois.common.oauth.OAuthUtils.getWhoisScope;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.getWhoisScopes;
 
 @Component
 public class BearerTokenExtractor   {
@@ -63,12 +62,14 @@ public class BearerTokenExtractor   {
     private final boolean isScopeMandatory;
     private final URI tokenIntrospectEndpoint;
     private final ClientSecretBasic keycloakClient;
+    private final int maxScopes;
 
     private final URI jwksSetUrl;
 
     @Autowired
     public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
                                 @Value("${apikey.scope.mandatory:false}") final boolean isScopeMandatory,
+                                @Value("${apikey.max.scope:10}") final int maxScopes,
                                 @Value("${openId.metadata.url:}")  final String openIdMetadataUrl,
                                 @Value("${keycloak.idp.password:}")  final String keycloakPassword,
                                 @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId) {
@@ -79,6 +80,7 @@ public class BearerTokenExtractor   {
         final OIDCProviderMetadata oidcProviderMetadata = getOIDCMetadata(openIdMetadataUrl);
         this.tokenIntrospectEndpoint = oidcProviderMetadata != null ? oidcProviderMetadata.getIntrospectionEndpointURI() : null;
         this.jwksSetUrl =  oidcProviderMetadata != null ? oidcProviderMetadata.getJWKSetURI() : null;
+        this.maxScopes = maxScopes;
     }
 
     @Nullable
@@ -147,7 +149,7 @@ public class BearerTokenExtractor   {
                 oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience("API Key").toString());
             }
 
-            populateScope(claimSet.getStringClaim(OAUTH_CUSTOM_SCOPE_PARAM), oAuthSessionBuilder);
+            populateScope(Scope.parse(claimSet.getStringClaim(OAUTH_CUSTOM_SCOPE_PARAM)), oAuthSessionBuilder);
 
             return oAuthSessionBuilder.azp(claimSet.getStringClaim(OAUTH_CUSTOM_AZP_PARAM))
                     .email(claimSet.getStringClaim(OAUTH_CUSTOM_EMAIL_PARAM))
@@ -184,11 +186,22 @@ public class BearerTokenExtractor   {
         return audiences.stream().anyMatch(appName -> appName.equalsIgnoreCase(keycloakClient.getClientID().getValue()));
     }
 
-    private void populateScope(final String scopes,  final OAuthSession.Builder oAuthSessionBuilder) {
+    private void populateScope(final Scope scopes,  final OAuthSession.Builder oAuthSessionBuilder) {
 
-        final Optional<String> whoisScope = getWhoisScope(scopes);
-        if(whoisScope.isPresent() ) {
-            oAuthSessionBuilder.scope(whoisScope.get());
+        final List<String> whoisScopes = (scopes == null) ? Collections.emptyList() : getWhoisScopes(scopes.toStringList());
+
+        if(whoisScopes.size() > maxScopes) {
+            oAuthSessionBuilder.errorStatus("Whois scopes can not be more than " + maxScopes);
+            return;
+        }
+
+        if(whoisScopes.size() > 1 && whoisScopes.contains(OAUTH_ANY_MNTNR_SCOPE)) {
+            oAuthSessionBuilder.errorStatus("Whois scopes can either have ANY or specific maintainers");
+            return;
+        }
+
+        if(!whoisScopes.isEmpty() ) {
+            oAuthSessionBuilder.scopes(whoisScopes);
             return;
         }
 
@@ -197,7 +210,7 @@ public class BearerTokenExtractor   {
             return;
         }
 
-       oAuthSessionBuilder.scope(OAUTH_ANY_MNTNR_SCOPE);
+       oAuthSessionBuilder.scopes(List.of(OAUTH_ANY_MNTNR_SCOPE));
     }
 
     private OAuthSession callTokenInspectionEndpoint(final BearerAccessToken accessToken) {
@@ -225,7 +238,7 @@ public class BearerTokenExtractor   {
                 oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience("Access Token").toString());
             }
 
-            populateScope(tokenDetails.getStringParameter(OAUTH_CUSTOM_SCOPE_PARAM), oAuthSessionBuilder);
+            populateScope(tokenDetails.getScope(), oAuthSessionBuilder);
 
             return oAuthSessionBuilder.azp(tokenDetails.getStringParameter(OAUTH_CUSTOM_AZP_PARAM))
                     .email(tokenDetails.getStringParameter(OAUTH_CUSTOM_EMAIL_PARAM))
@@ -253,7 +266,7 @@ public class BearerTokenExtractor   {
                     .aud(claimSets.getAudience())
                     .jti(claimSets.getJWTID())
                     .uuid(claimSets.getStringClaim(OAUTH_CUSTOM_UUID_PARAM))
-                    .scope(claimSets.getStringClaim(OAUTH_CUSTOM_SCOPE_PARAM)).build();
+                    .scopes(Scope.parse(claimSets.getStringClaim(OAUTH_CUSTOM_SCOPE_PARAM)).toStringList()).build();
 
         } catch (Exception e) {
             //Ignore exceptions
