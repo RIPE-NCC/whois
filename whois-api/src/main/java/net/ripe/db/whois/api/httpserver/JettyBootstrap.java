@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.domain.IpRanges;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee10.servlet.DefaultServlet;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
@@ -117,10 +118,13 @@ public class JettyBootstrap implements ApplicationService {
 
     private final IpBlockListFilter ipBlockListFilter;
 
+    private final IpRanges ipRanges;
+
     private final String[] allowedHostsforCrossOrigin;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
+                          final IpRanges ipRanges,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
@@ -162,6 +166,7 @@ public class JettyBootstrap implements ApplicationService {
         this.whoisQueryDoSFilter = whoisQueryDoSFilter;
         this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
         this.ipBlockListFilter = ipBlockListFilter;
+        this.ipRanges = ipRanges;
         this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
     }
 
@@ -270,7 +275,7 @@ public class JettyBootstrap implements ApplicationService {
         if (this.xForwardedForHttp){
             httpConfiguration.addCustomizer(new ProtocolCustomizer());
         }
-        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, this.xForwardedForHttp));
+        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(ipRanges, this.xForwardedForHttp));
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
@@ -342,7 +347,7 @@ public class JettyBootstrap implements ApplicationService {
             secureRequestCustomizer.setSniHostCheck(false);
         }
 
-        httpsConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, xForwardedForHttps));
+        httpsConfiguration.addCustomizer(new RemoteAddressCustomizer(ipRanges, xForwardedForHttps));
         httpsConfiguration.addCustomizer(secureRequestCustomizer);
 
         httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
