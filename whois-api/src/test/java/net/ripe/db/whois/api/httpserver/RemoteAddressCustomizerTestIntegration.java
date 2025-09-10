@@ -4,6 +4,7 @@ import com.google.common.net.HttpHeaders;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.common.domain.IpRanges;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,11 @@ import static org.hamcrest.Matchers.containsString;
 @Tag("IntegrationTest")
 public class RemoteAddressCustomizerTestIntegration extends AbstractIntegrationTest {
     @Autowired IpRanges ipRanges;
+
+    @BeforeEach
+    public void setUp() {
+        ipRanges.setTrusted("127.0.0.1", "::1");
+    }
 
     @Test
     public void help_localhost() throws Exception {
