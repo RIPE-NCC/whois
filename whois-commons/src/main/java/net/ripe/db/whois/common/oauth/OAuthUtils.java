@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.oauth;
 
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
@@ -26,24 +27,11 @@ public class OAuthUtils {
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
 
         final List<String> whoisScopes = getWhoisScopes(oAuthSession.getScopes());
-        if(whoisScopes.isEmpty()) {
-            return false;
-        }
+        final List<CIString> maintainerKeys = maintainers.stream().map(RpslObject::getKey).toList();
 
-        for (final String whoisScope : whoisScopes) {
-            final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope);
-
-            if(StringUtils.isEmpty(scopeFormatter.getScopeKey())) {
-                continue;
-            }
-
-            if(scopeFormatter.getScopeKey().equals("ANY") ||
-                    maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()))) {
-                return true;
-            }
-        }
-
-        return false;
+        return whoisScopes.stream()
+                .map( whoisScope ->  new OAuthSession.ScopeFormatter(whoisScope).getScopeKey())
+                .anyMatch( scopeKey -> "ANY".equals(scopeKey) || maintainerKeys.contains(CIString.ciString(scopeKey)));
     }
 
     public static List<String> getWhoisScopes(final List<String> scopes) {
