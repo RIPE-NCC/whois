@@ -32,6 +32,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,6 +120,7 @@ public class JettyBootstrap implements ApplicationService {
 
     private final IpRanges ipRanges;
 
+    private final String[] allowedHostsforCrossOrigin;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
@@ -130,6 +132,7 @@ public class JettyBootstrap implements ApplicationService {
                           final WhoisQueryDoSFilter whoisQueryDoSFilter,
                           final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
+                          @Value("${whois.allow.cross.origin.hosts:}") final String[] allowedHostsforCrossOrigin,
                           @Value("${ssl.renegotiation.retries:2}") final int sslRenegotiationRetries,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
@@ -164,6 +167,7 @@ public class JettyBootstrap implements ApplicationService {
         this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
         this.ipBlockListFilter = ipBlockListFilter;
         this.ipRanges = ipRanges;
+        this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
     }
 
     @Override
@@ -235,9 +239,14 @@ public class JettyBootstrap implements ApplicationService {
         server.setStopAtShutdown(false);
         server.setRequestLog(createRequestLog());
 
+        final CrossOriginHandler crossOriginHandler = new CustomCrossOriginHandler(allowedHostsforCrossOrigin);
+        crossOriginHandler.setHandler(context);
+
+        server.setHandler(crossOriginHandler);
+
         if (rewriteEngineEnabled) {
             final RewriteHandler rewriteHandler = rewriteEngine.getRewriteHandler();
-            rewriteHandler.setHandler(context);
+            rewriteHandler.setHandler(crossOriginHandler);
             server.setHandler(rewriteHandler);
         }
 

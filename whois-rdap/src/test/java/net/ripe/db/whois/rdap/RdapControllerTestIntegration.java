@@ -52,7 +52,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -61,7 +60,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -3239,19 +3237,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-    }
-
-    @Test
-    public void cross_origin_preflight_request_from_outside_ripe_net_is_allowed() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -3265,35 +3250,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), is(nullValue()));
-        assertThat(response.getHeaderString(HttpHeaders.ALLOW), containsString("GET"));
-        assertThat(response.getHeaderString(HttpHeaders.ALLOW), not(containsString("POST")));
-    }
-
-    @Test
-    public void cross_origin_preflight_get_request_from_outside_ripe_net_is_allowed() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET)
-                .options();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET", "OPTIONS"));
-    }
-
-    @Test
-    public void cross_origin_preflight_options_request_from_outside_ripe_net_is_allowed() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET)
-                .get();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-        assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
     @Test
@@ -3305,7 +3261,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -3317,20 +3272,8 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_preflight_request_malformed_origin() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "?invalid?")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("?invalid?"));
     }
 
     @Test
@@ -3341,7 +3284,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("?invalid?"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -3353,7 +3296,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net:8443"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -3364,7 +3307,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
     }
 
     @Test
