@@ -1,6 +1,6 @@
 package net.ripe.db.whois.common.oauth;
 
-import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
@@ -9,11 +9,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class OAuthUtils {
 
@@ -28,26 +26,16 @@ public class OAuthUtils {
 
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
 
-        final Optional<String> whoisScope = getWhoisScope(oAuthSession.getScope());
-        if(whoisScope.isEmpty()) {
-            return false;
-        }
+        final List<String> whoisScopes = getWhoisScopes(oAuthSession.getScopes());
+        final List<CIString> maintainerKeys = maintainers.stream().map(RpslObject::getKey).toList();
 
-        final OAuthSession.ScopeFormatter scopeFormatter = new OAuthSession.ScopeFormatter(whoisScope.get());
-
-        if(StringUtils.isEmpty(scopeFormatter.getScopeKey())) {
-            return false;
-        }
-
-        return scopeFormatter.getScopeKey().equals("ANY")  || maintainers.stream().anyMatch( maintainer -> scopeFormatter.getScopeKey().equalsIgnoreCase(maintainer.getKey().toString()));
+        return whoisScopes.stream()
+                .map( whoisScope ->  new OAuthSession.ScopeFormatter(whoisScope).getScopeKey())
+                .anyMatch( scopeKey -> "ANY".equals(scopeKey) || maintainerKeys.contains(CIString.ciString(scopeKey)));
     }
 
-    public static Optional<String> getWhoisScope(final String scopes) {
-        if(StringUtils.isEmpty(scopes)) {
-            return Optional.empty();
-        }
-
-        return Arrays.stream(StringUtils.split(scopes, " ")).filter(scope -> scope.startsWith("whois.mntner")).findFirst();
+    public static List<String> getWhoisScopes(final List<String> scopes) {
+        return scopes.stream().filter(scope -> scope.startsWith("whois.mntner")).collect(Collectors.toList());
     }
 
     public static boolean hasValidOauthSession(final OAuthSession oAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {

@@ -22,7 +22,7 @@ public class APIKeySession extends OAuthSession {
                 .add("keyId", keyId)
                 .add("email", getEmail())
                 .add("uuid", getUuid())
-                .add("scopes", getScope())
+                .add("scopes", getScopes())
                 .add("azp", getAzp())
                 .add("jti", getJti())
                 .add("errorStatus", getErrorStatus())

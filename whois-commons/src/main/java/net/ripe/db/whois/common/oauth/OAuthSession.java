@@ -12,7 +12,7 @@ public class OAuthSession {
 
     private final String uuid;
 
-    private final String scope;
+    private final List<String> scopes;
 
     private final String errorStatus;
 
@@ -24,7 +24,7 @@ public class OAuthSession {
         this.aud = builder.aud;
         this.email = builder.email;
         this.uuid = builder.uuid;
-        this.scope = builder.scope;
+        this.scopes = builder.scopes;
         this.errorStatus = builder.errorStatus;
         this.azp = builder.azp;
         this.jti = builder.jti;
@@ -42,8 +42,8 @@ public class OAuthSession {
         return uuid;
     }
 
-    public String getScope() {
-        return scope;
+    public List<String> getScopes() {
+        return scopes;
     }
 
     public String getJti() {
@@ -65,7 +65,7 @@ public class OAuthSession {
                 .add("email", email)
                 .add("uuid", uuid)
                 .add("azp", azp)
-                .add("scopes", scope)
+                .add("scopes", scopes)
                 .add("jti", jti)
                 .add("errorStatus", errorStatus)
                 .toString();
@@ -112,7 +112,7 @@ public class OAuthSession {
 
         protected String uuid;
 
-        protected String scope;
+        protected List<String> scopes;
 
         protected String errorStatus;
 
@@ -147,8 +147,8 @@ public class OAuthSession {
             return this;
         }
 
-        public Builder scope(String scope) {
-            this.scope = scope;
+        public Builder scopes(List<String> scopes) {
+            this.scopes = scopes;
             return this;
         }
 

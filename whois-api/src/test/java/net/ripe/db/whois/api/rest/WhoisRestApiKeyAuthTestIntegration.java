@@ -1,7 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
-import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -17,8 +16,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
-import net.ripe.db.whois.common.oauth.APIKeySession;
-import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -40,7 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,6 +46,8 @@ import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.APIKEY_TO_OAUTHSESSION
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_INVALID_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_ANY_MNT;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_MNT_EXCEED_LIMIT;
+import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_MULTIPLE_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_NULL_SCOPE;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNER_MNT;
@@ -57,6 +55,8 @@ import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_PERSON_OWNE
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
 import static net.ripe.db.whois.api.ApiKeyAuthServerDummy.BASIC_AUTH_TEST_TEST_MNT;
 import static net.ripe.db.whois.api.rest.WhoisRestBasicAuthTestIntegration.getBasicAuthenticationHeader;
+import static net.ripe.db.whois.api.rest.WhoisRestBearerAuthTestIntegration.assertSSOAttribute;
+import static net.ripe.db.whois.api.rest.WhoisRestBearerAuthTestIntegration.getOAuthSession;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -139,12 +139,14 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     public static void setupApiProperties() {
         System.setProperty("apikey.authenticate.enabled","true");
         System.setProperty("apikey.scope.mandatory","true");
+        System.setProperty("apikey.max.scope","2");
     }
 
     @AfterAll
     public static void restApiProperties() {
         System.clearProperty("apikey.authenticate.enabled");
         System.clearProperty("apikey.scope.mandatory");
+        System.clearProperty("apikey.max.scope");
     }
 
     @BeforeEach
@@ -221,6 +223,76 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
         assertThat(response, containsString("Modify SUCCEEDED: [mntner] SSO-MNT"));
     }
+
+    @Test
+    public void update_object_with_bearer_token_with_multiple_mnt_with_sso() {
+        final RpslObject updated = new RpslObjectBuilder(TEST_ROLE)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/TEST/role/TR2-TEST")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MULTIPLE_MNT))
+                .put(Entity.entity(map(updated), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().size(), is(1));
+        assertThat(databaseHelper.lookupObject(ROLE, updated.getKey().toString()).getValueForAttribute(AttributeType.REMARKS), is("more_test"));
+    }
+
+    @Test
+    public void create_mntner_with_apiKey_fails_limit_exceed() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MNT_EXCEED_LIMIT))
+                .get(String.class);
+
+        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+        assertThat(response, containsString("***Warning: Whois scopes can not be more than 2"));
+    }
+
+    @Test
+    public void create_succeeds_with_bearer_token_with_mnt_with_sso_multiple_scope() {
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MULTIPLE_MNT))
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+
+        assertPersonObject(whoisResources, object);
+    }
+
+    @Test
+    public void create_object_with_bearer_token_multiple_scope__when_no_sso_fails() {
+        databaseHelper.updateObject(RpslObject.parse("" +
+                "mntner:      OWNER-MNT\n" +
+                "descr:       Owner Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO test@net.net\n" +
+                "mnt-by:      OWNER-MNT\n" +
+                "source:      TEST"));
+
+        Response response = SecureRestTest.target(getSecurePort(), "whois/test/person")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MULTIPLE_MNT))
+                .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(response.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+
+    }
+
 
     @Test
     public void create_mntner_only_data_parameter_with_apiKey() {
@@ -340,6 +412,100 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: Invalid APIKEY"));
     }
+
+    @Test
+    public void lookup_correct_bearer_token_with_multiple_mnt_scope_and_sso_and_unfiltered() {
+
+        WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/mntner/OWNER-MNT?unfiltered")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MULTIPLE_MNT))
+                .get(WhoisResources.class);
+
+        assertSSOAttribute(whoisResources, "SSO person@net.net");
+
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      TEST-MNT\n" +
+                "descr:       TEST Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO person@net.net\n" +
+                "mnt-by:      TEST-MNT\n" +
+                "source:      TEST"));
+
+        whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/mntner/TEST-MNT?unfiltered")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MULTIPLE_MNT))
+                .get(WhoisResources.class);
+
+        assertSSOAttribute(whoisResources, "SSO person@net.net");
+
+    }
+
+    @Test
+    public void lookup_correct_bearer_token_with_multiple_mnt_scope_and_one_has_sso_and_other_not() {
+
+        WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/mntner/OWNER-MNT?unfiltered")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MULTIPLE_MNT))
+                .get(WhoisResources.class);
+
+        assertSSOAttribute(whoisResources, "SSO person@net.net");
+
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      TEST-MNT\n" +
+                "descr:       TEST Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO test@ripe.net\n" +
+                "mnt-by:      TEST-MNT\n" +
+                "source:      TEST"));
+
+        whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/mntner/TEST-MNT?unfiltered")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MULTIPLE_MNT))
+                .get(WhoisResources.class);
+
+        assertSSOAttribute(whoisResources, "SSO");
+
+    }
+
+    @Test
+    public void lookup_incorrect_bearer_token_with_multiple_mnt_scope() {
+
+        databaseHelper.addObject(RpslObject.parse("" +
+                "mntner:      TEST1-MNT\n" +
+                "descr:       TEST Maintainer\n" +
+                "admin-c:     TP1-TEST\n" +
+                "upd-to:      noreply@ripe.net\n" +
+                "auth:        MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test\n" +
+                "auth:        SSO test@ripe.net\n" +
+                "mnt-by:      TEST1-MNT\n" +
+                "source:      TEST"));
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/mntner/TEST1-MNT?unfiltered")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MULTIPLE_MNT))
+                .get(WhoisResources.class);
+
+        assertSSOAttribute(whoisResources, "SSO");
+
+    }
+
+    @Test
+    public void lookup_incorrect_number_of_scope_filtered() {
+
+        WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/mntner/OWNER-MNT?unfiltered")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_MNT_EXCEED_LIMIT))
+                .get(WhoisResources.class);
+
+        assertSSOAttribute(whoisResources, "SSO");
+    }
+
 
     @Test
     public void lookup_correct_api_key_with_sso_and_filtered_wrong_audience() {
@@ -1015,12 +1181,4 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
-
-    private APIKeySession getOAuthSession(final JWTClaimsSet claimSet) throws ParseException {
-        return (APIKeySession) new OAuthSession.Builder().aud(claimSet.getAudience())
-                .keyId("123").scope(claimSet.getStringClaim("scope"))
-                        .uuid(claimSet.getStringClaim("uuid"))
-                        .email(claimSet.getStringClaim("email")).build();
-    }
-
 }
