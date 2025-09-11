@@ -764,7 +764,7 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
     }
 
     @Test
-    public void create_object_with_bearer_token_multiple_scope_fails() {
+    public void create_object_with_bearer_token_multiple_scope_when_no_sso_fails() {
         databaseHelper.updateObject(RpslObject.parse("" +
                 "mntner:      OWNER-MNT\n" +
                 "descr:       Owner Maintainer\n" +
