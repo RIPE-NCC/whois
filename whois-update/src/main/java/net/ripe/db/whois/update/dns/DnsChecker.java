@@ -83,6 +83,8 @@ public class DnsChecker {
                 updateContext.addMessage(dnsCheckRequest.getUpdate(), message);
             }
         }
+
+        stopwatch.stop();
     }
 
     private boolean isDnsCheckRequired(final Update update) {

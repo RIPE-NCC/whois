@@ -104,7 +104,7 @@ public class IpTreeUpdater {
             }
         });
 
-        LOGGER.info("Finished building IP trees in {}", stopwatch);
+        LOGGER.info("Finished building IP trees in {}", stopwatch.stop());
     }
 
     public void rebuild(final String source) {

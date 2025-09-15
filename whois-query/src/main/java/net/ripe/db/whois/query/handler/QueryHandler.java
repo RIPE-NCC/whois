@@ -75,6 +75,8 @@ public class QueryHandler {
                     if (accountedObjects > 0) {
                         accessControlListManager.accountPersonalObjects(getAccountingIdentifier(), accountedObjects);
                     }
+
+                    stopwatch.stop();
                 }
             }
 

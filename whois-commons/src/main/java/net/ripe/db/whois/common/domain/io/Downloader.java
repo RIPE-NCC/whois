@@ -96,10 +96,10 @@ public class Downloader {
     }
 
     void downloadToFile(final Logger logger, final InputStream is, final Path file) throws IOException {
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+
         try {
             Files.createDirectories(file.getParent());
-
-            final Stopwatch stopwatch = Stopwatch.createStarted();
 
             try (ReadableByteChannel rbc = Channels.newChannel(is);
                  FileChannel fc = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -115,6 +115,8 @@ public class Downloader {
         } catch (IOException ex){
             logger.error("Error when downloading {}", file, ex);
             throw ex;
+        } finally {
+            stopwatch.stop();
         }
     }
 

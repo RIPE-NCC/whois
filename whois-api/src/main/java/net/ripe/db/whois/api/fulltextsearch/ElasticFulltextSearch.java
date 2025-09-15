@@ -105,60 +105,65 @@ public class ElasticFulltextSearch extends FulltextSearch {
     public SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        if (searchRequest.getRows() > maxResultSize) {
-            throw new IllegalArgumentException("Too many results requested, the maximum allowed is " + maxResultSize);
-        }
-
-        if (searchRequest.getStart() + searchRequest.getRows() > MAX_ROW_LIMIT_SIZE) {
-            throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
-        }
-
-        final UserSession userSession = ssoTokenTranslator.translateSsoTokenOrNull(ssoToken);
-
-        return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, userSession, source) {
-
-            @Override
-            protected SearchResponse doSearch() throws IOException {
-
-                final org.elasticsearch.action.search.SearchResponse fulltextResponse = performFulltextSearch(searchRequest);
-
-                final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
-                final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
-
-                for (final SearchHit hit : fulltextResponse.getHits().getHits()) {
-                    final Map<String, Object> hitAttributes = hit.getSourceAsMap();
-                    final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
-                    final List<SearchResponse.Str> responseStrs = Lists.newArrayList();
-                    final List<RpslAttribute> attributes = Lists.newArrayList();
-                    highlightDocs.add(createHighlights(hit));
-
-                    final ObjectType objectType = ObjectType.getByName(hitAttributes.get(OBJECT_TYPE_FIELD_NAME).toString());
-                    final String pKey = hitAttributes.get(LOOKUP_KEY_FIELD_NAME).toString();
-
-                    responseStrs.add(new SearchResponse.Str(PRIMARY_KEY_FIELD_NAME, hit.getId()));
-                    responseStrs.add(new SearchResponse.Str(OBJECT_TYPE_FIELD_NAME, objectType.getName()));
-                    responseStrs.add(new SearchResponse.Str(LOOKUP_KEY_FIELD_NAME, pKey));
-                    
-                    final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
-
-                    for (final AttributeType attributeType : templateAttributes) {
-                        if (hitAttributes.containsKey(attributeType.getName())){
-                            filterRpslAttributes(attributeType.getName(), hitAttributes.get(attributeType.getName())).forEach((rpslAttribute) -> {
-                                attributes.add(rpslAttribute);
-                                responseStrs.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
-                            });
-                        }
-                    }
-                    account(new RpslObject(attributes));
-
-                    resultDocument.setStrs(responseStrs);
-                    resultDocumentList.add(resultDocument);
-                }
-
-                return prepareResponse(fulltextResponse, highlightDocs, resultDocumentList, searchRequest, stopwatch);
+        try {
+            if (searchRequest.getRows() > maxResultSize) {
+                throw new IllegalArgumentException("Too many results requested, the maximum allowed is " + maxResultSize);
             }
 
-        }.search();
+            if (searchRequest.getStart() + searchRequest.getRows() > MAX_ROW_LIMIT_SIZE) {
+                throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
+            }
+
+            final UserSession userSession = ssoTokenTranslator.translateSsoTokenOrNull(ssoToken);
+
+            return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, userSession, source) {
+
+                @Override
+                protected SearchResponse doSearch() throws IOException {
+
+                    final org.elasticsearch.action.search.SearchResponse fulltextResponse = performFulltextSearch(searchRequest);
+
+                    final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
+                    final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
+
+                    for (final SearchHit hit : fulltextResponse.getHits().getHits()) {
+                        final Map<String, Object> hitAttributes = hit.getSourceAsMap();
+                        final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
+                        final List<SearchResponse.Str> responseStrs = Lists.newArrayList();
+                        final List<RpslAttribute> attributes = Lists.newArrayList();
+                        highlightDocs.add(createHighlights(hit));
+
+                        final ObjectType objectType = ObjectType.getByName(hitAttributes.get(OBJECT_TYPE_FIELD_NAME).toString());
+                        final String pKey = hitAttributes.get(LOOKUP_KEY_FIELD_NAME).toString();
+
+                        responseStrs.add(new SearchResponse.Str(PRIMARY_KEY_FIELD_NAME, hit.getId()));
+                        responseStrs.add(new SearchResponse.Str(OBJECT_TYPE_FIELD_NAME, objectType.getName()));
+                        responseStrs.add(new SearchResponse.Str(LOOKUP_KEY_FIELD_NAME, pKey));
+
+                        final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
+
+                        for (final AttributeType attributeType : templateAttributes) {
+                            if (hitAttributes.containsKey(attributeType.getName())) {
+                                filterRpslAttributes(attributeType.getName(), hitAttributes.get(attributeType.getName())).forEach((rpslAttribute) -> {
+                                    attributes.add(rpslAttribute);
+                                    responseStrs.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
+                                });
+                            }
+                        }
+                        account(new RpslObject(attributes));
+
+                        resultDocument.setStrs(responseStrs);
+                        resultDocumentList.add(resultDocument);
+                    }
+
+                    return prepareResponse(fulltextResponse, highlightDocs, resultDocumentList, searchRequest, stopwatch);
+                }
+
+            }.search();
+
+        } finally {
+            stopwatch.stop();
+        }
     }
 
     private org.elasticsearch.action.search.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {
