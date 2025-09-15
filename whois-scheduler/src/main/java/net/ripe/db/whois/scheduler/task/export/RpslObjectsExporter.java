@@ -56,10 +56,9 @@ class RpslObjectsExporter {
             throw new IllegalStateException("Export already in progress");
         }
 
-        final Stopwatch stopwatch = Stopwatch.createStarted();
-
         try {
             LOGGER.info("Database export started");
+            final Stopwatch stopwatch = Stopwatch.createStarted();
 
             initDirs();
             exportToFiles();
@@ -70,7 +69,6 @@ class RpslObjectsExporter {
             LOGGER.info("Database export complete after {} in {}", stopwatch.stop().toString(), exportDir);
         } finally {
             exporting.set(false);
-            stopwatch.stop();
         }
     }
 
