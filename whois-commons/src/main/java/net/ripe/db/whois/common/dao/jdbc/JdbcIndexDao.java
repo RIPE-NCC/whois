@@ -94,8 +94,6 @@ public class JdbcIndexDao implements IndexDao {
         if (count % LOG_EVERY != 0) {
             LOGGER.info("Rebuilt {} indexes for {} objects in {}", phase, count, stopwatch);
         }
-
-        stopwatch.stop();
     }
 
     @Override
@@ -201,14 +199,12 @@ public class JdbcIndexDao implements IndexDao {
     private void deleteIndexForMissingObjects(final AttributeType attributeType) {
         updateLockDao.setUpdateLock();
 
-        final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
+            final Stopwatch stopwatch = Stopwatch.createStarted();
             IndexStrategies.get(attributeType).cleanupMissingObjects(jdbcTemplate);
             LOGGER.info("Removed {} indexes for missing objects in {}", attributeType, stopwatch);
         } catch (RuntimeException e) {
             LOGGER.error("Remove {} indexes for missing objects", attributeType, e);
-        } finally {
-            stopwatch.stop();
         }
     }
 

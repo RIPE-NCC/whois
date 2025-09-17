@@ -104,7 +104,7 @@ public class IpTreeUpdater {
             }
         });
 
-        LOGGER.info("Finished building IP trees in {}", stopwatch.stop());
+        LOGGER.info("Finished building IP trees in {}", stopwatch);
     }
 
     public void rebuild(final String source) {
@@ -112,7 +112,7 @@ public class IpTreeUpdater {
             LOGGER.info("Rebuilding IP trees for {}", sourceConfiguration);
             final Stopwatch stopwatch = Stopwatch.createStarted();
             ipTreeCacheManager.rebuild(sourceConfiguration);
-            LOGGER.info("Finished building IP trees for {} in {}", sourceConfiguration, stopwatch.stop());
+            LOGGER.info("Finished building IP trees for {} in {}", sourceConfiguration, stopwatch);
         }
     }
 

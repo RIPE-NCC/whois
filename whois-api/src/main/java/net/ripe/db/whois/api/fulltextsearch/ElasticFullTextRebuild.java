@@ -90,7 +90,7 @@ public class ElasticFullTextRebuild {
 
         deleteOldIndexes(indexName);
 
-        LOGGER.info("ES indexing complete {}", stopwatch.stop());
+        LOGGER.info("ES indexing complete {}", stopwatch);
     }
 
     public void rebuild(final String indexName, final String metadataName, final boolean shouldSetAlias) throws IOException {
