@@ -138,7 +138,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                     responseStrs.add(new SearchResponse.Str(PRIMARY_KEY_FIELD_NAME, hit.getId()));
                     responseStrs.add(new SearchResponse.Str(OBJECT_TYPE_FIELD_NAME, objectType.getName()));
                     responseStrs.add(new SearchResponse.Str(LOOKUP_KEY_FIELD_NAME, pKey));
-                    
+
                     final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
 
                     for (final AttributeType attributeType : templateAttributes) {

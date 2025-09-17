@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.oauth;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.net.HttpHeaders;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
@@ -26,7 +27,6 @@ import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import jakarta.servlet.http.HttpServletRequest;
-import net.ripe.db.whois.common.aspects.Stopwatch;
 import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateMessages;
@@ -93,7 +93,6 @@ public class BearerTokenExtractor   {
         }
     }
 
-    @Stopwatch(thresholdMs = 100)
     @Nullable
     public OAuthSession extractBearerToken(final HttpServletRequest request, final String apiKeyId) {
         if(!enabled) return null;
@@ -216,7 +215,10 @@ public class BearerTokenExtractor   {
     private OAuthSession callTokenInspectionEndpoint(final BearerAccessToken accessToken) {
         final OAuthSession.Builder oAuthSessionBuilder = new OAuthSession.Builder();
 
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+
         try {
+
             final TokenIntrospectionResponse response = TokenIntrospectionResponse.parse(new TokenIntrospectionRequest(
                     tokenIntrospectEndpoint,
                     keycloakClient,
@@ -250,6 +252,8 @@ public class BearerTokenExtractor   {
             LOGGER.error("Failed to extract OAuth session", e);
             tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Error validating OauthSession");
             return oAuthSessionBuilder.build();
+        } finally {
+            LOGGER.info("Verified using token inspection endpoint in {} ", stopwatch.stop());
         }
     }
 
