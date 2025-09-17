@@ -1,5 +1,16 @@
 # next
 
+# 1.119
+
+[all] Support multiple maintainers in scope (#1866)
+[query] Fix indentation when Serialising JSON to Avoid Indentation Bug (#1855)
+[update] Always add Warning When using Password Authentication (#1859)
+[rdap] Return Not implemented in case of e164 ENUM domain (#1846)
+[smtp] Allow empty From: address in SMTP request (#1841)
+[rdap] title should be type in RDAP relations (#1842)
+[grs] Retry on Failure during GRS (mirror) import download (#1837)
+
+
 # 1.118.1
 
 [api] Allow Ambiguous Encoding in HTTP Request URIs (#1843)
