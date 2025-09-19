@@ -252,7 +252,7 @@ public class AuthServiceClient {
 
     @Nullable
     @Stopwatch(thresholdMs = 100L)
-    public Map<Long, MemberContactsResponse.ContactDetails> getMemberDetailsForLirs(final List<Long> lirIds) {
+    public Map<Long, List<MemberContactsResponse.ContactDetails>> getMemberDetailsForLirs(final List<Long> lirIds) {
         // Used by whois-internal. Do not remove
         if (lirIds.isEmpty()) {
             return null;
@@ -263,9 +263,7 @@ public class AuthServiceClient {
                .map(this::getActiveMemberContactResponse)
                .filter(Objects::nonNull)
                .flatMap(response -> response.response.results.stream())
-               .collect(Collectors.toMap(
-                       contactDetails -> Long.parseLong(contactDetails.membershipId),
-                       contactDetails -> contactDetails));
+               .collect(Collectors.groupingBy(contactDetail -> Long.parseLong(contactDetail.getMembershipId())));
 
     }
 
@@ -275,7 +273,11 @@ public class AuthServiceClient {
         if (lirs.isEmpty()){
             return null;
         }
-        
+
+        if (lirs.size() > MEMBERSHIP_BATCH_SIZE){
+            throw new IllegalArgumentException(String.format("The size of LIRs is too big %s", lirs.size()));
+        }
+
         final String membershipIds = lirs.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
