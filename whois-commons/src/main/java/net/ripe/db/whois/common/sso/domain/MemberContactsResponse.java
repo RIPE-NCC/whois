@@ -33,6 +33,8 @@ public class MemberContactsResponse {
         public String email;
         public String group;
         public String membershipId;
+        public boolean active;
+
         public String getEmail() {
             return email;
         }
@@ -41,6 +43,10 @@ public class MemberContactsResponse {
         }
         public String getMembershipId() {
             return membershipId;
+        }
+
+        public boolean isActive() {
+            return active;
         }
     }
 }

@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
+import com.google.common.collect.Lists;
 import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ProcessingException;
@@ -35,6 +35,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -68,6 +70,7 @@ public class AuthServiceClient {
     private final String apiKey;
 
     private static final String API_KEY = "ncc-internal-api-key";
+    private static final Integer MEMBERSHIP_BATCH_SIZE = 10;
 
     @Autowired
     public AuthServiceClient(
@@ -227,30 +230,16 @@ public class AuthServiceClient {
 
     public List<String> getOrgsContactsEmails(final Long membershipId) {
         if (membershipId != null) {
-            try {
-                final MemberContactsResponse response = client.target(restUrl)
-                        .path(ORGANISATION_MEMBERS_PATH)
-                        .path(String.valueOf(membershipId))
-                        .path(CONTACT_PATH)
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .header(API_KEY, apiKey)
-                        .get(MemberContactsResponse.class);
+            final MemberContactsResponse response = getActiveMemberContactResponse(List.of(membershipId));
 
-                return response.response.results.stream()
-                        .map(MemberContactsResponse.ContactDetails::getEmail)
-                        .collect(Collectors.toList());
-
-            } catch (ForbiddenException e) {
-                LOGGER.info("Failed to retrieve additional contact email addresses for an membershipId {} (membershipId is invalid)", membershipId);
-            } catch (WebApplicationException e) {
-                LOGGER.info("Failed to retrieve additional contact email addresses for an membershipId {} due to {}:{}\n\tResponse: {}", membershipId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            } catch (ProcessingException e) {
-                LOGGER.info("Failed to retrieve additional contact email addresses for an membershipId {} due to {}:{}", membershipId, e.getClass().getName(), e.getMessage());
-            }  catch (Exception e) {
-                LOGGER.warn(e.getMessage(), e);
+            if (response == null){
+                return Collections.emptyList();
             }
-        }
 
+            return response.response.results.stream()
+                    .map(MemberContactsResponse.ContactDetails::getEmail)
+                    .collect(Collectors.toList());
+        }
         return Collections.emptyList();
     }
 
@@ -258,47 +247,50 @@ public class AuthServiceClient {
     @Stopwatch(thresholdMs = 100L)
     public MemberContactsResponse getOrgsContactsGroupsEmails(final Long membershipId) {
         // Used by whois-internal. Do not remove
-        if (membershipId == null){
-            return null;
-        }
-
-        try {
-            return client.target(restUrl)
-                    .path(ORGANISATION_MEMBERS_PATH)
-                    .path(String.valueOf(membershipId))
-                    .path(ACCOUNTS_PATH)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header(API_KEY, apiKey)
-                    .get(MemberContactsResponse.class);
-        } catch (NotFoundException e) {
-            LOGGER.debug("Not found getting member contact response from {} due to {}:{}\n\tResponse: {}", membershipId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid membership Id.");
-        } catch (WebApplicationException e) {
-            LOGGER.debug("Failed to get member contact response from {} due to {}:{}\n\tResponse: {}", membershipId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
-        } catch (ProcessingException e) {
-            LOGGER.debug("Failed to get details for membership {} due to {}:{}", membershipId, e.getClass().getName(), e.getMessage());
-            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
-        }
+        return getActiveMemberContactResponse(List.of(membershipId));
     }
 
     @Nullable
     @Stopwatch(thresholdMs = 100L)
-    public MemberContactsResponse getLirsAccounts(final List<String> lirIds) {
+    public Map<Long, MemberContactsResponse.ContactDetails> getMemberDetailsForLirs(final List<Long> lirIds) {
         // Used by whois-internal. Do not remove
-        if (lirIds.isEmpty()){
+        if (lirIds.isEmpty()) {
             return null;
         }
 
-        final String membershipIds = String.join(",", lirIds);
+       return Lists.partition(lirIds, MEMBERSHIP_BATCH_SIZE)
+               .stream()
+               .map(this::getActiveMemberContactResponse)
+               .filter(Objects::nonNull)
+               .flatMap(response -> response.response.results.stream())
+               .collect(Collectors.toMap(
+                       contactDetails -> Long.parseLong(contactDetails.membershipId),
+                       contactDetails -> contactDetails));
+
+    }
+
+
+    @Nullable
+    private MemberContactsResponse getActiveMemberContactResponse(final List<Long> lirs) {
+        if (lirs.isEmpty()){
+            return null;
+        }
+        
+        final String membershipIds = lirs.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+
         try {
-            return client.target(restUrl)
+            final MemberContactsResponse memberContactsResponse = client.target(restUrl)
                     .path(ORGANISATION_MEMBERS_PATH)
                     .path(SEARCH_ACCOUNTS_PATH)
                     .queryParam("by_membershipId", membershipIds)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(MemberContactsResponse.class);
+
+            memberContactsResponse.response.results.removeIf(contactDetails -> !contactDetails.isActive());
+            return memberContactsResponse;
         } catch (NotFoundException e) {
             LOGGER.debug("Not found getting Lir accounts response from {} due to {}:{}\n\tResponse: {}", membershipIds, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid membership Id.");
@@ -310,5 +302,4 @@ public class AuthServiceClient {
             throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }
-
 }
