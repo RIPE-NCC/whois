@@ -57,6 +57,7 @@ public class AuthServiceClient {
     private static final String CONTACT_PATH = "/contacts";
     private static final String ACCOUNTS_PATH = "/accounts";
     private static final String EMAIL_PATH = "/email";
+    private static final String SEARCH_ACCOUNTS_PATH = "/search-accounts";
     private static final String VALIDATE_TOKEN_PERMISSION = "portal";
 
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
@@ -277,6 +278,35 @@ public class AuthServiceClient {
             throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         } catch (ProcessingException e) {
             LOGGER.debug("Failed to get details for membership {} due to {}:{}", membershipId, e.getClass().getName(), e.getMessage());
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        }
+    }
+
+    @Nullable
+    @Stopwatch(thresholdMs = 100L)
+    public MemberContactsResponse getLirsAccounts(final List<String> lirIds) {
+        // Used by whois-internal. Do not remove
+        if (lirIds.isEmpty()){
+            return null;
+        }
+
+        final String membershipIds = String.join(",", lirIds);
+        try {
+            return client.target(restUrl)
+                    .path(ORGANISATION_MEMBERS_PATH)
+                    .path(SEARCH_ACCOUNTS_PATH)
+                    .queryParam("by_membershipId", membershipIds)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header(API_KEY, apiKey)
+                    .get(MemberContactsResponse.class);
+        } catch (NotFoundException e) {
+            LOGGER.debug("Not found getting Lir accounts response from {} due to {}:{}\n\tResponse: {}", membershipIds, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid membership Id.");
+        } catch (WebApplicationException e) {
+            LOGGER.debug("Failed to get Lir accounts response from {} due to {}:{}\n\tResponse: {}", membershipIds, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        } catch (ProcessingException e) {
+            LOGGER.debug("Failed to get accounts for Lir {} due to {}:{}", membershipIds, e.getClass().getName(), e.getMessage());
             throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
     }
