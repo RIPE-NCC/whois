@@ -230,15 +230,17 @@ public class AuthServiceClient {
 
     public List<String> getOrgsContactsEmails(final Long membershipId) {
         if (membershipId != null) {
-            final MemberContactsResponse response = getActiveMemberContactResponse(List.of(membershipId));
-
-            if (response == null){
-                return Collections.emptyList();
+            try {
+                MemberContactsResponse response = getActiveMemberContactResponse(List.of(membershipId));
+                if (response == null){
+                    return Collections.emptyList();
+                }
+                return response.response.results.stream()
+                        .map(MemberContactsResponse.ContactDetails::getEmail)
+                        .collect(Collectors.toList());
+            } catch (AuthServiceClientException e) {
+                LOGGER.info("Failed to retrieve additional contact email addresses for an membershipId {} due to {}:{}\n\tResponse: {}", membershipId, e.getClass().getName(), e.getMessage(), e);
             }
-
-            return response.response.results.stream()
-                    .map(MemberContactsResponse.ContactDetails::getEmail)
-                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
