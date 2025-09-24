@@ -12,6 +12,7 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.google.common.collect.Lists;
 import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ProcessingException;
@@ -238,8 +239,12 @@ public class AuthServiceClient {
                 return response.response.results.stream()
                         .map(MemberContactsResponse.ContactDetails::getEmail)
                         .collect(Collectors.toList());
+            } catch (ForbiddenException e) {
+                LOGGER.info("Failed to retrieve additional contact email addresses for an membershipId {} (membershipId is invalid)", membershipId);
             } catch (AuthServiceClientException e) {
                 LOGGER.info("Failed to retrieve additional contact email addresses for an membershipId {} due to {}:{}\n\tResponse: {}", membershipId, e.getClass().getName(), e.getMessage(), e);
+            }  catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
             }
         }
         return Collections.emptyList();
