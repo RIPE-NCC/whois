@@ -232,7 +232,7 @@ public class AuthServiceClient {
     public List<String> getOrgsContactsEmails(final Long membershipId) {
         if (membershipId != null) {
             try {
-                MemberContactsResponse response = getActiveMemberContactResponse(List.of(membershipId));
+                MemberContactsResponse response = getMemberContactResponse(List.of(membershipId));
                 if (response == null){
                     return Collections.emptyList();
                 }
@@ -254,7 +254,7 @@ public class AuthServiceClient {
     @Stopwatch(thresholdMs = 100L)
     public MemberContactsResponse getOrgsContactsGroupsEmails(final Long membershipId) {
         // Used by whois-internal. Do not remove
-        return getActiveMemberContactResponse(List.of(membershipId));
+        return getMemberContactResponse(List.of(membershipId));
     }
 
     @Nullable
@@ -267,7 +267,7 @@ public class AuthServiceClient {
 
        return Lists.partition(lirIds, MEMBERSHIP_BATCH_SIZE)
                .stream()
-               .map(this::getActiveMemberContactResponse)
+               .map(this::getMemberContactResponse)
                .filter(Objects::nonNull)
                .flatMap(response -> response.response.results.stream())
                .collect(Collectors.groupingBy(contactDetail -> Long.parseLong(contactDetail.getMembershipId())));
@@ -276,7 +276,7 @@ public class AuthServiceClient {
 
 
     @Nullable
-    private MemberContactsResponse getActiveMemberContactResponse(final List<Long> lirs) {
+    private MemberContactsResponse getMemberContactResponse(final List<Long> lirs) {
         if (lirs.isEmpty()){
             return null;
         }
@@ -298,7 +298,11 @@ public class AuthServiceClient {
                     .header(API_KEY, apiKey)
                     .get(MemberContactsResponse.class);
 
-            memberContactsResponse.response.results.removeIf(contactDetails -> !contactDetails.isActive());
+            memberContactsResponse.response.results.forEach(contactDetails -> {
+                if (!contactDetails.isActive()){
+                    LOGGER.info("Email {} appears as non active", contactDetails);
+                }
+            });
             return memberContactsResponse;
         } catch (NotFoundException e) {
             LOGGER.debug("Not found getting Lir accounts response from {} due to {}:{}\n\tResponse: {}", membershipIds, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
