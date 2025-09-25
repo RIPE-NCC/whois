@@ -290,20 +290,14 @@ public class AuthServiceClient {
                 .collect(Collectors.joining(","));
 
         try {
-            final MemberContactsResponse memberContactsResponse = client.target(restUrl)
+            return client.target(restUrl)
                     .path(ORGANISATION_MEMBERS_PATH)
                     .path(SEARCH_ACCOUNTS_PATH)
                     .queryParam("by_membershipId", membershipIds)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(MemberContactsResponse.class);
-
-            memberContactsResponse.response.results.forEach(contactDetails -> {
-                if (!contactDetails.isActive()){
-                    LOGGER.info("Email {} appears as non active", contactDetails);
-                }
-            });
-            return memberContactsResponse;
+            
         } catch (NotFoundException e) {
             LOGGER.debug("Not found getting Lir accounts response from {} due to {}:{}\n\tResponse: {}", membershipIds, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid membership Id.");
