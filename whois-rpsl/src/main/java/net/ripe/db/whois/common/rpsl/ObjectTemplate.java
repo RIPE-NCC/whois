@@ -28,6 +28,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.PRIMARY_KEY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.TEMPLATE_ORDER;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.USER_ORDER;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.CONDITIONAL;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.DEPRECATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.GENERATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
@@ -257,7 +258,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(PREFIXLEN, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(ORG, CONDITIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
@@ -284,7 +285,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(PREFIXLEN, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(ORG, CONDITIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),

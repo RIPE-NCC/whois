@@ -131,7 +131,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 geoloc:         [optional]   [single]     [ ]
                 prefixlen:      [optional]   [single]     [ ]
                 language:       [optional]   [multiple]   [ ]
-                org:            [optional]   [single]     [inverse key]
+                org:            [conditional][single]     [inverse key]
                 sponsoring-org: [optional]   [single]     [inverse key]
                 admin-c:        [mandatory]  [multiple]   [inverse key]
                 tech-c:         [mandatory]  [multiple]   [inverse key]
