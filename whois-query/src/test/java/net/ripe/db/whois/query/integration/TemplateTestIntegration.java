@@ -132,7 +132,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 prefixlen:      [optional]   [single]     [ ]
                 language:       [optional]   [multiple]   [ ]
                 org:            [conditional][single]     [inverse key]
-                sponsoring-org: [optional]   [single]     [inverse key]
+                sponsoring-org: [conditional][single]     [inverse key]
                 admin-c:        [mandatory]  [multiple]   [inverse key]
                 tech-c:         [mandatory]  [multiple]   [inverse key]
                 abuse-c:        [optional]   [single]     [inverse key]
