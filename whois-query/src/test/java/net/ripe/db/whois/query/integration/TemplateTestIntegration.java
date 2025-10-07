@@ -453,8 +453,8 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "default:        [optional]   [multiple]   [ ]\n" +
                 "mp-default:     [optional]   [multiple]   [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
-                "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [inverse key]\n" +
+                "org:            [conditional][single]     [inverse key]\n" +
+                "sponsoring-org: [conditional][single]     [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
