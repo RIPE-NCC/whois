@@ -141,7 +141,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 remarks:        [optional]   [multiple]   [ ]
                 notify:         [optional]   [multiple]   [inverse key]
                 mnt-by:         [mandatory]  [multiple]   [inverse key]
-                mnt-lower:      [optional]   [multiple]   [inverse key]
+                mnt-lower:      [conditional][multiple]   [inverse key]
                 mnt-domains:    [optional]   [multiple]   [inverse key]
                 mnt-routes:     [optional]   [multiple]   [inverse key]
                 mnt-irt:        [optional]   [multiple]   [inverse key]
