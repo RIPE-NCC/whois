@@ -44,6 +44,7 @@ public class ReservedResources {
     public ReservedResources(@Value("${whois.reserved.as.numbers:}") final String reservedAsNumbers, @Value("${ip.administrative:}") final String administrativeRanges, @Value("${ipranges.bogons:}") final String ... bogons) {
         this.reservedAsnumbers = parseReservedAsNumbers(reservedAsNumbers);
         this.administrativeRanges = parseAdministrativeBlocks(administrativeRanges);
+        LOGGER.info("Administrative ranges are : {}", administrativeRanges);
         this.bogons = parseBogonPrefixes(bogons);
     }
 

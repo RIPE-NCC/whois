@@ -14,6 +14,8 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 
 @Service
 public class RdapLookupService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapLookupService.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
@@ -221,6 +225,7 @@ public class RdapLookupService {
         }
 
         if (RdapObjectMapper.isIANABlock(resultObject)){
+            LOGGER.info("Returned result is an IANA Block, checking for administrative block");
             final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(requestedkey);
             if(adminstrativeBlock == null) {
                 throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
