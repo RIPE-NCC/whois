@@ -213,6 +213,7 @@ public class RdapLookupService {
 
     private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result,  final String requestedkey) {
         Iterator<RpslObject> rpslIterator = result.iterator();
+        LOGGER.info("Checking for RDAP key {}", requestedkey);
 
         if (!rpslIterator.hasNext()) {
             throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
