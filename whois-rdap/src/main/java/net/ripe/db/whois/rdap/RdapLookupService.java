@@ -81,6 +81,7 @@ public class RdapLookupService {
         this.jdbcReferenceReadOnlyDao = jdbcReferenceReadOnlyDao;
         this.abuseCFinder = abuseCFinder;
         this.reservedResources = reservedResources;
+        LOGGER.info("testing logging");
     }
 
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
