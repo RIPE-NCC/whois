@@ -98,6 +98,8 @@ public class DelegatedStatsService implements EmbeddedValueResolverAware {
 
     public boolean isMaintainedInRirSpace(final CIString source, final ObjectType objectType, final CIString pkey) {
         final AuthoritativeResource authoritativeResource = resourceData.getAuthoritativeResource(source);
+
+        LOGGER.warn(String.format("The %s range maintained in RIR space: %s , for source %s", pkey, authoritativeResource.isMaintainedInRirSpace(objectType, pkey),  source));
         return authoritativeResource.isMaintainedInRirSpace(objectType, pkey);
     }
 }
