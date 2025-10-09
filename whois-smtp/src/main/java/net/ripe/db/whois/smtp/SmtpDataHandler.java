@@ -76,9 +76,27 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter implements Smt
         }
     }
 
+    /*
+2025-10-08T10:37:07,512 ERROR [SmtpServerExceptionHandler] java.lang.IndexOutOfBoundsException
+java.lang.IndexOutOfBoundsException: index: 8342, length: 1 (expected: range(0, 0))
+        at io.netty.buffer.AbstractByteBuf.checkRangeBounds(AbstractByteBuf.java:1397)
+        at io.netty.buffer.AbstractByteBuf.checkIndex0(AbstractByteBuf.java:1404)
+        at io.netty.buffer.AbstractByteBuf.checkIndex(AbstractByteBuf.java:1391)
+        at io.netty.buffer.AbstractByteBuf.checkIndex(AbstractByteBuf.java:1386)
+        at io.netty.buffer.AbstractByteBuf.getByte(AbstractByteBuf.java:355)
+        at io.netty.buffer.AbstractUnpooledSlicedByteBuf.getByte(AbstractUnpooledSlicedByteBuf.java:120)
+        at net.ripe.db.whois.smtp.SmtpDataHandler.isEndMessage(SmtpDataHandler.java:81)
+        at net.ripe.db.whois.smtp.SmtpDataHandler.channelRead(SmtpDataHandler.java:56)
+        at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+     */
     private boolean isEndMessage(final ByteBuf msg) {
+        LOGGER.info("isEndMessage: readableBytes={}, isReadable={}, readerIndex={}",
+            msg.readableBytes(),
+            msg.isReadable(),
+            msg.readerIndex());
         return ((msg.readableBytes() >= 2) &&
-                (msg.getByte(msg.readerIndex()) == '.') &&
+                (msg.getByte(msg.readerIndex()) == '.') &&  // IndexOutOfBoundsException: index: 8342, length: 1 (expected: range(0, 0))
                 ((msg.getByte(msg.readerIndex() + 1) == '\r') ||
                  (msg.getByte(msg.readerIndex() + 1) == '\n')));
     }
