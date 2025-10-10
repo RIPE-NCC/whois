@@ -29,6 +29,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -64,7 +65,7 @@ public class RdapRelationService {
                                final Ipv6Tree ip6Tree,
                                final Ipv4DomainTree ipv4DomainTree,
                                final Ipv6DomainTree ipv6DomainTree,
-                               final RpslObjectDao rpslObjectDao,
+                               @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
                                final RdapQueryHandler rdapQueryHandler,
                                final RdapObjectMapper rdapObjectMapper,
                                final RdapLookupService rdapLookupService) {

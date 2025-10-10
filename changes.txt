@@ -1,5 +1,34 @@
 # next
 
+# 1.119
+
+[all] Support multiple maintainers in scope (#1866)
+[query] Fix indentation when Serialising JSON to Avoid Indentation Bug (#1855)
+[update] Always add Warning When using Password Authentication (#1859)
+[rdap] Return Not implemented in case of e164 ENUM domain (#1846)
+[smtp] Allow empty From: address in SMTP request (#1841)
+[rdap] title should be type in RDAP relations (#1842)
+[grs] Retry on Failure during GRS (mirror) import download (#1837)
+
+
+# 1.118.1
+
+[api] Allow Ambiguous Encoding in HTTP Request URIs (#1843)
+
+# 1.118
+
+[all] Add prefixlen Attribute to Inet(6)num (#1816)
+[all] LIR-PARTITIONED PA inetnum status is not valid under ALLOCATED UNSPECIFIED (#1825)
+[all] Removing mbrs-by-ref maintainer from set causes aut-num update containing member-of to fail (#1770)
+[all] Do not apply accounting for an Authenticated Maintainer's own Objects (#1723)
+[api] Graceful Timeout in full text search (#1823)
+[api] Full text search results should be sorted alphabetically (#1720)
+[rdap] Implemented administrative status on RDAP lookup but not rir-search (yet) (#1778, #1730, #1722)
+[rdap] Remove HTTP status code from RDAP response "title" element. (#1777)
+[update] Wait maximum 10 minutes for a Zonemaster test to complete (#1712)
+[all] Run RIR Authoritative Resources Task Every Hour and Import Data Only When Updated (#1749)
+[query] fix(version-history): overcome 3xEOL in --list-verrsions response (#1815)
+
 # 1.117
 
 [update] Parent status for LIR-PARTITIONED PA cannot be ASSIGNED PA (#1669) 

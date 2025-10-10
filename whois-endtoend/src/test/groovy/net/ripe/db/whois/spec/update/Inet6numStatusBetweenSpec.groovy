@@ -293,7 +293,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -334,7 +334,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ALLOCATED-BY-LIR not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
@@ -378,7 +378,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status AGGREGATED-BY-LIR not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
@@ -422,7 +422,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
@@ -465,7 +465,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED PI not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
@@ -508,7 +508,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/25' has status ALLOCATED-BY-RIR"]
@@ -553,7 +553,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -594,7 +594,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -636,7 +636,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status AGGREGATED-BY-LIR not allowed when more specific object '2001:600::/30' has status ALLOCATED-BY-LIR"]
@@ -679,7 +679,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED not allowed when more specific object '2001:600::/30' has status ALLOCATED-BY-LIR"]
@@ -722,7 +722,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED PI not allowed when more specific object '2001:600::/30' has status ALLOCATED-BY-LIR"]
@@ -765,7 +765,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/30' has status ALLOCATED-BY-LIR"]
@@ -810,7 +810,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -851,7 +851,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -893,7 +893,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -934,7 +934,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED not allowed when more specific object '2001:600::/48' has status AGGREGATED-BY-LIR"]
@@ -977,7 +977,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED PI not allowed when more specific object '2001:600::/48' has status AGGREGATED-BY-LIR"]
@@ -1020,7 +1020,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/48' has status AGGREGATED-BY-LIR"]
@@ -1065,7 +1065,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -1106,7 +1106,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -1148,7 +1148,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -1189,7 +1189,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED not allowed when more specific object '2001:600::/64' has status ASSIGNED"]
@@ -1232,7 +1232,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED PI not allowed when more specific object '2001:600::/64' has status ASSIGNED"]
@@ -1275,7 +1275,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/64' has status ASSIGNED"]
@@ -1320,7 +1320,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -1361,7 +1361,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ALLOCATED-BY-LIR not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
@@ -1405,7 +1405,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status AGGREGATED-BY-LIR not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
@@ -1448,7 +1448,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
@@ -1491,7 +1491,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED PI not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
@@ -1534,7 +1534,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/64' has status ASSIGNED PI"]
@@ -1579,7 +1579,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
 
         queryObject("-rGBT inet6num 2001:600::/24", "inet6num", "2001:600::/24")
@@ -1620,7 +1620,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ALLOCATED-BY-LIR not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
@@ -1664,7 +1664,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status AGGREGATED-BY-LIR not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
@@ -1707,7 +1707,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
@@ -1750,7 +1750,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED PI not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]
@@ -1793,7 +1793,7 @@ class Inet6numStatusBetweenSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/24" }
         ack.errorMessagesFor("Create", "[inet6num] 2001:600::/24") ==
                 ["Status ASSIGNED ANYCAST not allowed when more specific object '2001:600::/32' has status ASSIGNED ANYCAST"]

@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -76,6 +77,7 @@ class ArinGrsSource extends GrsSource {
     }
 
     @Override
+    @RetryFor(value = IOException.class, attempts = 5, intervalMs = 60000)
     public void acquireDump(final Path path) throws IOException {
         downloader.downloadTo(logger, new URL(download), path);
     }

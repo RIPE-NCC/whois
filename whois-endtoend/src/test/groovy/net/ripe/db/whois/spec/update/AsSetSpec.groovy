@@ -124,7 +124,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-rBT as-set as123:As-TEst", "as-set", "AS123:AS-TEST")
@@ -252,7 +252,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS7775535:AS-TEST:AS94967295"}
 
         queryObject("-rBT as-set AS7775535:AS-TEST:AS94967295", "as-set", "AS7775535:AS-TEST:AS94967295")
@@ -411,7 +411,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS7775535:AS-TEST:AS94967295"}
         ack.errorMessagesFor("Create", "[as-set] AS7775535:AS-TEST:AS94967295") == [
                 "Parent object AS7775535:AS-TEST not found"]
@@ -451,7 +451,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
@@ -489,7 +489,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS352:AS-TEST"}
 
         queryObject("-rBT as-set AS352:AS-TEST", "as-set", "AS352:AS-TEST")
@@ -527,7 +527,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS352:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS352:AS-TEST") == [
                 "Authorisation for parent [aut-num] AS352 failed using \"mnt-lower:\" not authenticated by: OWNER2-MNT"]
@@ -566,7 +566,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST") == [
                 "Authorisation for parent [aut-num] AS123 failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
@@ -602,7 +602,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST") == [
                 "Parent object AS123 not found"]
@@ -642,7 +642,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
 
         queryObject("-rBT as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2")
@@ -679,7 +679,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST:AS-TEST2") == [
                 "Authorisation for parent [as-set] AS123:AS-TEST failed using \"mnt-lower:\" not authenticated by: LIR2-MNT"]
@@ -715,7 +715,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST:AS-TEST2") == [
                 "Parent object AS123:AS-TEST not found"]
@@ -755,7 +755,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS-TEST2"}
 
         queryObject("-rBT as-set AS-TEST:AS-TEST2", "as-set", "AS-TEST:AS-TEST2")
@@ -792,7 +792,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS-TEST:AS-TEST2") == [
                 "Authorisation for parent [as-set] AS-TEST failed using \"mnt-lower:\" not authenticated by: LIR2-MNT"]
@@ -828,7 +828,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS-TEST:AS-TEST2") == [
                 "Parent object AS-TEST not found"]
@@ -869,7 +869,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST:AS-TEST2") == [
                 "Parent object AS123:AS-TEST not found"]
@@ -908,7 +908,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS123"}
 
         queryObject("-rBT aut-num AS123", "aut-num", "AS123")
@@ -949,7 +949,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
@@ -987,7 +987,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS-TEST") == [
                 "Parent object AS123 not found"]
@@ -1035,7 +1035,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS123"}
 
@@ -1083,7 +1083,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
         ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS123"}
 
@@ -1124,7 +1124,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST:AS-TEST2"}
 
         queryObject("-r -T as-set AS123:AS-TEST:AS-TEST2", "as-set", "AS123:AS-TEST:AS-TEST2")
@@ -1164,7 +1164,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[as-set] AS123:AS123:AS-TEST"}
         ack.errorMessagesFor("Create", "[as-set] AS123:AS123:AS-TEST") == [
                 "Parent object AS123:AS123 not found"]
@@ -1288,7 +1288,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS123"}
 
         queryObjectNotFound("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1328,7 +1328,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS-TEST:AS-TEST"}
 
         queryObject("-r -T as-set AS-TEST:AS-TEST", "as-set", "AS-TEST:AS-TEST")
@@ -1367,7 +1367,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS123:AS-TEST"}
 
         query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "test as-set updated")
@@ -1405,7 +1405,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[as-set] AS123:AS-TEST"}
 
         query_object_matches("-rBT as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST", "test as-set updated")
@@ -1445,7 +1445,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObjectNotFound("-r -T as-set AS123:AS-TEST", "as-set", "AS123:AS-TEST")
@@ -1486,7 +1486,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[aut-num] AS123"}
 
         queryObjectNotFound("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1526,7 +1526,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS-TEST"}
 
         queryObjectNotFound("-r -T as-set AS-TEST", "as-set", "AS-TEST")
@@ -1568,7 +1568,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1620,7 +1620,7 @@ class AsSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[as-set] AS123:AS-TEST"}
 
         queryObject("-rBT as-set as123:As-TEst", "as-set", "AS123:AS-TEST")

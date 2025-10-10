@@ -76,14 +76,18 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter implements 
                 writeResponse(ctx.channel(), SmtpResponses.extendedHello(extendedHello.parameters().get(0), maximumSize));
             }
             case MailSmtpRequest mail -> {
-                final InternetAddress fromAddress = MimeUtility.parseAddress(mail.getFrom());
-                if (fromAddress == null) {
-                    writeResponse(ctx.channel(), SmtpResponses.invalidAddress());
-                    break;
+                if (mail.getFrom() == null || mail.getFrom().isEmpty()) {
+                    // An empty From: address is still valid, in particular used for Delivery Status Notifications
                 } else {
-                    if ((smtpFrom != null) && (smtpFrom.equals(fromAddress))) {
-                        writeResponse(ctx.channel(), SmtpResponses.refusingMessageFrom(smtpFrom.getAddress()));
+                    final InternetAddress fromAddress = MimeUtility.parseAddress(mail.getFrom());
+                    if (fromAddress == null) {
+                        writeResponse(ctx.channel(), SmtpResponses.invalidAddress());
                         break;
+                    } else {
+                        if ((smtpFrom != null) && (smtpFrom.equals(fromAddress))) {
+                            writeResponse(ctx.channel(), SmtpResponses.refusingMessageFrom(smtpFrom.getAddress()));
+                            break;
+                        }
                     }
                 }
                 if (maximumSize > 0) {

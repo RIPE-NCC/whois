@@ -122,7 +122,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] RS-CUSTOMERS"}
 
         queryObject("-rBT route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")
@@ -160,7 +160,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] RS-CUSTOMERS"}
 
         queryObject("-rBT route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")
@@ -246,7 +246,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] AS7775535:RS-CUSTOMERS:AS94967295"}
 
         queryObject("-rBT route-set AS7775535:RS-CUSTOMERS:AS94967295", "route-set", "AS7775535:RS-CUSTOMERS:AS94967295")
@@ -280,7 +280,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS7775535:RS-CUSTOMERS:AS94967295"}
         ack.errorMessagesFor("Create", "[route-set] AS7775535:RS-CUSTOMERS:AS94967295") == [
                 "Parent object AS7775535:RS-CUSTOMERS not found"]
@@ -320,7 +320,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
 
         queryObject("-rBT route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS")
@@ -358,7 +358,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] AS352:RS-CUSTOMERS"}
 
         queryObject("-rBT route-set AS352:RS-CUSTOMERS", "route-set", "AS352:RS-CUSTOMERS")
@@ -396,7 +396,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS352:RS-CUSTOMERS"}
         ack.errorMessagesFor("Create", "[route-set] AS352:RS-CUSTOMERS") == [
                 "Authorisation for parent [aut-num] AS352 failed using \"mnt-lower:\" not authenticated by: OWNER2-MNT"]
@@ -435,7 +435,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
         ack.errorMessagesFor("Create", "[route-set] AS123:RS-CUSTOMERS") == [
                 "Authorisation for parent [aut-num] AS123 failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
@@ -471,7 +471,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
         ack.errorMessagesFor("Create", "[route-set] AS123:RS-CUSTOMERS") == [
                 "Parent object AS123 not found"]
@@ -511,7 +511,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS:RS-CUSTOMERS2"}
 
         queryObject("-rBT route-set AS123:RS-CUSTOMERS:RS-CUSTOMERS2", "route-set", "AS123:RS-CUSTOMERS:RS-CUSTOMERS2")
@@ -548,7 +548,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS:RS-CUSTOMERS2"}
         ack.errorMessagesFor("Create", "[route-set] AS123:RS-CUSTOMERS:RS-CUSTOMERS2") == [
                 "Authorisation for parent [route-set] AS123:RS-CUSTOMERS failed using \"mnt-lower:\" not authenticated by: LIR2-MNT"]
@@ -584,7 +584,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS:RS-CUSTOMERS2"}
         ack.errorMessagesFor("Create", "[route-set] AS123:RS-CUSTOMERS:RS-CUSTOMERS2") == [
                 "Parent object AS123:RS-CUSTOMERS not found"]
@@ -624,7 +624,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] RS-CUSTOMERS:RS-CUSTOMERS2"}
 
         queryObject("-rBT route-set RS-CUSTOMERS:RS-CUSTOMERS2", "route-set", "RS-CUSTOMERS:RS-CUSTOMERS2")
@@ -661,7 +661,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] RS-CUSTOMERS:RS-CUSTOMERS2"}
         ack.errorMessagesFor("Create", "[route-set] RS-CUSTOMERS:RS-CUSTOMERS2") == [
                 "Authorisation for parent [route-set] RS-CUSTOMERS failed using \"mnt-lower:\" not authenticated by: LIR2-MNT"]
@@ -697,7 +697,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] RS-CUSTOMERS:RS-CUSTOMERS2"}
         ack.errorMessagesFor("Create", "[route-set] RS-CUSTOMERS:RS-CUSTOMERS2") == [
                 "Parent object RS-CUSTOMERS not found"]
@@ -738,7 +738,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS:RS-CUSTOMERS2"}
         ack.errorMessagesFor("Create", "[route-set] AS123:RS-CUSTOMERS:RS-CUSTOMERS2") == [
                 "Parent object AS123:RS-CUSTOMERS not found"]
@@ -777,7 +777,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS123"}
 
         queryObject("-rBT aut-num AS123", "aut-num", "AS123")
@@ -818,7 +818,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
 
         queryObject("-rBT route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS")
@@ -856,7 +856,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
         ack.errorMessagesFor("Create", "[route-set] AS123:RS-CUSTOMERS") == [
                 "Parent object AS123 not found"]
@@ -904,7 +904,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
         ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS123"}
 
@@ -952,7 +952,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 2, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
         ack.successes.any {it.operation == "Create" && it.key == "[aut-num] AS123"}
 
@@ -993,7 +993,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] AS123:RS-CUSTOMERS:RS-CUSTOMERS2"}
 
         queryObject("-r -T route-set AS123:RS-CUSTOMERS:RS-CUSTOMERS2", "route-set", "AS123:RS-CUSTOMERS:RS-CUSTOMERS2")
@@ -1033,7 +1033,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errors.any {it.operation == "Create" && it.key == "[route-set] AS123:AS123:RS-CUSTOMERS"}
         ack.errorMessagesFor("Create", "[route-set] AS123:AS123:RS-CUSTOMERS") == [
                 "Parent object AS123:AS123 not found"]
@@ -1157,7 +1157,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] RS-CUSTOMERS:AS123"}
 
         queryObjectNotFound("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1197,7 +1197,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] RS-CUSTOMERS:RS-CUSTOMERS"}
 
         queryObject("-r -T route-set RS-CUSTOMERS:RS-CUSTOMERS", "route-set", "RS-CUSTOMERS:RS-CUSTOMERS")
@@ -1236,7 +1236,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
 
         query_object_matches("-rBT route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS", "test route-set updated")
@@ -1274,7 +1274,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
 
         query_object_matches("-rBT route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS", "test route-set updated")
@@ -1314,7 +1314,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
 
         queryObjectNotFound("-r -T route-set AS123:RS-CUSTOMERS", "route-set", "AS123:RS-CUSTOMERS")
@@ -1355,7 +1355,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[aut-num] AS123"}
 
         queryObjectNotFound("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1395,7 +1395,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[route-set] RS-CUSTOMERS"}
 
         queryObjectNotFound("-r -T route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")
@@ -1437,7 +1437,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[route-set] AS123:RS-CUSTOMERS"}
 
         queryObject("-r -T aut-num AS123", "aut-num", "AS123")
@@ -1488,7 +1488,7 @@ class RouteSetSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[route-set] RS-CUSTOMERS"}
 
         queryObject("-rBT route-set RS-CUSTOMERS", "route-set", "RS-CUSTOMERS")

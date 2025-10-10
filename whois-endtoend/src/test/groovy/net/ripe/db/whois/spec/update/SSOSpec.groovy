@@ -64,7 +64,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] NO-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO db-test@ripe.net", null);
@@ -105,7 +105,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] NO-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO", "Filtered");
@@ -149,7 +149,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO test@ripe.net", null);
@@ -194,7 +194,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO", "Filtered");
@@ -238,7 +238,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO db-test@ripe.net", null);
@@ -283,7 +283,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "MD5-PW \$1\$yntkntNY\$k8Fr7y5mq17LQcbL4CNLf.", "sso");
@@ -326,7 +326,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO", "Filtered");
@@ -369,7 +369,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO", "Filtered");
@@ -459,7 +459,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Modify" && it.key == "[mntner] ONE-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO db-test@ripe.net", null);
@@ -633,7 +633,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Create" && it.key == "[mntner] NO-SSO-MNT"}
 
         hasAttribute(objLU, "auth", "SSO db-test@ripe.net", null);
@@ -713,7 +713,7 @@ class SSOSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any {it.operation == "Delete" && it.key == "[mntner] ONE-SSO-MNT"}
 
         queryObjectNotFound("-r -BG -T mntner ONE-SSO-MNT", "mntner", "ONE-SSO-MNT")

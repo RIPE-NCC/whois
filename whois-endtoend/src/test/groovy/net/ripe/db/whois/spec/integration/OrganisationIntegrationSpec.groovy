@@ -527,7 +527,7 @@ class OrganisationIntegrationSpec extends BaseWhoisSourceSpec {
         def response = syncUpdate update
 
       then:
-        response =~ response =~ /Modify SUCCEEDED: \[organisation\] ORG-RNO-TEST/
+        response =~ /Modify SUCCEEDED: \[organisation\] ORG-RNO-TEST/
     }
 
     def "modify organisation, never had abuse-c, LIR"() {

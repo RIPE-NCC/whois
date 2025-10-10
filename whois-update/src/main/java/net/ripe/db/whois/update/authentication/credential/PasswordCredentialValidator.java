@@ -2,9 +2,10 @@ package net.ripe.db.whois.update.authentication.credential;
 
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.credentials.PasswordCredential;
+import net.ripe.db.whois.common.rpsl.ValidationMessages;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -50,6 +51,7 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
                             getClass().getCanonicalName(),
                             String.format("Validated %s against known encrypted password: %s)", update.getFormattedKey(), knownPassword));
                     update.getUpdate().setEffectiveCredential("MD5-PW", Update.EffectiveCredentialType.PASSWORD);
+                    updateContext.addGlobalMessage(ValidationMessages.deprecatedPasswordAuthentication());
                     return true;
                 }
             } catch (IllegalArgumentException e) {

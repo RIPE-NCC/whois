@@ -5,6 +5,7 @@ import com.google.common.net.HttpHeaders;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotAcceptableException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ServerErrorException;
@@ -12,6 +13,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.minidev.json.JSONArray;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.rdap.domain.Action;
 import net.ripe.db.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.rdap.domain.Domain;
@@ -28,9 +32,6 @@ import net.ripe.db.whois.rdap.domain.RelationType;
 import net.ripe.db.whois.rdap.domain.Remark;
 import net.ripe.db.whois.rdap.domain.Role;
 import net.ripe.db.whois.rdap.domain.SearchResult;
-import net.ripe.db.whois.common.rpsl.AttributeType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.support.TestWhoisLog;
 import org.eclipse.jetty.http.HttpStatus;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +52,6 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.LANGUAGE;
 import static net.ripe.db.whois.common.support.DateMatcher.isBefore;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -60,7 +60,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -808,7 +807,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inetnum_invalid_syntax_multislash() {
+    public void lookup_inetnum_invalid_syntax_empty_segment() {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.0.0 - 192.255.255.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -828,7 +827,36 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                     .get(Ip.class);
         });
 
-        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("Ambiguous URI encoding: AMBIGUOUS_EMPTY_SEGMENT"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), containsString("Ambiguous URI empty segment"));
+    }
+
+    @Test
+    public void lookup_inetnum_invalid_syntax_encoded_forward_slash() {
+        databaseHelper.addObject("" +
+                "inetnum:      192.0.0.0 - 192.255.255.255\n" +
+                "netname:      TEST-NET-NAME\n" +
+                "descr:        TEST network\n" +
+                "country:      NL\n" +
+                "tech-c:       TP1-TEST\n" +
+                "status:       OTHER\n" +
+                "mnt-by:       OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:       TEST");
+        ipTreeUpdater.rebuild();
+
+        final Ip ip = createResource("ip/192.0.0.0%2F32")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Ip.class);
+
+        assertThat(ip.getHandle(), is("192.0.0.0 - 192.255.255.255"));
+        assertThat(ip.getCountry(), is("NL"));
+        assertThat(ip.getStartAddress(), is("192.0.0.0"));
+        assertThat(ip.getEndAddress(), is("192.255.255.255"));
+        assertThat(ip.getName(), is("TEST-NET-NAME"));
+        assertThat(ip.getLang(), is(nullValue()));
+        assertThat(ip.getParentHandle(), is("0.0.0.0 - 255.255.255.255"));
+        assertThat(ip.getStatus(), contains("active"));
     }
 
     @Test
@@ -1662,6 +1690,19 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(badRequestException, "RIPE NCC does not support forward domain queries.");
     }
 
+    @Test
+    public void lookup_e164_domain_object_then_not_implemented() {
+        final ServerErrorException notImplementedException = assertThrows(ServerErrorException.class, () -> {
+            createResource("domain/1.2.3.4.e164.arpa")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(Domain.class);
+        });
+
+        assertErrorStatus(notImplementedException, 501);
+        assertErrorTitle(notImplementedException, "Not Implemented");
+        assertErrorDescription(notImplementedException, "Support for ENUM zone (e164.arpa) is currently not implemented");
+    }
+
     // autnum
 
     @Test
@@ -1808,32 +1849,32 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-up\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-up rdap-active\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102?status=active\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-down\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-down/AS102\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-top\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-top rdap-active\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102?status=active\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"rdap-bottom\",\n" +
                 "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-bottom/AS102\",\n" +
-                "    \"title\" : \"application/rdap+json\"\n" +
+                "    \"type\" : \"application/rdap+json\"\n" +
                 "  }, {\n" +
                 "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                 "    \"rel\" : \"self\",\n" +
@@ -1862,33 +1903,33 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-up\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-up rdap-active\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-up/AS102?status=active\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-down\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-down/AS102\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-top\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-top rdap-active\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-top/AS102?status=active\"," +
                         "\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"rdap-bottom\",\n" +
                         "    \"href\" : \"https://rdap.db.ripe.net/autnums/rirSearch1/rdap-bottom/AS102\",\n" +
-                        "    \"title\" : \"application/rdap+json\"\n" +
+                        "    \"type\" : \"application/rdap+json\"\n" +
                         "  }, {\n" +
                         "    \"value\" : \"https://rdap.db.ripe.net/autnum/102\",\n" +
                         "    \"rel\" : \"self\",\n" +
@@ -2828,6 +2869,31 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(serverErrorException, "Nameserver not supported");
     }
 
+    @Test
+    public void lookup_db_duplicated_key_correct_error(){
+
+        final RpslObject rpslObject = RpslObject.parse("""
+                mntner:        TP1-TEST
+                descr:         Owner Maintainer
+                admin-c:       TP1-TEST
+                upd-to:        noreply@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                mnt-by:        OWNER-MNT
+                mbrs-by-ref:   OWNER-MNT
+                created:         2011-07-28T00:35:42Z
+                last-modified:   2019-02-28T10:14:46Z
+                source:        TEST""");
+
+        databaseHelper.addObject(rpslObject);
+
+        final InternalServerErrorException internalServerErrorException = assertThrows(InternalServerErrorException.class, () -> createResource("entity/TP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class)
+        );
+        assertErrorStatus(internalServerErrorException, 500);
+        assertErrorTitle(internalServerErrorException, "Internal Error");
+        assertErrorDescription(internalServerErrorException, "More than one object matches primary key");
+    }
     // Redactions
 
     @Test
@@ -3171,19 +3237,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .options();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-    }
-
-    @Test
-    public void cross_origin_preflight_request_from_outside_ripe_net_is_allowed() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
     }
 
     @Test
@@ -3197,35 +3250,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS), is(nullValue()));
-        assertThat(response.getHeaderString(HttpHeaders.ALLOW), containsString("GET"));
-        assertThat(response.getHeaderString(HttpHeaders.ALLOW), not(containsString("POST")));
-    }
-
-    @Test
-    public void cross_origin_preflight_get_request_from_outside_ripe_net_is_allowed() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET)
-                .options();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS).split("[,]"), arrayContainingInAnyOrder("GET", "OPTIONS"));
-    }
-
-    @Test
-    public void cross_origin_preflight_options_request_from_outside_ripe_net_is_allowed() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "http://www.foo.net")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.GET)
-                .get();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("http://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
-        assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
     @Test
@@ -3237,7 +3261,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .get();
 
         assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -3249,20 +3272,8 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net"));
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is(nullValue()));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
-    }
-
-    @Test
-    public void cross_origin_preflight_request_malformed_origin() {
-        final Response response = createResource("entity/PP1-TEST")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .header(HttpHeaders.ORIGIN, "?invalid?")
-                .header(HttpHeaders.HOST, "rdap.db.ripe.net")
-                .options();
-
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("?invalid?"));
     }
 
     @Test
@@ -3273,7 +3284,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("?invalid?"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -3285,7 +3296,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://www.foo.net:8443"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
         assertThat(response.readEntity(Entity.class).getHandle(), is("PP1-TEST"));
     }
 
@@ -3296,7 +3307,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .header(HttpHeaders.HOST, "rdap.db.ripe.net")
                 .get();
 
-        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("*"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is(nullValue()));
     }
 
     @Test

@@ -28,6 +28,7 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpScheme;
+import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -418,6 +419,14 @@ public class NrtmControllerTestIntegration extends AbstractNrtmIntegrationTest {
     }
 
     @Test
+    public void invalid_path_not_acceptable() {
+        final Response response = getResponseFromHttpsRequest("OA_HTML/jtfwrepo.xml");
+
+        assertThat(response.getStatus(), is(HttpStatus.NOT_ACCEPTABLE_406));
+        assertThat(response.readEntity(String.class), containsString("Not Acceptable"));
+    }
+
+    @Test
     public void should_throw_426_delta_file_https_required() {
         snapshotFileGenerator.createSnapshot();
 
@@ -446,6 +455,9 @@ public class NrtmControllerTestIntegration extends AbstractNrtmIntegrationTest {
         assertThat(response.getStatus(), is(426));
         assertThat(response.readEntity(String.class), containsString("\"message\":\"HTTPS required\""));
     }
+
+    // helper methods
+
     public static String decompress(byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);

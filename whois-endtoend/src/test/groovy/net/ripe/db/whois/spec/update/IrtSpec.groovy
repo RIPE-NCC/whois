@@ -108,7 +108,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 3, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Authorisation for [inetnum] 192.168.200.0 - 192.168.200.255 failed using \"mnt-irt:\" not authenticated by: irt-test"]
@@ -153,7 +153,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -195,7 +195,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(2, 2, 0)
+        ack.countErrorWarnInfo(2, 3, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.200.0 - 192.168.200.255" }
         ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
                 ["Unknown object referenced irt-test",
@@ -238,7 +238,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
             ack.summary.assertSuccess(0, 0, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
 
-            ack.countErrorWarnInfo(1, 0, 0)
+            ack.countErrorWarnInfo(1, 1, 0)
             ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
             ack.errorMessagesFor("Create", "[inetnum] 192.168.201.0 - 192.168.201.255") ==
                     ["Authorisation for [inetnum] 192.168.201.0 - 192.168.201.255 failed using \"mnt-irt:\" not authenticated by: irt-test"]
@@ -275,7 +275,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(0, 0, 0, 0, 0)
             ack.summary.assertErrors(1, 1, 0, 0)
-            ack.countErrorWarnInfo(2, 0, 0)
+            ack.countErrorWarnInfo(2, 1, 0)
             ack.errors.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
             ack.errorMessagesFor("Create", "[inetnum] 192.168.201.0 - 192.168.201.255") ==
                     ["Unknown object referenced irt-test",
@@ -316,7 +316,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
             ack.summary.nrFound == 1
             ack.summary.assertSuccess(1, 1, 0, 0, 0)
             ack.summary.assertErrors(0, 0, 0, 0)
-            ack.countErrorWarnInfo(0, 0, 0)
+            ack.countErrorWarnInfo(0, 1, 0)
             ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 192.168.201.0 - 192.168.201.255" }
 
             query_object_matches("-rGBT inetnum 192.168.201.0 - 192.168.201.255", "inetnum", "192.168.201.0 - 192.168.201.255", "mnt-irt:\\s*irt-test")
@@ -359,7 +359,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 192.168.202.0 - 192.168.202.255" }
 
         queryObjectNotFound("-r -T inetnum 192.168.202.0 - 192.168.202.255", "inetnum", "192.168.202.0 - 192.168.202.255")
@@ -399,7 +399,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[inetnum] 192.168.202.0 - 192.168.202.255" }
         ack.warningSuccessMessagesFor("Modify", "[inetnum] 192.168.202.0 - 192.168.202.255") ==
                 ["inetnum parent has incorrect status: ALLOCATED UNSPECIFIED"]
@@ -594,7 +594,7 @@ class IrtSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[irt] irt-test" }
 
         !queryMatches("-r -T irt irt-tesT", "abuse-mailbox")

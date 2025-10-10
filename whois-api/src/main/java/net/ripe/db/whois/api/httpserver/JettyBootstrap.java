@@ -7,6 +7,7 @@ import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.domain.IpRanges;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
 import org.eclipse.jetty.ee10.servlet.DefaultServlet;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
@@ -31,6 +32,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,9 +118,13 @@ public class JettyBootstrap implements ApplicationService {
 
     private final IpBlockListFilter ipBlockListFilter;
 
+    private final IpRanges ipRanges;
+
+    private final String[] allowedHostsforCrossOrigin;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
+                          final IpRanges ipRanges,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
@@ -126,6 +132,7 @@ public class JettyBootstrap implements ApplicationService {
                           final WhoisQueryDoSFilter whoisQueryDoSFilter,
                           final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
+                          @Value("${whois.allow.cross.origin.hosts:}") final String[] allowedHostsforCrossOrigin,
                           @Value("${ssl.renegotiation.retries:2}") final int sslRenegotiationRetries,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
@@ -159,6 +166,8 @@ public class JettyBootstrap implements ApplicationService {
         this.whoisQueryDoSFilter = whoisQueryDoSFilter;
         this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
         this.ipBlockListFilter = ipBlockListFilter;
+        this.ipRanges = ipRanges;
+        this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
     }
 
     @Override
@@ -206,6 +215,8 @@ public class JettyBootstrap implements ApplicationService {
       */
     private Server createServer() {
         final ServletContextHandler context = new ServletContextHandler();
+        context.getServletHandler().setDecodeAmbiguousURIs(true);
+
         context.setContextPath("/");
 
         context.setInitParameter(DefaultServlet.CONTEXT_INIT + "dirAllowed", "false");
@@ -228,9 +239,14 @@ public class JettyBootstrap implements ApplicationService {
         server.setStopAtShutdown(false);
         server.setRequestLog(createRequestLog());
 
+        final CrossOriginHandler crossOriginHandler = new CustomCrossOriginHandler(allowedHostsforCrossOrigin);
+        crossOriginHandler.setHandler(context);
+
+        server.setHandler(crossOriginHandler);
+
         if (rewriteEngineEnabled) {
             final RewriteHandler rewriteHandler = rewriteEngine.getRewriteHandler();
-            rewriteHandler.setHandler(context);
+            rewriteHandler.setHandler(crossOriginHandler);
             server.setHandler(rewriteHandler);
         }
 
@@ -243,13 +259,7 @@ public class JettyBootstrap implements ApplicationService {
 
 
     private void setConnectors(final Server server) {
-        final HttpConfiguration httpConfiguration = new HttpConfiguration();
-
-        if (this.xForwardedForHttp){
-            httpConfiguration.addCustomizer(new ProtocolCustomizer());
-        }
-        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, this.xForwardedForHttp));
-        server.setConnectors(new Connector[]{createInsecureConnector(server, httpConfiguration)});
+        server.setConnectors(new Connector[]{createInsecureConnector(server)});
 
         if (isHttps()){
             server.addConnector(createSecureConnector(server, this.securePort, false));
@@ -259,7 +269,13 @@ public class JettyBootstrap implements ApplicationService {
         }
     }
 
-    private Connector createInsecureConnector(final Server server, final HttpConfiguration httpConfiguration) {
+    private Connector createInsecureConnector(final Server server) {
+        final HttpConfiguration httpConfiguration = new HttpConfiguration();
+        httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
+        if (this.xForwardedForHttp){
+            httpConfiguration.addCustomizer(new ProtocolCustomizer());
+        }
+        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(ipRanges, this.xForwardedForHttp));
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
@@ -331,7 +347,7 @@ public class JettyBootstrap implements ApplicationService {
             secureRequestCustomizer.setSniHostCheck(false);
         }
 
-        httpsConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, xForwardedForHttps));
+        httpsConfiguration.addCustomizer(new RemoteAddressCustomizer(ipRanges, xForwardedForHttps));
         httpsConfiguration.addCustomizer(secureRequestCustomizer);
 
         httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
