@@ -29,8 +29,8 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "            <attributes>\n" +
                 "                <attribute name=\"peering-set\" requirement=\"MANDATORY\" cardinality=\"SINGLE\" keys=\"PRIMARY_KEY LOOKUP_KEY\"/>\n" +
                 "                <attribute name=\"descr\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
-                "                <attribute name=\"peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
-                "                <attribute name=\"mp-peering\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
+                "                <attribute name=\"peering\" requirement=\"CONDITIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
+                "                <attribute name=\"mp-peering\" requirement=\"CONDITIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
                 "                <attribute name=\"remarks\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"\"/>\n" +
                 "                <attribute name=\"org\" requirement=\"OPTIONAL\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
                 "                <attribute name=\"tech-c\" requirement=\"MANDATORY\" cardinality=\"MULTIPLE\" keys=\"INVERSE_KEY\"/>\n" +
@@ -77,11 +77,11 @@ public class WhoisMetadataTestIntegration extends AbstractIntegrationTest {
                 "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"peering\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
+                "          \"requirement\" : \"CONDITIONAL\",\n" +
                 "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"mp-peering\",\n" +
-                "          \"requirement\" : \"OPTIONAL\",\n" +
+                "          \"requirement\" : \"CONDITIONAL\",\n" +
                 "          \"cardinality\" : \"MULTIPLE\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"remarks\",\n" +

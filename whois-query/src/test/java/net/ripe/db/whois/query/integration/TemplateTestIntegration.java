@@ -131,8 +131,8 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 geoloc:         [optional]   [single]     [ ]
                 prefixlen:      [optional]   [single]     [ ]
                 language:       [optional]   [multiple]   [ ]
-                org:            [optional]   [single]     [inverse key]
-                sponsoring-org: [optional]   [single]     [inverse key]
+                org:            [conditional][single]     [inverse key]
+                sponsoring-org: [conditional][single]     [inverse key]
                 admin-c:        [mandatory]  [multiple]   [inverse key]
                 tech-c:         [mandatory]  [multiple]   [inverse key]
                 abuse-c:        [optional]   [single]     [inverse key]
@@ -141,7 +141,7 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 remarks:        [optional]   [multiple]   [ ]
                 notify:         [optional]   [multiple]   [inverse key]
                 mnt-by:         [mandatory]  [multiple]   [inverse key]
-                mnt-lower:      [optional]   [multiple]   [inverse key]
+                mnt-lower:      [conditional][multiple]   [inverse key]
                 mnt-domains:    [optional]   [multiple]   [inverse key]
                 mnt-routes:     [optional]   [multiple]   [inverse key]
                 mnt-irt:        [optional]   [multiple]   [inverse key]
@@ -453,8 +453,8 @@ public class TemplateTestIntegration extends AbstractQueryIntegrationTest {
                 "default:        [optional]   [multiple]   [ ]\n" +
                 "mp-default:     [optional]   [multiple]   [ ]\n" +
                 "remarks:        [optional]   [multiple]   [ ]\n" +
-                "org:            [optional]   [single]     [inverse key]\n" +
-                "sponsoring-org: [optional]   [single]     [inverse key]\n" +
+                "org:            [conditional][single]     [inverse key]\n" +
+                "sponsoring-org: [conditional][single]     [inverse key]\n" +
                 "admin-c:        [mandatory]  [multiple]   [inverse key]\n" +
                 "tech-c:         [mandatory]  [multiple]   [inverse key]\n" +
                 "abuse-c:        [optional]   [single]     [inverse key]\n" +
