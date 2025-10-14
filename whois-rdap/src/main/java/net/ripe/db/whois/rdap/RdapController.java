@@ -338,7 +338,7 @@ public class RdapController {
 
                final Optional<RdapObject>  responseObject = rdapLookupService.getAdministrativeBlock(getRequestPath(request), key);
                 if (responseObject.isPresent()) {
-                    return Response.ok(responseObject)
+                    return Response.ok(responseObject.get())
                             .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                             .build();
                 }
