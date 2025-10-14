@@ -11,6 +11,7 @@ import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
@@ -24,6 +25,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -214,7 +216,7 @@ public class RdapLookupService {
 
     private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result,  final String requestedkey) {
         Iterator<RpslObject> rpslIterator = result.iterator();
-        LOGGER.info("Checking for RDAP key {}", requestedkey);
+        LOGGER.info ("Checking for RDAP key {}", requestedkey);
 
         if (!rpslIterator.hasNext()) {
             throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
@@ -228,18 +230,18 @@ public class RdapLookupService {
 
         if (RdapObjectMapper.isIANABlock(resultObject)){
             LOGGER.info("Returned result is an IANA Block, checking for administrative block");
-            final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(requestedkey);
-            if(adminstrativeBlock == null) {
-                throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
-            }
-
-            resultObject = adminstrativeBlock;
+            return  getAdministrativeBlock(getRequestUrl(request), requestedkey).orElseThrow(()-> new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404));
         }
 
         return rdapObjectMapper.map(
                 getRequestUrl(request),
                 resultObject,
                 getAbuseContact(resultObject));
+    }
+
+    public Optional<RdapObject> getAdministrativeBlock(final String requestUrl, final String requestedkey) {
+        final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(requestedkey);
+        return adminstrativeBlock != null ? Optional.of((RdapObject) rdapObjectMapper.map(requestUrl, adminstrativeBlock, null)): Optional.empty();
     }
 
     @Nullable

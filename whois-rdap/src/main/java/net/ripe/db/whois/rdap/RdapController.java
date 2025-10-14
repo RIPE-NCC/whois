@@ -12,8 +12,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.rdap.domain.RdapRequestType;
-import net.ripe.db.whois.rdap.domain.RelationType;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
@@ -24,6 +22,9 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.rdap.domain.RdapRequestType;
+import net.ripe.db.whois.rdap.domain.RelationType;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
@@ -59,6 +61,7 @@ public class RdapController {
     private final String baseUrl;
     private final int maxResultSize;
     private final RdapRelationService rdapRelationService;
+    private final RdapLookupService rdapLookupService;
 
 
     /**
@@ -79,7 +82,7 @@ public class RdapController {
                           final RdapFullTextSearch rdapFullTextSearch,
                           @Value("${rdap.public.baseUrl:}") final String baseUrl,
                           @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                          final SourceContext sourceContext, RdapRelationService rdapRelationService) {
+                          final SourceContext sourceContext, RdapRelationService rdapRelationService, RdapLookupService rdapLookupService) {
         this.rdapService = rdapService;
         this.rdapRequestValidator = rdapRequestValidator;
         this.delegatedStatsService = delegatedStatsService;
@@ -89,6 +92,7 @@ public class RdapController {
         this.baseUrl = baseUrl;
         this.maxResultSize = maxResultSize;
         this.rdapRelationService = rdapRelationService;
+        this.rdapLookupService = rdapLookupService;
     }
 
     @GET
@@ -305,7 +309,7 @@ public class RdapController {
             case IP -> {
                 rdapRequestValidator.validateIp(request.getRequestURI(), key);
                 if (isRedirect(Iterables.getOnlyElement(whoisObjectTypes), key)) {
-                    return redirect(getRequestPath(request), getQueryObject(whoisObjectTypes, key));
+                    return redirectOrAdministrativeBlock(request, key, whoisObjectTypes);
                 }
                 object = rdapService.lookupObject(request, whoisObjectTypes, key);
             }
@@ -325,6 +329,22 @@ public class RdapController {
         return Response.ok(object)
                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                 .build();
+    }
+
+    private Response redirectOrAdministrativeBlock(final HttpServletRequest request, final String key, final Set<ObjectType> whoisObjectTypes) {
+            try {
+                return redirect(getRequestPath(request), getQueryObject(whoisObjectTypes, key));
+            } catch (Exception e) {
+
+               final Optional<RdapObject>  responseObject = rdapLookupService.getAdministrativeBlock(getRequestPath(request), key);
+                if (responseObject.isPresent()) {
+                    return Response.ok(responseObject)
+                            .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                            .build();
+                }
+
+                throw e;
+            }
     }
 
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
