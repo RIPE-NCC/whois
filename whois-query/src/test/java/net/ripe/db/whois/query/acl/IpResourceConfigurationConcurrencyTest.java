@@ -50,7 +50,7 @@ public class IpResourceConfigurationConcurrencyTest {
             result.add(executor.submit(makeReader()));
             result.add(executor.submit(makeReader()));
             result.add(executor.submit(makeReader()));
-            result.add(executor.submit(makeReader()));
+            result.add(executor.submit(makeReader()));  
 
             final Stopwatch stopwatch = Stopwatch.createStarted();
             while (stopwatch.elapsed(TimeUnit.MILLISECONDS) < 100) {

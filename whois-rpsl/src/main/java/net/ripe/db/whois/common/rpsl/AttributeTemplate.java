@@ -10,6 +10,7 @@ public class AttributeTemplate {
     public enum Requirement {
         MANDATORY("mandatory"),
         OPTIONAL("optional"),
+        CONDITIONAL("conditional"), // attributes that may be optional or mandatory depending on the business rules
         GENERATED("generated"),
         DEPRECATED("optional"); // deprecated fields seen as optional from outside perspective
 
@@ -105,6 +106,10 @@ public class AttributeTemplate {
 
     public boolean isDeprecated() {
         return this.requirement == Requirement.DEPRECATED;
+    }
+
+    public boolean isConditional() {
+        return this.requirement == Requirement.CONDITIONAL;
     }
 
     public boolean isMultiple() {

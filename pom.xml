@@ -44,7 +44,7 @@
         <commons-ip-math.version>1.23</commons-ip-math.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException instead of IllegalArgumentException). Replace all commons-lang with commons-lang3 calls -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <commons-lang3.version>3.19.0</commons-lang3.version>
         <commons-net.version>3.11.1</commons-net.version>
         <commons-validator.version>1.9.0</commons-validator.version>
 
@@ -87,7 +87,7 @@
         <mariadb-java-client.version>2.7.12</mariadb-java-client.version>
         <mockito.version>5.18.0</mockito.version>
 
-        <netty.version>4.2.2.Final</netty.version>
+        <netty.version>4.2.6.Final</netty.version>
         <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
 
         <oauth2.oidc.version>11.23.1</oauth2.oidc.version>
@@ -103,7 +103,7 @@
         <shedlock.version>5.16.0</shedlock.version>
         <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>6.2.8</spring.version>
+        <spring.version>6.2.11</spring.version>
         <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
