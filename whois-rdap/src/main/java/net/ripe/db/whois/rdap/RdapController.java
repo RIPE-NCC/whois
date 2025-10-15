@@ -61,7 +61,6 @@ public class RdapController {
     private final String baseUrl;
     private final int maxResultSize;
     private final RdapRelationService rdapRelationService;
-    private final RdapLookupService rdapLookupService;
 
 
     /**
@@ -82,7 +81,7 @@ public class RdapController {
                           final RdapFullTextSearch rdapFullTextSearch,
                           @Value("${rdap.public.baseUrl:}") final String baseUrl,
                           @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                          final SourceContext sourceContext, RdapRelationService rdapRelationService, RdapLookupService rdapLookupService) {
+                          final SourceContext sourceContext, RdapRelationService rdapRelationService) {
         this.rdapService = rdapService;
         this.rdapRequestValidator = rdapRequestValidator;
         this.delegatedStatsService = delegatedStatsService;
@@ -92,7 +91,6 @@ public class RdapController {
         this.baseUrl = baseUrl;
         this.maxResultSize = maxResultSize;
         this.rdapRelationService = rdapRelationService;
-        this.rdapLookupService = rdapLookupService;
     }
 
     @GET
@@ -336,7 +334,7 @@ public class RdapController {
                 return redirect(getRequestPath(request), getQueryObject(whoisObjectTypes, key));
             } catch (Exception e) {
 
-               final Optional<RdapObject>  responseObject = rdapLookupService.getAdministrativeBlock(getRequestPath(request), key);
+               final Optional<RdapObject>  responseObject = rdapService.getAdministrativeBlock(getRequestPath(request), key);
                 if (responseObject.isPresent()) {
                     return Response.ok(responseObject.get())
                             .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
