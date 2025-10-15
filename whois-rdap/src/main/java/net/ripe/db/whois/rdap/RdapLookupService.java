@@ -83,7 +83,6 @@ public class RdapLookupService {
         this.jdbcReferenceReadOnlyDao = jdbcReferenceReadOnlyDao;
         this.abuseCFinder = abuseCFinder;
         this.reservedResources = reservedResources;
-        LOGGER.info("testing logging");
     }
 
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
@@ -216,7 +215,6 @@ public class RdapLookupService {
 
     private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result,  final String requestedkey) {
         Iterator<RpslObject> rpslIterator = result.iterator();
-        LOGGER.info ("Checking for RDAP key {}", requestedkey);
 
         if (!rpslIterator.hasNext()) {
             throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
@@ -229,8 +227,9 @@ public class RdapLookupService {
         }
 
         if (RdapObjectMapper.isIANABlock(resultObject)){
-            LOGGER.info("Returned result is an IANA Block, checking for administrative block");
-            return  getAdministrativeBlock(getRequestUrl(request), requestedkey).orElseThrow(()-> new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404));
+            LOGGER.debug("Returned result is an IANA Block, checking for administrative block");
+            return  getAdministrativeBlock(getRequestUrl(request), requestedkey)
+                            .orElseThrow(()-> new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404));
         }
 
         return rdapObjectMapper.map(
