@@ -5,6 +5,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.CIString;
@@ -23,6 +26,7 @@ import org.elasticsearch.common.Strings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -35,7 +39,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -46,6 +59,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 class LacnicGrsSource extends GrsSource {
     private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
     private static final int TIMEOUT = 10_000;
+    private static final DateTimeFormatter LAST_MODIFIED_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV").withZone(ZoneId.of("GMT"));
 
     private final String userId;
     private final String password;
@@ -83,7 +97,7 @@ class LacnicGrsSource extends GrsSource {
 
         final String downloadAction = loginAction.replace("stini", "bulkWhoisLoader");
 
-        downloader.downloadTo(logger, new URL(downloadAction), path);
+        downloadTo(logger, new URL(downloadAction), path);
     }
 
     @Override
@@ -91,7 +105,48 @@ class LacnicGrsSource extends GrsSource {
         if (Strings.isNullOrEmpty(irrDownload)) {
             return;
         }
-        downloader.downloadTo(logger, new URL(irrDownload), path);
+        downloadTo(logger, new URL(irrDownload), path);
+    }
+
+    // TODO: @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
+    private void downloadTo(final Logger logger, final URL url, final Path path) throws IOException {
+        logger.info("Downloading {} from {}", path, url);
+
+        try {
+            final Invocation.Builder request = client.target(url.toString()).request();
+
+            if ("https".equals(url.getProtocol()) && ! com.google.common.base.Strings.isNullOrEmpty(url.getUserInfo())) {
+                request.header(HttpHeaders.AUTHORIZATION,
+                                String.format("Basic %s",
+                                    Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));
+            }
+
+            final Response response = request.get();
+
+            final InputStream inputStream = response.readEntity(InputStream.class);
+            Files.copy(inputStream, path);
+            setFileTimes(logger, response, path);
+        } catch (Exception e) {
+            logger.error("Error downloading or setting connection for url {}", url, e);
+            throw e;
+        }
+    }
+
+    private void setFileTimes(final Logger logger, final Response response, final Path path) {
+        final String lastModified = response.getHeaderString(HttpHeaders.LAST_MODIFIED);
+        if (lastModified == null) {
+            logger.info("Couldn't set last modified on {} because no header found", path);
+        } else {
+            try {
+                final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
+                final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
+                final FileTime time = FileTime.from(lastModifiedDateTime.toInstant());
+                attributes.setTimes(time, time, time);
+                logger.info("{} last modified {}", path, lastModifiedDateTime);
+            } catch (Exception e) {
+                logger.info("Couldn't set last modified {} on {} due to {}: {}", lastModified, path, e.getClass().getName(), e.getMessage());
+            }
+        }
     }
 
     private String get(final String url) {
