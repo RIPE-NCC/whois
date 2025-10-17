@@ -27,6 +27,7 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -61,6 +62,8 @@ class LacnicGrsSource extends GrsSource {
     private static final int TIMEOUT = 10_000;
     private static final DateTimeFormatter LAST_MODIFIED_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV").withZone(ZoneId.of("GMT"));
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LacnicGrsSource.class);
+
     private final String userId;
     private final String password;
     private final String irrDownload;
@@ -93,9 +96,13 @@ class LacnicGrsSource extends GrsSource {
         final Document loginPage = parse(get("https://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
         final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
 
+        LOGGER.info("Login page:\n{}", loginPage.outerHtml());
+
+        LOGGER.info("loginAction = {}", loginAction);
         post(loginAction);
 
         final String downloadAction = loginAction.replace("stini", "bulkWhoisLoader");
+        LOGGER.info("downloadAction = {}", downloadAction);
 
         downloadTo(logger, new URL(downloadAction), path);
     }
@@ -115,16 +122,24 @@ class LacnicGrsSource extends GrsSource {
         try {
             final Invocation.Builder request = client.target(url.toString()).request();
 
-            if ("https".equals(url.getProtocol()) && ! com.google.common.base.Strings.isNullOrEmpty(url.getUserInfo())) {
+            logger.info("user info: {}", url.getUserInfo());
+
+            if ("https".equals(url.getProtocol()) && !Strings.isNullOrEmpty(url.getUserInfo())) {
                 request.header(HttpHeaders.AUTHORIZATION,
-                                String.format("Basic %s",
-                                    Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));
+                    String.format("Basic %s",
+                        Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));
             }
+
+            logger.info("request: {}", request);
 
             final Response response = request.get();
 
+            logger.info("Response status: {}", response.getStatus());
+
             final InputStream inputStream = response.readEntity(InputStream.class);
+            logger.info("file copy");
             Files.copy(inputStream, path);
+            logger.info("set file timestamp");
             setFileTimes(logger, response, path);
         } catch (Exception e) {
             logger.error("Error downloading or setting connection for url {}", url, e);
