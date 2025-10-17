@@ -53,6 +53,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.nio.file.StandardCopyOption;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
@@ -103,7 +104,7 @@ class LacnicGrsSource extends GrsSource {
 
         LOGGER.info("Download page:\n{}", downloadPage.outerHtml());
 
-        final String downloadAction = "https://lacnic.net" + downloadPage.select("a[href~=/cgi-bin/lacnic/nav.*]").attr("href");
+        final String downloadAction = "https://lacnic.net" + downloadPage.select("A[HREF~=/cgi-bin/lacnic/bulkWhoisLoader.*]").attr("href");
         LOGGER.info("downloadAction = {}", downloadAction);
 
         downloadTo(logger, new URL(downloadAction), path);
