@@ -140,7 +140,7 @@ class LacnicGrsSource extends GrsSource {
 
             final InputStream inputStream = response.readEntity(InputStream.class);
             logger.info("file copy");
-            Files.copy(inputStream, path);
+            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
             logger.info("set file timestamp");
             setFileTimes(logger, response, path);
         } catch (Exception e) {
