@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
@@ -97,11 +98,13 @@ class LacnicGrsSource extends GrsSource {
         final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
 
         LOGGER.info("Login page:\n{}", loginPage.outerHtml());
-
         LOGGER.info("loginAction = {}", loginAction);
-        post(loginAction);
 
-        final String downloadAction = loginAction.replace("stini", "bulkWhoisLoader");
+        final Document downloadPage = parse(post(loginAction));
+
+        LOGGER.info("Download page:\n{}", downloadPage.outerHtml());
+
+        final String downloadAction = "https://lacnic.net" + downloadPage.select("a[href~=/cgi-bin/lacnic/nav.*]").attr("href");
         LOGGER.info("downloadAction = {}", downloadAction);
 
         downloadTo(logger, new URL(downloadAction), path);
@@ -168,12 +171,8 @@ class LacnicGrsSource extends GrsSource {
         return client.target(url).request().get(String.class);
     }
 
-    private void post(final String url) {
-        client.target(url)
-                .queryParam("handle", userId)
-                .queryParam("passwd", password)
-                .request()
-                .post(null, String.class);
+    private String post(final String url) {
+        return client.target(url).queryParam("handle", userId).queryParam("passwd", password).request().post(Entity.html(String.class), String.class);
     }
 
     private static Document parse(final String data) {
