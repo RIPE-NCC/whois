@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
@@ -168,11 +167,17 @@ class LacnicGrsSource extends GrsSource {
     }
 
     private String get(final String url) {
-        return client.target(url).request().get(String.class);
+        return client.target(url)
+                .request()
+                .get(String.class);
     }
 
     private String post(final String url) {
-        return client.target(url).queryParam("handle", userId).queryParam("passwd", password).request().post(Entity.html(String.class), String.class);
+        return client.target(url)
+            .queryParam("handle", userId)
+            .queryParam("passwd", password)
+            .request()
+            .post(null, String.class);
     }
 
     private static Document parse(final String data) {
