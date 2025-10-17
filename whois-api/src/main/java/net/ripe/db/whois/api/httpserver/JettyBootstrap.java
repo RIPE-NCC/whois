@@ -483,6 +483,15 @@ public class JettyBootstrap implements ApplicationService {
     private void updatePorts() {
         for (Connector connector : this.server.getConnectors()) {
             final int localPort = ((NetworkConnector) connector).getLocalPort();
+
+            if (localPort == -1) {
+                throw new IllegalStateException("Jetty port has not been opened? Please check the configuration.");
+            }
+
+            if (localPort == -2) {
+                throw new IllegalStateException("Jetty port has been closed? Please check the configuration.");
+            }
+
             if(!connector.getProtocols().contains("ssl")) {
                 this.port = localPort;
                 continue;
