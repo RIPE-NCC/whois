@@ -5,9 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.CIString;
@@ -26,8 +23,6 @@ import org.elasticsearch.common.Strings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -40,20 +35,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.FileTime;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.nio.file.StandardCopyOption;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
@@ -61,9 +46,6 @@ import static net.ripe.db.whois.common.domain.CIString.ciString;
 class LacnicGrsSource extends GrsSource {
     private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
     private static final int TIMEOUT = 10_000;
-    private static final DateTimeFormatter LAST_MODIFIED_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV").withZone(ZoneId.of("GMT"));
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LacnicGrsSource.class);
 
     private final String userId;
     private final String password;
@@ -76,7 +58,7 @@ class LacnicGrsSource extends GrsSource {
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
             final AuthoritativeResourceData authoritativeResourceData,
-            final Downloader downloader,
+            @Value("jaxRSDownloader") final Downloader downloader,
             @Value("${grs.import.lacnic.userId:}") final String userId,
             @Value("${grs.import.lacnic.password:}") final String password,
             @Value("${grs.import.lacnic.irr.download:}") final String irrDownload) {
@@ -97,17 +79,22 @@ class LacnicGrsSource extends GrsSource {
         final Document loginPage = parse(get("https://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
         final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
 
-        LOGGER.info("Login page:\n{}", loginPage.outerHtml());
-        LOGGER.info("loginAction = {}", loginAction);
+        Document postLoginPage = parse(post(loginAction));
+        final String refreshAction = postLoginPage.select("meta[http-equiv=Refresh]").attr("content");
+        logger.info("refreshAction {}", refreshAction);
+        if (refreshAction.contains("=")) {
+            final String refreshURL = refreshAction.substring(refreshAction.indexOf("=") + 1);
+            postLoginPage = parse(get(refreshURL));
+        }
 
-        final Document downloadPage = parse(post(loginAction));
+        final String downloadAction = "https://lacnic.net" + postLoginPage.select("A[HREF~=/cgi-bin/lacnic/bulkWhoisLoader.*]").attr("href");
+        logger.info("downloadAction {}", downloadAction);
 
-        LOGGER.info("Download page:\n{}", downloadPage.outerHtml());
+        downloader.downloadTo(logger, new URL(downloadAction), path);
 
-        final String downloadAction = "https://lacnic.net" + downloadPage.select("A[HREF~=/cgi-bin/lacnic/bulkWhoisLoader.*]").attr("href");
-        LOGGER.info("downloadAction = {}", downloadAction);
-
-        downloadTo(logger, new URL(downloadAction), path);
+        final String logoffAction = "https://lacnic.net" + postLoginPage.select("A[HREF~=/cgi-bin/lacnic/stini\\?logoff.*]").attr("href");
+        logger.info("logoffAction {}", logoffAction);
+        get(logoffAction);
     }
 
     @Override
@@ -115,56 +102,7 @@ class LacnicGrsSource extends GrsSource {
         if (Strings.isNullOrEmpty(irrDownload)) {
             return;
         }
-        downloadTo(logger, new URL(irrDownload), path);
-    }
-
-    // TODO: @RetryFor(value = IOException.class, attempts = 10, intervalMs = 10000)
-    private void downloadTo(final Logger logger, final URL url, final Path path) throws IOException {
-        logger.info("Downloading {} from {}", path, url);
-
-        try {
-            final Invocation.Builder request = client.target(url.toString()).request();
-
-            logger.info("user info: {}", url.getUserInfo());
-
-            if ("https".equals(url.getProtocol()) && !Strings.isNullOrEmpty(url.getUserInfo())) {
-                request.header(HttpHeaders.AUTHORIZATION,
-                    String.format("Basic %s",
-                        Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));
-            }
-
-            logger.info("request: {}", request);
-
-            final Response response = request.get();
-
-            logger.info("Response status: {}", response.getStatus());
-
-            final InputStream inputStream = response.readEntity(InputStream.class);
-            logger.info("file copy");
-            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
-            logger.info("set file timestamp");
-            setFileTimes(logger, response, path);
-        } catch (Exception e) {
-            logger.error("Error downloading or setting connection for url {}", url, e);
-            throw e;
-        }
-    }
-
-    private void setFileTimes(final Logger logger, final Response response, final Path path) {
-        final String lastModified = response.getHeaderString(HttpHeaders.LAST_MODIFIED);
-        if (lastModified == null) {
-            logger.info("Couldn't set last modified on {} because no header found", path);
-        } else {
-            try {
-                final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
-                final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
-                final FileTime time = FileTime.from(lastModifiedDateTime.toInstant());
-                attributes.setTimes(time, time, time);
-                logger.info("{} last modified {}", path, lastModifiedDateTime);
-            } catch (Exception e) {
-                logger.info("Couldn't set last modified {} on {} due to {}: {}", lastModified, path, e.getClass().getName(), e.getMessage());
-            }
-        }
+        downloader.downloadTo(logger, new URL(irrDownload), path);
     }
 
     private String get(final String url) {
