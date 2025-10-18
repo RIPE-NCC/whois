@@ -24,6 +24,7 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -58,7 +59,7 @@ class LacnicGrsSource extends GrsSource {
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
             final AuthoritativeResourceData authoritativeResourceData,
-            @Value("jaxRSDownloader") final Downloader downloader,
+            @Qualifier("jaxRSDownloader") final Downloader downloader,
             @Value("${grs.import.lacnic.userId:}") final String userId,
             @Value("${grs.import.lacnic.password:}") final String password,
             @Value("${grs.import.lacnic.irr.download:}") final String irrDownload) {
