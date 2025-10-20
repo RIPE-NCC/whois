@@ -332,13 +332,15 @@ public class RdapController {
     private Response redirectOrAdministrativeBlock(final HttpServletRequest request, final String key, final Set<ObjectType> whoisObjectTypes) {
             try {
                 return redirect(getRequestPath(request), getQueryObject(whoisObjectTypes, key));
-            } catch (Exception e) {
+            } catch (RdapException e) {
 
-               final Optional<RdapObject>  responseObject = rdapService.getAdministrativeBlock(getRequestPath(request), key);
-                if (responseObject.isPresent()) {
-                    return Response.ok(responseObject.get())
-                            .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
-                            .build();
+                if(e.getErrorCode() == 404) {
+                    final Optional<RdapObject> responseObject = rdapService.getAdministrativeBlock(getRequestPath(request), key);
+                    if (responseObject.isPresent()) {
+                        return Response.ok(responseObject.get())
+                                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                                .build();
+                    }
                 }
 
                 throw e;
