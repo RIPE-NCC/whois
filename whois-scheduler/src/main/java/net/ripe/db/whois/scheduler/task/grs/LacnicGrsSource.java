@@ -82,19 +82,19 @@ class LacnicGrsSource extends GrsSource {
 
         Document postLoginPage = parse(post(loginAction));
         final String refreshAction = postLoginPage.select("meta[http-equiv=Refresh]").attr("content");
-        logger.info("refreshAction {}", refreshAction);
+        logger.debug("refresh {}", refreshAction);
         if (refreshAction.contains("=")) {
             final String refreshURL = refreshAction.substring(refreshAction.indexOf("=") + 1);
             postLoginPage = parse(get(refreshURL));
         }
 
         final String downloadAction = "https://lacnic.net" + postLoginPage.select("A[HREF~=/cgi-bin/lacnic/bulkWhoisLoader.*]").attr("href");
-        logger.info("downloadAction {}", downloadAction);
+        logger.debug("download {}", downloadAction);
 
         downloader.downloadTo(logger, new URL(downloadAction), path);
 
         final String logoffAction = "https://lacnic.net" + postLoginPage.select("A[HREF~=/cgi-bin/lacnic/stini\\?logoff.*]").attr("href");
-        logger.info("logoffAction {}", logoffAction);
+        logger.debug("logoff {}", logoffAction);
         get(logoffAction);
     }
 

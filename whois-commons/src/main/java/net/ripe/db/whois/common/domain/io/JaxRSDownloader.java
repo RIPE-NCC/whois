@@ -41,7 +41,7 @@ public class JaxRSDownloader implements Downloader {
 
     @RetryFor(value = Exception.class, attempts = 10, intervalMs = 10000)
     public void downloadTo(final Logger logger, final URL url, final Path path) throws IOException {
-        logger.info("Downloading {} from {}", path, url);
+        logger.debug("Downloading {} from {}", path, url);
 
         try {
             final Invocation.Builder request = client.target(url.toString()).request();
