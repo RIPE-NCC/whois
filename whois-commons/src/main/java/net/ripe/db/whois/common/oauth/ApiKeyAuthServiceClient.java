@@ -17,6 +17,7 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 
 @Component
 public class ApiKeyAuthServiceClient {
@@ -66,6 +68,7 @@ public class ApiKeyAuthServiceClient {
 
     @Cacheable(cacheNames="apiKeyOAuth")
     @Nullable
+    @RetryFor(value = IOException.class, attempts = 2, intervalMs = 10000)
     public String validateApiKey(final String basicHeader,  final String apiKeyId) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
