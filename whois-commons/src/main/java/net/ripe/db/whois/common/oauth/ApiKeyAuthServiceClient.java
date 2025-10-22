@@ -13,10 +13,12 @@ import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntr
 import com.google.common.base.Stopwatch;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,12 +71,7 @@ public class ApiKeyAuthServiceClient {
     public String validateApiKey(final String basicHeader,  final String apiKeyId) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
-            return  client.target(restUrl)
-                    .path(VALIDATE_PATH)
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header(HttpHeaders.AUTHORIZATION, basicHeader)
-                    .get(String.class);
-
+            return  validateApiKeyWithRetry(basicHeader, apiKeyId);
         } catch (NotFoundException | NotAuthorizedException e) {
             LOGGER.debug("Failed to validate api key (Username: {}) due to {}:{}\n\tResponse: {}", apiKeyId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             return null;
@@ -83,6 +80,21 @@ public class ApiKeyAuthServiceClient {
             return null;
         } finally {
             LOGGER.info("Validated apikey in {} ", stopwatch.stop());
+        }
+    }
+
+    @RetryFor(value = ProcessingException.class, attempts = 2, intervalMs = 10000)
+    public String validateApiKeyWithRetry(final String basicHeader,  final String apiKeyId) {
+        try {
+            return  client.target(restUrl)
+                    .path(VALIDATE_PATH)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header(HttpHeaders.AUTHORIZATION, basicHeader)
+                    .get(String.class);
+
+        } catch (final ProcessingException e) {
+            LOGGER.error("Failed to validate api key (Username: {}) due to {}:{}\n\tRetrying", apiKeyId, e.getClass().getName(), e.getMessage());
+            throw e;
         }
     }
 }
