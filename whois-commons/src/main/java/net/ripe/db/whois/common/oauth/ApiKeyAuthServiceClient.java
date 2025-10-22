@@ -16,8 +16,6 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -86,11 +84,13 @@ public class ApiKeyAuthServiceClient {
     @RetryFor(value = ProcessingException.class, attempts = 2, intervalMs = 10000)
     public String validateApiKeyWithRetry(final String basicHeader,  final String apiKeyId) {
         try {
-            return  client.target(restUrl)
+           /* return  client.target(restUrl)
                     .path(VALIDATE_PATH)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(HttpHeaders.AUTHORIZATION, basicHeader)
-                    .get(String.class);
+                    .get(String.class);*/
+
+            throw new ProcessingException("Testing");
 
         } catch (final ProcessingException e) {
             LOGGER.error("Failed to validate api key (Username: {}) due to {}:{}\n\tRetrying", apiKeyId, e.getClass().getName(), e.getMessage());
