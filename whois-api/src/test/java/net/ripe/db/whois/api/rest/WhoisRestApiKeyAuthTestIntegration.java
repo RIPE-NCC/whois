@@ -16,6 +16,7 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
+import net.ripe.db.whois.common.oauth.ApiKeyDetailsCacheManager;
 import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -65,6 +67,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -125,6 +128,9 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
             "source:       TEST\n");
 
     @Autowired private WhoisObjectMapper whoisObjectMapper;
+
+    @Autowired private ApiKeyDetailsCacheManager apiKeyDetailsCacheManager;
+
     @Autowired
     private AccessControlListManager accessControlListManager;
     @Autowired
@@ -222,6 +228,64 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .get(String.class);
 
         assertThat(response, containsString("Modify SUCCEEDED: [mntner] SSO-MNT"));
+    }
+
+    @Test
+    public void update_with_api_key_should_have_expiry_warning() {
+
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T13:00:00"));
+
+        final String apiKeyId = OAuthUtils.getApiKeyId(getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT));
+        final LocalDate expiresAt = testDateTimeProvider.getCurrentDate().plusDays(13);
+
+        addApiKeyExpiry(apiKeyId, expiresAt);
+
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+        databaseHelper.addObject(mntner);
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(mntner + "\nremarks: updated"))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(response, containsString(String.format("Warning: API KeyId %s is due to expire on %s", apiKeyId, expiresAt)));
+    }
+
+    @Test
+    public void update_with_api_key_should_have_no_expiry_warning_if_expires_after_2_days() {
+
+        testDateTimeProvider.setTime(LocalDateTime.parse("2001-02-04T13:00:00"));
+
+        final String apiKeyId = OAuthUtils.getApiKeyId(getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT));
+        final LocalDate expiresAt = testDateTimeProvider.getCurrentDate().plusWeeks(3);
+
+        addApiKeyExpiry(apiKeyId, expiresAt);
+
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+        databaseHelper.addObject(mntner);
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(mntner + "\nremarks: updated"))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(response, not(containsString(String.format("Warning: API KeyId %s is due to expire on %s", apiKeyId, expiresAt))));
     }
 
     @Test
@@ -756,7 +820,6 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getLink().getHref(), is(String.format("https://localhost:%s/test/person?keyId=l6lRZgvOFIphjiGwtCGuLwqw",getSecurePort())));
-        assertThat(whoisResources.getErrorMessages(), is(empty()));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
 
         assertPersonObject(whoisResources, object);
@@ -1180,5 +1243,15 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
+    }
+
+    private void addApiKeyExpiry(final String apiKeyId, final LocalDate expiresAt) {
+        final String sql = """
+            INSERT INTO keycloak_apikey_details (apikeyId, expiresAt)
+            VALUES (?, ?)
+            """;
+
+        internalsTemplate.update(sql, apiKeyId, expiresAt);
+        apiKeyDetailsCacheManager.refreshApiKeyDetailsCaches();
     }
 }

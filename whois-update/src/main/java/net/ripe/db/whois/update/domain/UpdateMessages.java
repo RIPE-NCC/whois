@@ -127,6 +127,10 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "The %s cannot be used because it was created for a different application or environment", authType);
     }
 
+    public static Message apiKeyGettingExpired(final String apiKeyId, final String expiresAt) {
+        return new Message(Type.WARNING, "API KeyId %s is due to expire on %s", apiKeyId, expiresAt);
+    }
+
     public static Message invalidIpv4Address(final RpslAttribute attribute, final CharSequence value) {
         return new MessageWithAttribute(Type.ERROR, attribute, "%s is not a valid IPv4 address", value);
     }
