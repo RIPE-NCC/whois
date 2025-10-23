@@ -7,11 +7,11 @@ import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
 @Tag("ManualTest")
+@Disabled("Replace username and password before running manually")
 @DirtiesContext
 public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerIntegrationTest {
 
@@ -45,7 +46,7 @@ public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerInt
         DatabaseHelper.addGrsDatabases("LACNIC-GRS");
 
         System.setProperty("grs.import.lacnic.source", "LACNIC-GRS");
-        System.setProperty("grs.import.lacnic.resourceDataUrl", "ftp://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-extended-latest");
+        System.setProperty("grs.import.lacnic.resourceDataUrl", "https://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-extended-latest");
         System.setProperty("grs.import.lacnic.userId", "XXX");
         System.setProperty("grs.import.lacnic.password", "XXX");
 

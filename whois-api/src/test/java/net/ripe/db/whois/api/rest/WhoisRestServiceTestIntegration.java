@@ -31,6 +31,8 @@ import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.domain.io.Downloader;
+import net.ripe.db.whois.common.domain.io.JavaNetDownloader;
+import net.ripe.db.whois.common.domain.io.JaxRSDownloader;
 import net.ripe.db.whois.common.mail.EmailStatusType;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -277,9 +279,19 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_downloader_test() throws Exception {
+    public void lookup_java_net_downloader_test() throws Exception {
         Path path = Files.createTempFile("downloader_test", "");
-        Downloader downloader = new Downloader();
+        Downloader downloader = new JavaNetDownloader();
+        downloader.downloadTo(LoggerFactory.getLogger("downloader_test"), new URL(String.format("http://localhost:%d/whois/test/mntner/owner-mnt", getPort())), path);
+        final String result = new String(Files.readAllBytes(path));
+        assertThat(result, containsString("OWNER-MNT"));
+        assertThat(result, endsWith("</whois-resources>\n"));
+    }
+
+    @Test
+    public void lookup_jaxrs_downloader_test() throws Exception {
+        Path path = Files.createTempFile("downloader_test", "");
+        Downloader downloader = new JaxRSDownloader();
         downloader.downloadTo(LoggerFactory.getLogger("downloader_test"), new URL(String.format("http://localhost:%d/whois/test/mntner/owner-mnt", getPort())), path);
         final String result = new String(Files.readAllBytes(path));
         assertThat(result, containsString("OWNER-MNT"));
