@@ -1,21 +1,25 @@
 package net.ripe.db.whois.update.authentication.credential;
 
+import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.credentials.OAuthCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.common.oauth.APIKeySession;
+import net.ripe.db.whois.common.oauth.ApiKeyDetailsCacheManager;
 import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.credentials.OAuthCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
+import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,9 +32,15 @@ public class OAuthCredentialValidator implements CredentialValidator<OAuthCreden
     @Value("${apikey.authenticate.enabled:false}")
     private boolean enabled;
 
+    private final DateTimeProvider dateTimeProvider;
+
+    private final ApiKeyDetailsCacheManager apiKeyDetailsCacheManager;
+
     @Autowired
-    public OAuthCredentialValidator(final LoggerContext loggerContext) {
+    public OAuthCredentialValidator(final LoggerContext loggerContext, final ApiKeyDetailsCacheManager apiKeyDetailsCacheManager, final DateTimeProvider dateTimeProvider) {
         this.loggerContext = loggerContext;
+        this.apiKeyDetailsCacheManager = apiKeyDetailsCacheManager;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     @Override
@@ -72,6 +82,9 @@ public class OAuthCredentialValidator implements CredentialValidator<OAuthCreden
                 String updateMessage;
 
                 if(oAuthSession instanceof APIKeySession) {
+
+                    addExpiryWarning(update, updateContext, (APIKeySession) oAuthSession);
+
                     effectiveCredentialType = Update.EffectiveCredentialType.APIKEY;
                     effectiveCredential = String.format("%s (%s)", oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
                     updateMessage = String.format("Validated %s with API KEY for user: %s with keyId: %s.", update.getFormattedKey(), oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
@@ -88,6 +101,17 @@ public class OAuthCredentialValidator implements CredentialValidator<OAuthCreden
             }
         }
         return false;
+    }
+
+    private void addExpiryWarning(final PreparedUpdate update, final UpdateContext updateContext, final APIKeySession apiKeySession) {
+        final LocalDate expiriesAt = apiKeyDetailsCacheManager.getExpiryForKeyId(apiKeySession.getKeyId());
+        if(expiriesAt == null) {
+            return;
+        }
+
+        if (dateTimeProvider.getCurrentDate().plusWeeks(2).isAfter(expiriesAt)) {
+            updateContext.addMessage(update, UpdateMessages.apiKeyGettingExpired(apiKeySession.getKeyId(), expiriesAt.toString()));
+        }
     }
 
     private void log(final PreparedUpdate update, final String message) {
