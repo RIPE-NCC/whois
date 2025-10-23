@@ -18,12 +18,12 @@ public class ApiKeyDetailsCacheManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyDetailsCacheManager.class);
 
-    private final KeyCloakApiKeyDao apiKeyDao;
+    private final KeyCloakApiKeyDao keyCloakApiKeyDao;
     private Map<String, LocalDate> keyIdWithExpiry;
 
     @Autowired
-    public ApiKeyDetailsCacheManager(final KeyCloakApiKeyDao apiKeyDao) {
-        this.apiKeyDao = apiKeyDao;
+    public ApiKeyDetailsCacheManager(final KeyCloakApiKeyDao keyCloakApiKeyDao) {
+        this.keyCloakApiKeyDao = keyCloakApiKeyDao;
     }
 
     @PostConstruct
@@ -36,7 +36,7 @@ public class ApiKeyDetailsCacheManager {
         final Map<String, LocalDate> apikeyIdToExpiry;
 
         try {
-            apikeyIdToExpiry = apiKeyDao.getAllKeyIdWithExpiry();
+            apikeyIdToExpiry = keyCloakApiKeyDao.getAllKeyIdWithExpiry();
         } catch (final Exception e) {
             LOGGER.warn("Failed to refresh apikey details due to {}: {}", e.getClass().getName(), e.getMessage());
             return;
