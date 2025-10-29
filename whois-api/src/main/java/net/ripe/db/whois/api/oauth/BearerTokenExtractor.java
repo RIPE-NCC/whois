@@ -59,7 +59,6 @@ public class BearerTokenExtractor   {
     private static final Logger LOGGER = LoggerFactory.getLogger(BearerTokenExtractor.class);
 
     private final boolean enabled;
-    private final boolean isScopeMandatory;
     private final URI tokenIntrospectEndpoint;
     private final ClientSecretBasic keycloakClient;
     private final int maxScopes;
@@ -68,13 +67,11 @@ public class BearerTokenExtractor   {
 
     @Autowired
     public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
-                                @Value("${apikey.scope.mandatory:false}") final boolean isScopeMandatory,
                                 @Value("${apikey.max.scope:10}") final int maxScopes,
                                 @Value("${openId.metadata.url:}")  final String openIdMetadataUrl,
                                 @Value("${keycloak.idp.password:}")  final String keycloakPassword,
                                 @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId) {
         this.enabled = enabled;
-        this.isScopeMandatory = isScopeMandatory;
         this.keycloakClient = new ClientSecretBasic(new ClientID(whoisKeycloakId), new Secret(keycloakPassword));
 
         final OIDCProviderMetadata oidcProviderMetadata = getOIDCMetadata(openIdMetadataUrl);
@@ -204,12 +201,7 @@ public class BearerTokenExtractor   {
             return;
         }
 
-        if(isScopeMandatory) {
-            oAuthSessionBuilder.errorStatus("Whois scope can not be empty");
-            return;
-        }
-
-       oAuthSessionBuilder.scopes(List.of(OAUTH_ANY_MNTNR_SCOPE));
+        oAuthSessionBuilder.errorStatus("Whois scope can not be empty");
     }
 
     private OAuthSession callTokenInspectionEndpoint(final BearerAccessToken accessToken) {
