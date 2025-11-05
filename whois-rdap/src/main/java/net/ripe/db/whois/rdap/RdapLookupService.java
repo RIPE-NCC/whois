@@ -12,7 +12,8 @@ import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.rdap.domain.RdapObject;
-import net.ripe.db.whois.update.domain.ReservedResources;
+import net.ripe.db.whois.rdap.domain.Status;
+import net.ripe.db.whois.rdap.ipranges.administrative.IanaAdministrativeRanges;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +52,7 @@ public class RdapLookupService {
 
     private final AbuseCFinder abuseCFinder;
 
-    private final ReservedResources reservedResources;
+    private final IanaAdministrativeRanges ianaAdministrativeRanges;
 
     /**
      *
@@ -68,7 +70,7 @@ public class RdapLookupService {
     public RdapLookupService(@Value("${rdap.public.baseUrl:}") final String baseUrl,
                              @Value("${rdap.entity.max.results:100}") final int maxEntityResultSize,
                              final RdapObjectMapper rdapObjectMapper,
-                             final ReservedResources reservedResources,
+                             final IanaAdministrativeRanges ianaAdministrativeRanges,
                              final RdapQueryHandler rdapQueryHandler,
                              final JdbcReferenceReadOnlyDao jdbcReferenceReadOnlyDao,
                              final AbuseCFinder abuseCFinder){
@@ -78,7 +80,7 @@ public class RdapLookupService {
         this.rdapQueryHandler = rdapQueryHandler;
         this.jdbcReferenceReadOnlyDao = jdbcReferenceReadOnlyDao;
         this.abuseCFinder = abuseCFinder;
-        this.reservedResources = reservedResources;
+        this.ianaAdministrativeRanges = ianaAdministrativeRanges;
     }
 
     protected Object lookupObject(final HttpServletRequest request, final Set<ObjectType> objectTypes,
@@ -223,7 +225,7 @@ public class RdapLookupService {
         }
 
         if (RdapObjectMapper.isIANABlock(resultObject)){
-            return  getAdministrativeBlock(getRequestUrl(request), requestedkey)
+            return  getRipeAdministrativeBlock(getRequestUrl(request), requestedkey)
                             .orElseThrow(()-> new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404));
         }
 
@@ -233,9 +235,15 @@ public class RdapLookupService {
                 getAbuseContact(resultObject));
     }
 
-    public Optional<RdapObject> getAdministrativeBlock(final String requestUrl, final String requestedkey) {
-        final RpslObject adminstrativeBlock = reservedResources.getAdministrativeRange(requestedkey);
-        return adminstrativeBlock != null ? Optional.of((RdapObject) rdapObjectMapper.map(requestUrl, adminstrativeBlock, null)): Optional.empty();
+    public Optional<RdapObject> getRipeAdministrativeBlock(final String requestUrl, final String requestedkey) {
+        final RpslObject adminstrativeBlock = ianaAdministrativeRanges.getRipeAdministrativeRange(requestedkey);
+        if (adminstrativeBlock == null) { return Optional.empty(); }
+
+
+        final RdapObject rdapObject = (RdapObject) rdapObjectMapper.map(requestUrl, adminstrativeBlock, null);
+        rdapObject.setStatus(Collections.singletonList(Status.ADMINISTRATIVE.getValue()));
+
+        return Optional.of(rdapObject);
     }
 
     @Nullable

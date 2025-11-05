@@ -707,7 +707,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inetnum_return_administrative_range() {
+    public void lookup_inetnum_ripe_return_administrative_range() {
         final Ip ip = createResource("ip/193.0.0.0")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Ip.class);
@@ -723,7 +723,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inetnum_return_administrative_range_no_redirect() {
+    public void lookup_inetnum_return_ripe_administrative_range_no_redirect() {
 
         databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
 
@@ -744,7 +744,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inetnum_administrative_range_exact_no_redirect() {
+    public void lookup_inetnum_ripe_administrative_range_exact_no_redirect() {
         databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
 
         ipTreeUpdater.rebuild();
@@ -767,7 +767,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
 
     @Test
-    public void lookup_inetnum_administrative_range_exact() {
+    public void lookup_inetnum_ripe_administrative_range_exact() {
 
         ipTreeUpdater.rebuild();
 
@@ -785,6 +785,25 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ip.getStatus().getFirst(), is("administrative"));
 
     }
+
+    @Test
+    public void lookup_inetnum_other_rir_administrative_range() {
+
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+
+        ipTreeUpdater.rebuild();
+
+        final Response response = createResource("ip/1.0.0.0/8")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(301));
+        assertThat(response.getLocation().toString(), is("https://rdap.apnic.net//ip/1.0.0.0/8"));
+
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+
+    }
+
 
     @Test
     public void lookup_bogon_range_not_found() {
@@ -1270,7 +1289,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inet6num_administrative() {
+    public void lookup_inet6num_ripe_administrative() {
         final Ip ip = createResource("ip/2001:2002:2003::/48")
                         .request(MediaType.APPLICATION_JSON_TYPE)
                         .get(Ip.class);

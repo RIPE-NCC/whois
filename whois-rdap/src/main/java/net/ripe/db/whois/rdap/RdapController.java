@@ -25,6 +25,7 @@ import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.rdap.domain.RelationType;
+import net.ripe.db.whois.rdap.ipranges.administrative.IanaAdministrativeRanges;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ public class RdapController {
     private final String baseUrl;
     private final int maxResultSize;
     private final RdapRelationService rdapRelationService;
+    private final IanaAdministrativeRanges ianaAdministrativeRanges;
 
 
     /**
@@ -81,7 +83,7 @@ public class RdapController {
                           final RdapFullTextSearch rdapFullTextSearch,
                           @Value("${rdap.public.baseUrl:}") final String baseUrl,
                           @Value("${rdap.search.max.results:100}") final int maxResultSize,
-                          final SourceContext sourceContext, RdapRelationService rdapRelationService) {
+                          final SourceContext sourceContext, RdapRelationService rdapRelationService, IanaAdministrativeRanges ianaAdministrativeRanges) {
         this.rdapService = rdapService;
         this.rdapRequestValidator = rdapRequestValidator;
         this.delegatedStatsService = delegatedStatsService;
@@ -91,6 +93,7 @@ public class RdapController {
         this.baseUrl = baseUrl;
         this.maxResultSize = maxResultSize;
         this.rdapRelationService = rdapRelationService;
+        this.ianaAdministrativeRanges = ianaAdministrativeRanges;
     }
 
     @GET
@@ -335,11 +338,16 @@ public class RdapController {
             } catch (RdapException e) {
 
                 if(e.getErrorCode() == 404) {
-                    final Optional<RdapObject> responseObject = rdapService.getAdministrativeBlock(getRequestPath(request), key);
+                    final Optional<RdapObject> responseObject = rdapService.getRipeAdministrativeBlock(getRequestPath(request), key);
                     if (responseObject.isPresent()) {
                         return Response.ok(responseObject.get())
                                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                                 .build();
+                    }
+
+                    final URI redirectAdministrativeRange = ianaAdministrativeRanges.getOtherRirRedirectUri(key);
+                    if (redirectAdministrativeRange != null) {
+                        return Response.status(Response.Status.MOVED_PERMANENTLY).location(redirectAdministrativeRange).build();
                     }
                 }
 
@@ -422,8 +430,6 @@ public class RdapController {
         }
         return builder.toString();
     }
-
-
 
     private String getRequestUrl(final HttpServletRequest request) {
         if (StringUtils.isNotEmpty(baseUrl)) {
