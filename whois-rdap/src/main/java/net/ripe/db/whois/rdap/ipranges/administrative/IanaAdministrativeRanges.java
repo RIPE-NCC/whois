@@ -12,7 +12,6 @@ import net.ripe.db.whois.update.domain.ReservedResources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
@@ -29,14 +28,12 @@ public class IanaAdministrativeRanges {
     private static final String TIMESTAMP_CREATED_CHANGED_ADMINISTRATIVE = "2002-06-25T14:19:09Z";
 
     private final ReservedResources reservedResources;
-    private final String rdapBaseUrl;
 
     final private List<IanaRecord> ianaRecords;
 
     @Autowired
-    public IanaAdministrativeRanges(final IanaRangeXmlLoader ianaRangeXmlLoader, final ReservedResources reservedResources, @Value("${rdap.public.baseUrl:}") final String rdapBaseUrl) {
+    public IanaAdministrativeRanges(final IanaRangeXmlLoader ianaRangeXmlLoader, final ReservedResources reservedResources) {
         this.reservedResources = reservedResources;
-        this.rdapBaseUrl = rdapBaseUrl;
         ianaRecords = ianaRangeXmlLoader.getIanaRecords();
     }
 
@@ -79,7 +76,7 @@ public class IanaAdministrativeRanges {
         final IanaRecord ianaRecord = getIanaRecord(prefix);
         if (ianaRecord == null) return false;
 
-        return ianaRecord.getRdap().getServer().contains(rdapBaseUrl);
+        return ianaRecord.getRdap().getServer().contains("https://rdap.db.ripe.net/");
     }
 
     @Nullable

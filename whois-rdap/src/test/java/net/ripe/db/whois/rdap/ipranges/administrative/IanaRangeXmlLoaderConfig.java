@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.util.ResourceUtils;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,26 +27,18 @@ public class IanaRangeXmlLoaderConfig {
         return new IanaRangeXmlLoader() {
 
             @PostConstruct
-            public void init() throws FileNotFoundException {
-                loadDataFromXml(String.valueOf(ResourceUtils.getFile("classpath:IanaAdministratuveRangeTest.xml").toPath()));
-            }
+            public void init() {
+                try (final InputStream in = new FileInputStream(ResourceUtils.getFile("classpath:IanaAdministrativeRangeTest.xml"))) {
+                    final JAXBContext jaxbContext = JAXBContext.newInstance(IanaRegistry.class);
+                    final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-            private void loadDataFromXml(final String url) {
-                try {
+                    final IanaRegistry registry = (IanaRegistry) unmarshaller.unmarshal(in);
 
-                    try (final InputStream in = new FileInputStream(ResourceUtils.getFile("classpath:IanaAdministratuveRangeTest.xml"))) {
-                        final JAXBContext jaxbContext = JAXBContext.newInstance(IanaRegistry.class);
-                        final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-
-                        final IanaRegistry registry = (IanaRegistry) unmarshaller.unmarshal(in);
-
-                        if (registry.getRecords() == null) {
-                            throw new RuntimeException("Records from IANA file is empty");
-                        }
-
-                        ianaRecords.addAll(registry.getRecords());
+                    if (registry.getRecords() == null) {
+                        throw new RuntimeException("Records from IANA file is empty");
                     }
 
+                    ianaRecords.addAll(registry.getRecords());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

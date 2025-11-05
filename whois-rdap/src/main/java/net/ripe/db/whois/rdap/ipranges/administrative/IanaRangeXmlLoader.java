@@ -42,6 +42,8 @@ public class IanaRangeXmlLoader {
                 }
 
                 ianaRecords.addAll(registry.getRecords().stream().filter( ianaRecord -> ianaRecord.getRdap() != null).toList());
+
+                LOGGER.info("Loaded Iana Records  {}", ianaRecords);
             }
 
         } catch (Exception e) {
