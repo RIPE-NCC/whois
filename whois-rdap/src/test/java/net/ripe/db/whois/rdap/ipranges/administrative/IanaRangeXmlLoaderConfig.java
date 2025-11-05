@@ -19,7 +19,6 @@ import java.util.List;
 public class IanaRangeXmlLoaderConfig {
     final private List<IanaRecord> ianaRecords = new ArrayList<>();
 
-
     @Bean
     @Profile(WhoisProfile.TEST)
     public IanaRangeXmlLoader ianaRangeXmlLoader() {

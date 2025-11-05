@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class IanaRangeXmlLoader {
     final private List<IanaRecord> ianaRecords = new ArrayList<>();
 
     @PostConstruct
-    public void init() throws FileNotFoundException {
+    public void init() {
         loadDataFromXml("https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xml");
         loadDataFromXml("https://www.iana.org/assignments/ipv6-unicast-address-assignments/ipv6-unicast-address-assignments.xml");
     }
@@ -43,7 +42,8 @@ public class IanaRangeXmlLoader {
 
                 ianaRecords.addAll(registry.getRecords().stream().filter( ianaRecord -> ianaRecord.getRdap() != null).toList());
 
-                LOGGER.info("Loaded Iana Records  {}", ianaRecords);
+                LOGGER.info("Loaded Iana Records");
+                ianaRecords.forEach(ianaRecord -> LOGGER.info(ianaRecord.getPrefix() + ":" + ianaRecord.getRdap().getServer()));
             }
 
         } catch (Exception e) {

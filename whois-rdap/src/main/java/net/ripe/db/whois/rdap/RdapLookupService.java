@@ -16,6 +16,8 @@ import net.ripe.db.whois.rdap.domain.Status;
 import net.ripe.db.whois.rdap.ipranges.administrative.IanaAdministrativeRanges;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.ORGANISATION;
 
 @Service
 public class RdapLookupService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RdapLookupService.class);
 
     private static final Joiner COMMA_JOINER = Joiner.on(",");
 
@@ -239,7 +243,7 @@ public class RdapLookupService {
         final RpslObject adminstrativeBlock = ianaAdministrativeRanges.getRipeAdministrativeRange(requestedkey);
         if (adminstrativeBlock == null) { return Optional.empty(); }
 
-
+        LOGGER.info("Found RIPE administartive range ");
         final RdapObject rdapObject = (RdapObject) rdapObjectMapper.map(requestUrl, adminstrativeBlock, null);
         rdapObject.setStatus(Collections.singletonList(Status.ADMINISTRATIVE.getValue()));
 

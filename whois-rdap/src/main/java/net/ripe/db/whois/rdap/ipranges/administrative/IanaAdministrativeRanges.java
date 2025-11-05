@@ -37,13 +37,15 @@ public class IanaAdministrativeRanges {
         ianaRecords = ianaRangeXmlLoader.getIanaRecords();
     }
 
-
     @Nullable
     public RpslObject getRipeAdministrativeRange(final String prefix) {
 
         final IanaRecord ianaRecord = getIanaRecord(prefix);
 
         if (ianaRecord == null) return null;
+
+        LOGGER.info("Retrieving ripe  administrative range for {}", ianaRecord.getPrefix() + ":" + ianaRecord.getRdap().getServer());
+
         if(!isRipeAdministrativeRange(prefix)) return null;
 
         return new RpslObjectBuilder().append(new RpslAttribute( (ianaRecord.getPrefix() instanceof Ipv4Resource) ? INETNUM : INET6NUM, ianaRecord.getPrefix().toString()))
@@ -76,7 +78,7 @@ public class IanaAdministrativeRanges {
         final IanaRecord ianaRecord = getIanaRecord(prefix);
         if (ianaRecord == null) return false;
 
-        return ianaRecord.getRdap().getServer().contains("https://rdap.db.ripe.net/");
+        return ianaRecord.getRdap().getServer().contains("rdap.db.ripe.net");
     }
 
     @Nullable
