@@ -41,7 +41,7 @@ public class IanaRangeXmlLoader {
                     throw new RuntimeException("Records from IANA file is empty");
                 }
 
-                ianaRecords.addAll(registry.getRecords());
+                ianaRecords.addAll(registry.getRecords().stream().filter( ianaRecord -> ianaRecord.getRdap() != null).toList());
             }
 
         } catch (Exception e) {
