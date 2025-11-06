@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
-import com.google.common.base.MoreObjects;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -37,14 +36,5 @@ class GrsObjectInfo {
 
     public RpslObjectUpdateInfo createUpdateInfo() {
         return new RpslObjectUpdateInfo(objectId, sequenceId, rpslObject.getType(), rpslObject.getKey().toString());
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("objectId", objectId)
-                .add("sequenceId", sequenceId)
-                .add("rpslObject", rpslObject)
-                .toString();
     }
 }
