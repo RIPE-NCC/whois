@@ -1,6 +1,5 @@
 package net.ripe.db.whois.rdap.ipranges.administrative;
 
-
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -88,7 +87,6 @@ public class IanaAdministrativeRanges {
         if ( ianaRecord == null ) return null;
         if(isRipeAdministrativeRange(prefix)) return null;
 
-        return URI.create(String.format("%s/ip/%s", ianaRecord.getRdap().getServer(), prefix));
+        return URI.create(String.format("%s/ip/%s", ianaRecord.getRdap().getServer(), prefix)).normalize();
     }
-
 }

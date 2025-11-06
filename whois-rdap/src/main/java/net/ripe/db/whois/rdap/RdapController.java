@@ -339,14 +339,12 @@ public class RdapController {
 
                 if(e.getErrorCode() == 404) {
 
-                    LOGGER.info("Checking for administrative range in RIPE");
                     final Optional<RdapObject> responseObject = rdapService.getRipeAdministrativeBlock(getRequestPath(request), key);
                     if (responseObject.isPresent()) {
                         return Response.ok(responseObject.get())
                                 .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
                                 .build();
                     }
-                    LOGGER.info("Checking for administrative range in other RIR");
 
                     final URI redirectAdministrativeRange = ianaAdministrativeRanges.getOtherRirRedirectUri(key);
                     if (redirectAdministrativeRange != null) {

@@ -243,7 +243,6 @@ public class RdapLookupService {
         final RpslObject adminstrativeBlock = ianaAdministrativeRanges.getRipeAdministrativeRange(requestedkey);
         if (adminstrativeBlock == null) { return Optional.empty(); }
 
-        LOGGER.info("Found RIPE administartive range ");
         final RdapObject rdapObject = (RdapObject) rdapObjectMapper.map(requestUrl, adminstrativeBlock, null);
         rdapObject.setStatus(Collections.singletonList(Status.ADMINISTRATIVE.getValue()));
 
