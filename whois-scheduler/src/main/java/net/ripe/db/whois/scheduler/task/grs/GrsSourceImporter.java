@@ -309,7 +309,10 @@ class GrsSourceImporter {
             }
 
             private void update(final RpslObject importedObject, final GrsObjectInfo grsObjectInfo) {
-                final GrsDao.UpdateResult updateResult = grsSource.getDao().updateObject(grsObjectInfo, importedObject);
+                logger.info("Update\nimportedObject={}\ngrsObjectInfo={}",
+                    importedObject,
+                    grsObjectInfo);
+                final GrsDao.UpdateResult updateResult = grsSource.getDao().updateObject(grsObjectInfo, importedObject);    // TODO: hanging
                 if (updateResult.hasMissingReferences()) {
                     incompletelyIndexedObjectIds.add(updateResult.getObjectId());
                 }
