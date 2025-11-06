@@ -129,6 +129,7 @@ public class GrsImporter implements DailyScheduledTask {
                     try {
                         LOGGER.info("Importing: {}", enabledSource);
                         grsSourceImporter.grsImport(grsSource, rebuild);
+                        LOGGER.info("Completed: {}", enabledSource);
                     } catch (RuntimeException e) {
                         grsSource.getLogger().error("Unexpected", e);
                     } finally {
