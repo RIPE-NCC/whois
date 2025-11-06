@@ -40,14 +40,4 @@
         </rdap>
         <status>ALLOCATED</status>
     </record>
-    <record>
-        <prefix>2001:2000::/19</prefix>
-        <designation>RIPE NCC</designation>
-        <date>2010-01</date>
-        <whois>whois.ripe.net</whois>
-        <rdap>
-            <server>https://rdap.db.ripe.net/</server>
-        </rdap>
-        <status>ALLOCATED</status>
-    </record>
 </registry>

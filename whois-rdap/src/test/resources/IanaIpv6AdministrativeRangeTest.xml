@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-stylesheet type="text/xsl" href="ipv4-address-space.xsl"?>
+<?xml-model href="ipv4-address-space.rng" schematypens="http://relaxng.org/ns/structure/1.0" ?>
+<registry xmlns="http://www.iana.org/assignments" id="ipv4-address-space">
+    <record>
+        <prefix>2001:2000::/19</prefix>
+        <designation>RIPE NCC</designation>
+        <date>2010-01</date>
+        <whois>whois.ripe.net</whois>
+        <rdap>
+            <server>https://rdap.db.ripe.net/</server>
+        </rdap>
+        <status>ALLOCATED</status>
+    </record>
+</registry>
