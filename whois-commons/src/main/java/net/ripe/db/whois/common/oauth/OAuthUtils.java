@@ -22,7 +22,7 @@ public class OAuthUtils {
     public static final String OAUTH_CUSTOM_SCOPE_PARAM = "scope";
     public static final String OAUTH_CUSTOM_JTI_PARAM = "jti";
 
-    public static final String OAUTH_ANY_MNTNR_SCOPE = "whois.mntner:ANY:write";
+    public static final String OAUTH_ANY_MNTNR_SCOPE = "whois.mntner:ANY.write";
 
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
 

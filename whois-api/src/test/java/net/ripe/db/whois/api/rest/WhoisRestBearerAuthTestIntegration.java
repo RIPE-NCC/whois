@@ -141,14 +141,12 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
     @BeforeAll
     public static void setupApiProperties() {
         System.setProperty("apikey.authenticate.enabled","true");
-        System.setProperty("apikey.scope.mandatory","true");
         System.setProperty("apikey.max.scope","2");
     }
 
     @AfterAll
     public static void restApiProperties() {
         System.clearProperty("apikey.authenticate.enabled");
-        System.clearProperty("apikey.scope.mandatory");
         System.clearProperty("apikey.public.key.url");
         System.clearProperty("apikey.max.scope");
     }

@@ -71,11 +71,11 @@ public class ApiKeyAuthServerDummy implements Stub {
     public static final Map<String, JWTClaimsSet> APIKEY_TO_OAUTHSESSION =  Maps.newHashMap();
 
     {
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, getJWT(AUD,  "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY:write"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INACTIVE_TOKEN, getJWT(AUD,  "inactive@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY:write"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_ANY_MNT, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "whois.mntner:ANY:write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, getJWT(AUD,  "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY.write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INACTIVE_TOKEN, getJWT(AUD,  "inactive@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY.write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_ANY_MNT, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "whois.mntner:ANY.write"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_MULTIPLE_MNT_WITH_ANY,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT whois.mntner:ANY:write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_MULTIPLE_MNT_WITH_ANY,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT whois.mntner:ANY.write"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_MULTIPLE_MNT,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT whois.mntner:TEST-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_MNT_EXCEED_LIMIT,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT whois.mntner:TEST-MNT whois.mntner:TEST2-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_TEST_MNT,  getJWT(AUD, "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "whois.mntner:TEST-MNT profile email"));
