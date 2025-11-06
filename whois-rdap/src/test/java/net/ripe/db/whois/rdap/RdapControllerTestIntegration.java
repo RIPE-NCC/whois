@@ -798,7 +798,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(301));
-        assertThat(response.getLocation().toString(), is("https://rdap.apnic.net//ip/1.0.0.0/8"));
+        assertThat(response.getLocation().toString(), is("https://rdap.apnic.net/ip/1.0.0.0/8"));
 
         databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
 
