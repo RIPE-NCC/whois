@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.Scope;
 import jakarta.ws.rs.ClientErrorException;
@@ -653,6 +655,34 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                 .delete(Response.class);
 
         assertThat(whoisResources.getStatus(), is(OK.getStatusCode()));
+    }
+
+    @Test
+    public void delete_object_with_bearer_token_NONE_algo_jws_manually() {
+
+        final String jwsObject = convertToJwt(BASIC_AUTH_PERSON_OWNER_MNT);
+        final String modifiedJwsWithNoneAlgo = jwsObject.replaceFirst("^[^.]+", Base64URL.encode("{\"alg\":\"none\"}").toString());
+
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + modifiedJwsWithNoneAlgo)
+                .delete(Response.class);
+
+        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
+    }
+
+    @Test
+    public void delete_object_with_bearer_token_NONE_algo_jws_manually_no_signature() throws ParseException {
+
+        final String jwsObject = convertToJwt(BASIC_AUTH_PERSON_OWNER_MNT);
+        final String modifiedJwsWithNoneAlgo = Base64URL.encode("{\"alg\":\"none\"}").toString() + "." + JWSObject.parse(jwsObject).getPayload().toBase64URL() + ".";
+
+        final Response whoisResources = SecureRestTest.target(getSecurePort(), "whois/references/TEST/role/TR2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + modifiedJwsWithNoneAlgo)
+                .delete(Response.class);
+
+        assertThat(whoisResources.getStatus(), is(UNAUTHORIZED.getStatusCode()));
     }
 
     @Test
