@@ -56,6 +56,7 @@ public class IanaAdministrativeRanges {
                         .get();
     }
 
+    @Nullable
     private IanaRecord getIanaRecord(final String prefix) {
         final IpInterval<?> interval;
         try {
