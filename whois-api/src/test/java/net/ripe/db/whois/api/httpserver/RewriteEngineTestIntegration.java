@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.httpserver;
 
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -264,6 +265,75 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getStatus(), is(HttpStatus.MOVED_PERMANENTLY_301));
         assertThat(response.getLocation(), is(URI.create("https://apps.db.ripe.net/db-web-ui/query")));
+    }
+
+    @Test
+    public void lookup_WEB_INF_request_should_fail() {
+        final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/WEB-INF/web.xml").request().get(Response.class);
+        assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+
+        final Response response = RestTest.target(getPort(), "WEB-INF/web.xml").request().get(Response.class);
+        assertThat(response.getStatus(), is(HttpStatus.NOT_FOUND_404));
+    }
+
+    @Test
+    public void lookup_META_INF_request_should_fail() {
+        final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/META-INF/MANIFEST.MF").request().get(Response.class);
+        assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+
+        final Response response = RestTest.target(getPort(), "META-INF/MANIFEST.MF").request().get(Response.class);
+        assertThat(response.getStatus(), is(HttpStatus.NOT_FOUND_404));
+    }
+
+    @Test
+    public void update_WEB_INF_request_should_fail() {
+        final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
+        assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+
+        final Response response = RestTest.target(getPort(), "WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
+        assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+    }
+
+    @Test
+    public void update_META_INF_request_should_fail() {
+        final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
+        assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+
+        final Response response = RestTest.target(getPort(), "META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
+        assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+    }
+
+
+    @Test
+    public void put_with_WEB_INF_query_parameter_should_ignore_WEB_INF() {
+        final RpslObject updated = new RpslObjectBuilder(person)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        RestTest.target(getPort(), "test/person/PP1-TEST?path=/WEB-INF/web.xml")
+                .queryParam("password", "123")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
+                .put(entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
+    }
+
+    @Test
+    public void put_with_META_INF_query_parameter_should_ignore_META_INF() {
+        final RpslObject updated = new RpslObjectBuilder(person)
+                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
+                .get();
+
+        RestTest.target(getPort(), "test/person/PP1-TEST?path=/META-INF/MANIFEST.MF")
+                .queryParam("password", "123")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
+                .put(entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
     }
 
     // helper methods
