@@ -53,10 +53,6 @@ public abstract class AbstractDatabaseHelperIntegrationTest extends AbstractJUni
         System.setProperty("api.rest.baseurl", "http://rest-test.db.ripe.net");
         System.setProperty("whois.environment", "localhost");
 
-        System.setProperty("ipv4.adminitrative.range", "classpath:IanaAdministrativeRangeTest.xml");
-        System.setProperty("ipv6.adminitrative.range", "classpath:IanaIpv6AdministrativeRangeTest.xml");
-
-
         // default commit-id
         System.setProperty("git.commit.id.abbrev", "0");
 

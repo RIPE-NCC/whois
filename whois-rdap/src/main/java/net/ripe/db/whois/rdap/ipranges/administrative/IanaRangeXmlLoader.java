@@ -25,8 +25,8 @@ public class IanaRangeXmlLoader {
     final private String ipv6Url;
 
     @Autowired
-    public IanaRangeXmlLoader(@Value("${ipv4.adminitrative.range:https://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.xml}") String ipv4Url,
-                              @Value("${ipv6.adminitrative.range:https://www.iana.org/assignments/ipv6-unicast-address-assignments/ipv6-unicast-address-assignments.xml}") String ipv6Url) {
+    public IanaRangeXmlLoader(@Value("${ipv4.adminitrative.range:classpath:IanaIpv4AdministrativeRange.xml}") String ipv4Url,
+                              @Value("${ipv6.adminitrative.range:classpath:IanaIpv6AdministrativeRange.xml}") String ipv6Url) {
         this.ipv4Url = ipv4Url;
         this.ipv6Url = ipv6Url;
     }
