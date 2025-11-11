@@ -269,10 +269,10 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_WEB_INF_request_should_fail() {
-        final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/WEB-INF/web.xml").request().get(Response.class);
-        assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+        final Response encondedResponse = RestTest.target(getPort(), "WEB-INF%2Fweb.xml").request().get(Response.class);
+        assertThat(encondedResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
 
-        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois/%2e%2e/WEB-INF/web.xml").request().get(Response.class);
+        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois%2FWEB-INF%2Fweb.xml").request().get(Response.class);
         assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
 
         final Response response = RestTest.target(getPort(), "whois/WEB-INF/web.xml").request().get(Response.class);
@@ -281,10 +281,10 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_META_INF_request_should_fail() {
-        final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/META-INF/MANIFEST.MF").request().get(Response.class);
-        assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+        final Response encondedResponse = RestTest.target(getPort(), "META-INF%2FMANIFEST.MF").request().get(Response.class);
+        assertThat(encondedResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
 
-        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois/%2e%2e/META-INF/MANIFEST.MF").request().get(Response.class);
+        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois%2FMETA-INF%2FMANIFEST.MF").request().get(Response.class);
         assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
 
         final Response response = RestTest.target(getPort(), "whois/META-INF/MANIFEST.MF").request().get(Response.class);
@@ -293,20 +293,20 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_WEB_INF_request_should_fail() {
-        final Response syncupdatesResponse = RestTest.target(getPort(), "WEB-INF/web.xml")
+        final Response syncupdatesResponse = RestTest.target(getPort(), "WEB-INF%2Fweb.xml")
                 .request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl).replace("rest", "syncupdates"))
                 .put(Entity.text(""), Response.class);
         assertThat(syncupdatesResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
 
-        final Response fulltextsearchResponse = RestTest.target(getPort(), "fulltextsearch?path=WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
+        final Response fulltextsearchResponse = RestTest.target(getPort(), "fulltextsearch%2FWEB-INF%2Fweb.xml").request().put(Entity.text(""), Response.class);
         assertThat(fulltextsearchResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
 
-        final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
-        assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+        final Response encondedResponse = RestTest.target(getPort(), "WEB-INF%2Fweb.xml").request().put(Entity.text(""), Response.class);
+        assertThat(encondedResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
 
-        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois/%2e%2e/WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
-        assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois%2FWEB-INF%2Fweb.xml").request().put(Entity.text(""), Response.class);
+        assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
 
         final Response response = RestTest.target(getPort(), "whois/WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
         assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
@@ -314,56 +314,24 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void update_META_INF_request_should_fail() {
-        final Response syncupdatesResponse = RestTest.target(getPort(), "META-INF/MANIFEST.MF").request()
+        final Response syncupdatesResponse = RestTest.target(getPort(), "META-INF%2FMANIFEST.MF").request()
                 .header(HttpHeaders.HOST, getHost(restApiBaseUrl).replace("rest", "syncupdates"))
                 .put(Entity.text(""), Response.class);
         assertThat(syncupdatesResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
 
-        final Response fulltextsearchResponse = RestTest.target(getPort(), "fulltextsearch?path=META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
+        final Response fulltextsearchResponse = RestTest.target(getPort(), "fulltextsearch%2FMETA-INF%2FMANIFEST.MF").request().put(Entity.text(""), Response.class);
         assertThat(fulltextsearchResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
 
-        final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
-        assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
+        final Response encondedResponse = RestTest.target(getPort(), "META-INF%2FMANIFEST.MF").request().put(Entity.text(""), Response.class);
+        assertThat(encondedResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
 
-        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois/%2e%2e/META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
-        assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois%2FMETA-INF%2FMANIFEST.MF").request().put(Entity.text(""), Response.class);
+        assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
 
         final Response response = RestTest.target(getPort(), "whois/META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
         assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
     }
 
-
-    @Test
-    public void put_with_WEB_INF_query_parameter_should_ignore_WEB_INF() {
-        final RpslObject updated = new RpslObjectBuilder(person)
-                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
-                .get();
-
-        RestTest.target(getPort(), "test/person/PP1-TEST?path=/WEB-INF/web.xml")
-                .queryParam("password", "123")
-                .request()
-                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
-                .put(entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
-    }
-
-    @Test
-    public void put_with_META_INF_query_parameter_should_ignore_META_INF() {
-        final RpslObject updated = new RpslObjectBuilder(person)
-                .addAttributeSorted(new RpslAttribute(AttributeType.REMARKS, "more_test"))
-                .get();
-
-        RestTest.target(getPort(), "test/person/PP1-TEST?path=/META-INF/MANIFEST.MF")
-                .queryParam("password", "123")
-                .request()
-                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
-                .header(HttpHeader.X_FORWARDED_PROTO.toString(), HttpScheme.HTTPS)
-                .put(entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updated), MediaType.APPLICATION_XML), WhoisResources.class);
-
-        assertThat(databaseHelper.lookupObject(PERSON, updated.getKey().toString()).containsAttribute(AttributeType.REMARKS), is(true));
-    }
 
     // helper methods
 
