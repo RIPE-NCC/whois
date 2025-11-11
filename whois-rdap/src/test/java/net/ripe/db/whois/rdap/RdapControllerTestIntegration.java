@@ -4266,7 +4266,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     private void assertGeoFeedLink(final List<Link> links, final String value) {
         assertThat(links, hasSize(9));
 
-        final Optional<Link> geoFeedLink = links.stream().filter(link -> link.getRel().equals("geo")).findFirst();
+        final Optional<Link> geoFeedLink = links.stream().filter(link -> link.getRel().equals("geofeed")).findFirst();
         assertThat(geoFeedLink.isPresent(), is(true));
         assertThat(geoFeedLink.get().getValue(), is(value));
         assertThat(geoFeedLink.get().getHref(), is("https://test.net/geo/test.csv"));
