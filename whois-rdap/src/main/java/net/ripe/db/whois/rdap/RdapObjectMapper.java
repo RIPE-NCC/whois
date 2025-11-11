@@ -752,7 +752,7 @@ public class RdapObjectMapper {
         ip.getRdapConformance().add(GEO_FEED_1.getValue());
 
         if(rpslObject.containsAttribute(GEOFEED)) {
-            ip.getLinks().add(new Link(requestUrl, "geo", rpslObject.getValueForAttribute(GEOFEED).toString(), null, null, GEOFEED_CONTENT_TYPE));
+            ip.getLinks().add(new Link(requestUrl, "geofeed", rpslObject.getValueForAttribute(GEOFEED).toString(), null, null, GEOFEED_CONTENT_TYPE));
             return;
         }
 
@@ -764,7 +764,7 @@ public class RdapObjectMapper {
                 LOGGER.warn("Seems like geo feed is not set properly for object {}", rpslObject.getKey());
                 return;
             }
-            ip.getLinks().add(new Link(requestUrl, "geo", geoFeed[1], null, null, GEOFEED_CONTENT_TYPE));
+            ip.getLinks().add(new Link(requestUrl, "geofeed", geoFeed[1], null, null, GEOFEED_CONTENT_TYPE));
         });
     }
 
