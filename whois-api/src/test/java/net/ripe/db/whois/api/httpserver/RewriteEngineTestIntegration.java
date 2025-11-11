@@ -272,8 +272,11 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
         final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/WEB-INF/web.xml").request().get(Response.class);
         assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
 
-        final Response response = RestTest.target(getPort(), "WEB-INF/web.xml").request().get(Response.class);
-        assertThat(response.getStatus(), is(HttpStatus.NOT_FOUND_404));
+        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois/%2e%2e/WEB-INF/web.xml").request().get(Response.class);
+        assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
+
+        final Response response = RestTest.target(getPort(), "whois/WEB-INF/web.xml").request().get(Response.class);
+        assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
     }
 
     @Test
@@ -281,25 +284,51 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
         final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/META-INF/MANIFEST.MF").request().get(Response.class);
         assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
 
-        final Response response = RestTest.target(getPort(), "META-INF/MANIFEST.MF").request().get(Response.class);
-        assertThat(response.getStatus(), is(HttpStatus.NOT_FOUND_404));
+        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois/%2e%2e/META-INF/MANIFEST.MF").request().get(Response.class);
+        assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
+
+        final Response response = RestTest.target(getPort(), "whois/META-INF/MANIFEST.MF").request().get(Response.class);
+        assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
     }
 
     @Test
     public void update_WEB_INF_request_should_fail() {
+        final Response syncupdatesResponse = RestTest.target(getPort(), "WEB-INF/web.xml")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl).replace("rest", "syncupdates"))
+                .put(Entity.text(""), Response.class);
+        assertThat(syncupdatesResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
+
+        final Response fulltextsearchResponse = RestTest.target(getPort(), "fulltextsearch?path=WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
+        assertThat(fulltextsearchResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+
         final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
         assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
 
-        final Response response = RestTest.target(getPort(), "WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
+        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois/%2e%2e/WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
+        assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+
+        final Response response = RestTest.target(getPort(), "whois/WEB-INF/web.xml").request().put(Entity.text(""), Response.class);
         assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
     }
 
     @Test
     public void update_META_INF_request_should_fail() {
+        final Response syncupdatesResponse = RestTest.target(getPort(), "META-INF/MANIFEST.MF").request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl).replace("rest", "syncupdates"))
+                .put(Entity.text(""), Response.class);
+        assertThat(syncupdatesResponse.getStatus(), is(HttpStatus.NOT_FOUND_404));
+
+        final Response fulltextsearchResponse = RestTest.target(getPort(), "fulltextsearch?path=META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
+        assertThat(fulltextsearchResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+
         final Response encondedResponse = RestTest.target(getPort(), "%2e%2e/META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
         assertThat(encondedResponse.getStatus(), is(HttpStatus.BAD_REQUEST_400));
 
-        final Response response = RestTest.target(getPort(), "META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
+        final Response encondedWhoisResponse = RestTest.target(getPort(), "whois/%2e%2e/META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
+        assertThat(encondedWhoisResponse.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
+
+        final Response response = RestTest.target(getPort(), "whois/META-INF/MANIFEST.MF").request().put(Entity.text(""), Response.class);
         assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
     }
 
