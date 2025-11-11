@@ -42,7 +42,7 @@ public class IanaAdministrativeRanges {
         final IanaRecord ianaRecord = getIanaRecord(prefix);
 
         if (ianaRecord == null) return null;
-        
+
         if(!isRipeAdministrativeRange(prefix)) return null;
 
         return new RpslObjectBuilder().append(new RpslAttribute( (ianaRecord.getPrefix() instanceof Ipv4Resource) ? INETNUM : INET6NUM, ianaRecord.getPrefix().toString()))

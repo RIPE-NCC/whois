@@ -37,7 +37,7 @@ public class IanaRangeXmlLoader {
         loadDataFromXml(ipv6Url);
 
         LOGGER.info("Loaded Iana Records");
-        ianaRecords.forEach(ianaRecord -> LOGGER.info(ianaRecord.getPrefix() + ":" + ianaRecord.getRdap().getServer()));
+        ianaRecords.forEach(ianaRecord -> LOGGER.info( "{} : {}", ianaRecord.getPrefix(), ianaRecord.getRdap().getServer()));
     }
 
     private void loadDataFromXml(final String url) {
