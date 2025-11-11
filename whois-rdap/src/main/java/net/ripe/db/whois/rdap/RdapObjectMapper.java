@@ -52,6 +52,7 @@ import net.ripe.db.whois.rdap.domain.Remark;
 import net.ripe.db.whois.rdap.domain.Role;
 import net.ripe.db.whois.rdap.domain.SearchResult;
 import net.ripe.db.whois.rdap.domain.Status;
+import net.ripe.db.whois.rdap.ipranges.administrative.IanaAdministrativeRanges;
 import net.ripe.db.whois.update.domain.ReservedResources;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
@@ -102,7 +103,6 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.rdap.RdapConformance.GEO_FEED_1;
 import static net.ripe.db.whois.rdap.RedactionObjectMapper.mapRedactions;
 import static net.ripe.db.whois.rdap.domain.Status.ACTIVE;
-import static net.ripe.db.whois.rdap.domain.Status.ADMINISTRATIVE;
 import static net.ripe.db.whois.rdap.domain.Status.RESERVED;
 import static net.ripe.db.whois.rdap.domain.vcard.VCardKind.GROUP;
 import static net.ripe.db.whois.rdap.domain.vcard.VCardKind.INDIVIDUAL;
@@ -121,6 +121,8 @@ public class RdapObjectMapper {
     private final NoticeFactory noticeFactory;
     private final RpslObjectDao rpslObjectDao;
     private final ReservedResources reservedResources;
+    private final IanaAdministrativeRanges ianaAdministrativeRanges;
+
     private final Ipv4Tree ipv4Tree;
     private final Ipv6Tree ipv6Tree;
     private final String port43;
@@ -138,6 +140,7 @@ public class RdapObjectMapper {
             final NoticeFactory noticeFactory,
             @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
             final ReservedResources reservedResources,
+            final IanaAdministrativeRanges ianaAdministrativeRanges,
             final Ipv4Tree ipv4Tree,
             final Ipv6Tree ipv6Tree,
             @Value("${rdap.port43:}") final String port43,
@@ -149,6 +152,7 @@ public class RdapObjectMapper {
         this.port43 = port43;
         this.reservedResources = reservedResources;
         this.baseUrl = baseUrl;
+        this.ianaAdministrativeRanges = ianaAdministrativeRanges;
     }
 
     public Object map(final String requestUrl,
@@ -438,8 +442,7 @@ public class RdapObjectMapper {
                 return reservedResources.isReservedAsBlock(rpslObject.getKey().toUpperCase()) ? RESERVED : ACTIVE;
             case INETNUM:
             case INET6NUM:
-                return reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED :
-                        reservedResources.isAdministrative(rpslObject.getKey().toString()) ? ADMINISTRATIVE : ACTIVE;
+                return reservedResources.isBogon(rpslObject.getKey().toString()) ? RESERVED : ACTIVE;
             default:
                 throw new RdapException("Bad Request", "Unhandled object type: " + rpslObject.getType(),
                         HttpStatus.BAD_REQUEST_400);
