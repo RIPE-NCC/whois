@@ -1,5 +1,14 @@
 # next
 
+# 1.120
+
+[all] Make scope mandatory in OAuth2
+[all] Add Conditional Attributes
+[update] Add Warning if API key is getting expired
+[rdap] RDAP Redirect IANA Administrative Blocks Allocated to Other RIRs
+[rdap] Update RDAP Geofeed Implementation to Comply With RFC 9877 Changes
+
+
 # 1.119
 
 [all] Support multiple maintainers in scope (#1866)
