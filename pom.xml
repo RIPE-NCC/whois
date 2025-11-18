@@ -100,7 +100,7 @@
         <sentry.version>6.26.0</sentry.version>
         <!-- Servlet API 6.0 for EE10 : https://jakarta.ee/specifications/servlet/6.0/ -->
         <servlet.version>6.0.0</servlet.version>
-        <shedlock.version>5.16.0</shedlock.version>
+        <shedlock.version>7.0.0</shedlock.version>
         <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
         <spring.version>6.2.11</spring.version>
