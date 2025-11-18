@@ -1,6 +1,5 @@
 package net.ripe.db.whois.spec.integration
 
-
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslObject
@@ -1618,5 +1617,92 @@ class AutNumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Delete SUCCEEDED: \[aut-num] AS101/
         !response.contains("Deprecated attribute \"mnt-lower\". This attribute has been removed.")
     }
+
+    //@Ignore
+    def "replace mbrs-by-ref from as-set causes aut-num member-of to fail"() {
+        when:
+        def createSet = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref: UPD-MNT    # matches AS1 mntner
+            source:         TEST
+            password:       update
+            password:       emptypassword
+            """.stripIndent(true))
+        then:
+        createSet =~ /Create SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        when:
+        def memberOfSet = syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET             # added member-of set
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            password:       update
+            """.stripIndent(true))
+        then:
+            memberOfSet =~ /Modify SUCCEEDED: \[aut-num] AS101/
+        when:
+        def replacedMntner = syncUpdate new SyncUpdate(data: """\
+            as-set:         AS101:AS-ANOTHERSET
+            descr:          Test Set
+            members:        AS101
+            tech-c:         AP1-TEST
+            tech-c:         AP1-TEST
+            admin-c:        AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         OTHER-MNT
+            mbrs-by-ref: OTHER-MNT  # replaced UPD-MNT, doing this will cause aut-num update to FAIL
+            source:         TEST
+            password:       emptypassword
+            """.stripIndent(true))
+        then:
+        replacedMntner =~ /Modify SUCCEEDED: \[as-set] AS101:AS-ANOTHERSET/
+        when:
+        def modifyAutnum = syncUpdate new SyncUpdate(data: """\
+            aut-num:        AS101
+            as-name:        End-User-1
+            member-of:      AS101:AS-ANOTHERSET              # no longer authenticated
+            descr:          description
+            import:         from AS1 accept ANY
+            export:         to AS1 announce AS2
+            mp-import:      afi ipv6.unicast from AS1 accept ANY
+            mp-export:      afi ipv6.unicast to AS1 announce AS2
+            import-via:     AS6777 from AS5580 accept AS-ATRATO
+            export-via:     AS6777 to AS5580 announce AS2
+            remarks:        updated                         # was remarkable
+            org:            ORG-NCC1-RIPE
+            admin-c:        AP1-TEST
+            tech-c:         AP1-TEST
+            notify:         noreply@ripe.net
+            mnt-by:         UPD-MNT
+            source:         TEST
+            password:       update
+            """.stripIndent(true))
+        then:
+            modifyAutnum =~ /FAIL/
+            modifyAutnum.contains(
+                    "***Error:   Membership claim is not supported by mbrs-by-ref: attribute of the\n" +
+                            "            referenced set [AS101:AS-ANOTHERSET]")
+    }
+
 
 }

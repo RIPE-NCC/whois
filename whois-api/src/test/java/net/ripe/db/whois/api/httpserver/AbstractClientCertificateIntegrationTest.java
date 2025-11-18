@@ -87,7 +87,7 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
         }
 
         try {
-            final SSLContext sslContext = SSLContext.getInstance("TLS");
+            final SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{new DummyTrustManager()}, new SecureRandom());
             return sslContext;
         } catch (NoSuchAlgorithmException | KeyManagementException e) {

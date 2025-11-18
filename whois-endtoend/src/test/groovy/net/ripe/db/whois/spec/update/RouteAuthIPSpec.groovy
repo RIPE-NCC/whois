@@ -186,6 +186,19 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
                 mnt-by:  PARENT-INETNUM-MB-MNT
                 source:      TEST
                 """,
+            "ALLOC-INET": """\
+                inetnum: 21.0.0.0 - 21.255.255.255
+                netname: PARENT-INETNUM
+                descr: Parent inetnum object
+                org:   ORG-LIR1-TEST
+                country: EU
+                admin-c: TP1-TEST
+                tech-c:  TP1-TEST
+                status:  ALLOCATED PA
+                mnt-by:  RIPE-NCC-HM-MNT
+                mnt-by:  PARENT-INETNUM-MB-MNT
+                source:      TEST
+                """,
             "PARENT-INET4": """\
                 inetnum: 21.128.0.0 - 21.128.255.255
                 netname: EXACT-INETNUM
@@ -237,7 +250,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -307,7 +320,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -343,7 +356,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -380,7 +393,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -416,7 +429,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "just added")
@@ -451,7 +464,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_not_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS2000")
@@ -487,7 +500,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         queryObject("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
@@ -523,7 +536,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         queryObject("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16")
@@ -560,7 +573,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16", "AS2000")
@@ -601,7 +614,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16", "AS2000")
@@ -639,7 +652,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.13.0.0/16", "route", "20.13.0.0/16", "AS3000")
@@ -679,7 +692,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 20.130.0.0/16", "route", "20.130.0.0/16", "AS2000")
@@ -716,7 +729,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 21.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16", "AS2000")
@@ -751,7 +764,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 21.130.0.0/16AS2000" }
 
         query_object_matches("-rGBT route 21.130.0.0/16", "route", "21.130.0.0/16", "AS2000")
@@ -786,7 +799,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 21.128.255.255/32AS2000" }
 
         query_object_matches("-rGBT route 21.128.255.255/32", "route", "21.128.255.255/32", "AS2000")
@@ -794,6 +807,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
 
     def "create route, split parent inet, parent inet pw supplied"() {
         given:
+        syncUpdate(getTransient("ALLOC-INET") + "password: mbi-parent\npassword: hm\npassword: owner3")
         syncUpdate(getTransient("PARENT-INET4") + "password: mbi-parent\npassword: hm")
 
         expect:
@@ -851,7 +865,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 4
         ack.summary.assertSuccess(4, 3, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 0, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[route] 21.128.0.0/16AS2000" }
         ack.successes.any { it.operation == "Delete" && it.key == "[inetnum] 21.128.0.0 - 21.128.255.255" }
         ack.successes.any { it.operation == "Create" && it.key == "[inetnum] 21.128.0.0 - 21.128.127.255" }
@@ -899,7 +913,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
@@ -942,7 +956,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
@@ -985,7 +999,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
@@ -1028,7 +1042,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 
@@ -1066,7 +1080,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(3, 1, 0)
+        ack.countErrorWarnInfo(3, 2, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.errorMessagesFor("Modify", "[route] 20.13.0.0/16AS3000") ==
                 [
@@ -1188,7 +1202,7 @@ class RouteAuthIPSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 2
         ack.summary.assertSuccess(2, 1, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[route] 20.13.0.0/16AS3000" }
         ack.successes.any { it.operation == "Create" && it.key == "[route] 20.13.0.0/16AS2000" }
 

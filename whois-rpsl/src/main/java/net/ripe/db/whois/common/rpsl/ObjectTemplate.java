@@ -28,6 +28,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Key.PRIMARY_KEY;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.TEMPLATE_ORDER;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Order.USER_ORDER;
+import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.CONDITIONAL;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.DEPRECATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.GENERATED;
 import static net.ripe.db.whois.common.rpsl.AttributeTemplate.Requirement.MANDATORY;
@@ -119,6 +120,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.PINGABLE;
 import static net.ripe.db.whois.common.rpsl.AttributeType.PING_HDL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.POEM;
 import static net.ripe.db.whois.common.rpsl.AttributeType.POETIC_FORM;
+import static net.ripe.db.whois.common.rpsl.AttributeType.PREFIXLEN;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REF_NFY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.REMARKS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ROLE;
@@ -183,8 +185,8 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(MP_DEFAULT, OPTIONAL, MULTIPLE, USER_ORDER),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(ORG, CONDITIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, CONDITIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
@@ -214,8 +216,8 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                 new ObjectTemplate(ObjectType.FILTER_SET, 21,
                         new AttributeTemplate(FILTER_SET, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
                         new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(FILTER, OPTIONAL, SINGLE),
-                        new AttributeTemplate(MP_FILTER, OPTIONAL, SINGLE),
+                        new AttributeTemplate(FILTER, CONDITIONAL, SINGLE),
+                        new AttributeTemplate(MP_FILTER, CONDITIONAL, SINGLE),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
@@ -254,9 +256,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(COUNTRY, MANDATORY, MULTIPLE),
                         new AttributeTemplate(GEOFEED, OPTIONAL, SINGLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
+                        new AttributeTemplate(PREFIXLEN, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(ORG, CONDITIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, CONDITIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
@@ -265,7 +268,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
+                        new AttributeTemplate(MNT_LOWER, CONDITIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_DOMAINS, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_IRT, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -280,9 +283,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(COUNTRY, MANDATORY, MULTIPLE),
                         new AttributeTemplate(GEOFEED, OPTIONAL, SINGLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
+                        new AttributeTemplate(PREFIXLEN, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(ORG, OPTIONAL, SINGLE, INVERSE_KEY),
-                        new AttributeTemplate(SPONSORING_ORG, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(ORG, CONDITIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(SPONSORING_ORG, CONDITIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
@@ -291,7 +295,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(MNT_LOWER, OPTIONAL, MULTIPLE, INVERSE_KEY),
+                        new AttributeTemplate(MNT_LOWER, CONDITIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_DOMAINS, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_ROUTES, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_IRT, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -361,15 +365,15 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ADDRESS, MANDATORY, MULTIPLE),
                         new AttributeTemplate(COUNTRY, OPTIONAL, SINGLE),
-                        new AttributeTemplate(PHONE, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(FAX_NO, OPTIONAL, MULTIPLE),
+                        new AttributeTemplate(PHONE, CONDITIONAL, MULTIPLE),
+                        new AttributeTemplate(FAX_NO, CONDITIONAL, MULTIPLE),
                         new AttributeTemplate(E_MAIL, MANDATORY, MULTIPLE, LOOKUP_KEY),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(ABUSE_C, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(ABUSE_C, CONDITIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(REF_NFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_REF, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
@@ -381,8 +385,8 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                 new ObjectTemplate(ObjectType.PEERING_SET, 22,
                         new AttributeTemplate(PEERING_SET, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
                         new AttributeTemplate(DESCR, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(PEERING, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(MP_PEERING, OPTIONAL, MULTIPLE),
+                        new AttributeTemplate(PEERING, CONDITIONAL, MULTIPLE),
+                        new AttributeTemplate(MP_PEERING, CONDITIONAL, MULTIPLE),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, MANDATORY, MULTIPLE, INVERSE_KEY),
@@ -446,7 +450,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(NIC_HDL, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(NOTIFY, OPTIONAL, MULTIPLE, INVERSE_KEY),
-                        new AttributeTemplate(ABUSE_MAILBOX, OPTIONAL, SINGLE, INVERSE_KEY),
+                        new AttributeTemplate(ABUSE_MAILBOX, CONDITIONAL, SINGLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_BY, MANDATORY, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(MNT_REF, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(CREATED, GENERATED, SINGLE),

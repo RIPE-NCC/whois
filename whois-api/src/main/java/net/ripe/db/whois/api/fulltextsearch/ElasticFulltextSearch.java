@@ -12,13 +12,13 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
@@ -58,6 +58,8 @@ import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.PRIMARY_KE
 public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
+
+    private static final Integer GRACEFUL_TIMEOUT_IN_MS = 30000; // 30seconds
 
     public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders
             .terms("types-count")
@@ -136,7 +138,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                     responseStrs.add(new SearchResponse.Str(PRIMARY_KEY_FIELD_NAME, hit.getId()));
                     responseStrs.add(new SearchResponse.Str(OBJECT_TYPE_FIELD_NAME, objectType.getName()));
                     responseStrs.add(new SearchResponse.Str(LOOKUP_KEY_FIELD_NAME, pKey));
-                    
+
                     final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
 
                     for (final AttributeType attributeType : templateAttributes) {
@@ -164,10 +166,10 @@ public class ElasticFulltextSearch extends FulltextSearch {
             return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), RequestOptions.DEFAULT);
         } catch (ElasticsearchStatusException ex){
             if (ex.status().equals(RestStatus.BAD_REQUEST)){
-                LOGGER.info("ElasticFullTextSearch fails due to the query: " + ex.getMessage());
+                LOGGER.info("ElasticFullTextSearch fails due to the query: {}", ex.getMessage());
                 throw new IllegalArgumentException("Invalid query syntax");
             }
-            LOGGER.error("ElasticFullTextSearch error: " + ex.getMessage());
+            LOGGER.error("ElasticFullTextSearch error: {}", ex.getMessage());
             throw ex;
         }
     }
@@ -187,6 +189,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(getQueryBuilder(searchRequest.getQuery()))
                 .size(searchRequest.getRows()).from(start)
+                .timeout(TimeValue.timeValueMillis(GRACEFUL_TIMEOUT_IN_MS))
                 .aggregation(AGGREGATION_BUILDER)
                 .sort(SORT_BUILDERS)
                 .highlighter(highlightBuilder).trackTotalHits(true);

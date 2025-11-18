@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.rest.marshal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
@@ -15,26 +15,24 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class StreamingMarshalJson implements StreamingMarshal {
-    private static final JsonFactory jsonFactory;
+
+    private static final ObjectMapper OBJECT_MAPPER;
 
     static {
-        final ObjectMapper objectMapper = new ObjectMapper()
+        OBJECT_MAPPER = new ObjectMapper()
                 .configure(SerializationFeature.INDENT_OUTPUT, true)
                 .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-        objectMapper.setAnnotationIntrospector(new AnnotationIntrospectorPair(
-                new JacksonAnnotationIntrospector(),
-                new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
-
-        jsonFactory = objectMapper.getFactory();
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .setAnnotationIntrospector(new AnnotationIntrospectorPair(
+                    new JacksonAnnotationIntrospector(),
+                    new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
     }
 
     private final JsonGenerator generator;
 
     StreamingMarshalJson(OutputStream outputStream) {
         try {
-            generator = jsonFactory.createGenerator(outputStream);
+            this.generator = OBJECT_MAPPER.writer(new DefaultPrettyPrinter()).createGenerator(outputStream);
         } catch (IOException e) {
             throw new StreamingException(e);
         }

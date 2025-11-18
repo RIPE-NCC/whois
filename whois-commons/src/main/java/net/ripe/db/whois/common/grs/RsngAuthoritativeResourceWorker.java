@@ -49,7 +49,7 @@ public class RsngAuthoritativeResourceWorker {
                             try {
                                 getResponse(asnDelegations).forEach(asnDelegation -> autNums.add(AsnRange.parse(asnDelegation.get("range").asText())));
                             } catch (IOException e) {
-                                logger.warn("failure in fetching asn delegations  {}", e.getCause() );
+                                logger.warn("failure in fetching asn delegations", e.getCause() );
                                 throw new CompletionException(e);
                             }
                         }),
@@ -58,7 +58,7 @@ public class RsngAuthoritativeResourceWorker {
                             try {
                                 getResponse(ipv4Delegations).forEach(ipv4Delegation -> ipv4Space.add( Ipv4Range.parse(ipv4Delegation.get("range").asText())));
                             } catch (IOException e) {
-                                logger.warn("failure in fetching ipv4 delegations {}", e.getCause() );
+                                logger.warn("failure in fetching ipv4 delegations", e.getCause() );
                                 throw new CompletionException(e);
                             }
                         }),
@@ -67,7 +67,7 @@ public class RsngAuthoritativeResourceWorker {
                             try {
                                 getResponse(ipv6Delegations).forEach(ipv6Delegation -> ipv6Space.add( Ipv6Range.parse(ipv6Delegation.get("range").asText())));
                             } catch (IOException e) {
-                                logger.warn("failure in fetching ipv6 delegations {}", e.getCause() );
+                                logger.warn("failure in fetching ipv6 delegations", e.getCause() );
                                 throw new CompletionException(e);
                             }
                         })

@@ -2,8 +2,6 @@ package net.ripe.db.whois.api;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
-import net.ripe.db.whois.api.rdap.domain.Link;
-import net.ripe.db.whois.api.rdap.domain.LinkRelationType;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.apache.logging.log4j.Level;
@@ -14,21 +12,23 @@ import org.apache.logging.log4j.core.appender.WriterAppender;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.eclipse.jetty.io.Content;
+import org.eclipse.jetty.server.Request;
 import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
 public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest {
@@ -36,9 +36,6 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
     @Autowired protected List<ApplicationService> applicationServices;
 
     protected final StringWriter stringWriter = new StringWriter();
-
-    @Value("${rdap.public.baseUrl:}")
-    private String rdapBaseUrl;
 
     @BeforeEach
     public void startServer() {
@@ -106,17 +103,29 @@ public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest
         return stringWriter.toString();
     }
 
-    protected Map<String, String> getRelationCallsFromLinks(final List<Link> links){
-        return links.stream()
-                .filter(link -> LinkRelationType.containsValidValue(link.getRel()))
-                .collect(Collectors.toMap(
-                        Link::getRel,
-                        link -> link.getHref().replace(rdapBaseUrl + "/", "")
-                ));
-    }
-
     protected String encode(final String input) {
         // do not interpret template parameters
         return UriComponent.encode(input, UriComponent.Type.QUERY_PARAM, false);
+    }
+
+    public static String getRequestBody(final Request request) throws IOException {
+
+        final StringBuilder builder = new StringBuilder();
+
+        while (true) {
+            final Content.Chunk chunk = request.read();
+
+            final ByteBuffer buffer = chunk.getByteBuffer();
+
+            final byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+            builder.append(new String(bytes, StandardCharsets.UTF_8));
+
+            chunk.release();
+
+            if (chunk.isLast()) break;
+        }
+
+        return builder.toString();
     }
 }

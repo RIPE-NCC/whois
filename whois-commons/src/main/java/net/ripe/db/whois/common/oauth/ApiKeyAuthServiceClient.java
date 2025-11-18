@@ -10,13 +10,15 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
+import com.google.common.base.Stopwatch;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.common.aspects.Stopwatch;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +66,25 @@ public class ApiKeyAuthServiceClient {
                 .build();
     }
 
-    @Stopwatch(thresholdMs = 100L)
     @Cacheable(cacheNames="apiKeyOAuth")
     @Nullable
     public String validateApiKey(final String basicHeader,  final String apiKeyId) {
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+        try {
+            return  validateApiKeyWithRetry(basicHeader, apiKeyId);
+        } catch (NotFoundException | NotAuthorizedException e) {
+            LOGGER.debug("Failed to validate api key (Username: {}) due to {}:{}\n\tResponse: {}", apiKeyId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            return null;
+        } catch (Exception e) {
+            LOGGER.error("Failed to validate api key (Username: {}) due to {}:{}", apiKeyId, e.getClass().getName(), e.getMessage());
+            return null;
+        } finally {
+            LOGGER.info("Validated apikey in {} ", stopwatch.stop());
+        }
+    }
+
+    @RetryFor(value = ProcessingException.class, attempts = 2, intervalMs = 10000)
+    public String validateApiKeyWithRetry(final String basicHeader,  final String apiKeyId) {
         try {
             return  client.target(restUrl)
                     .path(VALIDATE_PATH)
@@ -75,12 +92,9 @@ public class ApiKeyAuthServiceClient {
                     .header(HttpHeaders.AUTHORIZATION, basicHeader)
                     .get(String.class);
 
-        } catch (NotFoundException | NotAuthorizedException e) {
-            LOGGER.debug("Failed to validate api key {} due to {}:{}\n\tResponse: {}", apiKeyId, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
-            return null;
-        } catch (Exception e) {
-            LOGGER.error("Failed to validate api key {} due to {}:{}", apiKeyId, e.getClass().getName(), e.getMessage());
-            return null;
+        } catch (final ProcessingException e) {
+            LOGGER.error("Failed to validate api key (Username: {}) due to {}:{}\n\tRetrying", apiKeyId, e.getClass().getName(), e.getMessage());
+            throw e;
         }
     }
 }

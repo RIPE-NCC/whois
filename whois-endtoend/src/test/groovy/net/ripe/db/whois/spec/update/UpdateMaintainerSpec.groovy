@@ -136,7 +136,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Create", "[mntner] UPD-MNT") ==
                 ["Enforced new keyword specified, but the object already exists in the database"]
 
@@ -173,7 +173,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Create" && it.key == "[mntner] SELF-MNT"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         queryObject("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT")
         query_object_not_matches("-rGBT mntner SELF-MNT", "mntner", "SELF-MNT", "\\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7.")
@@ -318,7 +318,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Create" && it.key == "[mntner] CRE-MNT"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         queryObject("-rGBT mntner CRE-MNT", "mntner", "CRE-MNT")
     }
@@ -351,7 +351,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.errorMessagesFor("Create", "[mntner] CRE") == ["When creating a MNTNER the name must end with an -MNT suffix"]
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 4, 0)
 
         queryNothing("-rGBT mntner SELF-MNT")
     }
@@ -413,7 +413,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 5, 0)
         ack.successes.find { it.operation == "No operation" && it.key == "[mntner] UPD-MNT"}.warnings == ["Submitted object identical to database object"]
 
         def qryAfter = queryObject("-r -T mntner UPD-MNT", "mntner", "UPD-MNT")
@@ -440,7 +440,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 0, 0, 1)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 5, 0)
         ack.successes.find { it.operation == "No operation" && it.key == "[mntner] UPD"}.warnings == ["Submitted object identical to database object"]
 
         def qryAfter = queryObject("-r -T mntner UPD", "mntner", "UPD")
@@ -485,7 +485,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] UPD-MNT"}
         query_object_matches("-r -T mntner UPD-MNT", "mntner", "UPD-MNT", "remarks:\\s*added comment")
@@ -516,7 +516,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] UPD"}
         query_object_matches("-r -T mntner UPD", "mntner", "UPD", "remarks:\\s*added comment")
@@ -546,7 +546,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
 
         ack.errors.any {it.key == "[mntner] UPD-MNT" }
         ack.errorMessagesFor("Create", "[mntner] UPD-MNT") ==
@@ -669,7 +669,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.successes.any {it.operation == "Create" && it.key == "[mntner] CRE-MNT"}
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         queryObject("-rGBT mntner CRE-MNT", "mntner", "CRE-MNT")
         query_object_not_matches("-rGBT mntner CRE-MNT", "mntner", "CRE-MNT", "\\\$1\\\$fU9ZMQN9\\\$QQtm3kRqZXWAuLpeOiLN7.")
@@ -708,7 +708,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 4, 0)
 
         ack.successes.any { it.operation == "Modify" && it.key == "[mntner] UPD-MNT"}
         query_object_matches("-r -T mntner UPD-MNT", "mntner", "UPD-MNT", "PGPKEY-D83C3FBD")
@@ -743,7 +743,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.errors.any {it.operation == "Create" && it.key == "[mntner] NEW-MNT"}
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Create", "[mntner] NEW-MNT") ==
                 ["Reserved name used"]
 
@@ -779,7 +779,7 @@ class UpdateMaintainerSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
 
         ack.errors.any {it.operation == "Create" && it.key == "[mntner] RIPE-NCC-RPSL-MNT"}
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errorMessagesFor("Create", "[mntner] RIPE-NCC-RPSL-MNT") ==
                 ["Authentication by RIPE NCC maintainers only allowed from within the RIPE NCC network","You cannot create a RIPE NCC maintainer"]
 

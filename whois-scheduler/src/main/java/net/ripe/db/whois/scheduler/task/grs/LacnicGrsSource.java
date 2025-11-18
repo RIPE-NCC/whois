@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.io.Downloader;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
@@ -23,6 +24,7 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -57,7 +59,7 @@ class LacnicGrsSource extends GrsSource {
             final SourceContext sourceContext,
             final DateTimeProvider dateTimeProvider,
             final AuthoritativeResourceData authoritativeResourceData,
-            final Downloader downloader,
+            @Qualifier("jaxRSDownloader") final Downloader downloader,
             @Value("${grs.import.lacnic.userId:}") final String userId,
             @Value("${grs.import.lacnic.password:}") final String password,
             @Value("${grs.import.lacnic.irr.download:}") final String irrDownload) {
@@ -73,15 +75,27 @@ class LacnicGrsSource extends GrsSource {
     }
 
     @Override
+    @RetryFor(value = IOException.class, attempts = 5, intervalMs = 60000)
     public void acquireDump(final Path path) throws IOException {
         final Document loginPage = parse(get("https://lacnic.net/cgi-bin/lacnic/stini?lg=EN"));
         final String loginAction = "https://lacnic.net" + loginPage.select("form").attr("action");
 
-        post(loginAction);
+        Document postLoginPage = parse(post(loginAction));
+        final String refreshAction = postLoginPage.select("meta[http-equiv=Refresh]").attr("content");
+        logger.debug("refresh {}", refreshAction);
+        if (refreshAction.contains("=")) {
+            final String refreshURL = refreshAction.substring(refreshAction.indexOf("=") + 1);
+            postLoginPage = parse(get(refreshURL));
+        }
 
-        final String downloadAction = loginAction.replace("stini", "bulkWhoisLoader");
+        final String downloadAction = "https://lacnic.net" + postLoginPage.select("A[HREF~=/cgi-bin/lacnic/bulkWhoisLoader.*]").attr("href");
+        logger.debug("download {}", downloadAction);
 
         downloader.downloadTo(logger, new URL(downloadAction), path);
+
+        final String logoffAction = "https://lacnic.net" + postLoginPage.select("A[HREF~=/cgi-bin/lacnic/stini\\?logoff.*]").attr("href");
+        logger.debug("logoff {}", logoffAction);
+        get(logoffAction);
     }
 
     @Override
@@ -93,15 +107,17 @@ class LacnicGrsSource extends GrsSource {
     }
 
     private String get(final String url) {
-        return client.target(url).request().get(String.class);
+        return client.target(url)
+                .request()
+                .get(String.class);
     }
 
     private String post(final String url) {
         return client.target(url)
-                .queryParam("handle", userId)
-                .queryParam("passwd", password)
-                .request()
-                .post(null, String.class);
+            .queryParam("handle", userId)
+            .queryParam("passwd", password)
+            .request()
+            .post(null, String.class);
     }
 
     private static Document parse(final String data) {

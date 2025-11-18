@@ -259,12 +259,20 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         return RestTest.target(path).request(mediaType).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString()).get(Response.class);
     }
 
+    protected Response getResponseFromHttpsRequest(@Nullable final String path) {
+        return getResponseFromHttpsRequest(path, MediaType.APPLICATION_JSON);
+    }
+
     protected Response getResponseFromHttpsRequest(@Nullable final String path, final String mediaType) {
         return getWebTarget(path).request(mediaType).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTPS.asString()).get(Response.class);
     }
 
     protected Response getResponseFromHttpRequest(@Nullable final String path) {
-        return getWebTarget(path).request(MediaType.APPLICATION_JSON).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTP.asString()).get(Response.class);
+        return getResponseFromHttpRequest(path, MediaType.APPLICATION_JSON);
+    }
+
+    protected Response getResponseFromHttpRequest(@Nullable final String path, final String mediaType) {
+        return getWebTarget(path).request(mediaType).header(HttpHeader.X_FORWARDED_PROTO.asString(), HttpScheme.HTTP.asString()).get(Response.class);
     }
 
     protected WebTarget getWebTarget(String path) {

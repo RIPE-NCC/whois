@@ -7,17 +7,23 @@ import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.aspects.RetryFor;
+import net.ripe.db.whois.common.domain.IpRanges;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
+import org.eclipse.jetty.ee10.servlet.DefaultServlet;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
+import org.eclipse.jetty.io.Connection;
+import org.eclipse.jetty.io.ssl.SslConnection;
+import org.eclipse.jetty.io.ssl.SslHandshakeListener;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.CustomRequestLog;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.NetworkConnector;
@@ -26,10 +32,8 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,13 +90,13 @@ public class JettyBootstrap implements ApplicationService {
             "SSLv3"
     };
 
-
     private final RemoteAddressFilter remoteAddressFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
     private final List<ServletDeployer> servletDeployers;
     private final RewriteEngine rewriteEngine;
     private final WhoisKeystore whoisKeystore;
     private final String trustedIpRanges;
+    private final int sslRenegotiationRetries;
     private final boolean rewriteEngineEnabled;
     private final boolean sniHostCheck;
     private Server server;
@@ -114,9 +118,13 @@ public class JettyBootstrap implements ApplicationService {
 
     private final IpBlockListFilter ipBlockListFilter;
 
+    private final IpRanges ipRanges;
+
+    private final String[] allowedHostsforCrossOrigin;
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
+                          final IpRanges ipRanges,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
                           final RewriteEngine rewriteEngine,
@@ -124,6 +132,8 @@ public class JettyBootstrap implements ApplicationService {
                           final WhoisQueryDoSFilter whoisQueryDoSFilter,
                           final WhoisUpdateDoSFilter whoisUpdateDoSFilter,
                           @Value("${ipranges.trusted}") final String trustedIpRanges,
+                          @Value("${whois.allow.cross.origin.hosts:}") final String[] allowedHostsforCrossOrigin,
+                          @Value("${ssl.renegotiation.retries:2}") final int sslRenegotiationRetries,
                           @Value("${http.idle.timeout.sec:60}") final int idleTimeout,
                           @Value("${http.sni.host.check:true}") final boolean sniHostCheck,
                           @Value("${rewrite.engine.enabled:false}") final boolean rewriteEngineEnabled,
@@ -144,6 +154,7 @@ public class JettyBootstrap implements ApplicationService {
         this.rewriteEngineEnabled = rewriteEngineEnabled;
         LOGGER.info("Rewrite engine is {}abled", rewriteEngineEnabled ? "en" : "dis");
         this.sniHostCheck = sniHostCheck;
+        this.sslRenegotiationRetries = sslRenegotiationRetries;
         this.idleTimeout = idleTimeout;
         this.securePort = securePort;
         this.port = port;
@@ -155,6 +166,8 @@ public class JettyBootstrap implements ApplicationService {
         this.whoisQueryDoSFilter = whoisQueryDoSFilter;
         this.whoisUpdateDoSFilter = whoisUpdateDoSFilter;
         this.ipBlockListFilter = ipBlockListFilter;
+        this.ipRanges = ipRanges;
+        this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
     }
 
     @Override
@@ -201,9 +214,13 @@ public class JettyBootstrap implements ApplicationService {
     server = new Server(threadPool);
       */
     private Server createServer() {
-        final WebAppContext context = new WebAppContext();
+        final ServletContextHandler context = new ServletContextHandler();
+        context.getServletHandler().setDecodeAmbiguousURIs(true);
+
         context.setContextPath("/");
-        context.setResourceBase("src/main/webapp");
+
+        context.setInitParameter(DefaultServlet.CONTEXT_INIT + "dirAllowed", "false");
+
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
@@ -215,18 +232,21 @@ public class JettyBootstrap implements ApplicationService {
             context.addFilter(createDosFilter(whoisUpdateDoSFilter), "/*", EnumSet.allOf(DispatcherType.class));
         }
 
-        final HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] { context });
         final Server server = new Server();
         setConnectors(server);
-        server.setHandler(handlers);
+        server.setHandler(context);
 
         server.setStopAtShutdown(false);
         server.setRequestLog(createRequestLog());
 
+        final CrossOriginHandler crossOriginHandler = new CustomCrossOriginHandler(allowedHostsforCrossOrigin);
+        crossOriginHandler.setHandler(context);
+
+        server.setHandler(crossOriginHandler);
+
         if (rewriteEngineEnabled) {
             final RewriteHandler rewriteHandler = rewriteEngine.getRewriteHandler();
-            rewriteHandler.setHandler(context);
+            rewriteHandler.setHandler(crossOriginHandler);
             server.setHandler(rewriteHandler);
         }
 
@@ -239,13 +259,7 @@ public class JettyBootstrap implements ApplicationService {
 
 
     private void setConnectors(final Server server) {
-        final HttpConfiguration httpConfiguration = new HttpConfiguration();
-
-        if (this.xForwardedForHttp){
-            httpConfiguration.addCustomizer(new ProtocolCustomizer());
-        }
-        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, this.xForwardedForHttp));
-        server.setConnectors(new Connector[]{createInsecureConnector(server, httpConfiguration)});
+        server.setConnectors(new Connector[]{createInsecureConnector(server)});
 
         if (isHttps()){
             server.addConnector(createSecureConnector(server, this.securePort, false));
@@ -255,7 +269,13 @@ public class JettyBootstrap implements ApplicationService {
         }
     }
 
-    private Connector createInsecureConnector(final Server server, final HttpConfiguration httpConfiguration) {
+    private Connector createInsecureConnector(final Server server) {
+        final HttpConfiguration httpConfiguration = new HttpConfiguration();
+        httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
+        if (this.xForwardedForHttp){
+            httpConfiguration.addCustomizer(new ProtocolCustomizer());
+        }
+        httpConfiguration.addCustomizer(new RemoteAddressCustomizer(ipRanges, this.xForwardedForHttp));
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
@@ -327,21 +347,58 @@ public class JettyBootstrap implements ApplicationService {
             secureRequestCustomizer.setSniHostCheck(false);
         }
 
-        httpsConfiguration.addCustomizer(new RemoteAddressCustomizer(trustedIpRanges, xForwardedForHttps));
+        httpsConfiguration.addCustomizer(new RemoteAddressCustomizer(ipRanges, xForwardedForHttps));
         httpsConfiguration.addCustomizer(secureRequestCustomizer);
 
         httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpsConfiguration.setUriCompliance(UriCompliance.LEGACY);
 
-        final HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpsConfiguration);
         final ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
         alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
+
+        final HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpsConfiguration);
 
         final SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
 
         final ServerConnector sslConnector = new ServerConnector(server, sslConnectionFactory, alpn, h2, new HttpConnectionFactory(httpsConfiguration));
         sslConnector.setPort(port);
+
+        sslRenegotiationRetries(sslContextFactory, sslConnector);
+
         return sslConnector;
+    }
+
+    private void sslRenegotiationRetries(final SslContextFactory.Server sslContextFactory, final ServerConnector sslConnector) {
+
+        if(sslRenegotiationRetries == 0) return;
+
+        sslContextFactory.setRenegotiationAllowed(true);
+
+        sslConnector.addBean(new Connection.Listener() {
+            @Override
+            public void onOpened(Connection connection) {
+                if (connection instanceof SslConnection sslConn) {
+
+                    sslConn.addHandshakeListener(new SslHandshakeListener() {
+                        int renegotiationCount = 0;
+
+                        @Override
+                        public void handshakeSucceeded(Event event) {
+                            renegotiationCount++;
+
+                            if(renegotiationCount > 1) {
+                              LOGGER.info("SSL connection renegotiation count : " + renegotiationCount);
+                            }
+
+                            if (renegotiationCount > sslRenegotiationRetries) {
+                                LOGGER.warn("Too many renegotiations, closing connection");
+                                sslConn.getEndPoint().close();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Scheduled(fixedDelay = 60 * 60 * 1_000L)
@@ -409,8 +466,7 @@ public class JettyBootstrap implements ApplicationService {
     private void logHttpsConfig() {
         for (Connector connector : this.server.getConnectors()) {
             for (ConnectionFactory connectionFactory : connector.getConnectionFactories()) {
-                if (connectionFactory instanceof SslConnectionFactory) {
-                    final SslConnectionFactory sslConnectionFactory = (SslConnectionFactory)connectionFactory;
+                if (connectionFactory instanceof SslConnectionFactory sslConnectionFactory) {
                     final SslContextFactory.Server sslContextFactory = sslConnectionFactory.getSslContextFactory();
                     for (String alias : sslContextFactory.getAliases()) {
                         LOGGER.info("Certificate:       {}", sslContextFactory.getX509(alias));
@@ -427,6 +483,15 @@ public class JettyBootstrap implements ApplicationService {
     private void updatePorts() {
         for (Connector connector : this.server.getConnectors()) {
             final int localPort = ((NetworkConnector) connector).getLocalPort();
+
+            if (localPort == -1) {
+                throw new IllegalStateException("Jetty port has not been opened? Please check the configuration.");
+            }
+
+            if (localPort == -2) {
+                throw new IllegalStateException("Jetty port has been closed? Please check the configuration.");
+            }
+
             if(!connector.getProtocols().contains("ssl")) {
                 this.port = localPort;
                 continue;

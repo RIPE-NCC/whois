@@ -31,9 +31,22 @@ public class MemberContactsResponse {
     public static class ContactDetails {
         @XmlElement(required = true)
         public String email;
+        public String group;
+        public String membershipId;
+        public boolean active;
 
         public String getEmail() {
             return email;
+        }
+        public String getGroup() {
+            return group;
+        }
+        public String getMembershipId() {
+            return membershipId;
+        }
+
+        public boolean isActive() {
+            return active;
         }
     }
 }

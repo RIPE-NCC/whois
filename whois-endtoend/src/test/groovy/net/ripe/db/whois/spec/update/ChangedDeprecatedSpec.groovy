@@ -2,7 +2,6 @@ package net.ripe.db.whois.spec.update
 
 import com.google.common.collect.Lists
 import net.ripe.db.whois.api.rest.domain.ErrorMessage
-
 import net.ripe.db.whois.common.rpsl.AttributeType
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseQueryUpdateSpec
@@ -122,7 +121,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyCreateSuccess(PERSON_WITHOUT_CHANGED,response)
-        mailVerifyHasWarnings(response, 1)
+        mailVerifyHasWarnings(response, 2)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
@@ -134,7 +133,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def errorsAndWarnings = restCreate(PERSON_WITHOUT_CHANGED)
 
         then:
-        restVerifyHasNoWarnings(errorsAndWarnings)
+        restVerifyHasDeprecatedWarning(errorsAndWarnings)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
@@ -400,7 +399,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyModifySuccess(PERSON_WITHOUT_CHANGED_ADJUSTED,response)
-        mailVerifyHasWarnings(response, 1)
+        mailVerifyHasWarnings(response, 2)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED_ADJUSTED)
     }
 
@@ -415,7 +414,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def errorsAndWarnings = restModify(PERSON_WITHOUT_CHANGED_ADJUSTED)
 
         then:
-        restVerifyHasNoWarnings(errorsAndWarnings)
+        restVerifyHasDeprecatedWarning(errorsAndWarnings)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED_ADJUSTED)
     }
 
@@ -447,7 +446,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITH_CHANGED,response)
-        mailVerifyHasWarnings(response, 1)
+        mailVerifyHasWarnings(response, 2)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 
@@ -462,7 +461,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = restDelete(PERSON_WITH_CHANGED)
 
         then:
-        restVerifyHasNoWarnings(response)
+        restVerifyHasDeprecatedWarning(response)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 
@@ -507,7 +506,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = restDelete(PERSON_WITHOUT_CHANGED)
 
         then:
-        restVerifyHasNoWarnings(response)
+        restVerifyHasDeprecatedWarning(response)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 
@@ -552,7 +551,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = restDelete(PERSON_WITH_CHANGED)
 
         then:
-        restVerifyHasNoWarnings(response)
+        restVerifyHasDeprecatedWarning(response)
         doesNotExist(PERSON_WITHOUT_CHANGED)
     }
 
@@ -584,7 +583,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITHOUT_CHANGED,response)
-        mailVerifyHasWarnings(response, 1)
+        mailVerifyHasWarnings(response, 2)
         doesNotExist(PERSON_WITHOUT_CHANGED)
     }
 
@@ -599,7 +598,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         def response = restDelete(PERSON_WITHOUT_CHANGED)
 
         then:
-        restVerifyHasNoWarnings(response)
+        restVerifyHasDeprecatedWarning(response)
         doesNotExist(PERSON_WITHOUT_CHANGED)
     }
 
@@ -787,7 +786,8 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
     def restVerifyHasDeprecatedWarning( final List<ErrorMessage> errorsAndWarnings ) {
         boolean found = false;
         for (ErrorMessage msg : errorsAndWarnings) {
-            if( msg.toString().contains("Deprecated attribute \"changed\". This attribute has been removed.")) {
+            if( msg.toString().contains("Deprecated attribute \"changed\". This attribute has been removed.") ||
+                msg.toString().contains("MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.")) {
                 found = true;
                 break;
             }
@@ -822,36 +822,8 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         return true
     }
 
-    def syncUpdateVerifyNoMatchError(final String response ) {
-        assert response =~ "doesn't match"
-        return true
-    }
-
-    def restVerifyNoMatchError(final List<ErrorMessage> errorsAndWarnings ) {
-        boolean found = false
-        for (ErrorMessage msg : errorsAndWarnings) {
-            if( msg.toString().contains("doesn't match")) {
-                found = true;
-                break;
-            }
-        }
-        assert found
-        return true
-    }
-
-    def mailVerifyNoMatchError(final AckResponse response  ) {
-        assert response.contents =~ "doesn't match"
-        return true
-    }
-
     def syncUpdateVerifyHasNoWarnings(final String response ) {
         assert response !=~  "Warning:"
-        return true
-    }
-
-    def mailVerifyHasNoWarnings(final AckResponse response ) {
-        def warnings = response.allWarnings
-        assert warnings.isEmpty()
         return true
     }
 
@@ -861,12 +833,4 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         return true
     }
 
-    def restVerifyHasNoWarnings(final List<ErrorMessage> errorsAndWarnings ) {
-        for (ErrorMessage msg : errorsAndWarnings) {
-            System.err.println("error:"+msg.toString())
-        }
-
-        assert errorsAndWarnings.size() == 0;
-        return true
-    }
 }
