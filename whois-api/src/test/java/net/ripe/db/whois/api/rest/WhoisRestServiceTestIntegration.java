@@ -2520,7 +2520,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
 
-    @Ignore("TODO:[ES] bug in REST API streaming response")
+    @Disabled("TODO:[ES] bug in REST API streaming response")
     @Test
     public void content_length_doesnt_match_response_body_when_response_contains_non_ascii_characters() {
         try {
