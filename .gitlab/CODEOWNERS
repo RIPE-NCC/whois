@@ -1,0 +1,9 @@
+# The CODEOWNERS file defines individuals or teams that are responsible for code in a repository.
+#
+# Anyone in CODEOWNERS will be added to new Merge Requests.
+#
+# Ref. https://docs.gitlab.com/user/project/codeowners/
+#
+
+# add members of the private database team as reviewers
+*	@eshryane @fmurodov @isvonja @maggarwal @mherran
