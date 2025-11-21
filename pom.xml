@@ -29,88 +29,89 @@
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.24</aspectj.version>
+        <aspectj.version>1.9.25</aspectj.version>
         <awaitility.version>4.3.0</awaitility.version>
 
-        <bouncycastle.version>1.81</bouncycastle.version>
+        <bouncycastle.version>1.82</bouncycastle.version>
 
-        <c3po.version>0.11.1</c3po.version>
-        <commons-codec.version>1.18.0</commons-codec.version>
+        <c3po.version>0.11.2</c3po.version>
+        <commons-codec.version>1.20.0</commons-codec.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
-        <commons-compress.version>1.27.1</commons-compress.version>
+        <commons-compress.version>1.28.0</commons-compress.version>
         <commons-email.version>2.0.0-M1</commons-email.version>
-        <commons-io.version>2.19.0</commons-io.version>
+        <commons-io.version>2.21.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
         <!-- TODO: [ES] Validate.notNull() behaviour has changed in commons-lang3 (throws NullPointerException instead of IllegalArgumentException). Replace all commons-lang with commons-lang3 calls -->
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.19.0</commons-lang3.version>
-        <commons-net.version>3.11.1</commons-net.version>
-        <commons-validator.version>1.9.0</commons-validator.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
+        <commons-net.version>3.12.0</commons-net.version>
+        <commons-validator.version>1.10.1</commons-validator.version>
 
-        <diffutils.version>4.15</diffutils.version>
+        <diffutils.version>4.16</diffutils.version>
 
         <elasticsearch.version>7.16.3</elasticsearch.version>
         <ezvcard.version>0.12.1</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <groovy.version>4.0.27</groovy.version>
-        <guava.version>33.4.8-jre</guava.version>
+        <groovy.version>4.0.29</groovy.version>
+        <guava.version>33.5.0-jre</guava.version>
 
         <hamcrest.version>3.0</hamcrest.version>
         <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
 
-        <jackson.version>2.19.1</jackson.version>
+        <jackson.version>2.20.1</jackson.version>
+        <jackson-annotations.version>2.20</jackson-annotations.version>
         <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
-        <jaxb.api.version>4.0.2</jaxb.api.version>
-        <jaxb.impl.version>4.0.5</jaxb.impl.version>
+        <jaxb.api.version>4.0.4</jaxb.api.version>
+        <jaxb.impl.version>4.0.6</jaxb.impl.version>
         <!-- Jakarta REST (JAX-RS) API for EE10 https://jakarta.ee/specifications/restful-ws/3.1/ -->
         <jaxrs.api.version>3.1.0</jaxrs.api.version>
         <jcache.api.version>1.1.1</jcache.api.version>
         <!-- Jersey Jakarta REST 3.1 for EE10 compatible https://projects.eclipse.org/projects/ee4j.jersey/releases/3.1.0 -->
-        <jersey.version>3.1.9</jersey.version>
+        <jersey.version>3.1.11</jersey.version>
         <!-- Jetty Server EE10 compatible https://jetty.org/docs/jetty/12/index.html -->
-        <jetty.version>12.0.22</jetty.version>
+        <jetty.version>12.0.30</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsonassert.version>1.5.3</jsonassert.version>
-        <json-path.version>2.9.0</json-path.version>
-        <jsoup.version>1.20.1</jsoup.version>
-        <junit.version>5.13.2</junit.version>
+        <json-path.version>2.10.0</json-path.version>
+        <jsoup.version>1.21.2</jsoup.version>
+        <junit.version>5.14.1</junit.version>
 
-        <log4j.version>2.25.0</log4j.version>
+        <log4j.version>2.25.2</log4j.version>
 
-        <mail.version>2.0.3</mail.version>
+        <mail.version>2.0.5</mail.version>
         <!-- TODO: update mariadb to 3.x -->
         <mariadb-java-client.version>2.7.12</mariadb-java-client.version>
-        <mockito.version>5.18.0</mockito.version>
+        <mockito.version>5.20.0</mockito.version>
 
         <netty.version>4.2.7.Final</netty.version>
-        <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.6</nimbus-jose-jwt.version>
 
-        <oauth2.oidc.version>11.23.1</oauth2.oidc.version>
+        <oauth2.oidc.version>11.30.1</oauth2.oidc.version>
         <org.json.version>20250517</org.json.version>
 
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
         <persistence.api.version>3.2.0</persistence.api.version>
         <proprot.version>1.0</proprot.version>
 
-        <sentry.version>6.26.0</sentry.version>
+        <sentry.version>8.26.0</sentry.version>
         <!-- Servlet API 6.0 for EE10 : https://jakarta.ee/specifications/servlet/6.0/ -->
         <servlet.version>6.0.0</servlet.version>
-        <shedlock.version>5.16.0</shedlock.version>
+        <shedlock.version>6.10.0</shedlock.version>
         <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>6.2.11</spring.version>
+        <spring.version>6.2.13</spring.version>
         <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
         <testcontainers.elasticsearch.version>1.21.3</testcontainers.elasticsearch.version>
-        <tink.version>1.13.0</tink.version>
+        <tink.version>1.19.0</tink.version>
 
-        <validation.api.version>3.1.0</validation.api.version>
+        <validation.api.version>3.1.1</validation.api.version>
         <velocity.version>2.4.1</velocity.version>
 
         <whois.main>OVERRIDE</whois.main>
@@ -648,7 +649,7 @@
             <dependency>
                  <groupId>com.fasterxml.jackson.core</groupId>
                  <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
@@ -732,14 +733,7 @@
                 <version>${org.json.version}</version>
             </dependency>
 
-            <!-- Solr -->
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj</artifactId>
-                <version>${solrj.version}</version>
-                <scope>test</scope>
-            </dependency>
-
+            <!-- Shedlock -->
             <dependency>
                 <groupId>net.javacrumbs.shedlock</groupId>
                 <artifactId>shedlock-spring</artifactId>
@@ -751,6 +745,15 @@
                 <version>${shedlock.version}</version>
             </dependency>
 
+            <!-- TEST dependencies -->
+
+            <!-- Solr -->
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj</artifactId>
+                <version>${solrj.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>com.amazonaws.proprot</groupId>
                 <artifactId>proprot</artifactId>
@@ -798,6 +801,7 @@
             <version>${persistence.api.version}</version>
             <scope>compile</scope>
         </dependency>
+        <!-- findbugs (JSR305) provides javax.annotation package -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
