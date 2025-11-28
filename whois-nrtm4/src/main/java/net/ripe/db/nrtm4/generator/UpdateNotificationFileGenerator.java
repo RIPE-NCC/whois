@@ -59,7 +59,7 @@ public class UpdateNotificationFileGenerator {
     }
 
     public void generateFile() {
-        LOGGER.info("Generating the update notification file");
+        LOGGER.debug("Generating the update notification file");
 
        final List<NrtmSource> nrtmSources = nrtmSourceDao.getSources();
        final long createdTimestamp = dateTimeProvider.getCurrentDateTime().toEpochSecond(ZoneOffset.UTC);
@@ -72,11 +72,11 @@ public class UpdateNotificationFileGenerator {
           final NrtmKeyRecord nextKey =  nrtmKeyPairService.getNextkeyPair();
 
           if( !canProceed(notificationFile, nrtmSource, oneDayAgo, snapshotFile, nextKey)) {
-              LOGGER.info("Skipping generation of update notification file for source {}", nrtmSource.getName());
+              LOGGER.debug("Skipping generation of update notification file for source {}", nrtmSource.getName());
               continue;
           }
 
-          LOGGER.info("Last generated snapshot file version is : {}" , snapshotFile.get().versionInfo().version());
+          LOGGER.debug("Last generated snapshot file version is : {}" , snapshotFile.get().versionInfo().version());
 
           final List<DeltaFileVersionInfo> deltaFiles = deltaFileDao.getAllDeltasForSourceSince(nrtmSource, oneDayAgo);
           final NrtmVersionInfo fileVersion = getVersion(deltaFiles, snapshotFile.get());
@@ -119,7 +119,7 @@ public class UpdateNotificationFileGenerator {
                                                         .orElseThrow( () -> new IllegalStateException("No version exists with id " + notificationFile.get().versionId()));
 
         final NrtmVersionInfo notificationVersion = nrtmVersionInfoDao.findById(notificationFile.get().versionId());
-        LOGGER.info("Last notification file version  is : {}" , notificationVersion.version());
+        LOGGER.debug("Last notification file version  is : {}" , notificationVersion.version());
 
         if(notificationVersion.version() > lastVersion.version()) {
             throw new IllegalStateException("Something went wrong, found notification version higher then latest version");
@@ -166,7 +166,7 @@ public class UpdateNotificationFileGenerator {
                 file,
                 hash);
     }
-    
+
 
     private String getPayload(final SnapshotFileVersionInfo snapshotFile, final List<DeltaFileVersionInfo> deltaFiles, final NrtmVersionInfo fileVersion, final NrtmKeyRecord nextKey, final long createdTimestamp) {
         try {

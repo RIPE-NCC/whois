@@ -86,13 +86,13 @@ public class NrtmKeyPairService {
             final LocalDateTime currentDateTime = dateTimeProvider.getCurrentDateTime();
 
             if(currentActiveKey.expires() > currentDateTime.plusDays(7).toEpochSecond(ZoneOffset.UTC)) {
-                LOGGER.info("Current key expiry is greater than 7 days");
+                LOGGER.debug("Current key expiry is greater than 7 days");
                 return;
             }
 
             final NrtmKeyRecord nextKey = getNextkeyPair();
             if(nextKey == null) {
-                LOGGER.info("Generating next Key pair");
+                LOGGER.warn("Generating next Key pair");
                 generateKeyRecord(false);
                 return;
             }
@@ -124,7 +124,7 @@ public class NrtmKeyPairService {
 
             NrtmKeyRecord nextKey = getNextkeyPair();
             if(nextKey == null) {
-               LOGGER.info("Generating next Key pair");
+               LOGGER.warn("Generating next Key pair");
                generateKeyRecord(false);
                nextKey = getNextkeyPair();
             }
