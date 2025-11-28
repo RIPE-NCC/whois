@@ -79,7 +79,7 @@ public class SnapshotFileGenerator {
         final List<NrtmVersionInfo> sourceVersions = nrtmVersionInfoDao.findLastVersionPerSource();
 
         final SnapshotState snapshotState = whoisObjectRepository.getSnapshotState(sourceVersions.isEmpty() ? null : sourceVersions.get(0).lastSerialId());
-        LOGGER.info("Found {} objects in {}", snapshotState.whoisObjectData().size(), stopwatch);
+        LOGGER.debug("Found {} objects in {}", snapshotState.whoisObjectData().size(), stopwatch);
 
         final List<NrtmVersionInfo> sourceToNewVersion = nrtmSourceDao.getSources().stream()
                 .filter( source -> canProceed(sourceVersions, source))
@@ -93,7 +93,7 @@ public class SnapshotFileGenerator {
         final Map<CIString, byte[]> sourceToOutputBytes = writeToGzipStream(snapshotState, sourceToNewVersion);
 
         saveToDatabase(sourceToNewVersion, sourceToOutputBytes);
-        LOGGER.info("Snapshot generation complete {}", stopwatch);
+        LOGGER.debug("Snapshot generation complete {}", stopwatch);
 
         cleanUpOldFiles();
     }
@@ -134,7 +134,7 @@ public class SnapshotFileGenerator {
             });
 
         } catch (final Exception e) {
-            LOGGER.error("Error while writing snapshotfile", e);
+            LOGGER.error("Error while writing snapshot file", e);
             throw new RuntimeException(e);
         } finally {
             timer.cancel();
@@ -150,7 +150,7 @@ public class SnapshotFileGenerator {
         if(!sourceVersions.isEmpty()) {
             final Optional<NrtmVersionInfo> versionInfo = sourceVersions.stream().filter((sourceVersion) -> source.getName().equals(sourceVersion.source().getName())).findFirst();
             if(versionInfo.isPresent() && versionInfo.get().type() == NrtmDocumentType.SNAPSHOT) {
-                LOGGER.info("skipping generation of snapshot file for source {}, as no changes since last snapshot file", source.getName());
+                LOGGER.debug("skipping generation of snapshot file for source {}, as no changes since last snapshot file", source.getName());
                 return false;
             }
         }
@@ -182,7 +182,7 @@ public class SnapshotFileGenerator {
     }
 
     private void cleanUpOldFiles() {
-        LOGGER.info("Deleting old snapshot files");
+        LOGGER.debug("Deleting old snapshot files");
 
         final Map<CIString, List<NrtmVersionInfo>> versionsBySource = nrtmVersionInfoDao.getAllVersionsByType(NrtmDocumentType.SNAPSHOT).stream()
                 .collect(groupingBy( versionInfo -> versionInfo.source().getName()));
@@ -212,10 +212,10 @@ public class SnapshotFileGenerator {
             if (versionInfo.isPresent()) {
                 try {
                     final String fileName = NrtmFileUtil.newGzFileName(versionInfo.get());
-                    LOGGER.info("Source {} snapshot file {}", source, fileName);
-                    LOGGER.info("Calculated hash for {}", source);
+                    LOGGER.debug("Source {} snapshot file {}", source, fileName);
+                    LOGGER.debug("Calculated hash for {}", source);
                     updateNrtmFileRepository.saveSnapshotVersion(versionInfo.get(), fileName, calculateSha256(payload), payload);
-                    LOGGER.info("Wrote {} to DB", source);
+                    LOGGER.debug("Wrote {} to DB", source);
                 } catch (final Throwable t) {
                     LOGGER.error("Unexpected throwable caught when inserting snapshot file", t);
                 }
@@ -228,8 +228,8 @@ public class SnapshotFileGenerator {
             @Override
             public void run() {
                 final int done = noOfBatchesProcessed.get();
-                LOGGER.info("Processed {} objects out of {} ({}%).", (done * BATCH_SIZE), total, ((done * BATCH_SIZE) * 100/ total));
+                LOGGER.debug("Processed {} objects out of {} ({}%).", (done * BATCH_SIZE), total, ((done * BATCH_SIZE) * 100/ total));
             }
-        }, 0, 10000);
+        }, 0, 10_000);
     }
 }

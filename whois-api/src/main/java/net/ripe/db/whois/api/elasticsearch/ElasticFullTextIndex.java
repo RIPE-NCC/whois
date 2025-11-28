@@ -1,6 +1,7 @@
 package net.ripe.db.whois.api.elasticsearch;
 
 import com.google.common.base.Stopwatch;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
@@ -45,7 +46,7 @@ public class ElasticFullTextIndex {
     @PostConstruct
     public void init() {
         if (elasticIndexService.isEnabled() && shouldRebuild()) {
-            LOGGER.error("ES indexes needs to be rebuild");
+            LOGGER.error("Elasticsearch index needs to be rebuilt");
         }
     }
 
@@ -53,24 +54,24 @@ public class ElasticFullTextIndex {
     @SchedulerLock(name = TASK_NAME, lockAtMostFor = "PT30M")
     public void scheduledUpdate() {
         if (!elasticIndexService.isEnabled()) {
-            LOGGER.error("Elasticsearch is not enabled");
+            LOGGER.warn("Elasticsearch is not enabled");
             return;
         }
 
-        LOGGER.info("started scheduled job for  elastic search  indexes");
+        LOGGER.debug("started scheduled job to update Elasticsearch index");
         try {
             update();
         } catch (DataAccessException | IOException | IllegalStateException e) {
             LOGGER.error("Unable to update fulltext index due to {}: {}", e.getClass(), e.getMessage());
         }
 
-        LOGGER.info("Completed updating Elasticsearch indexes");
+        LOGGER.debug("Completed updating Elasticsearch index");
     }
 
     @Transactional(transactionManager = TransactionConfiguration.WHOIS_READONLY_TRANSACTION , isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public void update() throws IOException {
         if (shouldRebuild()) {
-            LOGGER.error("ES indexes needs to be rebuild");
+            LOGGER.error("Elasticsearch index needs to be rebuilt");
             return;
         }
 
@@ -80,16 +81,22 @@ public class ElasticFullTextIndex {
 
         final int esSerialId = committedMetadata.getSerial();
         if (esSerialId > dbMaxSerialId) {
-            LOGGER.error("Seems like ES is ahead of database, this should never have happened. ES max serial id is {} and database max serial id is {}", esSerialId, dbMaxSerialId);
+            LOGGER.error(
+                "Seems like Elasticsearch is ahead of database, this should never have happened. " +
+                "Elasticsearch max serial id is {} and database max serial id is {}",
+                esSerialId, dbMaxSerialId);
             return;
         }
 
         if(esSerialId == dbMaxSerialId) {
-            LOGGER.info("No database update since last run.ES serial id is {} and database max serial id is {}", esSerialId, dbMaxSerialId);
+            LOGGER.debug(
+                "No database update since last run. " +
+                "Elasticsearch serial id is {} and database max serial id is {}",
+                esSerialId, dbMaxSerialId);
             return;
         }
 
-        LOGGER.info("Index serial ({}) lower than database serial ({}), updating", esSerialId, dbMaxSerialId);
+        LOGGER.debug("Index serial ({}) lower than database serial ({}), updating", esSerialId, dbMaxSerialId);
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         for (int serial = esSerialId + 1; serial <= dbMaxSerialId; serial++) {
@@ -116,10 +123,15 @@ public class ElasticFullTextIndex {
         final int countInDb = (int) maxSerialIdWithObjectCount.values().toArray()[0];
         final long countInES = elasticIndexService.getWhoisDocCount();
         if(countInES != countInDb) {
-            LOGGER.error(String.format("Number of objects in DB (%s) does not match to number of objects indexed in ES (%s) for serialId (%s)", countInDb, countInES, dbMaxSerialId));
+            LOGGER.error(
+                "Number of objects in Database ({}) " +
+                "does not match to number of objects indexed in Elasticsearch ({}) " +
+                "for serialId ({})",
+                countInDb, countInES, dbMaxSerialId);
         }
     }
 
+    @Nullable
     private SerialEntry getSerialEntry(final int serial) {
         try {
             return JdbcRpslObjectOperations.getSerialEntry(jdbcTemplate, serial);
@@ -141,22 +153,22 @@ public class ElasticFullTextIndex {
     private boolean shouldRebuild() {
         try {
             if (elasticIndexService.getWhoisDocCount() == 0L) {
-                LOGGER.warn("Whois index count is zero, rebuilding");
+                LOGGER.warn("Whois document count is zero, rebuilding");
                 return true;
             }
 
             final ElasticIndexMetadata committedMetadata = elasticIndexService.getMetadata();
             if (committedMetadata == null || committedMetadata.getSerial() == null) {
-                LOGGER.warn("Index has invalid or null source, rebuild");
+                LOGGER.warn("Index has invalid or null source, rebuilding");
                 return true;
             }
 
             if (committedMetadata.getSerial() == 0) {
-                LOGGER.warn("Index is missing serial, rebuild");
+                LOGGER.warn("Index is missing serial, rebuilding");
                 return true;
             }
         } catch (IOException | IllegalStateException ex) {
-            LOGGER.info("Failed to check if ES index needs rebuilding {}", ex.getMessage());
+            LOGGER.warn("Failed to check if index needs rebuilding {}", ex.getMessage());
         }
         return false;
     }

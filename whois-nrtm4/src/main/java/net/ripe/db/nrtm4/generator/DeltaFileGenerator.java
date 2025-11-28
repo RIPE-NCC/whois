@@ -67,7 +67,7 @@ public class DeltaFileGenerator {
         sourceVersions.forEach(sv -> deltaMap.put(sv.source().getName(), new ArrayList<>()));
 
         final List<SerialEntry> whoisChanges = whoisObjectRepository.getSerialEntriesBetween(sourceVersions.get(0).lastSerialId(), serialIDTo);
-        LOGGER.info("Number of objects found between serial id {} - {} is {} ", sourceVersions.get(0).lastSerialId(), serialIDTo, whoisChanges.size());
+        LOGGER.debug("Number of objects found between serial id {} - {} is {} ", sourceVersions.get(0).lastSerialId(), serialIDTo, whoisChanges.size());
         // iterate changes and divide objects per source
         for (final SerialEntry serialEntry : whoisChanges) {
             if (!dummifierNrtmV4.isAllowed(serialEntry.getRpslObject())) {
@@ -85,7 +85,7 @@ public class DeltaFileGenerator {
             }
         }
 
-        LOGGER.info("Delta file generation completed");
+        LOGGER.debug("Delta file generation completed");
 
         cleanUpOldFiles();
     }
@@ -97,7 +97,7 @@ public class DeltaFileGenerator {
     }
 
     private void cleanUpOldFiles() {
-        LOGGER.info("Deleting old delta files");
+        LOGGER.debug("Deleting old delta files");
 
         final LocalDateTime twoDayAgo = dateTimeProvider.getCurrentDateTime().minusDays(2);
 

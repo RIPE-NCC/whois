@@ -48,7 +48,7 @@ public class UpdateNrtmFileRepository {
 
     public void saveDeltaVersion(final NrtmVersionInfo version, final int serialIDTo, final List<DeltaFileRecord> deltas) throws JsonProcessingException {
         if (deltas.isEmpty()) {
-            LOGGER.info("No delta changes found for source {}", version.source().getName());
+            LOGGER.debug("No delta changes found for source {}", version.source().getName());
             return;
         }
 
@@ -56,7 +56,7 @@ public class UpdateNrtmFileRepository {
         final DeltaFile deltaFile = getDeltaFile(newVersion, deltas);
 
         saveDeltaFile(deltaFile.versionId(), deltaFile.name(), deltaFile.hash(), deltaFile.payload());
-        LOGGER.info("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
+        LOGGER.debug("Created {} delta version {}", newVersion.source().getName(), newVersion.version());
     }
 
     public void saveSnapshotVersion(final NrtmVersionInfo version, final String fileName, final String hash, final byte[] payload)  {
@@ -65,11 +65,11 @@ public class UpdateNrtmFileRepository {
         final SnapshotFile snapshotFile = SnapshotFile.of(newVersion.id(), fileName, hash);
 
         saveSnapshot(snapshotFile, payload);
-        LOGGER.info("Created {} snapshot version {}", version.source().getName(), version.version());
+        LOGGER.debug("Created {} snapshot version {}", version.source().getName(), version.version());
     }
 
     public void rotateKey(final NrtmKeyRecord newActiveKey, final NrtmKeyRecord oldActiveKey) {
-        LOGGER.warn("NRTMv4 rotating the key");
+        LOGGER.warn("Rotating the key");
 
         jdbcTemplate.update("UPDATE key_pair k1 JOIN key_pair k2 " +
                                  "SET k1.is_active = 1, k2.is_active = 0 " +
@@ -173,7 +173,7 @@ public class UpdateNrtmFileRepository {
         }
         deleteVersionInfos(versionIds);
     }
-    
+
     public void cleanupNrtmv4Database() {
         LOGGER.warn("Cleaning up NRTMv4 Database");
 

@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.attribute.FileTime;
 import java.security.KeyFactory;
 import java.security.KeyStore;
@@ -248,8 +249,11 @@ public class WhoisKeystore {
         final FileTime keyStoreLastModified;
         try {
             keyStoreLastModified = Files.getLastModifiedTime(new File(this.keystoreFilename).toPath());
+        } catch (NoSuchFileException e) {
+            LOGGER.warn("Keystore {} does not exist: {}", this.keystoreFilename, e.getMessage());
+            return false;
         } catch (IOException e) {
-            LOGGER.info("Caught {} on get modified time for keystore {}: {}", e.getClass().getName(), this.keystoreFilename, e.getMessage());
+            LOGGER.warn("Caught {} on get modified time for keystore {}: {}", e.getClass().getName(), this.keystoreFilename, e.getMessage());
             return false;
         }
 
@@ -259,8 +263,10 @@ public class WhoisKeystore {
                 if (keyStoreLastModified.compareTo(certificateLastModified) < 0) {
                     return true;
                 }
+            } catch (NoSuchFileException e) {
+                LOGGER.debug("Certificate {} does not exist", certificateFilename);
             } catch (IOException e) {
-                LOGGER.info("Caught {} on get modified time for certificate {}: {}", e.getClass().getName(), certificateFilename, e.getMessage());
+                LOGGER.warn("Caught {} on get modified time for certificate {}: {}", e.getClass().getName(), certificateFilename, e.getMessage());
             }
         }
 
@@ -270,8 +276,10 @@ public class WhoisKeystore {
                 if (keyStoreLastModified.compareTo(privateKeyLastModified) < 0) {
                     return true;
                 }
+            } catch (NoSuchFileException e) {
+                LOGGER.debug("Private key {} does not exist", privateKeyFilename);
             } catch (IOException e) {
-                LOGGER.info("Caught {} on get modified time for private key {}: {}", e.getClass().getName(), privateKeyFilename, e.getMessage());
+                LOGGER.warn("Caught {} on get modified time for private key {}: {}", e.getClass().getName(), privateKeyFilename, e.getMessage());
             }
         }
 
