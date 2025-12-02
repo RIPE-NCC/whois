@@ -2,7 +2,7 @@ image: $CI_REGISTRY/swe-database-team/gitlab-ci/whois-build:v0.0.10
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
-  ES_JAVA_OPTS: '-Xms1g -Xmx4g'
+  ES_JAVA_OPTS: "-Xms1g -Xmx4g"
   TZ: Europe/Amsterdam
   WS_MAVEN_AGGREGATEMODULES: "true"
   PROJECT_NAME: "whois"
@@ -11,10 +11,23 @@ variables:
   GROUP_ID: "net.ripe.db"
 
 include:
-  - project: 'swe-database-team/gitlab-ci'
-    file: '/templates/release-template.yml'
-  - project: 'swe-database-team/gitlab-ci'
-    file: '/templates/deployment-template.yml'
+  - project: "swe-database-team/gitlab-ci"
+    file:
+      - "/templates/release-template.yml"
+      - "/templates/deployment-template.yml"
+
+# Prevent duplicate pipelines - prefer MR pipelines over branch pipelines
+workflow:
+  rules:
+    # Run for merge requests
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    # Run for tags
+    - if: "$CI_COMMIT_TAG"
+    # Run for branches ONLY if there's no open MR
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    # Run for all other branch commits
+    - if: "$CI_COMMIT_BRANCH"
 
 stages:
   - build
@@ -29,10 +42,18 @@ cache:
   paths:
     - .m2/repository
 
+# Default rules for build/test stages (all commits, tags, and MRs)
+.default_rules:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_TAG"
+    - if: "$CI_COMMIT_BRANCH"
+
 build:
   tags:
     - whois
   stage: build
+  extends: .default_rules
   script:
     - mvn $MAVEN_OPTS clean install -Prelease
   artifacts:
@@ -45,14 +66,13 @@ build:
 
 release:
   stage: release
-  only:
-    - tags
+  extends: .release_template
+  rules:
+    - if: "$CI_COMMIT_TAG"
   script:
     - if [ "$CI_COMMIT_TAG" ]; then NEW_VERSION="$CI_COMMIT_SHORT_SHA"; else NEW_VERSION="$CI_COMMIT_SHORT_SHA-SNAPSHOT"; fi
     - mvn versions:set -DnewVersion=$NEW_VERSION
     - mvn -DskipTests -DskipITs -Prelease deploy
-  extends: .release_template
-
 
 .it_template: &it_env
   tags:
@@ -62,7 +82,6 @@ release:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
     - when: manual
-      allow_failure: true
   artifacts:
     reports:
       junit:
@@ -82,14 +101,12 @@ release:
   services: &mariadb_service
     - mariadb:11.4
 
-
 whois-endtoend:
   <<:
     - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-endtoend
-
 
 whois-api:
   <<:
@@ -110,14 +127,12 @@ whois-client:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-client
 
-
 whois-commons:
   <<:
     - *it_env
     - *mariadb_configuration
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-commons -T 1
-
 
 whois-db:
   <<:
@@ -166,7 +181,6 @@ whois-rpsl:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-rpsl
 
-
 whois-scheduler:
   <<:
     - *it_env
@@ -188,14 +202,13 @@ whois-update:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-update
 
-
 sonar:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
-    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+    GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
   stage: code_quality
-  only:
-    - schedules
+  rules:
+    - if: "$CI_PIPELINE_SOURCE == 'schedule'"
   tags:
     - whois
   script:
