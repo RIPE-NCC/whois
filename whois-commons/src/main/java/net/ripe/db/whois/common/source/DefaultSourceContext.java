@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mchange.v2.c3p0.DataSources;
+import jakarta.annotation.PreDestroy;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.jdbc.DataSourceFactory;
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.CheckForNull;
-import jakarta.annotation.PreDestroy;
 import javax.sql.DataSource;
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
@@ -144,7 +145,12 @@ public class DefaultSourceContext implements SourceContext {
     }
 
     private String createGrsUrl(final String baseUrl, final CIString sourceName) {
-        return String.format("%s_%s", baseUrl, sourceName.toString().replace('-', '_'));
+        final URI uri = URI.create(URI.create(baseUrl).getRawSchemeSpecificPart());
+        return String.format("jdbc:mariadb://%s%s_%s%s",
+            uri.getHost(),
+            uri.getPath(),
+            sourceName.toString().replace('-', '_'),
+            (uri.getQuery() != null ? "?" + uri.getQuery() : ""));
     }
 
     public SourceConfiguration getCurrentSourceConfiguration() {

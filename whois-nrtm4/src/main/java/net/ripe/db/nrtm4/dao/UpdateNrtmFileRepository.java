@@ -24,6 +24,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -122,7 +123,7 @@ public class UpdateNrtmFileRepository {
                     return pst;
                 }, keyHolder
         );
-        return new NrtmVersionInfo(keyHolder.getKeyAs(Long.class), source, version, sessionID, type, lastSerialId, now);
+        return new NrtmVersionInfo(keyHolder.getKeyAs(BigInteger.class).longValue(), source, version, sessionID, type, lastSerialId, now);
     }
 
     public void saveDeltaFile(

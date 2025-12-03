@@ -5,7 +5,7 @@
 -- create table nrtm.serials select * from serials where serial_id >= 21486000 and serial_id <= 21486100;
 -- create table nrtm.last select last.* from serials join last on serials.object_id = last.object_id where serials.serial_id >= 21486000 and serials.serial_id <= 21486100;
 -- create table nrtm.history select history.* from serials join history on serials.object_id = history.object_id AND ((history.sequence_id = serials.sequence_id - (serials.operation - 1)) or (history.sequence_id = serials.sequence_id)) where serials.serial_id >= 21486000 and serials.serial_id <= 21486100;
--- mysqldump -t --skip-opt nrtm >nrtm_sample.sql
+-- mariadb-dump -t --skip-opt nrtm >nrtm_sample.sql
 -- **********************************************************************************
 --
 --

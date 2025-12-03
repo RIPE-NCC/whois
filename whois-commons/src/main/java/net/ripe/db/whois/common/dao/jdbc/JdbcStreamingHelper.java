@@ -29,8 +29,7 @@ public class JdbcStreamingHelper {
                     // [AK] Creating a statement with criteria below is currently the only way to
                     // get database streaming results rather than preloading the entire resultset in memory.
                     ps = con.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-                    ps.setFetchSize(Integer.MIN_VALUE);
-
+                    ps.setFetchSize(1);
                     return callback.doInPreparedStatement(ps);
                 } finally {
                     JdbcUtils.closeStatement(ps);
