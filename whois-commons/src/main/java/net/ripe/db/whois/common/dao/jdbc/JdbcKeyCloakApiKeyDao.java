@@ -10,12 +10,19 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.Map;
 
 @Repository
 public class JdbcKeyCloakApiKeyDao implements KeyCloakApiKeyDao {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+    private static final DateTimeFormatter DATE_TIME_FORMATTER =
+                                new DateTimeFormatterBuilder()
+                                        .parseCaseInsensitive()
+                                        .append(DateTimeFormatter.ISO_LOCAL_DATE)
+                                        .appendLiteral(' ')
+                                        .append(DateTimeFormatter.ISO_TIME)
+                                        .toFormatter();
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -32,7 +39,7 @@ public class JdbcKeyCloakApiKeyDao implements KeyCloakApiKeyDao {
                 """,
                 (rs, rowNum) -> apikeyIdToExpiry.put(
                         rs.getString(1),
-                        LocalDate.parse(rs.getString(2), formatter))
+                        LocalDate.parse(rs.getString(2), DATE_TIME_FORMATTER))
         );
 
         return apikeyIdToExpiry;
