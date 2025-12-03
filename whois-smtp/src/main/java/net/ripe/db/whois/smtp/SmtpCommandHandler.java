@@ -63,8 +63,15 @@ public class SmtpCommandHandler extends ChannelInboundHandlerAdapter implements 
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-        final String command = ((ByteBuf) msg).toString(StandardCharsets.US_ASCII).trim();
+        final String command;
+        try {
+            command = ((ByteBuf) msg).toString(StandardCharsets.US_ASCII).trim();
+        } finally {
+            ((ByteBuf)msg).release();
+        }
+
         smtpLog.log(ctx.channel(), command);
+
         final SmtpRequest smtpRequest = new SmtpRequestBuilder(command).build();
         switch (smtpRequest) {
             case HelloSmtpRequest hello -> {
