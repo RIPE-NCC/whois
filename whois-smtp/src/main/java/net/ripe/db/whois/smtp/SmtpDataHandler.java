@@ -53,26 +53,30 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter implements Smt
 
     @Override
 	public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-        if (isEndMessage((ByteBuf) msg)) {
-            if ((maximumSize > 0) && (getMessageLength(ctx.channel()) > maximumSize)) {
-                smtpLog.log(ctx.channel(), "(END DATA: TOO LONG)");
-                writeResponse(ctx.channel(), SmtpResponses.sizeExceeded());
-            } else {
-                smtpLog.log(ctx.channel(), "(END DATA)");
-                smtpRawLog.log(getMessage(ctx.channel()));
-                final MimeMessage mimeMessage = MimeUtility.parseMessage(getMessage(ctx.channel()));
-                if (isMessageFromOurselves(mimeMessage)) {
-                    writeResponse(ctx.channel(), SmtpResponses.refusingMessageFrom(smtpFrom.getAddress()));
+        try {
+            if (isEndMessage((ByteBuf) msg)) {
+                if ((maximumSize > 0) && (getMessageLength(ctx.channel()) > maximumSize)) {
+                    smtpLog.log(ctx.channel(), "(END DATA: TOO LONG)");
+                    writeResponse(ctx.channel(), SmtpResponses.sizeExceeded());
                 } else {
-                    writeMessageToDatabase(mimeMessage);
-                    writeResponse(ctx.channel(), SmtpResponses.okId(ctx.channel().id().asShortText()));
+                    smtpLog.log(ctx.channel(), "(END DATA)");
+                    smtpRawLog.log(getMessage(ctx.channel()));
+                    final MimeMessage mimeMessage = MimeUtility.parseMessage(getMessage(ctx.channel()));
+                    if (isMessageFromOurselves(mimeMessage)) {
+                        writeResponse(ctx.channel(), SmtpResponses.refusingMessageFrom(smtpFrom.getAddress()));
+                    } else {
+                        writeMessageToDatabase(mimeMessage);
+                        writeResponse(ctx.channel(), SmtpResponses.okId(ctx.channel().id().asShortText()));
+                    }
                 }
+                clearMessage(ctx.channel());
+                switchToCommandHandler(ctx);
+            } else {
+                final byte[] bytes = readMessageFromChannel((ByteBuf) msg);
+                appendToMessage(ctx, bytes);
             }
-            clearMessage(ctx.channel());
-            switchToCommandHandler(ctx);
-        } else {
-    	    final byte[] bytes = readMessageFromChannel((ByteBuf) msg);
-            appendToMessage(ctx, bytes);
+        } finally {
+            ((ByteBuf)msg).release();
         }
     }
 
