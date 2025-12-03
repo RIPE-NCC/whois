@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:base"],
+  "schedule": ["every day"],
+  "packageRules": [
+    {
+      "description": "Netty 5.x is deprecated",
+      "matchManagers": ["maven"],
+      "matchPackageNames": ["io.netty:netty"],
+      "allowedVersions": "!/^5\\./"
+    },
+    {
+      "description": "Don't update SolrJ (provides API for full text search)",
+      "matchManagers": ["maven"],
+      "matchPackageNames": ["org.apache.solr:solr-solrj"],
+      "enabled": false
+    },
+    {
+      "description": "Jackson 3.x is a major update in development and not API compatible with 2.x",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "com.fasterxml.jackson.jaxrs:jackson-jaxrs-base",
+        "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider",
+        "com.fasterxml.jackson.core:jackson-annotations"
+      ],
+      "allowedVersions": "<3.0.0"
+    }
+  ]
+}
