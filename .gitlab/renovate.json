@@ -1,7 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
-  "schedule": ["every day"],
   "packageRules": [
     {
       "description": "Netty 5.x is deprecated",
