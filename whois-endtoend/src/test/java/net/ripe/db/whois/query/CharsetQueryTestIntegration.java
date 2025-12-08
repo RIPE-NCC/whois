@@ -233,4 +233,24 @@ public class CharsetQueryTestIntegration extends AbstractQueryIntegrationTest {
 
         assertThat(response, containsString("Tëst Pärsön"));
     }
+
+    @Test
+    public void multiple_charset_then_correct_error() {
+        databaseHelper.addObject(
+                "person:    Tëst Pärsön\n" +
+                        "address:   Singel 258\n" +
+                        "phone:     +31-1234567890\n" +
+                        "e-mail:    noreply@ripe.net\n" +
+                        "mnt-by:    OWNER-MNT\n" +
+                        "nic-hdl:   TP1-TEST\n" +
+                        "remarks:   remark\n" +
+                        "source:    TEST\n");
+
+        final String response = query("-Z utf8 -Z latin1 Pärsön", StandardCharsets.UTF_8);
+
+        assertThat(response, containsString("""
+                %ERROR:110: multiple use of flag
+                %
+                % The flag "-Z" cannot be used multiple times."""));
+    }
 }

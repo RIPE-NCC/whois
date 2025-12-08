@@ -689,7 +689,7 @@ public class Query {
             return getDefaultCharset().name();
         }
 
-        final String queryCharset = queryParser.getOptionValue(QueryFlag.CHARSET);
+        final String queryCharset = getOnlyValue(QueryFlag.CHARSET);
 
         try {
             return getCharsetForName(queryCharset).name();
