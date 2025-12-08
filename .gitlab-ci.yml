@@ -16,16 +16,11 @@ include:
       - "/templates/release-template.yml"
       - "/templates/deployment-template.yml"
 
-# Prevent duplicate pipelines - prefer MR pipelines over branch pipelines
+# Prevent duplicate pipelines - run only tag and branch pipelines
 workflow:
   rules:
-    # Run for merge requests
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     # Run for tags
     - if: "$CI_COMMIT_TAG"
-    # Run for branches ONLY if there's no open MR
-    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
-      when: never
     # Run for all other branch commits
     - if: "$CI_COMMIT_BRANCH"
 
@@ -42,10 +37,9 @@ cache:
   paths:
     - .m2/repository
 
-# Default rules for build/test stages (all commits, tags, and MRs)
+# Default rules for build/test stages (all commits and tags)
 .default_rules:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: "$CI_COMMIT_TAG"
     - if: "$CI_COMMIT_BRANCH"
 
@@ -70,8 +64,7 @@ release:
   rules:
     - if: "$CI_COMMIT_TAG"
   script:
-    - if [ "$CI_COMMIT_TAG" ]; then NEW_VERSION="$CI_COMMIT_SHORT_SHA"; else NEW_VERSION="$CI_COMMIT_SHORT_SHA-SNAPSHOT"; fi
-    - mvn versions:set -DnewVersion=$NEW_VERSION
+    - mvn versions:set -DnewVersion=$CI_COMMIT_SHORT_SHA
     - mvn -DskipTests -DskipITs -Prelease deploy
 
 .it_template: &it_env
@@ -116,7 +109,12 @@ whois-api:
     - *mariadb_service
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
       alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+      command:
+        [
+          "bin/elasticsearch",
+          "-Expack.security.enabled=false",
+          "-Ediscovery.type=single-node",
+        ]
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-api
 
@@ -170,7 +168,12 @@ whois-rdap:
     - *mariadb_service
     - name: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
       alias: "elasticsearch"
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+      command:
+        [
+          "bin/elasticsearch",
+          "-Expack.security.enabled=false",
+          "-Ediscovery.type=single-node",
+        ]
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb -Dtest.containers.disabled=true verify -PintegrationAll -pl whois-rdap
 
