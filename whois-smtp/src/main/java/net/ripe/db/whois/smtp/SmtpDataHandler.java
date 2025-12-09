@@ -81,10 +81,8 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter implements Smt
     }
 
     private boolean isEndMessage(final ByteBuf msg) {
-        return ((msg.readableBytes() >= 2) &&
-                (msg.getByte(msg.readerIndex()) == '.') &&
-                ((msg.getByte(msg.readerIndex() + 1) == '\r') ||
-                 (msg.getByte(msg.readerIndex() + 1) == '\n')));
+        return ((msg.readableBytes() == 1) &&
+                (msg.getByte(msg.readerIndex()) == '.'));
     }
 
     private void writeMessageToDatabase(final MimeMessage mimeMessage) {
@@ -133,9 +131,11 @@ public class SmtpDataHandler extends ChannelInboundHandlerAdapter implements Smt
         if (builder == null) {
             final ByteArrayOutputStream newBuilder = new ByteArrayOutputStream();
             newBuilder.writeBytes(bytes);
+            newBuilder.write('\n');
             ctx.channel().attr(DATA).set(newBuilder);
         } else {
             builder.writeBytes(bytes);
+            builder.write('\n');
         }
     }
 

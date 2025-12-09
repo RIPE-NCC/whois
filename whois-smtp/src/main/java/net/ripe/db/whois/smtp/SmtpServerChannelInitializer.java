@@ -1,12 +1,11 @@
 package net.ripe.db.whois.smtp;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.Delimiters;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
@@ -20,9 +19,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
 
-    private static final ByteBuf LINE_DELIMITER = Unpooled.wrappedBuffer(new byte[]{'\n'});
     private static final int DELIMITER_MAX_FRAME_LENGTH = 1024;
-    private static final boolean STRIP_DELIMITER = false;
+    private static final boolean STRIP_DELIMITER = true;
     private static final int POOL_SIZE = 32;
     private static final int TIMEOUT = 60;
 
@@ -60,7 +58,7 @@ public class SmtpServerChannelInitializer extends ChannelInitializer<Channel> {
             }
         });
         pipeline.addLast("write-timeout", new WriteTimeoutHandler(TIMEOUT, TimeUnit.SECONDS));
-        pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(DELIMITER_MAX_FRAME_LENGTH, STRIP_DELIMITER, LINE_DELIMITER));
+        pipeline.addLast("delimiter", new DelimiterBasedFrameDecoder(DELIMITER_MAX_FRAME_LENGTH, STRIP_DELIMITER, Delimiters.lineDelimiter()));
         pipeline.addLast("response-encoder", responseEncoder);
         pipeline.addLast(executorGroup, "command-handler", commandHandler);
         pipeline.addLast("exception-handler", exceptionHandler);

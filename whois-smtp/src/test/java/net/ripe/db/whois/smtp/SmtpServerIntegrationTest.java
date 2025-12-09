@@ -101,9 +101,38 @@ public class SmtpServerIntegrationTest extends AbstractSmtpIntegrationBase {
             final String messageId = mailMessageDao.claimMessage();
             final MimeMessage result = mailMessageDao.getMessage(messageId);
             assertThat(result.getSubject(), is("Update"));
+            assertThat(result.getContent(), is("RPSL object\n\n"));
         }
     }
 
+    @Test
+    public void sendSingleMessageCrLf() throws Exception {
+        try (final SmtpClient smtpClient = new SmtpClient("127.0.0.1", smtpServer.getPort())) {
+            assertThat(smtpClient.readLine(), matchesPattern("220.*Whois.*"));
+            smtpClient.writeLine("HELO testserver");
+            assertThat(smtpClient.readLine(), matchesPattern("250.*Hello testserver"));
+            smtpClient.writeLine("MAIL FROM: <user@example.com>");
+            assertThat(smtpClient.readLine(), is("250 OK"));
+            smtpClient.writeLine("RCPT TO: <test-dbm@ripe.net>");
+            assertThat(smtpClient.readLine(), is("250 Accepted"));
+            smtpClient.writeLine("DATA");
+            assertThat(smtpClient.readLine(), is("354 Enter message, ending with \".\" on a line by itself"));
+            smtpClient.writeLines(
+                "Subject: Update\r\n" +
+                "\r\n" +
+                "RPSL object\r\n" +
+                "\r\n" +
+                ".\r\n");
+            assertThat(smtpClient.readLine(), startsWith("250 OK"));
+            smtpClient.writeLine("QUIT");
+            assertThat(smtpClient.readLine(), startsWith("221 "));
+
+            final String messageId = mailMessageDao.claimMessage();
+            final MimeMessage result = mailMessageDao.getMessage(messageId);
+            assertThat(result.getSubject(), is("Update"));
+            assertThat(result.getContent(), is("RPSL object\n\n"));
+        }
+    }
 
     @Test
     public void sendMultipleMessages() {
