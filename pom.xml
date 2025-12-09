@@ -32,7 +32,7 @@
         <aspectj.version>1.9.25</aspectj.version>
         <awaitility.version>4.3.0</awaitility.version>
 
-        <bouncycastle.version>1.82</bouncycastle.version>
+        <bouncycastle.version>1.83</bouncycastle.version>
 
         <c3po.version>0.11.2</c3po.version>
         <commons-codec.version>1.20.0</commons-codec.version>
