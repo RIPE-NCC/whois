@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-class RelatedIrtDecorator implements PrimaryObjectDecorator {
+public class RelatedIrtDecorator implements PrimaryObjectDecorator {
     private final List<? extends HierarchyLookup> hierarchyLookups;
 
     @Autowired

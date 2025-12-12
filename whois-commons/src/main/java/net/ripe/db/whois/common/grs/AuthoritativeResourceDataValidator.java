@@ -14,7 +14,7 @@ import java.util.List;
 import static net.ripe.db.whois.common.domain.CIString.ciSet;
 
 @Component
-class AuthoritativeResourceDataValidator {
+public class AuthoritativeResourceDataValidator {
     private final static int MAX_RESOURCE_LENGTH = 40;
     private final List<CIString> sources;
     private final AuthoritativeResourceData authoritativeResourceData;

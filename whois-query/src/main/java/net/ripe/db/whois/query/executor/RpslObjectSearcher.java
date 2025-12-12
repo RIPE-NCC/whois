@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-class RpslObjectSearcher {
+public class RpslObjectSearcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpslObjectSearcher.class);
     private static final Set<AttributeType> INVERSE_ATTRIBUTE_TYPES = EnumSet.noneOf(AttributeType.class);
 

@@ -18,7 +18,7 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 @Component
-class AbuseCInfoDecorator implements ResponseDecorator {
+public class AbuseCInfoDecorator implements ResponseDecorator {
     private static final EnumSet<ObjectType> ABUSE_LOOKUP_OBJECT_TYPES = EnumSet.of(ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
 
     private final AbuseCFinder abuseCFinder;

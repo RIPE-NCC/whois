@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-class HierarchyLookupIpv4 extends HierarchyLookup<Ipv4Resource, Ipv4Entry> {
+public class HierarchyLookupIpv4 extends HierarchyLookup<Ipv4Resource, Ipv4Entry> {
 
     @Autowired
     public HierarchyLookupIpv4(final Ipv4Tree ipv4Tree, final RpslObjectDao rpslObjectDao) {
