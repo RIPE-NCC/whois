@@ -62,7 +62,21 @@ build:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
 
+gemnasium-maven-dependency_scanning:
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+
+secret_detection:
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+
+semgrep-sast:
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+
 spotbugs-sast:
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
   dependencies:
     - build
   variables:
@@ -83,7 +97,7 @@ release:
 .it_template: &it_env
   tags:
     - whois
-  stage: integration-test
+  stage: test
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
