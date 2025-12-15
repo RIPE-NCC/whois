@@ -15,6 +15,10 @@ include:
     file:
       - "/templates/release-template.yml"
       - "/templates/deployment-template.yml"
+  # Security scanning
+  - template: Jobs/Secret-Detection.gitlab-ci.yml
+  - template: Jobs/SAST.gitlab-ci.yml
+  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 
 # Prevent duplicate pipelines - run only tag and branch pipelines
 workflow:
@@ -57,6 +61,15 @@ build:
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
+
+spotbugs-sast:
+  dependencies:
+    - build
+  variables:
+    SAST_ANALYZER_IMAGE_TAG: "6"
+    SAST_JAVA_VERSION: "21"
+    MAVEN_REPO_PATH: $CI_PROJECT_DIR/.m2/repository
+    COMPILE: "false"
 
 release:
   stage: release
