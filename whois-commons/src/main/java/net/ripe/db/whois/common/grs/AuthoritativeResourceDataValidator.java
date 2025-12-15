@@ -21,7 +21,7 @@ public class AuthoritativeResourceDataValidator {
     private final String reportFormat;
 
     @Autowired
-    AuthoritativeResourceDataValidator(
+    public AuthoritativeResourceDataValidator(
             @Value("${grs.sources}") final String[] grsSourceNames,
             final AuthoritativeResourceData authoritativeResourceData) {
         this.sources = Lists.newArrayList(ciSet(grsSourceNames));
