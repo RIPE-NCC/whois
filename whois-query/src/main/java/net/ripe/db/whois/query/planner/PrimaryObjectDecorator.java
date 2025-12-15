@@ -6,7 +6,7 @@ import net.ripe.db.whois.query.query.Query;
 
 import java.util.Collection;
 
-interface PrimaryObjectDecorator {
+public interface PrimaryObjectDecorator {
     boolean appliesToQuery(Query query);
 
     Collection<RpslObjectInfo> decorate(Query query, RpslObject rpslObject);
