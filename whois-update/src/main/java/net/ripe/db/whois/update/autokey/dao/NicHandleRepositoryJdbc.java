@@ -21,7 +21,7 @@ import java.util.List;
 
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
-class NicHandleRepositoryJdbc implements NicHandleRepository {
+public class NicHandleRepositoryJdbc implements NicHandleRepository {
     private final JdbcTemplate jdbcTemplate;
 
     private static final class NicHandleRange {

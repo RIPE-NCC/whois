@@ -17,7 +17,7 @@ import java.sql.SQLException;
 
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
-class OrganisationIdRepositoryJdbc implements OrganisationIdRepository {
+public class OrganisationIdRepositoryJdbc implements OrganisationIdRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
