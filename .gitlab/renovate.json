@@ -1,12 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "packageRules": [
     {
-      "description": "Netty 5.x is deprecated",
+      "description": "Netty 5.x is deprecated. Do not update to major version",
       "matchManagers": ["maven"],
       "matchPackageNames": ["io.netty:netty"],
-      "allowedVersions": "!/^5\\./"
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     },
     {
       "description": "Don't update SolrJ (provides API for full text search)",
@@ -22,7 +23,8 @@
         "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider",
         "com.fasterxml.jackson.core:jackson-annotations"
       ],
-      "allowedVersions": "<3.0.0"
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     }
   ]
 }
