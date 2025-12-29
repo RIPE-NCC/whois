@@ -84,7 +84,7 @@
         <log4j.version>2.25.2</log4j.version>
 
         <mail.version>2.0.5</mail.version>
-        <mariadb-java-client.version>3.5.6</mariadb-java-client.version>
+        <mariadb-java-client.version>3.5.7</mariadb-java-client.version>
         <mockito.version>5.20.0</mockito.version>
 
         <netty.version>4.2.7.Final</netty.version>
