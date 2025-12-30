@@ -18,7 +18,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml", "classpath:applicationContext-api-test-message-dequeue-mock.xml"}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MailMessageDaoTestIntegration extends AbstractIntegrationTest {

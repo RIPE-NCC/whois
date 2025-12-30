@@ -22,7 +22,6 @@ import org.json.JSONException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.FileCopyUtils;
 
 import javax.annotation.Nonnull;
@@ -45,7 +44,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
 @Tag("IntegrationTest")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrationTest {
 
     @Autowired

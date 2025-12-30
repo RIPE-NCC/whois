@@ -32,8 +32,8 @@
             <artifactId>whois-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
+            <groupId>org.glassfish.jersey.ext</groupId>
+            <artifactId>jersey-spring6</artifactId>
         </dependency>
         <dependency>
             <groupId>net.ripe.commons</groupId>
@@ -160,7 +160,6 @@
                     <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
                     <usedDependencies>
                         <dependency>io.netty:netty-all</dependency>
-                        <dependency>org.glassfish.jersey.inject:jersey-hk2</dependency>
                         <dependency>org.mariadb.jdbc:mariadb-java-client</dependency>
                         <dependency>commons-net:commons-net</dependency>
                         <dependency>org.elasticsearch:elasticsearch</dependency>

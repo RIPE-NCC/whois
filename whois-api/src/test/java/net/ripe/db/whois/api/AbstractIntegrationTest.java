@@ -18,6 +18,7 @@ import org.glassfish.jersey.uri.UriComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired protected JettyBootstrap jettyBootstrap;
     @Autowired protected List<ApplicationService> applicationServices;

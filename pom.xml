@@ -523,6 +523,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-email2-jakarta</artifactId>
                 <version>${commons-email.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.mail</groupId>
+                        <artifactId>jakarta.mail</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -609,10 +615,18 @@
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.glassfish.jersey.inject</groupId>
-                <artifactId>jersey-hk2</artifactId>
+                <groupId>org.glassfish.jersey.ext</groupId>
+                <artifactId>jersey-spring6</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+
+
             <!-- Jakarta REST 3.1 (JAX-RS) API -->
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
