@@ -8,8 +8,6 @@ import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
-import java.time.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -37,7 +36,7 @@ public class AutomaticPermanentBlocks implements DailyScheduledTask {
     }
 
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 59 23 * * *")
     @SchedulerLock(name = "AutomaticPermanentBlocks")
     public void run() {
         final LocalDate now = dateTimeProvider.getCurrentDate();
