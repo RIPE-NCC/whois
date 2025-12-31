@@ -29,7 +29,7 @@
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.25</aspectj.version>
+        <aspectj.version>1.9.25.1</aspectj.version>
         <awaitility.version>4.3.0</awaitility.version>
 
         <bouncycastle.version>1.83</bouncycastle.version>
@@ -354,6 +354,11 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
                 <version>${aspectj.version}</version>
             </dependency>
             <dependency>
@@ -1190,6 +1195,11 @@
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjtools</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjrt</artifactId>
                         <version>${aspectj.version}</version>
                     </dependency>
                 </dependencies>
