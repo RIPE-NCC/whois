@@ -38,7 +38,7 @@ import static org.hamcrest.Matchers.nullValue;
 
 @Disabled("[ES] TODO fix integration build [SB] build hangs when this integration test runs, we'll have to figure out why")
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
+@ContextConfiguration(classes = WhoisTestConfiguration.class)
 public class RebuildIndexTestIntegration extends AbstractIntegrationTest {
 
     @Autowired IndexDao indexDao;

@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.dao;
 
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.domain.Timestamp;
-import net.ripe.db.whois.common.TransactionConfiguration;
+import net.ripe.db.whois.common.configuration.TransactionConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;

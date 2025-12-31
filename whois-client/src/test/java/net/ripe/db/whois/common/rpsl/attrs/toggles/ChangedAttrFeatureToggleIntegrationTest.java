@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.rpsl.attrs.toggles;
 
+import net.ripe.db.whois.TogglesConfiguration;
 import net.ripe.db.whois.api.rest.AbstractJUnit5SpringContextTests;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -10,7 +11,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-toggles-test.xml"})
+@ContextConfiguration(classes = {TogglesConfiguration.class})
 public class ChangedAttrFeatureToggleIntegrationTest extends AbstractJUnit5SpringContextTests {
 
     private static final Boolean TOGGLE_VALUE = Boolean.TRUE;

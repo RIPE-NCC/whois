@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query;
 
+import net.ripe.db.whois.api.WhoisApiTestConfiguration;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
+@ContextConfiguration(classes = {WhoisApiTestConfiguration.class})
 public class CharsetQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +

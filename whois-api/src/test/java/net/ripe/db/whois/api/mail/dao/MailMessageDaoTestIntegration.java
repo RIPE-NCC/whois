@@ -1,14 +1,14 @@
 package net.ripe.db.whois.api.mail.dao;
 
 import jakarta.mail.internet.MimeMessage;
+import net.ripe.db.mock.MessageDequeueMockConfiguration;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MimeMessageProvider;
+import net.ripe.db.whois.api.WhoisApiTestConfiguration;
 import net.ripe.db.whois.api.mail.dequeue.MessageDequeue;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.concurrent.CountDownLatch;
@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml", "classpath:applicationContext-api-test-message-dequeue-mock.xml"}, inheritLocations = false)
+@ContextConfiguration(classes= {WhoisApiTestConfiguration.class, MessageDequeueMockConfiguration.class}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MailMessageDaoTestIntegration extends AbstractIntegrationTest {
     @Autowired MailMessageDao subject;

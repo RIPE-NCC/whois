@@ -32,7 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-rdap-test.xml"})
+@ContextConfiguration(classes = WhoisRdapTestConfiguration.class)
 public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTest {
 
     private static final String REDACTED_EMAIL_DESCRIPTION = "Personal e-mail information";

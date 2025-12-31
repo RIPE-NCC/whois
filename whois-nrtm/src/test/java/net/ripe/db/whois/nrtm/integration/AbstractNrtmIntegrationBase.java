@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.nrtm.NrtmServer;
+import net.ripe.db.whois.nrtm.WhoisNrtmTestConfiguration;
 import org.awaitility.Awaitility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-nrtm-test.xml"})
+@ContextConfiguration(classes = WhoisNrtmTestConfiguration.class)
 public abstract class AbstractNrtmIntegrationBase extends AbstractDatabaseHelperIntegrationTest {
     @Autowired protected NrtmServer nrtmServer;
     @Autowired protected SourceContext sourceContext;

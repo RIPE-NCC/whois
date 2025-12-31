@@ -4,7 +4,7 @@ import net.ripe.db.nrtm4.client.client.MirrorDeltaInfo;
 import net.ripe.db.nrtm4.client.client.NrtmRestClient;
 import net.ripe.db.nrtm4.client.client.UpdateNotificationFileResponse;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration;
+import net.ripe.db.nrtm4.client.configuration.NrtmClientTransactionConfiguration;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientInfoRepository;
 import net.ripe.db.nrtm4.client.dao.Nrtm4ClientRepository;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;

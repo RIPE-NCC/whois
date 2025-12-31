@@ -12,7 +12,7 @@ import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
-import net.ripe.db.whois.common.Slf4JLogConfiguration;
+import net.ripe.db.whois.common.configuration.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.AuthoritativeResourceDao;
@@ -36,6 +36,7 @@ import net.ripe.db.whois.common.support.NettyWhoisClientFactory;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.common.support.WhoisClientHandler;
 import net.ripe.db.whois.db.WhoisServer;
+import net.ripe.db.whois.db.WhoisTestConfiguration;
 import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.TestWhoisLog;
 import net.ripe.db.whois.update.dns.DnsGatewayStub;
@@ -43,7 +44,7 @@ import net.ripe.db.whois.update.mail.MailSenderStub;
 import net.ripe.db.whois.update.mail.WhoisMailGatewaySmtp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -61,7 +62,7 @@ public class WhoisFixture {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhoisFixture.class);
 
-    private ClassPathXmlApplicationContext applicationContext;
+    private AnnotationConfigApplicationContext applicationContext;
 
     protected MailSenderStub mailSender;
     protected MailUpdatesTestSupport mailUpdatesTestSupport;
@@ -109,7 +110,7 @@ public class WhoisFixture {
     }
 
     public void start() throws Exception {
-        applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois-test.xml", WhoisProfile.TEST);
+        applicationContext = WhoisProfile.initContextWithProfile(WhoisTestConfiguration.class, WhoisProfile.TEST);
 
         databaseHelper = applicationContext.getBean(DatabaseHelper.class);
         whoisServer = applicationContext.getBean(WhoisServer.class);
@@ -362,7 +363,7 @@ public class WhoisFixture {
         return testDateTimeProvider;
     }
 
-    public ClassPathXmlApplicationContext getApplicationContext() {
+    public AnnotationConfigApplicationContext getApplicationContext() {
         return applicationContext;
     }
 

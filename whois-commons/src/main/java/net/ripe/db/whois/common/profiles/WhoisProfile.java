@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.profiles;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
@@ -16,6 +17,18 @@ public class WhoisProfile {
         env.setActiveProfiles(profiles);
 
         applicationContext.setConfigLocation(configLocation);
+        applicationContext.refresh();
+        return applicationContext;
+    }
+
+    public static AnnotationConfigApplicationContext initContextWithProfile(final Class<?> configClass,
+                                                                            final String... profiles) {
+        final AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+        ConfigurableEnvironment env = applicationContext.getEnvironment();
+        env.setActiveProfiles(profiles);
+
+        applicationContext.setAllowBeanDefinitionOverriding(true);
+        applicationContext.register(configClass);
         applicationContext.refresh();
         return applicationContext;
     }

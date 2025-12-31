@@ -1,0 +1,20 @@
+package net.ripe.db.nrtm4.client;
+
+import net.ripe.db.whois.common.WhoisCommonTestConfiguration;
+import net.ripe.db.whois.common.profiles.WhoisProfile;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
+
+@Configuration
+@PropertySource({
+        "classpath:whois.version.properties",
+        "classpath:whois.properties"
+})
+@Profile(WhoisProfile.TEST)
+@Import(WhoisCommonTestConfiguration.class)
+@ComponentScan(basePackages = "net.ripe.db.nrtm4.client")
+public class WhoisNrtmv4ClientTestConfiguration {
+}

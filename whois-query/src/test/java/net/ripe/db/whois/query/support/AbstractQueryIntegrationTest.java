@@ -4,6 +4,7 @@ import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.QueryServer;
+import net.ripe.db.whois.query.WhoisQueryTestConfiguration;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.nio.charset.Charset;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
+@ContextConfiguration(classes= WhoisQueryTestConfiguration.class)
 public abstract class AbstractQueryIntegrationTest extends AbstractDaoIntegrationTest {
     public static final String HOST = "localhost";
 

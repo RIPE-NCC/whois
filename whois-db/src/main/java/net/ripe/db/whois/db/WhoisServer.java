@@ -5,27 +5,20 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.common.ApplicationService;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.ReadinessHealthCheck;
-import net.ripe.db.whois.common.Slf4JLogConfiguration;
+import net.ripe.db.whois.common.configuration.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AdviceMode;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
-import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.context.event.ContextStoppedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.io.Closeable;
 import java.security.Security;
@@ -68,7 +61,7 @@ public class WhoisServer {
         Slf4JLogConfiguration.init();
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        final ClassPathXmlApplicationContext applicationContext = WhoisProfile.initContextWithProfile("applicationContext-whois.xml", WhoisProfile.DEPLOYED);
+        final AnnotationConfigApplicationContext applicationContext = WhoisProfile.initContextWithProfile(WhoisConfiguration.class, WhoisProfile.DEPLOYED);
         final WhoisServer whoisServer = applicationContext.getBean(WhoisServer.class);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

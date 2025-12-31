@@ -12,6 +12,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
+import net.ripe.db.whois.api.rest.client.RestClientUtils;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.acl.IpResourceConfiguration;
+import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import net.ripe.db.whois.rdap.domain.Action;
 import net.ripe.db.whois.rdap.domain.Domain;
 import net.ripe.db.whois.rdap.domain.Entity;
@@ -24,12 +30,6 @@ import net.ripe.db.whois.rdap.domain.RdapObject;
 import net.ripe.db.whois.rdap.domain.Redaction;
 import net.ripe.db.whois.rdap.domain.Role;
 import net.ripe.db.whois.rdap.domain.SearchResult;
-import net.ripe.db.whois.api.rest.client.RestClientUtils;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.query.acl.AccessControlListManager;
-import net.ripe.db.whois.query.acl.AccountingIdentifier;
-import net.ripe.db.whois.query.acl.IpResourceConfiguration;
-import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
 import org.eclipse.jetty.http.HttpStatus;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
@@ -65,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("ElasticSearchTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-rdap-test.xml"})
+@ContextConfiguration(classes = WhoisRdapTestConfiguration.class)
 public class RdapElasticServiceTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_rdap";

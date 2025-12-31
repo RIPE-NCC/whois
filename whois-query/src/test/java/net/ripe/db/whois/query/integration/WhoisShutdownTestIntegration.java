@@ -1,6 +1,7 @@
 package net.ripe.db.whois.query.integration;
 
-import net.ripe.db.whois.query.QueryServer;
+import net.ripe.db.mock.QueryMockTestConfiguration;
+import net.ripe.db.whois.query.WhoisQueryTestConfiguration;
 import net.ripe.db.whois.query.pipeline.QueryChannelsRegistry;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
@@ -21,7 +22,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml", "classpath:applicationContext-query-test-mock.xml"}, inheritLocations = false)
+@ContextConfiguration(classes = {WhoisQueryTestConfiguration.class, QueryMockTestConfiguration.class}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class WhoisShutdownTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired private QueryChannelsRegistry queryChannelsRegistry;

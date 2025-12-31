@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 import com.google.common.collect.Maps;
-import net.ripe.db.whois.common.TransactionConfiguration;
+import net.ripe.db.whois.common.configuration.TransactionConfiguration;
 import net.ripe.db.whois.common.dao.ReferenceDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.domain.CIString;

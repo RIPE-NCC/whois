@@ -1,6 +1,7 @@
 package net.ripe.db.whois.scheduler;
 
 
+import net.ripe.db.mock.SchedulerTestMockConfiguration;
 import net.ripe.db.whois.common.iptree.IpTreeCacheManager;
 import net.ripe.db.whois.common.source.SourceConfiguration;
 import net.ripe.db.whois.query.dao.IpAccessControlListDao;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-scheduler-test.xml", "classpath:applicationContext-scheduler-test-mock.xml"}, inheritLocations = false)
+@ContextConfiguration(classes = {WhoisSchedulerTestConfiguration.class, SchedulerTestMockConfiguration.class}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class ScheduledTasksTestIntegration extends AbstractSchedulerIntegrationTest {
     @Autowired private IpAccessControlListDao jdbcIpAccessControlListDao;

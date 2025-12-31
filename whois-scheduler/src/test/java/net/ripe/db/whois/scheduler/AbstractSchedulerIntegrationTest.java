@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-scheduler-test.xml"})
+@ContextConfiguration(classes = WhoisSchedulerTestConfiguration.class)
 public abstract class AbstractSchedulerIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
     @Autowired protected QueryServer queryServer;
     @Autowired protected IpResourceConfiguration ipResourceConfiguration;

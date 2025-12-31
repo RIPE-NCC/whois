@@ -2,7 +2,7 @@ package net.ripe.db.nrtm4.client.dao;
 
 import net.ripe.db.nrtm4.client.client.MirrorSnapshotInfo;
 import net.ripe.db.nrtm4.client.condition.Nrtm4ClientCondition;
-import net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration;
+import net.ripe.db.nrtm4.client.configuration.NrtmClientTransactionConfiguration;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.rpsl.ObjectType;

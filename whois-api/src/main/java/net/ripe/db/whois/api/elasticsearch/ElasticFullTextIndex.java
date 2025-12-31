@@ -7,7 +7,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.TransactionConfiguration;
+import net.ripe.db.whois.common.configuration.TransactionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

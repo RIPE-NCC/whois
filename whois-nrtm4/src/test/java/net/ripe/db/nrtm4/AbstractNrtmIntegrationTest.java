@@ -42,7 +42,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-test.xml"})
+@ContextConfiguration(classes = WhoisNrtmv4TestConfiguration.class)
 public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired

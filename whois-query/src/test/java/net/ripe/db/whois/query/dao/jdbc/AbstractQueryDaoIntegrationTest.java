@@ -2,6 +2,7 @@ package net.ripe.db.whois.query.dao.jdbc;
 
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
 import net.ripe.db.whois.common.source.SourceContext;
+import net.ripe.db.whois.query.WhoisQueryTestConfiguration;
 import net.ripe.db.whois.query.support.SetupQueryDatabaseTestExecutionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -11,7 +12,7 @@ import org.springframework.test.context.support.DirtiesContextTestExecutionListe
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
 // TODO: [AH] do this the same way as update tests (without testexecutionlisteners) OR add design note as to why it sports a customized solution
-@ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml"})
+@ContextConfiguration(classes = WhoisQueryTestConfiguration.class)
 @TestExecutionListeners(listeners = {
         SetupQueryDatabaseTestExecutionListener.class,
         TransactionalTestExecutionListener.class,

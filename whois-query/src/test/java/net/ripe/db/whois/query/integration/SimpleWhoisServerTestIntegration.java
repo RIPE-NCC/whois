@@ -1,11 +1,12 @@
 package net.ripe.db.whois.query.integration;
 
 
+import net.ripe.db.mock.QueryMockTestConfiguration;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.QueryServer;
+import net.ripe.db.whois.query.WhoisQueryTestConfiguration;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.domain.ResponseHandler;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-query-test.xml", "classpath:applicationContext-query-test-mock.xml"}, inheritLocations = false)
+@ContextConfiguration(classes = {WhoisQueryTestConfiguration.class, QueryMockTestConfiguration.class}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class SimpleWhoisServerTestIntegration extends AbstractQueryIntegrationTest {
     @Autowired private QueryHandler queryHandler;

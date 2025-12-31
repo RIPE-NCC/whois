@@ -31,7 +31,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
+
+@ContextConfiguration(classes = WhoisApiTestConfiguration.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public abstract class AbstractIntegrationTest extends AbstractDaoIntegrationTest {
     @Autowired protected JettyBootstrap jettyBootstrap;

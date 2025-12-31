@@ -1,5 +1,6 @@
 package net.ripe.db.whois.query;
 
+import net.ripe.db.whois.api.WhoisApiTestConfiguration;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
@@ -9,12 +10,13 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 // TODO: [AH] this should be in whois-query; however, crowdserverdummy is tied to whois-api because of jetty references
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"})
+@ContextConfiguration(classes = WhoisApiTestConfiguration.class)
 public class InverseQueryTestIntegration extends AbstractQueryIntegrationTest {
 
     private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +

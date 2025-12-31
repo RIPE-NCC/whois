@@ -6,6 +6,7 @@ import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
+import net.ripe.db.whois.nrtm.WhoisNrtmTestConfiguration;
 import net.ripe.db.whois.nrtm.dao.NrtmClientDao;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-nrtm-test.xml"})
+@ContextConfiguration(classes = WhoisNrtmTestConfiguration.class)
 public class JdbcNrtmClientDaoIntegrationTest extends AbstractDaoIntegrationTest {
 
     @Autowired

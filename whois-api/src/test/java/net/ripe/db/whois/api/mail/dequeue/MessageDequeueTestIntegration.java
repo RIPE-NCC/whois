@@ -1,8 +1,10 @@
 package net.ripe.db.whois.api.mail.dequeue;
 
 import jakarta.mail.internet.MimeMessage;
+import net.ripe.db.mock.UpdateRequestHandlerMockConfiguration;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
+import net.ripe.db.whois.api.WhoisApiTestConfiguration;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
@@ -15,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,7 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml", "classpath:applicationContext-api-test-update-request-handler-mock.xml"}, inheritLocations = false)
+@ContextConfiguration(classes= {WhoisApiTestConfiguration.class, UpdateRequestHandlerMockConfiguration.class}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MessageDequeueTestIntegration extends AbstractIntegrationTest {
 

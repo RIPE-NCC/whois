@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.support;
 
+import net.ripe.db.whois.common.WhoisCommonTestConfiguration;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.jdbc.AbstractDatabaseHelperIntegrationTest;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-commons-test.xml"})
+@ContextConfiguration(classes = {WhoisCommonTestConfiguration.class})
 public abstract class AbstractDaoIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
     @Autowired protected SourceContext sourceContext;
     @Autowired protected RpslObjectDao rpslObjectDao;

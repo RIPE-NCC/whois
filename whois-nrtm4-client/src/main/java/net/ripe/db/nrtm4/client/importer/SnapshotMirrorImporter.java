@@ -34,7 +34,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static net.ripe.db.nrtm4.client.config.NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION;
+import static net.ripe.db.nrtm4.client.configuration.NrtmClientTransactionConfiguration.NRTM_CLIENT_UPDATE_TRANSACTION;
 
 
 @Service

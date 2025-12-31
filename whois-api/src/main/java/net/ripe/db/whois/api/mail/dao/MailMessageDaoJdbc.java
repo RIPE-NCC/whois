@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @Repository
 @RetryFor(value = {TransientDataAccessException.class, RecoverableDataAccessException.class})
-class MailMessageDaoJdbc implements MailMessageDao {
+public class MailMessageDaoJdbc implements MailMessageDao {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailMessageDaoJdbc.class);
 

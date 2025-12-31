@@ -12,7 +12,7 @@ import net.ripe.db.nrtm4.domain.SnapshotFile;
 import net.ripe.db.nrtm4.util.NrtmFileUtil;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.TransactionConfiguration;
+import net.ripe.db.whois.common.configuration.TransactionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

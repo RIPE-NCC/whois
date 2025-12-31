@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.dao.jdbc;
 
 import net.ripe.db.whois.common.AbstractJUnit5SpringContextTests;
-import net.ripe.db.whois.common.Slf4JLogConfiguration;
+import net.ripe.db.whois.common.configuration.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.profiles.WhoisProfile;

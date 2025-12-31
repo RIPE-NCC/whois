@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.Proxy;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.WhoisApiTestConfiguration;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.regex.Matcher;
@@ -32,7 +32,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-api-test.xml"}, inheritLocations = false)
+
+@ContextConfiguration(classes = {WhoisApiTestConfiguration.class}, inheritLocations = false)
 @Tag("IntegrationTest")
 public class MasterDatabaseDownTestIntegration extends AbstractIntegrationTest {
 

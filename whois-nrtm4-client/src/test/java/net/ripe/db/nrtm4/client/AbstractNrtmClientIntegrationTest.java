@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-@ContextConfiguration(locations = {"classpath:applicationContext-nrtm4-client-test.xml"})
+@ContextConfiguration(classes = WhoisNrtmv4ClientTestConfiguration.class)
 public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperIntegrationTest {
 
     protected JdbcTemplate nrtmClientTemplate;

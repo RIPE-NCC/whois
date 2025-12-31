@@ -1,5 +1,6 @@
 package net.ripe.db.whois.changedphase3;
 
+import net.ripe.db.whois.WhoisEndToEndTestConfiguration;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -19,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-endtoend-test.xml"})
+@ContextConfiguration(classes = {WhoisEndToEndTestConfiguration.class})
 public abstract class AbstractChangedPhase3IntegrationTest extends AbstractIntegrationTest {
 
     protected static final RpslObject TEST_PERSON = RpslObject.parse("" +

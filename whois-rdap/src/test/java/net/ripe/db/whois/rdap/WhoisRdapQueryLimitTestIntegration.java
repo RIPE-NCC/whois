@@ -22,7 +22,7 @@ import static org.hamcrest.Matchers.hasSize;
 
 @Tag("ElasticSearchTest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ContextConfiguration(locations = {"classpath:applicationContext-rdap-test.xml"})
+@ContextConfiguration(classes = WhoisRdapTestConfiguration.class)
 public class WhoisRdapQueryLimitTestIntegration extends AbstractElasticSearchIntegrationTest {
 
     private static final String WHOIS_INDEX = "whois_query_limit";

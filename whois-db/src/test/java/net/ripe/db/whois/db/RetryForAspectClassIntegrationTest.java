@@ -6,7 +6,6 @@ import net.ripe.db.whois.common.support.AbstractDaoIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -14,8 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -25,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 
 @Tag("IntegrationTest")
-@ContextConfiguration(locations = {"classpath:applicationContext-whois-test.xml"})
+@ContextConfiguration(classes = {WhoisTestConfiguration.class})
 public class RetryForAspectClassIntegrationTest extends AbstractDaoIntegrationTest {
     static final int ATTEMPTS = 5;
 
