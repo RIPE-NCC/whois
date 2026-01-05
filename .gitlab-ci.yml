@@ -134,7 +134,7 @@ whois-api:
     - *mariadb_configuration
   services:
     - *mariadb_service
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.17.29
       alias: "elasticsearch"
       command:
         [
@@ -193,7 +193,7 @@ whois-rdap:
     - *mariadb_configuration
   services:
     - *mariadb_service
-    - name: docker.elastic.co/elasticsearch/elasticsearch:7.16.3
+    - name: docker.elastic.co/elasticsearch/elasticsearch:7.17.29
       alias: "elasticsearch"
       command:
         [
