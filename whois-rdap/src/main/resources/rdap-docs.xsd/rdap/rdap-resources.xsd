@@ -30,7 +30,7 @@
                         <xs:element name="handle" type="xs:string" maxOccurs="1"  minOccurs="1"/>
                         <xs:element name="ldhName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
                         <xs:element name="unicodeName" type="xs:string"  maxOccurs="1" minOccurs="1"/>
-                        <xs:element name="nameServers" type="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
+                        <xs:element name="nameservers" type="nameserver" maxOccurs="unbounded"  minOccurs="1"/>
                         <!-- TODO secureDNS, and variants -->
                         <xs:element name="secureDNS" maxOccurs="1" minOccurs="0">
                             <xs:complexType>
@@ -84,6 +84,7 @@
                         <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
                         <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
                         <xs:element name="parentHandle" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="cidr0_cidrs" type="cidr0" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:sequence>
                 </xs:extension>
             </xs:complexContent>
@@ -100,7 +101,7 @@
                         <xs:element name="endAutnum" type="xs:long" minOccurs="1" maxOccurs="1"/>
                         <xs:element name="name" type="xs:string" minOccurs="1" maxOccurs="1"/>
                         <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="1"/>
-                        <xs:element name="country" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                        <xs:element name="country" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     </xs:sequence>
                 </xs:extension>
             </xs:complexContent>
@@ -164,7 +165,7 @@
         <xs:sequence>
             <xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
             <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"></xs:element>
-            <xs:element name="links" type="link" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element name="links" type="link" minOccurs="0" maxOccurs="unbounded"></xs:element>
         </xs:sequence>
     </xs:complexType>
     <xs:element name="notice" type="notice" />
@@ -188,6 +189,14 @@
                 <jaxb:class ref="java.util.HashMap"/>
             </xs:appinfo>
         </xs:annotation>
+    </xs:complexType>
+
+    <xs:complexType name="cidr0">
+        <xs:sequence>
+            <xs:element name="v4prefix" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element name="v6prefix" type="xs:string" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element name="length" type="xs:unsignedInt" minOccurs="1" maxOccurs="1"></xs:element>
+        </xs:sequence>
     </xs:complexType>
 
 </xs:schema>
