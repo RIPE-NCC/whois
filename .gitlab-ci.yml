@@ -16,9 +16,12 @@ include:
       - "/templates/release-template.yml"
       - "/templates/deployment-template.yml"
   # Security scanning
-  - template: Jobs/Secret-Detection.gitlab-ci.yml
-  - template: Jobs/SAST.gitlab-ci.yml
-  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+  - project: swe/gitlab-support
+    file: /templates/security.yml
+    inputs:
+      stage: security
+      needs: [build]
+      scan-mrs: false
 
 # Prevent duplicate pipelines - run only tag and branch pipelines
 workflow:
@@ -30,6 +33,7 @@ workflow:
 
 stages:
   - build
+  - security
   - test
   - integration-test
   - code_quality
@@ -54,31 +58,23 @@ build:
   extends: .default_rules
   script:
     - mvn $MAVEN_OPTS clean install -Prelease
+    - mvn org.apache.maven.plugins:maven-dependency-plugin:3.8.1:tree -DoutputType=json -DoutputFile=maven.graph.json
   artifacts:
     paths:
+      - "**/maven.graph.json"
       - "*/target/*.jar"
     expire_in: 6 months
     reports:
       junit:
         - "*/target/surefire-reports/TEST-*.xml"
 
-gemnasium-maven-dependency_scanning:
-  rules:
-    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-
-secret_detection:
-  rules:
-    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-
-semgrep-sast:
+gitlab-advanced-sast:
   rules:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
 
 spotbugs-sast:
   rules:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-  dependencies:
-    - build
   variables:
     SAST_ANALYZER_IMAGE_TAG: "6"
     SAST_JAVA_VERSION: "21"

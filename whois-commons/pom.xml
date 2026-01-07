@@ -157,6 +157,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
+                    <scope>compile</scope>
+
                     <!-- Dependencies marked as not used, but actually they are necessary to run the project-->
                     <usedDependencies>
                         <dependency>io.netty:netty-all</dependency>
