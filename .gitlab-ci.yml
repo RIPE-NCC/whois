@@ -14,7 +14,6 @@ include:
   - project: "swe-database-team/gitlab-ci"
     file:
       - "/templates/release-template.yml"
-      - "/templates/deployment-template.yml"
   # Security scanning
   - project: swe/gitlab-support
     file: /templates/security.yml
@@ -240,3 +239,102 @@ sonar:
   script:
     - echo PWD=$PWD
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectName=whois -Dsonar.coverage.jacoco.xmlReportPaths=$PWD/whois-api/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-client/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-commons/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-db/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm4/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-query/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco-merged-test-coverage-report/jacoco.xml -DskipITs -Dsonar.test.exclusions=**/test/*
+
+.deploy_template: &deploy_env
+  stage: deploy
+  allow_failure: true
+  before_script:
+    - mkdir -p /root/.ssh
+    - eval $(ssh-agent -s)
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\nAddressFamily inet\n\n" > ~/.ssh/config
+    - echo "$SALT_SSH_KEYS" | tr -d '\r' | ssh-add -
+  script:
+    - echo "machine gitlab.ripe.net login dbase password $DB_OPERATIONAL_DEPLOY_TOKEN" > ~/.netrc
+    - chmod 600 ~/.netrc
+    - git clone https://gitlab.ripe.net/swe-database-team/db-operational.git
+    - >
+        properties_file="db-operational/configs/$PROJECT_NAME-$CI_ENVIRONMENT_NAME/properties"
+        variables=(
+                  APNIC_USERNAME
+                  APNIC_PASSWORD
+                  ARIN_API_KEY
+                  AUTHORISATION_SERVICE_API_KEY
+                  CUSTOMER_SERVICE_API_KEY
+                  DB_MASTER_PASSWORD
+                  DB_MASTER_USERNAME
+                  DB_SLAVE_PASSWORD
+                  DB_SLAVE_USERNAME
+                  ELASTIC_PASSWORD
+                  ELASTIC_USERNAME
+                  LACNIC_PASSWORD
+                  LACNIC_USERNAME
+                  SENTRY_DSN
+                  KEYCLOAK_CLIENT_KEY
+                  )
+        for variable in "${variables[@]}"; do
+          sed -i "s|\${$variable}|${!variable}|g" "$properties_file"
+        done
+    - >
+      if [ "$CI_COMMIT_TAG" ]; then
+       mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.1:copy -Dartifact=$GROUP_ID:$ARTIFACT_NAME:$CI_COMMIT_SHORT_SHA:jar -DoutputDirectory=target/
+       find target -name $ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar -exec cp {} db-operational/deployment/$ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar \;
+      else
+       find $ARTIFACT_DIR/target -name $ARTIFACT_NAME-*-SNAPSHOT.jar -exec cp {} db-operational/deployment/$ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar \;
+      fi
+    - cd db-operational/deployment
+    - ./deploy.sh -p $PROJECT_NAME -e $CI_ENVIRONMENT_NAME $ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar
+
+deploy_dev:
+  <<: *deploy_env
+  needs:
+    - job: build
+  environment:
+    name: dev
+  rules:
+    - when: manual
+
+deploy_prepdev:
+  <<: *deploy_env
+  needs:
+    - job: build
+  environment:
+    name: prepdev
+  rules:
+    - when: manual
+
+deploy_test:
+  <<: *deploy_env
+  environment:
+    name: test
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+    - when: never
+
+deploy_training:
+  <<: *deploy_env
+  environment:
+    name: training
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+    - when: never
+
+deploy_rc:
+  <<: *deploy_env
+  environment:
+    name: rc
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+    - when: never
+
+deploy_prod:
+  <<: *deploy_env
+  environment:
+    name: prod
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+    - when: never
+
