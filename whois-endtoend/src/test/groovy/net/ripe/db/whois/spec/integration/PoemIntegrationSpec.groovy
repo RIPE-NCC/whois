@@ -88,7 +88,7 @@ class PoemIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         response.contains("Create FAILED: [poem] POEM-HAIKU-OBJECT")
-        response.contains("***Error:   Poem must be maintained by 'LIM-MNT', which has a public password")
+        response.contains("***Error:   Poem must be maintained by 'LIM-MNT', using a public PGP key-cert")
     }
 
     def "add poem multiple maintainers"() {

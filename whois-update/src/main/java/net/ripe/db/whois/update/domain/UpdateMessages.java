@@ -457,7 +457,7 @@ public final class UpdateMessages {
     }
 
     public static Message poemRequiresPublicMaintainer(final RpslAttribute attribute) {
-        return new MessageWithAttribute(Type.ERROR, attribute,"Poem must be maintained by 'LIM-MNT', which has a public password");
+        return new MessageWithAttribute(Type.ERROR, attribute,"Poem must be maintained by 'LIM-MNT', using a public PGP key-cert");
     }
 
     public static Message poeticFormRequiresDbmMaintainer(final RpslAttribute attribute) {

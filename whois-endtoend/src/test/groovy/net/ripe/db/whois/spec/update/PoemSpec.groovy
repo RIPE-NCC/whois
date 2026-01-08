@@ -119,7 +119,7 @@ class PoemSpec extends BaseQueryUpdateSpec{
         ack.errors.any { it.operation == "Create" && it.key == "[poem] POEM-OUR-SQL" }
         queryObjectNotFound("-rGBT poem POEM-OUR-SQL", "poem", "POEM-OUR-SQL")
         ack.errorMessagesFor("Create", "[poem] POEM-OUR-SQL") ==
-                ["Poem must be maintained by 'LIM-MNT', which has a public password"]
+                ["Poem must be maintained by 'LIM-MNT', using a public PGP key-cert"]
     }
 
     def "create poem, with form, and mny-by LIM-MNT, without author"() {
