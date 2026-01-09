@@ -1329,7 +1329,7 @@
                     <plugin>
                         <groupId>com.lazerycode.jmeter</groupId>
                         <artifactId>jmeter-maven-plugin</artifactId>
-                        <version>1.10.0</version>
+                        <version>1.10.1</version>
                         <configuration>
                             <reportDir>${project.build.directory}/jmeter-reports</reportDir>
                         </configuration>
