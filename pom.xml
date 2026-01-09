@@ -107,7 +107,7 @@
         <spock.version>2.3-groovy-4.0</spock.version>
         <stax-utils.version>20070216</stax-utils.version>
 
-        <testcontainers.elasticsearch.version>1.21.3</testcontainers.elasticsearch.version>
+        <testcontainers.elasticsearch.version>1.21.4</testcontainers.elasticsearch.version>
         <tink.version>1.19.0</tink.version>
 
         <validation.api.version>3.1.1</validation.api.version>
