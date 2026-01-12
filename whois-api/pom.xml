@@ -261,7 +261,6 @@
                         <ignoredUsedUndeclaredDependency>org.apache.commons:commons-lang3</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.eclipse.jetty:jetty-server</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-net:commons-net</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-annotations</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-commons</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>

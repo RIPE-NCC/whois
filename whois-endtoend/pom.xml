@@ -188,7 +188,6 @@
                         <ignoredUsedUndeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>io.github.java-diff-utils:java-diff-utils</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>commons-io:commons-io</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-jdbc</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>net.ripe.db:whois-rpsl</ignoredUsedUndeclaredDependency>
@@ -214,7 +213,6 @@
                         <ignoredNonTestScopedDependency>net.ripe.db:whois-db</ignoredNonTestScopedDependency>
 
                         <ignoredNonTestScopedDependency>org.springframework:spring-beans</ignoredNonTestScopedDependency>
-                        <ignoredNonTestScopedDependency>commons-lang:commons-lang</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>commons-io:commons-io</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>org.springframework:spring-jdbc</ignoredNonTestScopedDependency>
                         <ignoredNonTestScopedDependency>org.glassfish.jersey.media:jersey-media-multipart</ignoredNonTestScopedDependency>

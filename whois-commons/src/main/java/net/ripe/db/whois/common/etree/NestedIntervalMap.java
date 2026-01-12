@@ -3,7 +3,7 @@ package net.ripe.db.whois.common.etree;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.ip.Interval;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.dao.jdbc.domain;
 
 import com.google.common.collect.Maps;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import java.util.Map;
 

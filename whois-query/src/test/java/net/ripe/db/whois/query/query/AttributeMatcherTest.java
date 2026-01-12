@@ -3,7 +3,7 @@ package net.ripe.db.whois.query.query;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

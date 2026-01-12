@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;

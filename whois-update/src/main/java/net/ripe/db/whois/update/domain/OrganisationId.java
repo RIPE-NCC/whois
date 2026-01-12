@@ -1,6 +1,6 @@
 package net.ripe.db.whois.update.domain;
 
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 public class OrganisationId extends AutoKey {
 

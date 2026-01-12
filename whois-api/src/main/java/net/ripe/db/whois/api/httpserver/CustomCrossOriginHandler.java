@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.httpserver;
 
 import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.HttpMethod;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.CrossOriginHandler;

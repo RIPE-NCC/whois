@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

@@ -166,7 +166,6 @@
                         <ignoredUsedUndeclaredDependency>net.javacrumbs.shedlock:shedlock-spring</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.slf4j:slf4j-api</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.eclipse.jetty.toolchain:jetty-servlet-api:jar</ignoredUsedUndeclaredDependency>
-                        <ignoredUsedUndeclaredDependency>commons-lang:commons-lang:jar</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>jakarta.annotation:jakarta.annotation-api:jar</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>org.springframework:spring-core:jar</ignoredUsedUndeclaredDependency>
                         <ignoredUsedUndeclaredDependency>com.mchange:c3p0:jar</ignoredUsedUndeclaredDependency>

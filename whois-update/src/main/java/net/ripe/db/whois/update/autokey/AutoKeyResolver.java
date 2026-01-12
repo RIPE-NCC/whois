@@ -16,7 +16,7 @@ import net.ripe.db.whois.update.domain.GeneratedKey;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

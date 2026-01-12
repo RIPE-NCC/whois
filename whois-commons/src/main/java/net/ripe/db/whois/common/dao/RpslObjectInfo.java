@@ -5,7 +5,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import java.util.Objects;
 

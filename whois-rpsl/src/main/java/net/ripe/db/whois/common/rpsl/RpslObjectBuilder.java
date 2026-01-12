@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

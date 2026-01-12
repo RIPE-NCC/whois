@@ -1,7 +1,7 @@
 package net.ripe.db.whois.common.etree;
 
 import net.ripe.db.whois.common.ip.Interval;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import java.util.Objects;
 

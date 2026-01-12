@@ -3,7 +3,7 @@ package net.ripe.db.whois.update.domain;
 import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

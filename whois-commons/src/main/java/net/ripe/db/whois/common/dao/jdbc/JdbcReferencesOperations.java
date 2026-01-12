@@ -12,7 +12,7 @@ import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.annotation.CheckForNull;

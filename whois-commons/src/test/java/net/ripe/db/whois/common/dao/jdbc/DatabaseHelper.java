@@ -29,7 +29,7 @@ import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

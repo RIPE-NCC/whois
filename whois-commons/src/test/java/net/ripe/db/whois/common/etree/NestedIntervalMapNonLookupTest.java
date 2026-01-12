@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.etree;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;

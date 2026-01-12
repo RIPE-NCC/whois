@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.dao.jdbc.domain.ObjectTypeIds;
 import net.ripe.db.whois.common.dao.jdbc.domain.RpslObjectInfoResultSetExtractor;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;

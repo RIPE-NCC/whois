@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
 import com.google.common.base.MoreObjects;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 
 import javax.annotation.concurrent.Immutable;
 

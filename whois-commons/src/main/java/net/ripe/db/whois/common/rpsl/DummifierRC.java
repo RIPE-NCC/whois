@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
-import org.apache.commons.lang.Validate;
+import net.ripe.db.whois.common.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
