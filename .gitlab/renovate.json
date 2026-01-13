@@ -1,6 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "schedule": ["every weekday"],
+  "vulnerabilityAlerts": {
+    "prConcurrentLimit": 0
+  },
   "packageRules": [
     {
       "description": "Netty 5.x is deprecated. Do not update to major version",
