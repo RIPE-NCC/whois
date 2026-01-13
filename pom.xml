@@ -95,7 +95,7 @@
         <persistence.api.version>3.2.0</persistence.api.version>
         <proprot.version>1.0</proprot.version>
 
-        <sentry.version>8.26.0</sentry.version>
+        <sentry.version>8.29.0</sentry.version>
         <!-- Servlet API 6.0 for EE10 : https://jakarta.ee/specifications/servlet/6.0/ -->
         <servlet.version>6.0.0</servlet.version>
         <shedlock.version>6.10.0</shedlock.version>
