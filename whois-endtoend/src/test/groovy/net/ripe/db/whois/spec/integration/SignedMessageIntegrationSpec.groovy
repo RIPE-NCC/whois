@@ -682,8 +682,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(1, 1, 0, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "inline pgp signed syncupdate with SHA512 hash"() {
@@ -980,8 +980,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(1, 1, 0, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "inline pgp signed mailupdate when maintainer only has x509 keycert"() {
@@ -1054,8 +1054,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "inline pgp signed mailupdate but maintainer doesnt reference keycert"() {
@@ -1096,8 +1096,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(1, 1, 0, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "inline pgp signed mailupdate with invalid signature format"() {
@@ -1813,8 +1813,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(1, 1, 0, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "multipart plaintext pgp signed message when keycert is missing and is not authorised"() {
@@ -1877,8 +1877,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(1, 1, 0, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "multipart alternative X509 signed message"() {
@@ -2263,8 +2263,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Message was signed more than one hour ago"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Message was signed more than one hour ago"]
   }
 
   def "multipart plaintext X509 signed message in the future"() {
@@ -2382,8 +2382,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Message was signed more than one hour ago"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Message was signed more than one hour ago"]
   }
 
   def "multipart plaintext X509 signed message when maintainer only has pgp keycert"() {
@@ -2467,8 +2467,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "multipart plaintext X509 signed message with invalid keycert"() {
@@ -2557,8 +2557,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(1, 1, 0, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "multipart plaintext x509 signed message not signed by keycert and keycert certificate has expired"() {
@@ -2761,8 +2761,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(1, 1, 0, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "multipart plaintext x509 signed message and is not authorised"() {
@@ -2878,8 +2878,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(1, 1, 0, 0)
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Authorisation for \\[person\\] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
   def "multipart plaintext x509 signed message keycert is expired"() {
@@ -3762,8 +3762,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Public key in keycert PGPKEY-C88CA438 has expired"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Public key in keycert PGPKEY-C88CA438 has expired"]
   }
 
   def "pgp signed message with revoked key"() {
@@ -3803,8 +3803,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Public key in keycert PGPKEY-8947C26B is revoked"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Public key in keycert PGPKEY-8947C26B is revoked"]
   }
 
   def "pgp signed message has expired"() {
@@ -3847,8 +3847,8 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       def ack = ackFor message
 
       ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") =~
-              "Message was signed more than one hour ago"
+      ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") ==
+              ["Message was signed more than one hour ago"]
   }
 
 

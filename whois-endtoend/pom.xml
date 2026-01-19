@@ -157,6 +157,7 @@
                 </executions>
                 <configuration>
                     <parallelParsing>true</parallelParsing>
+                    <targetBytecode>${java.version}</targetBytecode>
                 </configuration>
             </plugin>
             <plugin>

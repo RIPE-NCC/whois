@@ -195,8 +195,8 @@ class PingSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(1, 1, 0, 0)
         ack.countErrorWarnInfo(2, 2, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[route6] 2013:600::/32AS2000" }
-        ack.errorMessagesFor("Create", "[route6] 2013:600::/32AS2000") =~
-              ["99.13.0.1 is not a valid IPv6 address"]
+        ack.errorMessagesFor("Create", "[route6] 2013:600::/32AS2000")[0] ==
+              "99.13.0.1 is not a valid IPv6 address"
 
         queryObjectNotFound("-rGBT route6 2013:600::/32", "route6", "2013:600::/32")
     }

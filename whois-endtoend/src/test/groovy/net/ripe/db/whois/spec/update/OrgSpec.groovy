@@ -824,8 +824,8 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
-        ack.errorMessagesFor("Create", "[organisation] auto-1") =~
-                ["Syntax error in 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword"]
+        ack.errorMessagesFor("Create", "[organisation] auto-1")[0] =~
+                "Syntax error in 1ordwordwordwordwordwordwordwordwordwordwordwordwordwordwordword"
 
         queryObjectNotFound("-r -T organisation ORG-ABCD1-TEST", "organisation", "ORG-ABCD1-TEST")
     }
@@ -1431,8 +1431,8 @@ class OrgSpec extends BaseQueryUpdateSpec {
 
         ackForCreate.countErrorWarnInfo(1, 2, 0)
         ackForCreate.errors.any { it.operation == "Create" && it.key == "[organisation] ORG-FO1-TEST" }
-        ackForCreate.errorMessagesFor("Create", "[organisation] ORG-FO1-TEST") =~
-                ["Syntax error in.*(must be AUTO-nnn for create)"]
+        ackForCreate.errorMessagesFor("Create", "[organisation] ORG-FO1-TEST")[0] =~
+                "Syntax error in.*(must be AUTO-nnn for create)"
 
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
 
