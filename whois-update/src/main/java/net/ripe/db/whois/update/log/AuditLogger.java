@@ -5,12 +5,12 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.common.jdbc.driver.ResultInfo;
 import net.ripe.db.whois.common.jdbc.driver.StatementInfo;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
-import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateStatus;
@@ -21,6 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.annotation.Nullable;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -271,6 +272,9 @@ class AuditLogger {
     private void writeAndClose() throws IOException {
         try {
             final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            // transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");     // attribute not supported by java.xml implementation
+            transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             final Transformer transformer = transformerFactory.newTransformer();
             final DOMSource source = new DOMSource(doc);
             final StreamResult result = new StreamResult(outputStream);
