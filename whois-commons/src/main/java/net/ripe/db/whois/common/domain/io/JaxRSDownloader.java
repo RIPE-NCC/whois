@@ -6,7 +6,7 @@ import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;

@@ -14,7 +14,7 @@ import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.common.rpsl.AttributeParser;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.apache.commons.compress.utils.Lists;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
