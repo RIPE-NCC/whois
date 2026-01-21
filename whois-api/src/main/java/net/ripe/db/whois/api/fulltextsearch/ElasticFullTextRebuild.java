@@ -1,5 +1,17 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.BulkRequest;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
+import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
+import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
+import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
+import co.elastic.clients.elasticsearch.indices.GetIndexRequest;
+import co.elastic.clients.elasticsearch.indices.GetIndexResponse;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.elasticsearch.indices.UpdateAliasesRequest;
+import co.elastic.clients.elasticsearch.indices.UpdateAliasesResponse;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,20 +20,6 @@ import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.GetIndexResponse;
-import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +28,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -95,7 +93,7 @@ public class ElasticFullTextRebuild {
 
     public void rebuild(final String indexName, final String metadataName, final boolean shouldSetAlias) throws IOException {
 
-        final RestHighLevelClient client = elasticIndexService.getClient();
+        final ElasticsearchClient client = elasticIndexService.getClient();
 
         LOGGER.info("Start building index {}", indexName);
 
@@ -110,21 +108,28 @@ public class ElasticFullTextRebuild {
         final AtomicInteger totalProcessed = new AtomicInteger(0);
         printProgress(totalProcessed, objectIds.stream().mapToInt(i -> i.size()).sum(), timer);
 
-        final List<Integer> failedToIndexed = Lists.newArrayList();
+        final List<String> failedToIndexed = Lists.newArrayList();
         final List<CIString> failedToParse = Lists.newArrayList();
 
         final ForkJoinPool customThreadPool = new ForkJoinPool(4);
 
         Future future = customThreadPool.submit(
                 () -> objectIds.parallelStream().forEach(batchObjectIds -> {
-                    final BulkRequest bulkRequest = new BulkRequest();
+                    final List<BulkOperation> bulkOperations = new ArrayList<>();
 
                     final List<RpslObject> objects = getObjects(batchObjectIds);
                     objects.forEach(rpslObject -> {
                         try {
-                            bulkRequest.add(new IndexRequest(indexName)
-                                    .id(String.valueOf(rpslObject.getObjectId()))
-                                    .source(elasticIndexService.json(rpslObject))
+
+                            bulkOperations.add(
+                                    BulkOperation.of( op -> op.index(
+                                            IndexOperation.of( idx ->  idx
+                                                            .index(indexName)
+                                                            .id(String.valueOf(rpslObject.getObjectId()))
+                                                            .document(elasticIndexService.json(rpslObject))
+                                            )
+                                          )
+                                    )
                             );
                         } catch (final Exception ioe) {
                             failedToParse.add(rpslObject.getKey());
@@ -133,7 +138,7 @@ public class ElasticFullTextRebuild {
                     });
                     totalProcessed.addAndGet(objects.size());
 
-                    performBulkIndexing(client, failedToIndexed, bulkRequest);
+                    performBulkIndexing(client, failedToIndexed, new BulkRequest.Builder().operations(bulkOperations).build());
                 }));
 
         try {
@@ -160,101 +165,124 @@ public class ElasticFullTextRebuild {
         updateMetadata(maxSerial, metadataName);
     }
 
-    private static void performBulkIndexing(final RestHighLevelClient client, final List<Integer> failedToIndexed, final BulkRequest bulkRequest) {
+    private static void performBulkIndexing(final ElasticsearchClient client, final List<String> failedToIndexed, final BulkRequest bulkRequest) {
         try {
-            final BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
-            if(response.hasFailures()) {
-                failedToIndexed.addAll(Arrays.stream(response.getItems()).filter(BulkItemResponse::isFailed).map(BulkItemResponse::getItemId).collect(Collectors.toSet()));
-                LOGGER.error("Failures in bulk request {}", response.buildFailureMessage());
+            final BulkResponse response = client.bulk(bulkRequest);
+            if(response.errors()) {
+
+                final List<BulkResponseItem> failedItems = response.items().stream().filter(bulkResponseItem -> bulkResponseItem.error() != null).toList();
+                failedToIndexed.addAll(
+                        failedItems.stream().map(BulkResponseItem::id).collect(Collectors.toSet())
+                );
+
+                failedItems.forEach(failedItem -> {
+                    LOGGER.error("Failures in bulk request for id {} caused by {}", failedItem.id(),  failedItem.error());
+                });
             }
         } catch (final IOException e) {
-            LOGGER.error("Error while indexing bulk request, due to {}", e);
+            LOGGER.error("Error while indexing bulk request, due to", e);
             throw new RuntimeException(e);
         }
     }
 
     private void createIndex(final String indexName) throws IOException {
-        final CreateIndexRequest request = new CreateIndexRequest(indexName);
-        request.settings(getSettings(elasticHosts.size()));
-        request.mapping(getMappings());
+      final ElasticsearchClient esClient = elasticIndexService.getClient();
 
-        elasticIndexService.getClient().indices().create(request, RequestOptions.DEFAULT);
+      final CreateIndexRequest request = new CreateIndexRequest.Builder()
+              .index(indexName)
+              .settings(getSettings(elasticHosts.size()))
+              .mappings( getMappings())
+              .build();
 
-        final ClusterUpdateSettingsRequest clusterUpdateSettingsRequest = new ClusterUpdateSettingsRequest();
-        Settings persistentSettings = Settings.builder()
-                .put("logger.deprecation.level", logLevel)
-                .build();
-        clusterUpdateSettingsRequest.persistentSettings(persistentSettings);
-        elasticIndexService.getClient().cluster().putSettings(clusterUpdateSettingsRequest, RequestOptions.DEFAULT);
+      esClient.indices().create(request);
     }
 
     private void setNewIndexAsWhoisAlias(final String indexName) {
         LOGGER.info("Setting index {} as default whois index", indexName);
 
-        // swap whois alias to newly built index so it becomes the default
-        final IndicesAliasesRequest aliasRequest = new IndicesAliasesRequest();
-        final IndicesAliasesRequest.AliasActions addIndexAction =
-                new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD)
-                        .index(indexName)
-                        .alias(elasticIndexService.getWhoisAliasIndex());
-        aliasRequest.addAliasAction(addIndexAction);
+        final ElasticsearchClient esClient = elasticIndexService.getClient();
 
         try {
-            elasticIndexService.getClient().indices().updateAliases(aliasRequest, RequestOptions.DEFAULT);
-        } catch (final IOException ioe) {
-            LOGGER.warn("Failed to set {} as default index", indexName);
+            final UpdateAliasesRequest request = new UpdateAliasesRequest.Builder()
+                    .actions(actions -> actions
+                            .add(add -> add
+                                    .index(indexName)
+                                    .alias(elasticIndexService.getWhoisAliasIndex())
+                            )
+                    )
+                    .build();
+
+            final UpdateAliasesResponse response = esClient.indices().updateAliases(request);
+            LOGGER.info("Alias updated acknowledged: {}", response.acknowledged());
+
+        } catch (IOException e) {
+            LOGGER.warn("Failed to set {} as default index", indexName, e);
         }
     }
 
     private void deleteOldIndexes(final String currentIndex) {
         LOGGER.info("Deleting existing indexes");
 
+        final ElasticsearchClient esClient = elasticIndexService.getClient();
+
         try {
-            final GetIndexRequest request = new GetIndexRequest("*");
-            final GetIndexResponse response = elasticIndexService.getClient().indices().get(request, RequestOptions.DEFAULT);
+            final GetIndexRequest request = new GetIndexRequest.Builder()
+                    .index("*")
+                    .build();
 
+            final GetIndexResponse response = esClient.indices().get(request);
 
-            for (final String index : response.getIndices()) {
-                if(index.equals(currentIndex) || index.equals("metadata")) {
+            for (final String index : response.result().keySet()) {
+                if (index.equals(currentIndex) || index.equals("metadata")) {
                     continue;
                 }
-
-                LOGGER.info("Deleting existing index:" + index);
+                LOGGER.info("Deleting existing index: {}", index);
                 deleteIndex(index);
             }
-        } catch (final Exception ex) {
+
+        } catch (Exception ex) {
+            LOGGER.warn("Failed to list or delete old indexes", ex);
         }
     }
 
     private void deleteIndex(final String indexName) {
+        final ElasticsearchClient esClient = elasticIndexService.getClient();
+
         try {
-            elasticIndexService.getClient().indices().delete(new DeleteIndexRequest(indexName), RequestOptions.DEFAULT);
-        } catch (final Exception ex) {
-            LOGGER.warn("{} Index deleting failed , still continuing {}", indexName, ex.getCause());
+            final DeleteIndexRequest delRequest = new DeleteIndexRequest.Builder()
+                    .index(indexName)
+                    .build();
+            esClient.indices().delete(delRequest);
+        } catch (Exception ex) {
+            LOGGER.warn("{} Index deleting failed, still continuing {}", indexName, ex.getCause());
         }
     }
 
     private void updateMetadata(final int maxSerial, final String metadataName) {
-
         LOGGER.info("Setting metadata Index");
 
         try {
+            // Update your own metadata service
             elasticIndexService.updateMetadata(new ElasticIndexMetadata(maxSerial, source), metadataName);
 
-            final UpdateSettingsRequest settingRequest = new UpdateSettingsRequest(metadataName);
+            final ElasticsearchClient esClient = elasticIndexService.getClient();
 
-            final Map<String, Object> map = new HashMap<>();
-            map.put("index.number_of_replicas", elasticHosts.size() - 1);
-            map.put("index.auto_expand_replicas", false);
-            settingRequest.settings(map);
+            // Directly update index settings using builder
+            esClient.indices().putSettings(builder -> builder
+                    .index(metadataName)
+                    .settings( IndexSettings.of(s -> s
+                                        .index(i -> i
+                                                .numberOfReplicas(String.valueOf(elasticHosts.size() - 1))
+                                                .autoExpandReplicas("false")
+                                        )
+                    ))
+            );
 
-            elasticIndexService.getClient().indices().putSettings(settingRequest, RequestOptions.DEFAULT);
+            LOGGER.info("Metadata index settings updated successfully");
 
-            LOGGER.info("Setting metadata Index Done");
-
-        } catch (final Exception ioe) {
-            LOGGER.info("Caught {} on {}: {}", ioe.getClass(), ioe.getMessage());
-            throw new RuntimeException("Failed to set default metadata index", ioe);
+        } catch (final Exception ex) {
+            LOGGER.warn("Failed to update metadata index: {}", ex.getMessage(), ex);
+            throw new RuntimeException("Failed to set default metadata index", ex);
         }
     }
 

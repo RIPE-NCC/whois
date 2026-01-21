@@ -1,5 +1,10 @@
 package net.ripe.db.whois.rdap;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
@@ -9,16 +14,6 @@ import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import net.ripe.db.whois.query.domain.QueryCompletionInfo;
 import net.ripe.db.whois.query.domain.QueryException;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -63,67 +59,80 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                 @Override
                 protected List<RpslObject> doSearch() throws IOException {
 
-                    final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-                    sourceBuilder.query(getQueryBuilder(fields, term));
-                    sourceBuilder.size(maxResultSize);
-                    sourceBuilder.sort(SORT_BUILDERS);
+                    final SearchRequest searchRequest = SearchRequest.of( s -> s
+                            .index(elasticIndexService.getWhoisAliasIndex())
+                            .query(getQueryBuilder(fields, term))
+                            .size(maxResultSize)
+                            .sort(SORT_BUILDERS)
+                    );
 
-                    final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWhoisAliasIndex());
-                    searchRequest.source(sourceBuilder);
-
-                    final SearchResponse searchResponse = elasticIndexService.getClient().search(searchRequest, RequestOptions.DEFAULT);
-                    SearchHit[] hits = searchResponse.getHits().getHits();
-
+                    final SearchResponse<Void> searchResponse = elasticIndexService.getClient().search(searchRequest, Void.class);
                     final List<RpslObject> results = new ArrayList<>();
 
-                    for (final SearchHit hit : hits) {
-                        final RpslObject rpslObject;
+                    searchResponse.hits().hits().forEach( hit -> {
                         try {
-                            rpslObject = objectDao.getById(Integer.parseInt(hit.getId()));
+                            final RpslObject rpslObject = objectDao.getById(Integer.parseInt(hit.id()));
                             results.add(rpslObject);
                             account(rpslObject);
 
                         } catch (EmptyResultDataAccessException e) {
                             // object was deleted from the database but index was not updated yet
-                            continue;
                         }
-                    }
+                    });
                     return results;
                 }
 
-                private QueryBuilder getQueryBuilder(final String[] fields, final String term) {
-                    if (hasWildCard()) {
-                        return createWildCardQuery();
+                private Query getQueryBuilder(final String[] fields, final String term) {
+                    if (hasWildCard(term)) {
+                        return createWildCardQuery(fields, term);
                     }
 
-                    return isExactMatchSearch() ? createExactMatchQuery() :
-                            new MultiMatchQueryBuilder(term, fields)
-                                    .type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX)
-                                    .operator(Operator.AND);
+                    if (isExactMatchSearch(fields)) {
+                        return createExactMatchQuery(fields, term);
+                    }
+
+                    return Query.of(q -> q.multiMatch(m -> m
+                            .query(term)
+                            .fields(Arrays.asList(fields))
+                            .type(TextQueryType.PhrasePrefix)
+                            .operator(Operator.And)
+                    ));
                 }
 
-                private boolean isExactMatchSearch(){
+                private boolean isExactMatchSearch(String[] fields) {
                     return EXACT_MATCH_SEARCH_FIELDS.containsAll(Stream.of(fields).toList());
                 }
 
-                private boolean hasWildCard(){
-                    return term.indexOf('*') != -1 || term.indexOf('?') != -1;
+                private boolean hasWildCard(String term) {
+                    return term.contains("*") || term.contains("?");
                 }
 
-                private BoolQueryBuilder createExactMatchQuery(){
-                    final BoolQueryBuilder exactMatch = QueryBuilders.boolQuery();
+                private Query createExactMatchQuery(String[] fields, String term) {
+                    String lower = term.toLowerCase();
+                    List<Query> shouldQueries = new ArrayList<>();
+
                     for (String field : fields) {
-                        exactMatch.should(QueryBuilders.termQuery(String.format("%s.lowercase", field), term.toLowerCase()));
+                        shouldQueries.add(Query.of(q -> q.term(t -> t
+                                .field(field + ".lowercase")
+                                .value(lower)
+                        )));
                     }
-                    return exactMatch;
+
+                    return Query.of(q -> q.bool(b -> b.should(shouldQueries)));
                 }
 
-                private BoolQueryBuilder createWildCardQuery(){
-                    final BoolQueryBuilder wildCardBuilder = QueryBuilders.boolQuery();
+                private Query createWildCardQuery(String[] fields, String term) {
+                    String lower = term.toLowerCase();
+                    List<Query> shouldQueries = new ArrayList<>();
+
                     for (String field : fields) {
-                        wildCardBuilder.should(QueryBuilders.wildcardQuery(String.format("%s.lowercase", field), term.toLowerCase()));
+                        shouldQueries.add(Query.of(q -> q.wildcard(w -> w
+                                .field(field + ".lowercase")
+                                .value(lower)
+                        )));
                     }
-                    return wildCardBuilder;
+
+                    return Query.of(q -> q.bool(b -> b.should(shouldQueries)));
                 }
             }.search();
         } catch (QueryException e){

@@ -1,8 +1,8 @@
 package net.ripe.db.whois.api.elasticsearch;
 
-import org.elasticsearch.client.RestHighLevelClient;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 
 public interface ElasticRestHighlevelClient {
 
-    RestHighLevelClient getClient();
+    ElasticsearchClient getClient();
 }

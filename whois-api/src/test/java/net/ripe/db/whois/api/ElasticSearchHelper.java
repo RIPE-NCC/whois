@@ -1,13 +1,12 @@
 package net.ripe.db.whois.api;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchConfigurations;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import org.apache.http.HttpHost;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,53 +25,61 @@ public class ElasticSearchHelper {
         this.hostname = hostname;
     }
 
-    public void setupElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
+    public void setupElasticIndexes(final String indexName, final String metadataIndex) throws Exception {
+        try (final ElasticsearchClient esClient = getEsClient()) {
 
-        try (final RestHighLevelClient esClient = getEsClient()) {
             if (!isElasticRunning(esClient)) {
                 return;
             }
 
-            CreateIndexRequest whoisRequest = new CreateIndexRequest(indexName);
-            whoisRequest.settings(ElasticSearchConfigurations.getSettings(hostname.split(",").length));
-            whoisRequest.mapping(ElasticSearchConfigurations.getMappings());
+            // Create whois index
+            esClient.indices().create(c -> c
+                    .index(indexName)
+                    .settings(ElasticSearchConfigurations.getSettings(hostname.split(",").length))
+                    .mappings(ElasticSearchConfigurations.getMappings())
+            );
 
-            esClient.indices().create(whoisRequest, RequestOptions.DEFAULT);
-
-            CreateIndexRequest whoisMetaDataRequest = new CreateIndexRequest(metaDetaIndex);
-            esClient.indices().create(whoisMetaDataRequest, RequestOptions.DEFAULT);
+            // Create metadata index
+            esClient.indices().create(c -> c
+                            .index(metadataIndex)
+                    // optionally add settings/mappings if needed
+            );
         }
     }
 
-    public void resetElasticIndexes(final String indexName, final String metaDetaIndex) throws Exception {
-        try (final RestHighLevelClient esClient = getEsClient()) {
+    public void resetElasticIndexes(final String indexName, final String metadataIndex) throws Exception {
+        try (final ElasticsearchClient esClient = getEsClient()) {
 
             if (!isElasticRunning(esClient)) {
                 return;
             }
 
+            // Delete whois index if it exists
             try {
-                DeleteIndexRequest whoisRequest = new DeleteIndexRequest(indexName);
-                esClient.indices().delete(whoisRequest, RequestOptions.DEFAULT);
+                esClient.indices().delete(d -> d.index(indexName));
             } catch (Exception ignored) {
             }
 
+            // Delete metadata index if it exists
             try {
-                DeleteIndexRequest metadataRequest = new DeleteIndexRequest(metaDetaIndex);
-                esClient.indices().delete(metadataRequest, RequestOptions.DEFAULT);
+                esClient.indices().delete(d -> d.index(metadataIndex));
             } catch (Exception ignored) {
             }
         }
     }
 
     @Nonnull
-    private RestHighLevelClient getEsClient() {
-        return new RestHighLevelClient(RestClient.builder(HttpHost.create(hostname)));
+    private ElasticsearchClient getEsClient() {
+        return new ElasticsearchClient( new RestClientTransport(
+                RestClient.builder(HttpHost.create(hostname)).build(),
+                new JacksonJsonpMapper()
+        ));
+
     }
 
-    private boolean isElasticRunning(final RestHighLevelClient esClient) {
+    private boolean isElasticRunning(final ElasticsearchClient esClient) {
         try {
-            return esClient.ping(RequestOptions.DEFAULT);
+            return esClient.ping().value();
         } catch (Exception e) {
             LOGGER.warn("ElasticSearch is not running");
             return false;

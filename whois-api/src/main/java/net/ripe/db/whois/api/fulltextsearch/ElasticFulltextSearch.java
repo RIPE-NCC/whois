@@ -1,5 +1,18 @@
 package net.ripe.db.whois.api.fulltextsearch;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.Time;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.TermsAggregation;
+import co.elastic.clients.elasticsearch._types.mapping.FieldType;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import co.elastic.clients.elasticsearch.core.search.Highlight;
+import co.elastic.clients.elasticsearch.core.search.HighlightField;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
@@ -16,23 +29,6 @@ import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +37,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,15 +59,16 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private static final Integer GRACEFUL_TIMEOUT_IN_MS = 30000; // 30seconds
 
-    public static final TermsAggregationBuilder AGGREGATION_BUILDER = AggregationBuilders
-            .terms("types-count")
+    public static final TermsAggregation AGGREGATION_BUILDER = TermsAggregation.of(t -> t
             .field("object-type.raw")
-            .size(ObjectType.values().length);
+            .size(ObjectType.values().length));
 
-    public static final List<SortBuilder<?>> SORT_BUILDERS = List.of(
-            SortBuilders.fieldSort("lookup-key.raw")
-                    .unmappedType("keyword")
-                    .order(SortOrder.ASC)
+    public static final SortOptions SORT_BUILDERS = SortOptions.of( s-> s
+            .field(fs -> fs
+                            .field("lookup-key.raw")
+                            .order(SortOrder.Asc)
+                            .unmappedType(FieldType.Keyword)
+            )
     );
 
     private final AccessControlListManager accessControlListManager;
@@ -120,13 +119,14 @@ public class ElasticFulltextSearch extends FulltextSearch {
             @Override
             protected SearchResponse doSearch() throws IOException {
 
-                final org.elasticsearch.action.search.SearchResponse fulltextResponse = performFulltextSearch(searchRequest);
+                final co.elastic.clients.elasticsearch.core.SearchResponse fulltextResponse = performFulltextSearch(searchRequest);
 
                 final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
                 final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
 
-                for (final SearchHit hit : fulltextResponse.getHits().getHits()) {
-                    final Map<String, Object> hitAttributes = hit.getSourceAsMap();
+                final List<Hit<Map<String , Object>>> hits = fulltextResponse.hits().hits();
+                for (final Hit<Map<String, Object>> hit : hits) {
+                    final Map<String, Object> hitAttributes = hit.source();
                     final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
                     final List<SearchResponse.Str> responseStrs = Lists.newArrayList();
                     final List<RpslAttribute> attributes = Lists.newArrayList();
@@ -135,7 +135,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                     final ObjectType objectType = ObjectType.getByName(hitAttributes.get(OBJECT_TYPE_FIELD_NAME).toString());
                     final String pKey = hitAttributes.get(LOOKUP_KEY_FIELD_NAME).toString();
 
-                    responseStrs.add(new SearchResponse.Str(PRIMARY_KEY_FIELD_NAME, hit.getId()));
+                    responseStrs.add(new SearchResponse.Str(PRIMARY_KEY_FIELD_NAME, hit.id()));
                     responseStrs.add(new SearchResponse.Str(OBJECT_TYPE_FIELD_NAME, objectType.getName()));
                     responseStrs.add(new SearchResponse.Str(LOOKUP_KEY_FIELD_NAME, pKey));
 
@@ -161,52 +161,49 @@ public class ElasticFulltextSearch extends FulltextSearch {
         }.search();
     }
 
-    private org.elasticsearch.action.search.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {
+    private co.elastic.clients.elasticsearch.core.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {
         try {
-            return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), RequestOptions.DEFAULT);
-        } catch (ElasticsearchStatusException ex){
-            if (ex.status().equals(RestStatus.BAD_REQUEST)){
-                LOGGER.info("ElasticFullTextSearch fails due to the query: {}", ex.getMessage());
+            return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), Map.class);
+        } catch (ElasticsearchException ex){
+            // Detect BAD REQUEST (invalid query) from server error type
+            if (ex.status() == 400) { // common for bad query DSL
+                LOGGER.info("ElasticFullTextSearch failed due to invalid query syntax: {}", ex.getMessage());
                 throw new IllegalArgumentException("Invalid query syntax");
             }
+
             LOGGER.error("ElasticFullTextSearch error: {}", ex.getMessage());
             throw ex;
         }
     }
 
-    private org.elasticsearch.action.search.SearchRequest getFulltextRequest(final SearchRequest searchRequest ) {
+    private co.elastic.clients.elasticsearch.core.SearchRequest getFulltextRequest(final SearchRequest searchRequest ) {
         final int start = Math.max(0, searchRequest.getStart());
-        final HighlightBuilder highlightBuilder = getHighlightBuilder(searchRequest);
-        final SearchSourceBuilder sourceBuilder = getSourceBuilder(start, highlightBuilder, searchRequest);
+        final Highlight highlight = getHighlight(searchRequest);
 
-
-        final org.elasticsearch.action.search.SearchRequest fulltextRequest = new org.elasticsearch.action.search.SearchRequest(elasticIndexService.getWhoisAliasIndex());
-        fulltextRequest.source(sourceBuilder);
-        return fulltextRequest;
-    }
-
-    private SearchSourceBuilder getSourceBuilder(int start, HighlightBuilder highlightBuilder, SearchRequest searchRequest) {
-        final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
-                .query(getQueryBuilder(searchRequest.getQuery()))
-                .size(searchRequest.getRows()).from(start)
-                .timeout(TimeValue.timeValueMillis(GRACEFUL_TIMEOUT_IN_MS))
-                .aggregation(AGGREGATION_BUILDER)
+        return co.elastic.clients.elasticsearch.core.SearchRequest.of(s -> s
+                .index(elasticIndexService.getWhoisAliasIndex())
+                .query(q -> q.queryString(w -> w.query(escape(searchRequest.getQuery())).type(TextQueryType.Phrase)))
+                .from(start)
+                .size(searchRequest.getRows())
+                .timeout(Time.of(t -> t.time(GRACEFUL_TIMEOUT_IN_MS + "ms")).time())
+                .aggregations("types-count", Aggregation.of( a -> a.terms(AGGREGATION_BUILDER)))
                 .sort(SORT_BUILDERS)
-                .highlighter(highlightBuilder).trackTotalHits(true);
-        return sourceBuilder;
+                .highlight(highlight)
+                .trackTotalHits(t -> t.enabled(true))
+        );
     }
 
-    private HighlightBuilder getHighlightBuilder(SearchRequest searchRequest) {
-        final HighlightBuilder highlightBuilder = new HighlightBuilder()
-                .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
+    private Highlight getHighlight(SearchRequest searchRequest) {
+        return Highlight.of(h -> h
                 .preTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPre()))
+                .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
                 .maxAnalyzedOffset(HIGHLIGHT_OFFSET_SIZE)
-                .field("*");
-        return highlightBuilder;
+                .fields("*", HighlightField.of(f -> f)) // highlight all fields
+        );
     }
 
-    private SearchResponse prepareResponse(org.elasticsearch.action.search.SearchResponse fulltextResponse, List<SearchResponse.Lst> highlightDocs, List<SearchResponse.Result.Doc> resultDocumentList, SearchRequest searchRequest, Stopwatch stopwatch) {
-        final SearchResponse.Result result = new SearchResponse.Result("response", Long.valueOf(fulltextResponse.getHits().getTotalHits().value).intValue(), searchRequest.getStart());
+    private SearchResponse prepareResponse(co.elastic.clients.elasticsearch.core.SearchResponse fulltextResponse, List<SearchResponse.Lst> highlightDocs, List<SearchResponse.Result.Doc> resultDocumentList, SearchRequest searchRequest, Stopwatch stopwatch) {
+        final SearchResponse.Result result = new SearchResponse.Result("response", Long.valueOf(fulltextResponse.hits().total().value()).intValue(), searchRequest.getStart());
         result.setDocs(resultDocumentList);
 
         final SearchResponse searchResponse = new SearchResponse();
@@ -222,7 +219,8 @@ public class ElasticFulltextSearch extends FulltextSearch {
         }
 
         if (searchRequest.isFacet()) {
-            final Terms countByType = fulltextResponse.getAggregations().get("types-count");
+            final Aggregate countByType = (Aggregate) fulltextResponse.aggregations().get("types-count");
+
             responseLstList.add(getCountByType(countByType));
         }
 
@@ -253,47 +251,67 @@ public class ElasticFulltextSearch extends FulltextSearch {
         return SearchRequest.XML_FORMAT.equals(format) ? escape(highlightPost) : highlightPost;
     }
 
-    private QueryStringQueryBuilder getQueryBuilder(final String query) {
-        return QueryBuilders.queryStringQuery(escape(query)).type(MultiMatchQueryBuilder.Type.PHRASE);
+   private SearchResponse.Lst createHighlights(final Hit<Map<String, Object>> hit) {
+       final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.id());
+       final List<SearchResponse.Arr> documentArrs = new ArrayList<>();
+
+       if (hit.highlight() != null) {
+
+           final Map<String, List<String>> normalized = hit.highlight().entrySet().stream()
+                   .collect(Collectors.toMap(
+                           this::getCleanHighlightField,
+                           Map.Entry::getValue,
+                           (existing, replacement) -> existing,
+                           LinkedHashMap::new
+                   ));
+
+           normalized.forEach((attribute, fragments) -> {
+               if ("lookup-key".equals(attribute) || attribute.contains("lowercase")) {
+                   return;
+               }
+
+               String joined = String.join(",", fragments);
+
+               final SearchResponse.Arr arr = new SearchResponse.Arr(attribute);
+               arr.setStr(new SearchResponse.Str(null, joined));
+               documentArrs.add(arr);
+           });
+       }
+
+       documentLst.setArrs(documentArrs);
+       return documentLst;
+   }
+
+    private String getCleanHighlightField(final Map.Entry<String, List<String>> e) {
+        return e.getKey().contains(".custom") ?
+                StringUtils.substringBefore( e.getKey(), ".custom") :
+                StringUtils.substringBefore( e.getKey(), ".raw");
     }
 
-    private SearchResponse.Lst createHighlights(final SearchHit hit) {
-        final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.getId());
-        final List<SearchResponse.Arr> documentArrs = Lists.newArrayList();
+    private SearchResponse.Lst getCountByType(final Aggregate agg) {
+        if (agg == null || !(agg._get() instanceof StringTermsAggregate terms)) {
+            return null;
+        }
 
-        hit.getHighlightFields().values().stream().collect(getHighlightsCollector()).forEach((attribute, highlightField) -> {
-            if("lookup-key".equals(attribute) || attribute.contains("lowercase")){
-                return;
-            }
-
-            final SearchResponse.Arr arr = new SearchResponse.Arr(attribute);
-            arr.setStr(new SearchResponse.Str(null, StringUtils.join(highlightField.getFragments(), ",")));
-            documentArrs.add(arr);
-        });
-
-        documentLst.setArrs(documentArrs);
-        return documentLst;
-    }
-
-    private static Collector<HighlightField, ?, Map<String, HighlightField>> getHighlightsCollector() {
-        return Collectors.toMap(highlightField -> highlightField.name().contains(".custom") ?
-                        StringUtils.substringBefore(highlightField.name(), ".custom") :
-                        StringUtils.substringBefore(highlightField.name(), ".raw"), Function.identity(),
-                (existing, replacement) -> existing);
-    }
-
-    private SearchResponse.Lst getCountByType(final Terms facets) {
         final SearchResponse.Lst facetCounts = new SearchResponse.Lst("facet_counts");
-        final List<SearchResponse.Lst> facetCountsList = Lists.newArrayList();
+        final List<SearchResponse.Lst> facetCountsList = new ArrayList<>();
 
         final SearchResponse.Lst facetFields = new SearchResponse.Lst("facet_fields");
-        final List<SearchResponse.Lst> facetFieldsList = Lists.newArrayList();
+        final List<SearchResponse.Lst> facetFieldsList = new ArrayList<>();
 
         final SearchResponse.Lst facetLst = new SearchResponse.Lst("object-type");
-        final List<SearchResponse.Int> facetInts = Lists.newArrayList();
+        final List<SearchResponse.Int> facetInts = new ArrayList<>();
 
-        for (Terms.Bucket entry : facets.getBuckets()) {
-            facetInts.add(new SearchResponse.Int((String) entry.getKey(), String.valueOf(entry.getDocCount())));
+        // Iterate new buckets API
+        for (var bucket : terms.buckets().array()) {
+            String key = bucket.key().stringValue(); // 👈 aggregation bucket key
+            long count = bucket.docCount();          // 👈 doc count
+
+            if ("lookup-key".equals(key) || key.contains("lowercase")) {
+                continue;
+            }
+
+            facetInts.add(new SearchResponse.Int(key, String.valueOf(count)));
         }
 
         facetLst.setInts(facetInts);

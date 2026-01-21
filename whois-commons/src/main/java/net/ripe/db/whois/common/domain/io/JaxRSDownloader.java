@@ -6,7 +6,7 @@ import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.aspects.RetryFor;
-import org.elasticsearch.common.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -46,7 +46,7 @@ public class JaxRSDownloader implements Downloader {
         try {
             final Invocation.Builder request = client.target(url.toString()).request();
 
-            if ("https".equals(url.getProtocol()) && ! Strings.isNullOrEmpty(url.getUserInfo())) {
+            if ("https".equals(url.getProtocol()) && ! StringUtils.isEmpty(url.getUserInfo())) {
                 request.header(HttpHeaders.AUTHORIZATION,
                     String.format("Basic %s",
                         Base64.getEncoder().encodeToString(url.getUserInfo().getBytes(StandardCharsets.UTF_8))));

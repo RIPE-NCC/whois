@@ -1,11 +1,13 @@
 package net.ripe.db.whois.api.elasticsearch;
 
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +24,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class ElasticSearchNonAuthInstance implements ElasticRestHighlevelClient {
 
     private static final Logger LOGGER = getLogger(ElasticSearchNonAuthInstance.class);
-    private final RestHighLevelClient client;
+    private final ElasticsearchClient client;
 
     @Autowired
     public ElasticSearchNonAuthInstance(@Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts) {
@@ -30,10 +32,14 @@ public class ElasticSearchNonAuthInstance implements ElasticRestHighlevelClient 
     }
 
     @Nullable
-    private RestHighLevelClient getEsClient(final List<String> elasticHosts) {
+    private ElasticsearchClient getEsClient(final List<String> elasticHosts) {
         try {
             final RestClientBuilder clientBuilder = RestClient.builder(elasticHosts.stream().map((host) -> HttpHost.create(host)).toArray(HttpHost[]::new));
-            return new RestHighLevelClient(clientBuilder);
+
+            return new ElasticsearchClient( new RestClientTransport(
+                    clientBuilder.build(),
+                    new JacksonJsonpMapper()
+            ));
         } catch (Exception e) {
             LOGGER.warn("Failed to start the ES client {}", e.getMessage());
             return null;
@@ -41,7 +47,7 @@ public class ElasticSearchNonAuthInstance implements ElasticRestHighlevelClient 
     }
 
     @Override
-    public RestHighLevelClient getClient() {
+    public ElasticsearchClient getClient() {
         return client;
     }
 }

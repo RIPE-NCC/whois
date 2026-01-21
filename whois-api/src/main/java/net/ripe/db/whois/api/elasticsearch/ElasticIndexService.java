@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.elasticsearch;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -8,28 +9,15 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.core.CountRequest;
-import org.elasticsearch.client.core.CountResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.xcontent.XContentBuilder;
-import org.elasticsearch.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -53,7 +41,7 @@ public class ElasticIndexService {
     public static final String SERIAL = "serial";
     public static final String SOURCE = "source";
 
-    private final RestHighLevelClient client;
+    private final ElasticsearchClient client;
     private final String whoisAliasIndex;
     private final String metadataIndex;
 
@@ -98,10 +86,10 @@ public class ElasticIndexService {
         }
 
         try {
-            final IndexRequest request = new IndexRequest(whoisAliasIndex);
-            request.id(String.valueOf(rpslObject.getObjectId()));
-            request.source(json(rpslObject));
-            client.index(request, RequestOptions.DEFAULT);
+            client.index( i -> i
+                    .index(whoisAliasIndex)
+                    .id(String.valueOf(rpslObject.getObjectId()))
+                    .document(json(rpslObject)));
         } catch (Exception ioe) {
             LOGGER.error("Failed to ES index {}: {}", rpslObject.getKey(), ioe);
         }
@@ -109,31 +97,38 @@ public class ElasticIndexService {
 
     protected void deleteEntry(final int objectId) {
         if (!isElasticRunning()) {
-           return;
+            return;
         }
 
         try {
-            final DeleteRequest request = new DeleteRequest(whoisAliasIndex, String.valueOf(objectId));
-            client.delete(request, RequestOptions.DEFAULT);
-        }  catch (Exception ioe) {
-            LOGGER.error("Failed to delete ES index object id {}: {}", objectId, ioe);
+            client.delete(d -> d
+                    .index(whoisAliasIndex)
+                    .id(String.valueOf(objectId))
+            );
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to delete ES index object id {}: {}", objectId, e);
         }
     }
 
-    protected void deleteAll() throws IOException {
+    protected void deleteAll() {
         if (!isElasticRunning()) {
             return;
         }
 
-        final DeleteByQueryRequest request = new DeleteByQueryRequest(whoisAliasIndex);
-        request.setQuery(QueryBuilders.matchAllQuery());
-
-        client.deleteByQuery(request, RequestOptions.DEFAULT);
+        try {
+            client.deleteByQuery(d -> d
+                    .index(whoisAliasIndex)
+                    .query(q -> q.matchAll(m -> m))
+            );
+        } catch (Exception e) {
+            LOGGER.error("Failed to delete all documents in index {}: {}", whoisAliasIndex, e);
+        }
     }
 
     protected void refreshIndex(){
         try {
-            client.indices().refresh(new RefreshRequest(whoisAliasIndex), RequestOptions.DEFAULT);
+            client.indices().refresh(r -> r.index(whoisAliasIndex));
         } catch (IOException ex){
             LOGGER.error("Failed to refresh ES index {}: {}", whoisAliasIndex, ex);
         }
@@ -143,32 +138,46 @@ public class ElasticIndexService {
         return getWhoisDocCount(whoisAliasIndex);
     }
 
-    public long getWhoisDocCount(final String indexName) throws IOException {
+    public long getWhoisDocCount(final String indexName) {
         if (!isElasticRunning()) {
             throw new IllegalStateException("ES is not running");
         }
 
-        final CountRequest countRequest = new CountRequest(indexName);
-        countRequest.query(QueryBuilders.matchAllQuery());
-
-        final CountResponse countResponse = client.count(countRequest, RequestOptions.DEFAULT);
-        return countResponse.getCount();
+        try {
+            return client.count(c -> c
+                    .index(indexName)
+                    .query(q -> q.matchAll(m -> m))
+            ).count();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get document count for index " + indexName, e);
+        }
     }
 
-    protected ElasticIndexMetadata getMetadata() throws IOException {
+
+    protected ElasticIndexMetadata getMetadata() {
         if (!isElasticRunning()) {
             throw new IllegalStateException("ES is not running");
         }
 
-        final GetRequest request = new GetRequest(metadataIndex, SERIAL_DOC_ID);
-        final GetResponse documentFields = client.get(request, RequestOptions.DEFAULT);
-        if (documentFields.getSource() == null) {
-            return null;
-        }
+        try {
+            var response = client.get(g -> g
+                            .index(metadataIndex)
+                            .id(SERIAL_DOC_ID),
+                    Map.class // deserialize source as Map<String,Object>
+            );
 
-        return new ElasticIndexMetadata(
-            Integer.parseInt(documentFields.getSource().get(SERIAL).toString()),
-            documentFields.getSource().get(SOURCE).toString());
+            final Map<String, Object> source = response.source();
+            if (source == null) {
+                return null;
+            }
+
+            return new ElasticIndexMetadata(
+                    Integer.parseInt(source.get(SERIAL).toString()),
+                    source.get(SOURCE).toString()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get metadata from index " + metadataIndex, e);
+        }
     }
 
     public void updateMetadata(final ElasticIndexMetadata metadata) throws IOException {
@@ -184,30 +193,26 @@ public class ElasticIndexService {
             return;
         }
 
-        final UpdateRequest updateRequest = new UpdateRequest(metadatIndexName, SERIAL_DOC_ID);
+        final Map<String, Object> doc = Map.of( SERIAL, metadata.getSerial(), SOURCE, metadata.getSource());
 
-        final XContentBuilder builder = XContentFactory.jsonBuilder()
-                .startObject()
-                .field(SERIAL, metadata.getSerial())
-                .field(SOURCE, metadata.getSource())
-                .endObject();
-        final UpdateRequest request = updateRequest.doc(builder).upsert(builder);
-
-        client.update(request, RequestOptions.DEFAULT);
+        client.update( u -> u.index(metadatIndexName)
+                .id(SERIAL_DOC_ID)
+                .doc(doc)
+                .upsert(doc), Map.class);
     }
 
     private boolean isElasticRunning() {
         try {
-            return client !=null && client.ping(RequestOptions.DEFAULT);
+            return client !=null && client.ping().value();
         } catch (Exception e) {
             LOGGER.error("ElasticSearch is not running, caught {}: {}", e.getClass().getName(), e.getMessage());
             return false;
         }
     }
+
     private boolean isWhoisIndexExist() {
-        final GetIndexRequest request = new GetIndexRequest(whoisAliasIndex);
         try {
-            return client.indices().exists(request, RequestOptions.DEFAULT);
+            return client.indices().exists(e -> e.index(whoisAliasIndex)).value();
         } catch (Exception e) {
             LOGGER.info("Whois index does not exist");
             return false;
@@ -215,41 +220,45 @@ public class ElasticIndexService {
     }
 
     private boolean isMetaIndexExist() {
-        final GetIndexRequest request = new GetIndexRequest(metadataIndex);
         try {
-            return client.indices().exists(request, RequestOptions.DEFAULT);
+            return client.indices().exists(e -> e.index(metadataIndex)).value();
         } catch (Exception e) {
             LOGGER.info("Metadata index does not exist");
             return false;
         }
     }
 
-    public XContentBuilder json(final RpslObject rpslObject) throws IOException {
-        final XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
+    public Map<String, Object> json(final RpslObject rpslObject) {
+        final Map<String, Object> doc = new HashMap<>();
 
+        // Filter the object
         final RpslObject filterRpslObject = filterRpslObject(rpslObject);
         final ObjectTemplate template = ObjectTemplate.getTemplate(filterRpslObject.getType());
 
+        // Loop over attributes
         for (AttributeType attributeType : template.getAllAttributes()) {
-            if(filterRpslObject.containsAttribute(attributeType)) {
+            if (filterRpslObject.containsAttribute(attributeType)) {
                 if (template.getMultipleAttributes().contains(attributeType)) {
-                    builder.array(
-                            attributeType.getName(),
-                            filterRpslObject.findAttributes(attributeType).stream().map((attribute) -> attribute.getValue().trim()).toArray(String[]::new)
-                    );
+                    // Multiple values -> List of Strings
+                    List<String> values = filterRpslObject.findAttributes(attributeType).stream()
+                            .map(attr -> attr.getValue().trim())
+                            .toList();
+                    doc.put(attributeType.getName(), values);
                 } else {
-                    builder.field(attributeType.getName(), filterRpslObject.findAttribute(attributeType).getValue().trim());
+                    // Single value -> String
+                    doc.put(attributeType.getName(), filterRpslObject.findAttribute(attributeType).getValue().trim());
                 }
             }
         }
 
-        builder.field(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
-        builder.field(OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
+        // Add extra fields
+        doc.put(LOOKUP_KEY_FIELD_NAME, rpslObject.getKey().toString());
+        doc.put(OBJECT_TYPE_FIELD_NAME, filterRpslObject.getType().getName());
 
-        return builder.endObject();
+        return doc;
     }
 
-    public RestHighLevelClient getClient() {
+    public ElasticsearchClient getClient() {
         return client;
     }
 

@@ -14,10 +14,10 @@ import net.ripe.db.whois.api.mail.exception.MailParsingException;
 import net.ripe.db.whois.common.rpsl.AttributeParser;
 import net.ripe.db.whois.common.rpsl.attrs.AttributeParseException;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.angus.mail.dsn.DeliveryStatus;
 import org.eclipse.angus.mail.dsn.MultipartReport;
 import org.eclipse.angus.mail.dsn.Report;
-import org.elasticsearch.common.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ public class BouncedMessageParser {
 
     @Autowired
     public BouncedMessageParser(@Value("${mail.smtp.from:}") final String smtpFrom) {
-        this.enabled = !Strings.isNullOrEmpty(smtpFrom);
+        this.enabled = !StringUtils.isEmpty(smtpFrom);
     }
 
     @Nullable

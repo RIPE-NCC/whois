@@ -1201,11 +1201,11 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(searchResponse.getLsts().get(1).getLsts(), hasSize(1));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getName(), is("1"));
         assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs(), hasSize(2));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("mntner"));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b>-MNT"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(1).getName(), is("mntner"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(1).getStr().getValue(), is("<b>DEV</b>-MNT"));
 
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(1).getName(), is("remarks"));
-        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(1).getStr().getValue(), is("<b>DEV</b> mntner"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getName(), is("remarks"));
+        assertThat(searchResponse.getLsts().get(1).getLsts().get(0).getArrs().get(0).getStr().getValue(), is("<b>DEV</b> mntner"));
         assertThat(searchResponse.getLsts().get(2).getName(), is("version"));
     }
 

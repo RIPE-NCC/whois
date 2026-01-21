@@ -1,132 +1,124 @@
 package net.ripe.db.whois.api.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.analysis.Analyzer;
+import co.elastic.clients.elasticsearch._types.analysis.Normalizer;
+import co.elastic.clients.elasticsearch._types.analysis.TokenFilter;
+import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
+import co.elastic.clients.elasticsearch._types.mapping.Property;
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.util.NamedValue;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.AttributeType;
-import org.elasticsearch.xcontent.XContentBuilder;
-import org.elasticsearch.xcontent.XContentFactory;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ElasticSearchConfigurations {
 
-    public static XContentBuilder getSettings(final int nodes) throws IOException {
+    public static IndexSettings getSettings(final int nodes) {
 
-        final XContentBuilder indexSettings =  XContentFactory.jsonBuilder();
-        indexSettings.startObject()
-                .startObject("index")
-                    .field("number_of_replicas", nodes-1)
-                    .field("auto_expand_replicas", false)
-                    .field("max_result_window", 100000)
-                .endObject()
-                .startObject("analysis")
-                    .startObject("analyzer")
-                        .startObject("fulltext_analyzer")
-                            .field("tokenizer", "whitespace")
-                            .field("filter", new String[]{"my_word_delimiter_graph", "lowercase", "asciifolding", "english_stop" })
-                        .endObject()
-                        .startObject("my_email_analyzer")
-                            .field("type", "custom")
-                            .field("tokenizer", "uax_url_email")
-                            .field("filter", new String[]{"my_word_email_delimiter_graph", "lowercase"})
-                        .endObject()
-                    .endObject()
-                    .startObject("normalizer")
-                        .startObject("my_lowercase_normalizer")
-                            .field("type", "custom")
-                            .field("filter", new String[]{"lowercase"})
-                        .endObject()
-                    .endObject()
-                    .startObject("filter")
-                        .startObject("english_stop")
-                            .field("type", "stop")
-                            .field("stopwords", "_english_")
-                        .endObject()
-                        .startObject("my_word_delimiter_graph")
-                            .field("type", "word_delimiter_graph")
-                            .field("generate_word_parts", true)
-                            .field("catenate_words", true)
-                            .field("catenate_numbers", true)
-                            .field("preserve_original", true)
-                            .field("split_on_case_change", true)
-                        .endObject()
-                        .startObject("my_word_email_delimiter_graph")
-                            .field("type", "word_delimiter_graph")
-                            .field("preserve_original", true)
-                            .field("split_on_case_change", false)
-                        .endObject()
-                    .endObject()
-                .endObject()
-                .endObject();
+        final IndexSettings settings = IndexSettings.of(s -> s
+                .numberOfReplicas(String.valueOf(nodes - 1))
+                .autoExpandReplicas("false")
+                .maxResultWindow(100000)
+                .analysis(a -> a
+                        // Token Filters
+                        .filter("english_stop", f -> f
+                                .definition(d -> d
+                                        .stop(st -> st.stopwords("_english_"))
+                                )
+                        )
+                        .filter("my_word_delimiter_graph", f -> f
+                                .definition(d -> d
+                                        .wordDelimiterGraph(wdg -> wdg
+                                                .generateWordParts(true)
+                                                .catenateWords(true)
+                                                .catenateNumbers(true)
+                                                .preserveOriginal(true)
+                                                .splitOnCaseChange(true)
+                                        )
+                                )
+                        )
+                        .filter("my_word_email_delimiter_graph", f -> f
+                                .definition(d -> d
+                                        .wordDelimiterGraph(wdg -> wdg
+                                                .preserveOriginal(true)
+                                                .splitOnCaseChange(false)
+                                        )
+                                )
+                        )
+                        // Analyzers
+                        .analyzer("fulltext_analyzer", az -> az
+                                .custom(c -> c
+                                        .tokenizer("whitespace")
+                                        .filter("my_word_delimiter_graph", "lowercase", "asciifolding", "english_stop")
+                                )
+                        )
+                        .analyzer("my_email_analyzer", az -> az
+                                .custom(c -> c
+                                        .tokenizer("uax_url_email")
+                                        .filter("my_word_email_delimiter_graph", "lowercase")
+                                )
+                        )
+                        // Normalizers
+                        .normalizer("my_lowercase_normalizer", n -> n
+                                .custom(c -> c
+                                        .filter("lowercase")
+                                )
+                        )
+                )
+        );
 
-        return indexSettings;
+        return settings;
     }
 
-    public static XContentBuilder getMappings() throws IOException {
-        final XContentBuilder mappings = XContentFactory.jsonBuilder().startObject();
+    public static TypeMapping getMappings()  {
 
-        mappings.startArray("dynamic_templates")
-                    .startObject()
-                        .startObject("default_mapping")
-                            .field("match_mapping_type", "string")
-                            .startObject("mapping")
-                                .field("type", "text")
-                            .startObject("fields")
-                                    .startObject("custom")
-                                        .field("type", "text")
-                                        .field("analyzer", "fulltext_analyzer")
-                                        .field("search_analyzer", "fulltext_analyzer")
-                                    .endObject()
-                                    .startObject("raw")
-                                        .field("type", "keyword")
-                                        .field("ignore_above", 10922)
-                                    .endObject()
-                                    .startObject("lowercase")
-                                        .field("type", "keyword")
-                                        .field("normalizer", "my_lowercase_normalizer")
-                                        .field("ignore_above", 10922)
-                                    .endObject()
-                                .endObject()
-                            .endObject()
-                        .endObject()
-                    .endObject()
-                .endArray();
+       final Map<String, Property> propertiesMap = new HashMap<>();
 
-        mappings.startObject("properties");
-        for(AttributeType type : AttributeType.values()) {
-            if(type.getSyntax() == AttributeSyntax.EMAIL_SYNTAX) {
-                mappings.startObject(type.getName())
-                            .field("type", "text")
-                            .field("analyzer", "fulltext_analyzer")
-                            .field("search_analyzer", "fulltext_analyzer")
-                            .startObject("fields")
-                                 .startObject("custom")
-                                    .field("type", "text")
-                                    .field("analyzer", "my_email_analyzer")
-                                 .endObject()
-                                 .startObject("raw")
-                                    .field("type", "keyword")
-                                    .field("ignore_above", 10922)
-                                .endObject()
-                                .startObject("lowercase")
-                                    .field("type", "keyword")
-                                    .field("normalizer", "my_lowercase_normalizer")
-                                    .field("ignore_above", 10922)
-                                .endObject()
-                           .endObject()
-                        .endObject();
+       final Property emailFieldProperty = Property.of(p -> p
+                .text(t -> t
+                        .analyzer("fulltext_analyzer")
+                        .searchAnalyzer("fulltext_analyzer")
+                        .fields("custom", f -> f.text(ft -> ft.analyzer("my_email_analyzer")))
+                        .fields("raw", f -> f.keyword(k -> k.ignoreAbove(10922)))
+                        .fields("lowercase", f -> f.keyword(k -> k.normalizer("my_lowercase_normalizer").ignoreAbove(10922)))
+                )
+        );
+
+        for(final AttributeType type : AttributeType.values()) {
+            if (type.getSyntax() == AttributeSyntax.EMAIL_SYNTAX) {
+                propertiesMap.put(type.getName(), emailFieldProperty);
             }
         }
 
-        mappings.startObject("object-type")
-                    .field("type", "text")
-                    .startObject("fields")
-                        .startObject("raw")
-                          .field("type", "keyword")
-                        .endObject()
-                    .endObject()
-                .endObject();
+      final TypeMapping mapping = TypeMapping.of(m -> m
+                .dynamicTemplates(Collections.singletonList(
+                        Map.of("default_mapping", DynamicTemplate.of(dt -> dt
+                                .matchMappingType("string")
+                                .mapping(p -> p
+                                        .text(t -> t
+                                                .fields("custom", f -> f.text(ft -> ft.analyzer("fulltext_analyzer").searchAnalyzer("fulltext_analyzer")))
+                                                .fields("raw", f -> f.keyword(k -> k.ignoreAbove(10922)))
+                                                .fields("lowercase", f -> f.keyword(k -> k.normalizer("my_lowercase_normalizer").ignoreAbove(10922)))
+                                        )
+                                )
+                        ))
+                ))
 
-        return mappings.endObject().endObject();
+                .properties(propertiesMap)
+                .properties("object-type", p -> p
+                        .text(t -> t
+                                .fields("raw", f -> f.keyword(k -> k))
+                        )
+                )
+        );
+
+        return mapping;
     }
-
 }

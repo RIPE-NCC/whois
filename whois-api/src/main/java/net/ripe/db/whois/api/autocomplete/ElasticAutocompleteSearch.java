@@ -1,25 +1,22 @@
 package net.ripe.db.whois.api.autocomplete;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SearchType;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermsQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermsQueryBuilder;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +30,6 @@ import static net.ripe.db.whois.api.fulltextsearch.ElasticFulltextSearch.SORT_BU
 @Component
 public class ElasticAutocompleteSearch implements AutocompleteSearch {
 
-
     private static final int MAX_SEARCH_RESULTS = 10;
     private static final Pattern COMMENT_PATTERN = Pattern.compile("#.*");
     private final ElasticIndexService elasticIndexService;
@@ -44,60 +40,76 @@ public class ElasticAutocompleteSearch implements AutocompleteSearch {
     }
 
     public List<Map<String, Object>> search(
-        final String queryString,                       // search value
-        final Set<AttributeType> queryAttributes,       // attribute(s) to search in
-        final Set<AttributeType> responseAttributes,    // attribute(s) to return
-        final Set<ObjectType> objectTypes)              // filter by object type(s)
-            throws IOException {                        // TODO: wrap IOException, return something sensible
+            final String queryString,
+            final Set<AttributeType> queryAttributes,
+            final Set<AttributeType> responseAttributes,
+            final Set<ObjectType> objectTypes
+    ) throws IOException {
+
+        final MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(m -> m
+                .query(queryString)
+                .fields(queryAttributes.stream()
+                        .map(AttributeType::getName)
+                        .toList()
+                )
+                .type(TextQueryType.PhrasePrefix)  // PHRASE_PREFIX
+        );
+
+        final BoolQuery boolQuery = BoolQuery.of(b -> {
+            BoolQuery.Builder builder = new BoolQuery.Builder();
+
+            if (!objectTypes.isEmpty()) {
+                builder.must(TermsQuery.of(t -> t
+                        .field("object-type")
+                        .terms(terms -> terms
+                                .value(objectTypes.stream().map(o -> FieldValue.of( f -> f.stringValue(o.getName()))).toList())
+                        )
+                )._toQuery());
+            }
+
+            builder.must(multiMatchQuery._toQuery());
+
+            return builder;
+        });
+
+        List<Hit<Map>> searchResponse = elasticIndexService.getClient().search(s -> s
+                        .index(elasticIndexService.getWhoisAliasIndex())
+                        .query(boolQuery._toQuery())
+                        .size(MAX_SEARCH_RESULTS)
+                        .searchType(SearchType.DfsQueryThenFetch)
+                        .sort(SORT_BUILDERS)
+                , Map.class  // return type
+        ).hits().hits();
 
 
-        final MultiMatchQueryBuilder multiMatchQuery = new MultiMatchQueryBuilder(queryString, queryAttributes.stream().map((atrributeType) -> atrributeType.getName()).toArray(String[]::new));
-        multiMatchQuery.type(MultiMatchQueryBuilder.Type.PHRASE_PREFIX);
+       final List<Map<String, Object>> results = new ArrayList<>();
 
-        final BoolQueryBuilder finalQuery = QueryBuilders.boolQuery();
+        for (final Hit<Map> hit : searchResponse) {
+            Map<String, Object> attributes = hit.source();
 
-        if(!objectTypes.isEmpty()) {
-            final TermsQueryBuilder  matchByObjectTypeQuery = new TermsQueryBuilder("object-type", objectTypes.stream().map((objectType) -> objectType.getName()).toArray(String[]::new));
-            finalQuery.must(matchByObjectTypeQuery);
-        }
+            if (attributes == null) continue;
 
-        finalQuery.must(multiMatchQuery);
-
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(finalQuery);
-        sourceBuilder.size(MAX_SEARCH_RESULTS);
-        sourceBuilder.sort(SORT_BUILDERS);
-
-        final SearchRequest searchRequest = new SearchRequest(elasticIndexService.getWhoisAliasIndex());
-        searchRequest.source(sourceBuilder);
-        searchRequest.searchType(SearchType.DFS_QUERY_THEN_FETCH);
-
-        final SearchResponse searchResponse = elasticIndexService.getClient().search(searchRequest, RequestOptions.DEFAULT);
-        SearchHit[] hits = searchResponse.getHits().getHits();
-
-        final List<Map<String, Object>> results = Lists.newArrayList();
-
-        for(SearchHit hit: hits) {
-            final Map<String, Object>  attributes = hit.getSourceAsMap();
-
-            final Map<String, Object> result = Maps.newLinkedHashMap();
+            Map<String, Object> result = new LinkedHashMap<>();
             result.put("key", attributes.get(LOOKUP_KEY_FIELD_NAME));
             result.put("type", attributes.get(OBJECT_TYPE_FIELD_NAME));
 
-            for (final AttributeType responseAttribute : responseAttributes) {
-
-                if(attributes.containsKey(responseAttribute.getName())) {
-                    final Object attributeValue = attributes.get(responseAttribute.getName());
+            for (AttributeType responseAttribute : responseAttributes) {
+                if (attributes.containsKey(responseAttribute.getName())) {
+                    Object attributeValue = attributes.get(responseAttribute.getName());
 
                     if (attributeValue instanceof List) {
-                        result.put(responseAttribute.getName(), filterValues(responseAttribute, (List<String>) attributeValue));
-                    } else {
-                        result.put(responseAttribute.getName(), filterValue(responseAttribute, (String) attributeValue));
+                        result.put(responseAttribute.getName(),
+                                filterValues(responseAttribute, (List<String>) attributeValue));
+                    } else if (attributeValue instanceof String) {
+                        result.put(responseAttribute.getName(),
+                                filterValue(responseAttribute, (String) attributeValue));
                     }
                 }
             }
+
             results.add(result);
         }
+
         return results;
     }
 

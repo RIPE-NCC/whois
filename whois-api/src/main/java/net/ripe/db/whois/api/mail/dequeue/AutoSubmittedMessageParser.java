@@ -4,7 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import net.ripe.db.whois.api.mail.EmailMessageInfo;
 import net.ripe.db.whois.api.mail.exception.MailParsingException;
-import org.elasticsearch.common.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class AutoSubmittedMessageParser {
 
     @Autowired
     public AutoSubmittedMessageParser(@Value("${mail.smtp.from:}") final String smtpFrom) {
-        this.enabled = !Strings.isNullOrEmpty(smtpFrom);
+        this.enabled = !StringUtils.isEmpty(smtpFrom);
     }
 
     @Nullable

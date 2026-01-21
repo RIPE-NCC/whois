@@ -4,13 +4,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.ElasticSearchHelper;
 import net.ripe.db.whois.api.fulltextsearch.ElasticFullTextRebuild;
-import net.ripe.db.whois.common.dao.jdbc.JdbcRpslObjectOperations;
-import net.ripe.db.whois.common.dao.jdbc.JdbcStreamingHelper;
-import net.ripe.db.whois.common.rpsl.RpslObject;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,16 +12,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractElasticSearchIntegrationTest extends AbstractIntegrationTest {
@@ -89,15 +76,18 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     }
 
     public void deleteAll() throws IOException {
-        DeleteByQueryRequest request = new DeleteByQueryRequest(getWhoisIndex());
-        request.setQuery(QueryBuilders.matchAllQuery());
+        // Delete all documents from whois index
+        elasticIndexService.getClient().deleteByQuery(d -> d
+                    .index(getWhoisIndex())
+                    .query(q -> q.matchAll(m -> m))
+        );
 
-        elasticIndexService.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
+        // Delete all documents from metadata index
+        elasticIndexService.getClient().deleteByQuery(d -> d
+                    .index(getMetadataIndex())
+                    .query(q -> q.matchAll(m -> m))
+        );
 
-        DeleteByQueryRequest metadata = new DeleteByQueryRequest(getMetadataIndex());
-        metadata.setQuery(QueryBuilders.matchAllQuery());
-
-        elasticIndexService.getClient().deleteByQuery(metadata, RequestOptions.DEFAULT);
     }
 
     public abstract String getWhoisIndex();

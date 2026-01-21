@@ -1,6 +1,10 @@
 package net.ripe.db.whois.api.elasticsearch;
 
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
@@ -9,7 +13,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +33,7 @@ public class ElasticSearchInstance implements ElasticRestHighlevelClient {
 
     private static final int TIMEOUT_IN_MS = 35000;
     private static final Logger LOGGER = getLogger(ElasticSearchInstance.class);
-    private final RestHighLevelClient client;
+    private final ElasticsearchClient client;
 
     @Autowired
     public ElasticSearchInstance(@Value("#{'${elastic.host:}'.split(',')}") final List<String> elasticHosts,
@@ -39,28 +43,49 @@ public class ElasticSearchInstance implements ElasticRestHighlevelClient {
     }
 
     @Nullable
-    private RestHighLevelClient getEsClient(final List<String> elasticHosts, final String elasticUser, final String elasticPassword) {
-       try {
-           final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-           credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(elasticUser, elasticPassword));
+    public static ElasticsearchClient getEsClient(final List<String> elasticHosts,
+                                                  final String elasticUser,
+                                                  final String elasticPassword) {
+        try {
+            // Credentials for Basic Auth
+            final BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(elasticUser, elasticPassword)
+            );
 
-           return new RestHighLevelClient(RestClient.builder(asHttpHosts(elasticHosts))
-                   .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder.setSocketTimeout(TIMEOUT_IN_MS))
-                   .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)));
-       }  catch (Exception e) {
-           LOGGER.warn("Failed to start the ES client {}", e.getMessage());
-           return null;
-       }
+            // Build low-level RestClient for multiple hosts
+            RestClientBuilder builder = RestClient.builder(asHttpHosts(elasticHosts))
+                    .setRequestConfigCallback(requestConfigBuilder ->
+                            requestConfigBuilder.setSocketTimeout(TIMEOUT_IN_MS))
+                    .setHttpClientConfigCallback(httpClientBuilder ->
+                            httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+
+            RestClient restClient = builder.build();
+
+            // Transport layer for the new Java client
+            ElasticsearchTransport transport = new RestClientTransport(
+                    restClient,
+                    new JacksonJsonpMapper()
+            );
+
+            // Return the high-level typed client
+            return new ElasticsearchClient(transport);
+
+        } catch (Exception e) {
+            LOGGER.warn("Failed to start the ES client: {}", e.getMessage());
+            return null;
+        }
     }
 
-    private HttpHost[] asHttpHosts(final List<String> hosts) {
+    private static HttpHost[] asHttpHosts(final List<String> hosts) {
         return hosts.stream()
                 .map( host -> new HttpHost(StringUtils.substringBefore(host, ":"), Integer.parseInt(StringUtils.substringAfter(host, ":")), "https"))
                 .toArray(HttpHost[]::new);
     }
 
     @Override
-    public RestHighLevelClient getClient() {
+    public ElasticsearchClient getClient() {
         return client;
     }
 }
