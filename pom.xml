@@ -1122,7 +1122,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.15.0</version>
+                <version>1.16.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
