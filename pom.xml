@@ -88,7 +88,7 @@
         <netty.version>4.2.9.Final</netty.version>
         <nimbus-jose-jwt.version>10.7</nimbus-jose-jwt.version>
 
-        <oauth2.oidc.version>11.30.1</oauth2.oidc.version>
+        <oauth2.oidc.version>11.31.1</oauth2.oidc.version>
         <org.json.version>20250517</org.json.version>
 
         <!-- Added JPA as a compile time dependency to prevent linting errors in IntelliJ -->
