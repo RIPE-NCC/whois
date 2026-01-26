@@ -6,6 +6,8 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;
 
+import java.io.Serializable;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "publicIds", propOrder = {
         "type",
@@ -13,11 +15,15 @@ import jakarta.xml.bind.annotation.XmlType;
 })
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class PublicIds {
+public class PublicIds implements Serializable {
 
-    private final String type;
+    private String type;
 
-    private final String identifier;
+    private String identifier;
+    
+    public PublicIds() {
+        // required for deserialization
+    }
 
     public PublicIds(String type, String identifier) {
         this.type = type;
