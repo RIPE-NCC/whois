@@ -30,14 +30,14 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
     @XmlSchemaType(name = "anySimpleType")
     protected List<Object> vcardArray;
     protected List<Role> roles;
-    protected Map publicIds;
+    protected List<PublicIds> publicIds;
 
     public Entity() {
         super();
         super.setObjectClassName("entity");
     }
 
-    public Entity(final String handle, final List<Object> vcardArray, final List<Role> roles, final Map publicIds) {
+    public Entity(final String handle, final List<Object> vcardArray, final List<Role> roles, final List<PublicIds> publicIds) {
         this();
         this.handle = handle;
         this.vcardArray = vcardArray;
@@ -72,7 +72,7 @@ public class Entity extends RdapObject implements Serializable, Comparable<Entit
         return this.roles;
     }
 
-    public Map getPublicIds() {
+    public List<PublicIds> getPublicIds() {
         return publicIds;
     }
 
