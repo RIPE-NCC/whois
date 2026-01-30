@@ -30,6 +30,20 @@
       ],
       "matchUpdateTypes": ["major"],
       "enabled": false
+    },
+    {
+      "description": "Dont upgrade to Jetty 12.1.x until EE11 upgrade",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "org.eclipse.jetty.http2:jetty-http2-server",
+        "org.eclipse.jetty:jetty-alpn-java-server",
+        "org.eclipse.jetty:jetty-io",
+        "org.eclipse.jetty:jetty-jmx",
+        "org.eclipse.jetty.ee10:jetty-ee10-servlets",
+        "org.eclipse.jetty.ee10:jetty-ee10-webapp",
+        "org.eclipse.jetty:jetty-rewrite"
+      ],
+      "enabled": false
     }
   ]
 }
