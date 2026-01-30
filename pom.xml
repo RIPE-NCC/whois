@@ -60,7 +60,7 @@
         <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
 
-        <jackson.version>2.20.1</jackson.version>
+        <jackson.version>2.20.2</jackson.version>
         <jackson-annotations.version>2.20</jackson-annotations.version>
         <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
         <jaxb.api.version>4.0.4</jaxb.api.version>

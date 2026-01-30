@@ -44,6 +44,19 @@
         "org.eclipse.jetty:jetty-rewrite"
       ],
       "enabled": false
+    },
+    {
+      "description": "Dont upgrade to Jackson 2.21.x until EE11 upgrade",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "com.fasterxml.jackson.core:jackson-core",
+        "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-base",
+        "com.fasterxml.jackson.jakarta.rs:jackson-jakarta-rs-json-provider",
+        "com.fasterxml.jackson.core:jackson-annotations",
+        "com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations",
+        "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+      ],
+      "enabled": false
     }
   ]
 }
