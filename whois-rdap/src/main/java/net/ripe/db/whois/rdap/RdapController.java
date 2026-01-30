@@ -332,30 +332,6 @@ public class RdapController {
                 .build();
     }
 
-    private Response redirectOrAdministrativeBlock(final HttpServletRequest request, final String key, final Set<ObjectType> whoisObjectTypes) {
-            try {
-                return redirect(getRequestPath(request), getQueryObject(whoisObjectTypes, key));
-            } catch (RdapException e) {
-
-                if(e.getErrorCode() == 404) {
-
-                    final Optional<RdapObject> responseObject = rdapService.getRipeAdministrativeBlock(getRequestPath(request), key);
-                    if (responseObject.isPresent()) {
-                        return Response.ok(responseObject.get())
-                                .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
-                                .build();
-                    }
-
-                    final URI redirectAdministrativeRange = ianaAdministrativeRanges.getOtherRirRedirectUri(key);
-                    if (redirectAdministrativeRange != null) {
-                        return Response.status(Response.Status.MOVED_PERMANENTLY).location(redirectAdministrativeRange).build();
-                    }
-                }
-
-                throw e;
-            }
-    }
-
     private Query getQueryObject(final Set<ObjectType> objectTypes, final String key) {
         return Query.parse(
                 String.format("%s %s %s %s %s %s",
@@ -379,6 +355,31 @@ public class RdapController {
         return domain.getReverseIp() instanceof Ipv4Resource ? INETNUM : INET6NUM;
     }
 
+    private Response redirectOrAdministrativeBlock(final HttpServletRequest request, final String key, final Set<ObjectType> whoisObjectTypes) {
+        try {
+            return redirect(getRequestPath(request), getQueryObject(whoisObjectTypes, key));
+        } catch (RdapException e) {
+
+            if(e.getErrorCode() == 404) {
+
+                final Optional<RdapObject> responseObject = rdapService.getRipeAdministrativeBlock(RdapRequestType.IP, getRequestPath(request), key);
+                if (responseObject.isPresent()) {
+                    return Response.ok(responseObject.get())
+                            .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                            .build();
+                }
+
+                final URI redirectAdministrativeRange = ianaAdministrativeRanges.getOtherRirRedirectUri(key, null);
+                if (redirectAdministrativeRange != null) {
+                    return Response.status(Response.Status.MOVED_PERMANENTLY).location(redirectAdministrativeRange).build();
+                }
+            }
+
+            throw e;
+        }
+    }
+
+
     private Response redirectDomain(final String requestPath, final Domain domain) {
         final URI uri;
         try {
@@ -388,6 +389,21 @@ public class RdapController {
                     domain.getReverseIp().toString());
         } catch (WebApplicationException e) {
             LOGGER.debug(e.getMessage(), e);
+            if(e.getResponse().getStatus() == 404) {
+
+                final Optional<RdapObject> responseObject = rdapService.getRipeAdministrativeBlock(RdapRequestType.DOMAIN, requestPath, domain.getReverseIp().toString());
+                if (responseObject.isPresent()) {
+                    return Response.ok(responseObject.get())
+                            .header(CONTENT_TYPE, CONTENT_TYPE_RDAP_JSON)
+                            .build();
+                }
+
+                final URI redirectAdministrativeRange =
+                        ianaAdministrativeRanges.getOtherRirRedirectUri(domain.getReverseIp().toString(), domain.getValue().toString());
+                if (redirectAdministrativeRange != null) {
+                    return Response.status(Response.Status.MOVED_PERMANENTLY).location(redirectAdministrativeRange).build();
+                }
+            }
             throw new RdapException("Not found", "Redirect URI not found", HttpStatus.NOT_FOUND_404);
         }
 

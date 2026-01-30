@@ -3,8 +3,6 @@ package net.ripe.db.whois.rdap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import jakarta.servlet.http.HttpServletRequest;
-import net.ripe.db.whois.rdap.domain.RdapRequestType;
-import net.ripe.db.whois.rdap.domain.RelationType;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
@@ -25,6 +23,8 @@ import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.query.QueryFlag;
 import net.ripe.db.whois.query.query.Query;
+import net.ripe.db.whois.rdap.domain.RdapRequestType;
+import net.ripe.db.whois.rdap.domain.RelationType;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,12 +38,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static net.ripe.db.whois.rdap.RdapController.COMMA_JOINER;
 import static net.ripe.db.whois.common.rpsl.ObjectType.DOMAIN;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INET6NUM;
 import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 import static net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus.ALLOCATED_BY_RIR;
 import static net.ripe.db.whois.common.rpsl.attrs.InetnumStatus.ALLOCATED_UNSPECIFIED;
+import static net.ripe.db.whois.rdap.RdapController.COMMA_JOINER;
 
 
 @Service
@@ -94,7 +94,7 @@ public class RdapRelationService {
                     final IpEntry ipEntry = domainEntries.getFirst();
                     final RpslObject domainObject = rpslObjectDao.getById(ipEntry.getObjectId());
                     final Stream<RpslObject> inetnumResult = rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), ipEntry.getKey().toString()), request);
-                    return rdapLookupService.getDomainEntity(request, Stream.of(domainObject), inetnumResult);
+                    return rdapLookupService.getDomainEntity(request, Stream.of(domainObject), inetnumResult, ipEntry.getKey().toString());
                 }
                 //TODO: [MH] This call should not be necessary, we should be able to get the reverseIp out of the IP
                 final List<String> relatedPkeys = domainEntries

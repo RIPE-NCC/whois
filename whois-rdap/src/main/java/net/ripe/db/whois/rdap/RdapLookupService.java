@@ -12,6 +12,7 @@ import net.ripe.db.whois.query.planner.AbuseCFinder;
 import net.ripe.db.whois.query.planner.AbuseContact;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.rdap.domain.RdapObject;
+import net.ripe.db.whois.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.rdap.domain.Status;
 import net.ripe.db.whois.rdap.ipranges.administrative.IanaAdministrativeRanges;
 import org.apache.commons.lang3.StringUtils;
@@ -110,15 +111,16 @@ public class RdapLookupService {
         final Stream<RpslObject> inetnumResult =
                 rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), key), request);
 
-        return getDomainEntity(request, domainResult, inetnumResult);
+        return getDomainEntity(request, domainResult, inetnumResult, key);
     }
 
     protected Object getDomainEntity(final HttpServletRequest request, final Stream<RpslObject> domainResult,
-                                     final Stream<RpslObject> inetnumResult) {
+                                     final Stream<RpslObject> inetnumResult, final String key) {
         final Iterator<RpslObject> domainIterator = domainResult.iterator();
         final Iterator<RpslObject> inetnumIterator = inetnumResult.iterator();
         if (!domainIterator.hasNext()) {
-            throw new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404);
+            return getRipeAdministrativeBlock(RdapRequestType.DOMAIN, getRequestUrl(request), key)
+                    .orElseThrow(()-> new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404));
         }
         final RpslObject domainObject = domainIterator.next();
         final RpslObject inetnumObject = inetnumIterator.hasNext() ? inetnumIterator.next() : null;
@@ -215,7 +217,7 @@ public class RdapLookupService {
         return builder.toString();
     }
 
-    private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result,  final String requestedkey) {
+    private Object getRdapObject(final HttpServletRequest request, final Iterable<RpslObject> result,  final String requestedKey) {
         Iterator<RpslObject> rpslIterator = result.iterator();
 
         if (!rpslIterator.hasNext()) {
@@ -228,8 +230,8 @@ public class RdapLookupService {
             throw new RdapException("Internal Error", "More than one object matches primary key", HttpStatus.INTERNAL_SERVER_ERROR_500);
         }
 
-        if (RdapObjectMapper.isIANABlock(resultObject)){
-            return  getRipeAdministrativeBlock(getRequestUrl(request), requestedkey)
+        if (RdapObjectMapper.isIANADefaultRpsl(resultObject)){
+            return getRipeAdministrativeBlock(RdapRequestType.IP, getRequestUrl(request), requestedKey)
                             .orElseThrow(()-> new RdapException("Not Found", "Requested object not found", HttpStatus.NOT_FOUND_404));
         }
 
@@ -239,14 +241,36 @@ public class RdapLookupService {
                 getAbuseContact(resultObject));
     }
 
-    public Optional<RdapObject> getRipeAdministrativeBlock(final String requestUrl, final String requestedkey) {
-        final RpslObject adminstrativeBlock = ianaAdministrativeRanges.getRipeAdministrativeRange(requestedkey);
-        if (adminstrativeBlock == null) { return Optional.empty(); }
+    @Nullable
+    public Optional<RdapObject> getRipeAdministrativeBlock(final RdapRequestType requestType, final String requestUrl,
+                                                           final String requestedKey) {
 
-        final RdapObject rdapObject = (RdapObject) rdapObjectMapper.map(requestUrl, adminstrativeBlock, null);
+        final RdapObject rdapObject = RdapRequestType.IP.equals(requestType) ? getRipeAdministrativeRange(requestUrl, requestedKey) :
+                getRipeAdministrativeDomain(requestUrl, requestedKey);
+
+        if (rdapObject == null) { return Optional.empty(); }
+
         rdapObject.setStatus(Collections.singletonList(Status.ADMINISTRATIVE.getValue()));
 
         return Optional.of(rdapObject);
+    }
+
+    @Nullable
+    private RdapObject getRipeAdministrativeRange(final String requestUrl, final String requestedKey){
+        final RpslObject adminstrativeBlock = ianaAdministrativeRanges.getRipeAdministrativeRange(requestedKey);
+
+        if (adminstrativeBlock == null) { return null; }
+
+        return (RdapObject) rdapObjectMapper.mapDomainEntity(requestUrl, adminstrativeBlock, null);
+    }
+
+    @Nullable
+    private RdapObject getRipeAdministrativeDomain(final String requestUrl, final String requestedKey){
+        final RpslObject adminstrativeBlock = ianaAdministrativeRanges.getRipeAdministrativeDomain(requestedKey);
+
+        if (adminstrativeBlock == null) { return null; }
+
+        return (RdapObject) rdapObjectMapper.mapDomainEntity(requestUrl, adminstrativeBlock, null);
     }
 
     @Nullable

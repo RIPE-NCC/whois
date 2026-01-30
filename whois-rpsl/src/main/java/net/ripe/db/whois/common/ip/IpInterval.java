@@ -60,6 +60,10 @@ public abstract sealed class IpInterval<K extends Interval<K>> implements Interv
         return Ipv6Resource.parse(address);
     }
 
+    public static boolean isIANADefaultBlock(final CIString key) {
+        return key.equals("::/0") || key.equals("0.0.0.0 - 255.255.255.255");
+    }
+
     public abstract InetAddress beginAsInetAddress();
 
     public abstract InetAddress endAsInetAddress();

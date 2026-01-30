@@ -27,7 +27,7 @@ public class IanaRecord {
         this.prefix = prefix;
     }
 
-   public Rdap getRdap() {
+    public Rdap getRdap() {
         return rdap;
     }
 
@@ -35,7 +35,7 @@ public class IanaRecord {
         this.rdap = rdap;
     }
 
-   static class IpIntervalAdapter extends XmlAdapter<String, IpInterval> {
+    static class IpIntervalAdapter extends XmlAdapter<String, IpInterval> {
         @Override
         public IpInterval unmarshal(final String value) {
             return StringUtils.isEmpty(value)  ? null : IpInterval.parse(value);

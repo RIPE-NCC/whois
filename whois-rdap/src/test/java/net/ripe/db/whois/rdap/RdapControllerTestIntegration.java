@@ -1718,6 +1718,124 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
+    public void lookup_top_level_ipv4_domain_ripe_return_administrative_domain() {
+        final Domain domain = createResource("domain/193.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertThat(domain.getHandle(), is("193.in-addr.arpa"));
+        assertThat(domain.getNameservers(), hasSize(1));
+        assertThat(domain.getNameservers().getFirst().getLdhName(), is("pri.authdns.ripe.net"));
+        assertThat(domain.getStatus().getFirst(), is("administrative"));
+    }
+
+    @Test
+    public void lookup_non_existing_ipv4_domain_ripe_delegated_return_administrative_domain() {
+        final Domain domain = createResource("domain/20.61.193.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertThat(domain.getHandle(), is("193.in-addr.arpa"));
+        assertThat(domain.getNameservers(), hasSize(1));
+        assertThat(domain.getNameservers().getFirst().getLdhName(), is("pri.authdns.ripe.net"));
+        assertThat(domain.getStatus().getFirst(), is("administrative"));
+    }
+
+    @Test
+    public void lookup_top_level_ipv6_domain_ripe_return_administrative_domain() {
+        final Domain domain = createResource("domain/0.a.2.ip6.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertThat(domain.getHandle(), is("0.a.2.ip6.arpa"));
+        assertThat(domain.getNameservers(), hasSize(1));
+        assertThat(domain.getNameservers().getFirst().getLdhName(), is("pri.authdns.ripe.net"));
+        assertThat(domain.getStatus().getFirst(), is("administrative"));
+    }
+
+    @Test
+    public void lookup_non_existing_ipv6_domain_ripe_delegated_return_administrative_domain() {
+
+        final Domain domain = createResource("domain/3.0.0.2.2.0.0.2.1.0.0.2.ip6.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Domain.class);
+
+        assertThat(domain.getHandle(), is("2.1.0.0.2.ip6.arpa"));
+        assertThat(domain.getNameservers(), hasSize(1));
+        assertThat(domain.getNameservers().getFirst().getLdhName(), is("pri.authdns.ripe.net"));
+        assertThat(domain.getStatus().getFirst(), is("administrative"));
+    }
+
+    @Test
+    public void lookup_ipv4_top_level_domain_other_rir_administrative_range() {
+
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+
+        ipTreeUpdater.rebuild();
+
+        final Response response = createResource("domain/1.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(301));
+        assertThat(response.getLocation().toString(), is("https://rdap.apnic.net/domain/1.in-addr.arpa"));
+
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void lookup_ipv4_domain_other_rir_administrative_range() {
+
+        databaseHelper.deleteAuthoritativeResource("test", "0.0.0.0/0");
+
+        ipTreeUpdater.rebuild();
+
+        final Response response = createResource("domain/2.1.in-addr.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(301));
+        assertThat(response.getLocation().toString(), is("https://rdap.apnic.net/domain/2.1.in-addr.arpa"));
+
+        databaseHelper.addAuthoritativeResource("test", "0.0.0.0/0");
+    }
+
+    @Test
+    public void lookup_ipv6_top_level_domain_other_rir_administrative_range() {
+
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        ipTreeUpdater.rebuild();
+
+        final Response response = createResource("domain/3.0.1.0.0.2.ip6.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(301));
+        assertThat(response.getLocation().toString(), is("https://rdap.apnic.net/domain/3.0.1.0.0.2.ip6.arpa"));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+    }
+
+    @Test
+    public void lookup_ipv6_domain_other_rir_administrative_range() {
+
+        databaseHelper.deleteAuthoritativeResource("test", "::/0");
+
+        ipTreeUpdater.rebuild();
+
+        final Response response = createResource("domain/1.2.3.3.0.1.0.0.2.ip6.arpa")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(301));
+        assertThat(response.getLocation().toString(), is("https://rdap.apnic.net/domain/1.2.3.3.0.1.0.0.2.ip6.arpa"));
+
+        databaseHelper.addAuthoritativeResource("test", "::/0");
+    }
+
+
+    @Test
     public void not_found() {
         final NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             createResource("test")
