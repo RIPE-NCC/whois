@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 @Component
-class RadbGrsSource extends GrsSource {
+public class RadbGrsSource extends GrsSource {
     private final String download;
 
     @Autowired

@@ -62,13 +62,11 @@ class GrsSourceImporter {
     }
 
     void grsImport(final GrsSource grsSource, final boolean rebuild) {
-        final AuthoritativeResource authoritativeResource = grsSource.getAuthoritativeResource();
-
-        if (sourceContext.isVirtual(grsSource.getName())) {
+        if (sourceContext.isVirtual(grsSource.getName())){
             grsSource.getLogger().info("Not updating GRS data");
-        } else {
-            acquireAndUpdateGrsData(grsSource, rebuild, authoritativeResource);
+            return;
         }
+        acquireAndUpdateGrsData(grsSource, rebuild, grsSource.getAuthoritativeResource());
     }
 
     private void acquireAndUpdateGrsData(final GrsSource grsSource, final boolean rebuild, final AuthoritativeResource authoritativeData) {

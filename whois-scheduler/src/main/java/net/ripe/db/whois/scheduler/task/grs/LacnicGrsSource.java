@@ -44,7 +44,7 @@ import java.util.function.Function;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
-class LacnicGrsSource extends GrsSource {
+public class LacnicGrsSource extends GrsSource {
     private static final FilterChangedFunction FILTER_CHANGED_FUNCTION = new FilterChangedFunction();
     private static final int TIMEOUT = 10_000;
 

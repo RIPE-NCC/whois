@@ -8,7 +8,6 @@ import net.ripe.db.whois.common.grs.AuthoritativeResourceImportTask;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.support.FileHelper;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.scheduler.AbstractSchedulerIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,7 +82,6 @@ public class GrsImporterJpirrTestIntegration extends AbstractSchedulerIntegratio
         authoritativeResourceImportTask.run();
         authoritativeResourceData.refreshGrsSources();
 
-        grsImporter.setGrsImportEnabled(true);
         queryServer.start();
     }
 

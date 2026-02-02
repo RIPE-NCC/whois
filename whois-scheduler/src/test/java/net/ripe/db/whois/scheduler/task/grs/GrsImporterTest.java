@@ -18,13 +18,8 @@ import java.util.concurrent.Future;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,8 +46,6 @@ public class GrsImporterTest {
         when(grsSourceOther.getName()).thenReturn(ciString("OTHER-GRS"));
 
         subject = new GrsImporter(grsSourceImporter, new GrsSource[]{grsSourceRipe, grsSourceOther});
-        subject.setDefaultSources(defaultSources);
-        subject.setGrsImportEnabled(true);
 
         subject.startImportThreads();
     }
@@ -63,27 +56,8 @@ public class GrsImporterTest {
     }
 
     @Test
-    public void run() {
-        subject = spy(subject);
-        subject.setGrsImportEnabled(false);
-        subject.run();
-        verify(subject, times(0)).grsImport(anyString(), anyBoolean());
-    }
-
-    @Test
-    public void grsImport_not_enabled() throws Exception {
-        subject.setGrsImportEnabled(false);
-        subject.run();
-
-        verifyNoMoreInteractions(grsSourceImporter);
-        verify(grsSourceRipe, never()).acquireDump(any(Path.class));
-        verify(grsSourceRipe, never()).handleObjects(any(File.class), any(ObjectHandler.class));
-        verify(grsSourceOther, never()).acquireDump(any(Path.class));
-        verify(grsSourceOther, never()).handleObjects(any(File.class), any(ObjectHandler.class));
-    }
-
-    @Test
     public void grsImport_RIPE_GRS_no_rebuild() throws Exception {
+        when(grsSourceRipe.getLogger()).thenReturn(logger);
         await(subject.grsImport("RIPE-GRS", false));
 
         verify(grsSourceImporter).grsImport(grsSourceRipe, false);
@@ -92,6 +66,7 @@ public class GrsImporterTest {
 
     @Test
     public void grsImport_RIPE_GRS_rebuild() throws Exception {
+        when(grsSourceRipe.getLogger()).thenReturn(logger);
         await(subject.grsImport("RIPE-GRS", true));
 
         verify(grsSourceImporter).grsImport(grsSourceRipe, true);
@@ -110,6 +85,7 @@ public class GrsImporterTest {
 
     @Test
     public void grsImport_RIPE_GRS_acquire_fails() throws Exception {
+        when(grsSourceRipe.getLogger()).thenReturn(logger);
         await(subject.grsImport("RIPE-GRS", false));
 
         verify(grsSourceRipe, never()).handleObjects(any(File.class), any(ObjectHandler.class));

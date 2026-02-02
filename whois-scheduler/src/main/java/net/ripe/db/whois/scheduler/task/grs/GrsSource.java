@@ -20,7 +20,7 @@ import java.util.List;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
-abstract class GrsSource implements InitializingBean {
+public abstract class GrsSource implements InitializingBean {
     final CIString name;
     final SourceContext sourceContext;
     final DateTimeProvider dateTimeProvider;

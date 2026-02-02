@@ -4,23 +4,18 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import net.ripe.db.whois.common.domain.CIString;
-import net.ripe.db.whois.common.scheduler.DailyScheduledTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -30,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
-public class GrsImporter implements DailyScheduledTask {
+public class GrsImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GrsImporter.class);
     private static final Splitter SOURCES_SPLITTER = Splitter.on(",").trimResults().omitEmptyStrings();
 
@@ -41,21 +36,6 @@ public class GrsImporter implements DailyScheduledTask {
     private final ThreadGroup threadGroup = new ThreadGroup("grs-import");
 
     private ExecutorService executorService;
-
-    private boolean grsImportEnabled;
-
-    @Value("${grs.import.enabled:false}")
-    public void setGrsImportEnabled(final boolean grsImportEnabled) {
-        LOGGER.info("GRS import enabled: {}", grsImportEnabled);
-        this.grsImportEnabled = grsImportEnabled;
-    }
-
-    private String defaultSources;
-
-    @Value("${grs.import.sources:}")
-    public void setDefaultSources(final String defaultSources) {
-        this.defaultSources = defaultSources;
-    }
 
     @Autowired
     public GrsImporter(final GrsSourceImporter grsSourceImporter, final GrsSource[] grsSources) {
@@ -83,29 +63,7 @@ public class GrsImporter implements DailyScheduledTask {
         executorService.shutdownNow();
     }
 
-    // N.B. The GrsImporter job must run *after* the AuthoritativeResourceImportTask so we know which resources belong in the GRS mirror
-    @Override
-    @Scheduled(cron = "0 20 0 * * *", zone = EUROPE_AMSTERDAM)
-    @SchedulerLock(name = "GrsImporter")
-    public void run() {
-        if (!grsImportEnabled) {
-            LOGGER.info("GRS import is not enabled");
-            return;
-        }
-
-        List<Future> futures = grsImport(defaultSources, false);
-
-        // block here so dailyscheduler will mark the job as 'done' only after it actually is done
-        for (Future future : futures) {
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
-    }
-
-    public List<Future> grsImport(String sources, final boolean rebuild) {
+    public List<Future> grsImport(final String sources, final boolean rebuild) {
         final Set<CIString> sourcesToImport = splitSources(sources);
         LOGGER.info("GRS import sources: {}", sourcesToImport);
 
@@ -121,25 +79,29 @@ public class GrsImporter implements DailyScheduledTask {
             futures.add(executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    if (!currentlyImporting.add(enabledSource)) {
-                        grsSource.getLogger().warn("Skipped, already running");
-                        return;
-                    }
-
-                    try {
-                        LOGGER.info("Importing: {}", enabledSource);
-                        grsSourceImporter.grsImport(grsSource, rebuild);
-                        LOGGER.info("Completed: {}", enabledSource);
-                    } catch (RuntimeException e) {
-                        grsSource.getLogger().error("Unexpected", e);
-                    } finally {
-                        currentlyImporting.remove(enabledSource);
-                    }
+                    grsImport(grsSource, rebuild);
                 }
             }));
         }
 
         return futures;
+    }
+
+    public void grsImport(final GrsSource source, final boolean rebuild) {
+        if (!currentlyImporting.add(source.name)) {
+            source.getLogger().warn("Skipped, already running");
+            return;
+        }
+
+        try {
+            source.getLogger().info("Importing: {}", source.name);
+            grsSourceImporter.grsImport(source, rebuild);
+            source.getLogger().info("Completed: {}", source.name);
+        } catch (RuntimeException e) {
+            source.getLogger().error("Unexpected", e);
+        } finally {
+            currentlyImporting.remove(source.name);
+        }
     }
 
     private Set<CIString> splitSources(final String sources) {

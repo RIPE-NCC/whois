@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 @Component
-class AfrinicGrsSource extends GrsSource {
+public class AfrinicGrsSource extends GrsSource {
     private final String download;
 
     @Autowired

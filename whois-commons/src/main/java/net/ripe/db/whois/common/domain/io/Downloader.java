@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 // downloader is tested in whois-api integration tests, so that unit tests run without internet access
 public interface Downloader {
 
+    int FILE_UPDATE_WARN_THRESHOLD_HOURS = 2;
+
     DateTimeFormatter LAST_MODIFIED_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss VV").withZone(ZoneId.of("GMT"));
     Pattern MD5_CAPTURE_PATTERN = Pattern.compile("([a-fA-F0-9]{32})");
 
@@ -33,19 +35,43 @@ public interface Downloader {
 
     void downloadTo(final Logger logger, final URL url, final Path path) throws IOException;
 
+    default void setFileTimesAndWarn(final Logger logger, @Nullable final String lastModified, final Path path) {
+        if (lastModified == null) {
+            logger.info("Couldn't set last modified on {} because no header found", path);
+        } else {
+            try {
+                final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
+                setTimes(path, lastModifiedDateTime);
+                logger.info("{} last modified {}", path, lastModifiedDateTime);
+                warnIfLateDownload(logger, lastModifiedDateTime);
+            } catch (Exception e) {
+                logger.info("Couldn't set last modified {} on {} due to {}: {}", lastModified, path, e.getClass().getName(), e.getMessage());
+            }
+        }
+    }
+
     default void setFileTimes(final Logger logger, @Nullable final String lastModified, final Path path) {
         if (lastModified == null) {
             logger.info("Couldn't set last modified on {} because no header found", path);
         } else {
             try {
                 final ZonedDateTime lastModifiedDateTime = LocalDateTime.from(LAST_MODIFIED_FORMAT.parse(lastModified)).atZone(ZoneOffset.UTC);
-                final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
-                final FileTime time = FileTime.from(lastModifiedDateTime.toInstant());
-                attributes.setTimes(time, time, time);
+                setTimes(path, lastModifiedDateTime);
                 logger.debug("{} last modified {}", path, lastModifiedDateTime);
             } catch (Exception e) {
                 logger.info("Couldn't set last modified {} on {} due to {}: {}", lastModified, path, e.getClass().getName(), e.getMessage());
             }
+        }
+    }
+
+    default void warnIfLateDownload(final Logger logger, final ZonedDateTime lastModified){
+        final ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime oneHourAgo = now.minusHours(FILE_UPDATE_WARN_THRESHOLD_HOURS);
+
+        final boolean recentlyUpdated = !lastModified.isBefore(oneHourAgo) && lastModified.isBefore(now);
+        if (!recentlyUpdated){
+            logger.warn("Grs resource was last updated more than {} hours ago, this may indicate a too late import. " +
+                            "Consider changing scheduler job time", FILE_UPDATE_WARN_THRESHOLD_HOURS);
         }
     }
 
@@ -70,4 +96,9 @@ public interface Downloader {
         }
     }
 
+    private static void setTimes(Path path, ZonedDateTime lastModifiedDateTime) throws IOException {
+        final BasicFileAttributeView attributes = Files.getFileAttributeView(path, BasicFileAttributeView.class);
+        final FileTime time = FileTime.from(lastModifiedDateTime.toInstant());
+        attributes.setTimes(time, time, time);
+    }
 }

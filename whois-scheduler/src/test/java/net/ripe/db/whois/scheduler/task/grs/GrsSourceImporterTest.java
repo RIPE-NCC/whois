@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -68,7 +69,6 @@ public class GrsSourceImporterTest {
 
         lenient().when(grsSource.getDao()).thenReturn(grsDao);
         when(grsSource.getLogger()).thenReturn(logger);
-        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
 
         lenient().when(sanitizer.sanitize(any(RpslObject.class), any(ObjectMessages.class))).thenAnswer(new Answer<RpslObject>() {
             @Override
@@ -191,6 +191,8 @@ public class GrsSourceImporterTest {
             }
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
 
+        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
+
         subject.grsImport(grsSource, false);
 
         verify(grsDao).createObject(RpslObject.parse("" +
@@ -224,6 +226,8 @@ public class GrsSourceImporterTest {
             }
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
 
+        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
+
         subject.grsImport(grsSource, false);
 
         verify(grsDao, never()).createObject(any(RpslObject.class));
@@ -254,6 +258,8 @@ public class GrsSourceImporterTest {
                 return null;
             }
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
 
         subject.grsImport(grsSource, false);
 
@@ -287,6 +293,8 @@ public class GrsSourceImporterTest {
             }
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
 
+        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
+        
         subject.grsImport(grsSource, false);
 
         verify(grsDao).createObject(RpslObject.parse("" +
@@ -313,6 +321,8 @@ public class GrsSourceImporterTest {
                 return null;
             }
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
+
+        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
 
         final GrsObjectInfo grsObjectInfo1 = new GrsObjectInfo(1, 1, RpslObject.parse("role: Ninja Role\nnic-hdl: NI124-RIPE\n"));
         when(grsDao.find("NI124-RIPE", ObjectType.PERSON)).thenReturn(null);
@@ -351,6 +361,8 @@ public class GrsSourceImporterTest {
         }).when(grsSource).handleObjects(any(File.class), any(ObjectHandler.class));
 
         when(updateResultUpdate.hasMissingReferences()).thenReturn(true);
+
+        when(grsSource.getAuthoritativeResource()).thenReturn(authoritativeResource);
 
         final GrsObjectInfo grsObjectInfo1 = new GrsObjectInfo(1, 1, RpslObject.parse("mntner: MODIFY-MNT"));
         when(grsDao.find("MODIFY-MNT", ObjectType.MNTNER)).thenReturn(grsObjectInfo1);

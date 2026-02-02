@@ -56,7 +56,7 @@ public class JaxRSDownloader implements Downloader {
 
             try (final InputStream inputStream = response.readEntity(InputStream.class)) {
                 Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
-                setFileTimes(logger, response.getHeaderString(HttpHeaders.LAST_MODIFIED), path);
+                setFileTimesAndWarn(logger, response.getHeaderString(HttpHeaders.LAST_MODIFIED), path);
             }
         } catch (Exception e) {
             logger.error("Error downloading or setting connection for url {}", url, e);

@@ -48,7 +48,7 @@ import static net.ripe.db.whois.common.domain.CIString.ciSet;
 import static net.ripe.db.whois.common.domain.CIString.ciString;
 
 @Component
-class ArinGrsSource extends GrsSource {
+public class ArinGrsSource extends GrsSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ArinGrsSource.class);
     private static final Pattern IPV6_SPLIT_PATTERN = Pattern.compile("(?i)([0-9a-f:]*)\\s*-\\s*([0-9a-f:]*)\\s*");

@@ -58,7 +58,7 @@ public class JavaNetDownloader implements Downloader {
 
             try (final InputStream is = uc.getInputStream()) {
                 downloadToFile(logger, is, path);
-                setFileTimes(logger, uc.getHeaderField(HttpHeaders.LAST_MODIFIED), path);
+                setFileTimesAndWarn(logger, uc.getHeaderField(HttpHeaders.LAST_MODIFIED), path);
             }
         } catch (final IOException ex){
             logger.error("Error downloading or setting connection for url {}", url, ex);
