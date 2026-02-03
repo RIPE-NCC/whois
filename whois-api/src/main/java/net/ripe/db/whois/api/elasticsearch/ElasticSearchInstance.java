@@ -6,7 +6,6 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -80,7 +79,7 @@ public class ElasticSearchInstance implements ElasticRestHighlevelClient {
 
     private static HttpHost[] asHttpHosts(final List<String> hosts) {
         return hosts.stream()
-                .map( host -> new HttpHost(StringUtils.substringBefore(host, ":"), Integer.parseInt(StringUtils.substringAfter(host, ":")), "https"))
+                .map(HttpHost::create)
                 .toArray(HttpHost[]::new);
     }
 
