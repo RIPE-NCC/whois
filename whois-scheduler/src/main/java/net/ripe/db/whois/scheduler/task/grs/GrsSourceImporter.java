@@ -238,8 +238,12 @@ class GrsSourceImporter {
                     if (messages.hasErrors()) {
                         logger.info("Errors for object with key {}: {}", typeAttribute, messages);
                         nrIgnored++;
-                    } else if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
-                        createOrUpdate(cleanObject);
+                    } else {
+                        if (authoritativeData.isMaintainedInRirSpace(cleanObject)) {
+                            createOrUpdate(cleanObject);
+                        } else {
+                            logger.info("Skipping object with key {} ({} {})", typeAttribute, cleanObject.getType(), cleanObject.getKey());
+                        }
                     }
                 }
             }
