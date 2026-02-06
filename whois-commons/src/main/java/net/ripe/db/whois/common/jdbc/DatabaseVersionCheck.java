@@ -136,7 +136,7 @@ public class DatabaseVersionCheck {
             final String dbVersionNumber = dbVersionMatcher.group(2);
             final String resourceVersionNumber = resourceMatcher.group(2);
             if (compareVersions(dbVersionNumber, resourceVersionNumber) < 0) {
-                throw new IllegalStateException("Patch " + resource + ".sql was not applied");
+                throw new IllegalStateException("Patch " + resource + ".sql was not applied to " + dataSourceName);
             }
         }
         LOGGER.info("Datasource {} validated OK (DB version: {})", dataSourceName, dbVersion);
