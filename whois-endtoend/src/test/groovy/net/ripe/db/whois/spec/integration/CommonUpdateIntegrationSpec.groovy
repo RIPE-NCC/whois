@@ -1,6 +1,4 @@
 package net.ripe.db.whois.spec.integration
-
-
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
@@ -23,7 +21,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 mntner:      OWNER-MNT
                 descr:       used to maintain other MNTNERs
                 admin-c:     TP1-TEST
-                auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+                auth:        SSO person@net.net
                 mnt-by:      OWNER-MNT
                 upd-to:      dbtest@ripe.net
                 source:      TEST
@@ -35,7 +33,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
         when:
         def response = syncUpdate new SyncUpdate(data: """
             mntner:      DEL-MNT
-            password:    password
+            auth:        SSO person@net.net
             """)
 
         then:
@@ -45,27 +43,22 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "send object with space in attribute key"() {
         when:
-        def response = syncUpdate new SyncUpdate(data: """
+        def response = syncUpdate("""\
             mntner:      DEL-MNT
             source:      TEST
             mnt-by     : DEV-MNT
-            password:    password
-            """)
+            """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_PERSON_ANY_MNT)
 
         then:
         response =~ "\\*\\*\\*Error:   \"mnt-by     \" is not a known RPSL attribute"
     }
 
     def "delete object without source"() {
-        given:
-        def update = new SyncUpdate(data: """\
+        when:
+        def response = syncUpdate("""\
             mntner: DEV-TST-MNT
             delete: reason
-            password: password
-            """)
-
-        when:
-        def response = syncUpdate update
+            """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_PERSON_ANY_MNT)
 
         then:
         response =~ /(?m)^Delete FAILED: \[mntner\] DEV-TST-MNT$/
@@ -78,7 +71,6 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             mntner: DEV-TST-MNT
             source: TEST
             delete: reason
-            password: password
             """)
 
         when:
@@ -100,8 +92,6 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             delete: reason
             remarks: Some remark
 
-            password: password ## dfsk
-
             """)
 
         when:
@@ -119,12 +109,11 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "send object with space in type attribute name"() {
         when:
-        def response = syncUpdate new SyncUpdate(data: """
+        def response = syncUpdate("""\
             mntner :      DEL-MNT
             delete:      reason
-            password:    password
             source: TEST
-            """)
+            """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_PERSON_ANY_MNT)
 
         then:
         response =~ """\
@@ -137,7 +126,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "send object with unbalanced indent type not contains key"() {
         when:
-        def response = syncUpdate new SyncUpdate(data: "password: owner\n\n" +
+        def response = syncUpdate new SyncUpdate(data: "address: test\n\n" +
                 """\
                person:  First Person Error
                address: St James Street
@@ -153,6 +142,8 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
             The following paragraph\\(s\\) do not look like objects
             and were NOT PROCESSED:
 
+            address: test
+
             person:  First Person Error
                            address: St James Street
                            address: Burnley
@@ -160,7 +151,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "send object with extra spaces before each line"() {
-        def update = new SyncUpdate(rawData: "password: owner\n\n" + """
+        def update = new SyncUpdate(rawData: "source: owner\n\n" + """
                mntner:  DEV-MNT
                source:  TEST
                """);
@@ -175,68 +166,37 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
         """.stripIndent(true)
     }
 
-    def "send object with too many passwords"() {
+    def "send object with too many scopes in apikey"() {
         when:
-        def response = syncUpdate new SyncUpdate(data: """\
+        def response = syncUpdate("""\
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
-                mnt-by:  UPD-MNT
+                mnt-by:  OWNER-MNT
                 source:  TEST
-                password: pw1
-                password: pw2
-                password: pw3
-                password: pw4
-                password: pw5
-                password: pw6
-                password: pw7
-                password: pw8
-                password: pw9
-                password: pw10
-                password: pw11
-                password: pw12
-                password: pw13
-                password: pw14
-                password: pw15
-                password: pw16
-                password: pw17
-                password: pw18
-                password: pw19
-                password: pw20
-                password: pw21
-                password: pw22
-                password: pw23
-                password: pw24
-                password: pw25
-                """)
+                """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_PERSON_MNT_EXCEED_LIMIT)
         then:
-        response.contains("***Error:   Too many passwords specified")
-    }
-
-    def "non-ascii password"() {
-        when:
-        def response = syncUpdate new SyncUpdate(data:
-                getFixtures().get("OWNER-MNT").stripIndent(true)
-                        + "remarks: changed\n"
-                        + "password: C'était\n")
-        then:
-        response =~ "\\*\\*\\*Error:   Authorisation for \\[mntner\\] OWNER-MNT failed"
+        response.contains("""
+                ***Error:   Authorisation for [person] TP2-TEST failed
+                            using "mnt-by:"
+                            not authenticated by: OWNER-MNT
+                """.stripIndent(true))
+        response.contains("***Warning: Whois scopes can not be more than 2")
     }
 
     def "comment in source attribute"() {
         when:
-        def response = syncUpdate new SyncUpdate(data: """
+        def response = syncUpdate("""\
                 mntner:      OWNER-MNT
                 descr:       has end of line comment on source
                 admin-c:     TP1-TEST
-                auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+                auth:        SSO person@net.net
                 mnt-by:      OWNER-MNT
                 upd-to:      dbtest@ripe.net
                 source:      TEST #comment
-                password:    owner
-                """.stripIndent(true))
+                """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_PERSON_OWNER_MNT)
 
         then:
         response =~ /End of line comments not allowed on "source:" attribute/
@@ -244,16 +204,15 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "lowercase source with filtered comment"() {
         when:
-        def response = syncUpdate new SyncUpdate(data: """
+        def response = syncUpdate("""\
                 mntner:      OWNER-MNT
                 descr:       has end of line comment on source
                 admin-c:     TP1-TEST
-                auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+                auth:        SSO person@net.net
                 mnt-by:      OWNER-MNT
                 upd-to:      dbtest@ripe.net
                 source:      Test # Filtered
-                password:    owner
-                """.stripIndent(true))
+                """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_PERSON_OWNER_MNT)
 
         then:
         response =~ /Cannot submit filtered whois output for updates/
@@ -261,34 +220,33 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
 
     def "too many references"() {
         when:
-        def response = syncUpdate new SyncUpdate(data: """
+        def response = syncUpdate("""\
 mntner:      OWNER-MNT
 descr:       used to maintain other MNTNERs
 admin-c:     TP1-TEST
-auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+auth:        SSO person@net.net
 """ +
 "mnt-by:      OWNER-MNT\n".repeat(101) +
 """upd-to:      dbtest@ripe.net
 source:      TEST
-password:    owner
-""")
+""", null, false, getApiKeyDummy().BASIC_AUTH_PERSON_OWNER_MNT)
+
         then:
         response =~ /Too many references/
     }
 
-    def "too many references and incorrect password"() {
+    def "too many references and incorrect apikey"() {
         when:
-        def response = syncUpdate new SyncUpdate(data: """
+        def response = syncUpdate("""\
 mntner:      OWNER-MNT
 descr:       used to maintain other MNTNERs
 admin-c:     TP1-TEST
-auth:        MD5-PW \$1\$fyALLXZB\$V5Cht4.DAIM3vi64EpC0w/  #owner
+auth:        SSO person@net.net
 """ +
 "mnt-by:      OWNER-MNT\n".repeat(101) +
 """upd-to:      dbtest@ripe.net
 source:      TEST
-password:    invalid
-""")
+""", null, false, getApiKeyDummy().BASIC_AUTH_TEST_TEST_MNT)
         then:
        response =~ /Too many references/
        !(response =~ /Authorisation for \[mntner\] OWNER-MNT failed/)

@@ -1,6 +1,8 @@
 package net.ripe.db.whois.spec
 
 import jakarta.mail.Address
+import jakarta.ws.rs.core.HttpHeaders
+import jakarta.ws.rs.core.MultivaluedHashMap
 import jakarta.ws.rs.core.MultivaluedMap
 import net.ripe.db.whois.WhoisFixture
 import net.ripe.db.whois.common.TestDateTimeProvider
@@ -15,6 +17,7 @@ import net.ripe.db.whois.spec.domain.NotificationResponse
 import net.ripe.db.whois.spec.domain.SyncUpdate
 import net.ripe.db.whois.spec.domain.SyncUpdateResponse
 import net.ripe.db.whois.update.dns.DnsGatewayStub
+import org.apache.commons.lang3.StringUtils
 import spock.lang.Specification
 
 class BaseEndToEndSpec extends Specification {
@@ -240,6 +243,12 @@ ${notification.contents}
         syncUpdate(content, null, false, null)
     }
 
+    String syncUpdate(String content, String charset, boolean notifications, String apikey) {
+        MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+        headers.add(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(apikey))
+        return syncUpdate(content, charset, notifications, headers);
+    }
+
     String syncUpdate(String content, String charset, boolean notifications, MultivaluedMap<String, String> headers) {
         def response = syncUpdate(new SyncUpdate(data: content, charset: charset, headers: headers))
         if (!notifications) {
@@ -310,6 +319,10 @@ ${response}
         return whoisFixture.getRpkiDataProvider();
     }
 
+    def getApiKeyDummy(){
+        return whoisFixture.getApikeyDummy();
+    }
+
     def getIpTreeUpdater() {
         return whoisFixture.getIpTreeUpdater()
     }
@@ -344,6 +357,10 @@ ${response}
 
     public TestDateTimeProvider getTestDateTimeProvider() {
         return whoisFixture.getTestDateTimeProvider();
+    }
+
+    def getBasicAuthHeader(final String basicAuth) {
+        return StringUtils.joinWith(" ","Basic ", basicAuth);
     }
 }
 

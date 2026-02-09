@@ -3,6 +3,7 @@ package net.ripe.db.whois;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.ws.rs.core.MultivaluedMap;
+import net.ripe.db.whois.api.ApiKeyAuthServerDummy;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.CertificatePrivateKeyPair;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
@@ -91,6 +92,7 @@ public class WhoisFixture {
 
     protected DummyRpkiDataProvider rpkiDataProvider;
     protected TestWhoisLog testWhoisLog;
+    protected ApiKeyAuthServerDummy apikeyDummy;
 
     static {
         Slf4JLogConfiguration.init();
@@ -107,6 +109,11 @@ public class WhoisFixture {
         System.setProperty("http.sni.host.check", "false");
         System.setProperty("whois.certificates", certificatePrivateKeyPair.getCertificateFilename());
         System.setProperty("whois.private.keys", certificatePrivateKeyPair.getPrivateKeyFilename());
+        System.setProperty("https.x_forwarded_for", "false");
+
+        // enable APIKEYs
+        System.setProperty("apikey.authenticate.enabled","true");
+        System.setProperty("apikey.max.scope","2");
     }
 
     public void start() throws Exception {
@@ -136,6 +143,7 @@ public class WhoisFixture {
         whoisRestService = applicationContext.getBean(WhoisRestService.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
         rpkiDataProvider = applicationContext.getBean(DummyRpkiDataProvider.class);
+        apikeyDummy = applicationContext.getBean(ApiKeyAuthServerDummy.class);
 
         databaseHelper.setup();
         whoisServer.start();
@@ -258,6 +266,11 @@ public class WhoisFixture {
     public DummyRpkiDataProvider getRpkiDataProvider(){
         return rpkiDataProvider;
     }
+
+    public ApiKeyAuthServerDummy getApikeyDummy(){
+        return apikeyDummy;
+    }
+
     public AuthoritativeResourceDao getAuthoritativeResourceDao() {
         return authoritativeResourceDao;
     }

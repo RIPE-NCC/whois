@@ -34,11 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ResourceUtils;
 
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -142,8 +141,10 @@ public class ApiKeyAuthServerDummy implements Stub {
             throw new NotAuthorizedException("Api Key not valid");
         }
 
-        try {
-            final RSAKey privateKey = RSAKey.parse(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_private.key").toPath())));
+        try (InputStream is = ApiKeyAuthServerDummy.class.getResourceAsStream("/JWT_private.key")) {
+
+            final RSAKey privateKey = RSAKey.parse(new String(is.readAllBytes(), StandardCharsets.UTF_8));
+
             final JWSSigner signer = new RSASSASigner(privateKey);
 
             JWSObject jwsObject = new JWSObject(

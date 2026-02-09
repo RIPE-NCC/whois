@@ -1,8 +1,5 @@
 package net.ripe.db.whois.spec.integration
 
-
-import net.ripe.db.whois.spec.domain.SyncUpdate
-
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
 
@@ -16,7 +13,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:         JS1-TEST
                 upd-to:         unread@ripe.net
                 mnt-nfy:        unread@ripe.net
-                auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN7. # update
+                auth:           SSO person@net.net
                 notify:         unread@ripe.net
                 mnt-by:         RIPE-DBM-MNT
                 source:         TEST
@@ -45,7 +42,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:         JS1-TEST
                 upd-to:         unread@ripe.net
                 mnt-nfy:        unread@ripe.net
-                auth:           MD5-PW \$1\$kBdYtA4E\$EBAWVrVm9yBiLzPhAEQH21. # test
+                auth:           SSO test@ripe.net
                 notify:         unread@ripe.net
                 mnt-by:         RIPE-DBM-MNT1
                 source:         TEST
@@ -58,7 +55,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                 tech-c:         JS1-TEST
                 upd-to:         john.smith@example.com
                 mnt-nfy:        john.smith@example.com
-                auth:           MD5-PW \$1\$fU9ZMQN9\$QQtm3kRqZXWAuLpeOiLN6.
+                auth:           SSO person@net.net
                 notify:         john.smith@example.com
                 mnt-by:         RIPE-DBM-MNT
                 source:         TEST # Filtered
@@ -83,8 +80,8 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create as-block"() {
-        given:
-        def update = new SyncUpdate(data: """\
+        when:
+        def response = syncUpdate("""
                         as-block:       AS500 - AS600
                         descr:          ARIN ASN block
                         remarks:        These AS numbers are further assigned by ARIN
@@ -99,10 +96,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         RIPE-DBM-MNT
                         mnt-lower:      RIPE-DBM-MNT
                         source:         TEST
-                        password:       update
-                        """.stripIndent(true))
-        when:
-        def response = syncUpdate(update);
+                        """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_PERSON_ANY_MNT)
 
         then:
         response =~ /SUCCESS/
@@ -110,8 +104,8 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "modify as-block"() {
-        given:
-        def update = new SyncUpdate(data: """\
+        when:
+        def response = syncUpdate("""
                         as-block:       AS222 - AS333
                         descr:          ARIN ASN block
                         remarks:        These AS numbers are further assigned by ARIN
@@ -126,10 +120,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         RIPE-DBM-MNT
                         mnt-lower:      RIPE-DBM-MNT
                         source:         TEST
-                        password:       update
-                        """.stripIndent(true))
-        when:
-        def response = syncUpdate(update)
+                        """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_PERSON_ANY_MNT)
 
         then:
         response =~ /SUCCESS/
@@ -137,8 +128,9 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "create as-block with invalid Maintainer"() {
-        given:
-        def update = new SyncUpdate(data: """\
+        when:
+
+        def response = syncUpdate("""
                         as-block:       AS500 - AS600
                         descr:          ARIN ASN block
                         remarks:        These AS numbers are further assigned by ARIN
@@ -153,10 +145,7 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
                         mnt-by:         RIPE-DBM-MNT1
                         mnt-lower:      RIPE-DBM-MNT1
                         source:         TEST
-                        password:       test
-                        """.stripIndent(true))
-        when:
-        def response = syncUpdate(update);
+                        """.stripIndent(true), null, false, getApiKeyDummy().BASIC_AUTH_TEST_TEST_MNT)
 
         then:
         response =~ /Create FAILED: \[as-block\] AS500 - AS600/
@@ -165,18 +154,14 @@ class AsBlockIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
     def "delete as-block"() {
-        given:
-        def update = new SyncUpdate(data: "" +
-                fixtures["AS222 - AS333"].stripIndent(true) +
-                "delete: some reason\n" +
-                "password: update")
-
         when:
-        def response = syncUpdate update
+
+        def response = syncUpdate(
+                fixtures["AS222 - AS333"].stripIndent(true) +
+                "delete: some reason\n", null, false, getApiKeyDummy().BASIC_AUTH_PERSON_ANY_MNT)
 
         then:
         response =~ /SUCCESS/
         response =~ /Delete SUCCEEDED: \[as-block\] AS222 - AS333/
-
     }
 }

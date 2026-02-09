@@ -25,12 +25,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ResourceUtils;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
 
 import static net.ripe.db.whois.api.AbstractIntegrationTest.getRequestBody;
 
@@ -90,12 +89,14 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
             if (request.getHttpURI().getPath().contains("realms/ripe-ncc/protocol/openid-connect/certs")) {
 
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.write(
-                        true,
-                        ByteBuffer.wrap(new String(Files.readAllBytes(ResourceUtils.getFile("classpath:JWT_public.key").toPath())).getBytes()),
-                        callback
-                );
+                try (InputStream is = getClass().getResourceAsStream("/JWT_public.key")) {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.write(
+                            true,
+                            ByteBuffer.wrap(is.readAllBytes()),
+                            callback
+                    );
+                }
 
                 response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
                 callback.succeeded();
