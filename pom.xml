@@ -85,7 +85,7 @@
         <mariadb-java-client.version>3.5.7</mariadb-java-client.version>
         <mockito.version>5.21.0</mockito.version>
 
-        <netty.version>4.2.9.Final</netty.version>
+        <netty.version>4.2.10.Final</netty.version>
         <nimbus-jose-jwt.version>10.7</nimbus-jose-jwt.version>
 
         <oauth2.oidc.version>11.31.1</oauth2.oidc.version>
