@@ -13,10 +13,8 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.update.domain.DequeueStatus;
-import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
-import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateResponse;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
@@ -66,9 +64,6 @@ public class MessageDequeue implements ApplicationService {
 
     @Value("${mail.dequeue.interval:1000}")
     private int intervalMs;
-
-    @Value("${mailupdates.passwd.error:false}")
-    private boolean errorIfPassword;
 
     @Autowired
     public MessageDequeue(final MaintenanceMode maintenanceMode,
@@ -279,21 +274,12 @@ public class MessageDequeue implements ApplicationService {
     }
 
     private void handleUpdates(final MailMessage mailMessage, final UpdateContext updateContext) {
+
         final List<Update> updates = updatesParser.parse(updateContext, mailMessage.getContentWithCredentials());
-        validatePasswordCredentials(updateContext, updates);
 
         final UpdateRequest updateRequest = new UpdateRequest(mailMessage, mailMessage.getKeyword(), updates);
         final UpdateResponse response = messageHandler.handle(updateRequest, updateContext);
         mailGateway.sendEmail(mailMessage.getReplyToEmail(), response.getStatus() + ": " + mailMessage.getSubject(), response.getResponse(), null);
     }
 
-    private void validatePasswordCredentials(final UpdateContext updateContext, final List<Update> updates) {
-        for (Update update : updates) {
-            if (!update.getCredentials().ofType(PasswordCredential.class).isEmpty()){
-                updateContext.addGlobalMessage(errorIfPassword ? UpdateMessages.passwordInMailUpdateError() :
-                        UpdateMessages.passwordInMailUpdateWarn());
-                return;
-            }
-        }
-    }
 }

@@ -89,16 +89,6 @@ public final class UpdateMessages {
         return new Message(Type.WARNING, "This Syncupdates request used insecure HTTP, which will be removed in a future release. Please switch to HTTPS.");
     }
 
-    public static Message passwordInMailUpdateWarn(){
-        return new Message(Type.WARNING, "Password authentication will be removed from Mailupdates in a future Whois " +
-                "release as the mail message may have been sent insecurely. Please switch to PGP signing for authentication or use a different update method such as the REST API or Syncupdates.");
-    }
-
-    public static Message passwordInMailUpdateError(){
-        return new Message(Type.ERROR, "Password authentication is not allowed in Mailupdates, because your credentials " +
-                "may be compromised in transit. Please switch to PGP signed mailupdates or use a different update method such as the REST API or Syncupdates.");
-    }
-
     public static Message invalidReference(final ObjectType objectType, final CharSequence key) {
         return new Message(Type.ERROR, "Invalid reference to [%s] %s", objectType.getName(), key);
     }
@@ -760,4 +750,7 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Too many references");
     }
 
+    public static Message passwordsNotSupported() {
+        return new Message(Type.ERROR, "MD5 hashed password authentication is deprecated. Please switch to an alternative authentication method.");
+    }
 }

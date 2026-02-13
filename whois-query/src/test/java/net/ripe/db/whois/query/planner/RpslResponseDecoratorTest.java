@@ -88,6 +88,7 @@ public class RpslResponseDecoratorTest {
                 authServiceClient,
                 clientAuthCertificateValidator,
                 overrideCredentialValidator,
+                true,
                 decorator);
         lenient().when(sourceContext.getCurrentSource()).thenReturn(Source.slave("RIPE"));
         when(sourceContext.isAcl()).thenReturn(true);

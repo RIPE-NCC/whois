@@ -61,7 +61,10 @@ public final class ValidationMessages {
     }
 
     public static Message deprecatedPasswordAuthentication() {
-        return new Message(Messages.Type.WARNING, "MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.");
+        return new Message(Messages.Type.WARNING, "MD5 hashed password authentication is deprecated and support will be removed soon. Please switch to an alternative authentication method before then.");
     }
 
+    public static Message ignoredPasswordAuthentication() {
+        return new Message(Messages.Type.WARNING, "MD5 hashed password authentication has been ignored because is not longer supported.");
+    }
 }

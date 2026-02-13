@@ -103,7 +103,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "Mandatory attribute \"source\" is missing"
         ]
@@ -140,7 +140,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 3, 0)
+        ack.countErrorWarnInfo(2, 2, 0)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "\"addres\" is not a known RPSL attribute",
                 "Syntax error in 44 282 420469"]
@@ -289,7 +289,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 1)
+        ack.countErrorWarnInfo(1, 1, 1)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "Unrecognized source: OWNER"
         ]
@@ -332,7 +332,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Delete", "[person] FPE1-TEST   First Person Error") == [
                 "Object [person] FPE1-TEST First Person Error does not exist in the database"]
 
@@ -368,7 +368,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.errorMessagesFor("Create", "[person] FPE1-TEST   First Person Error") == [
                 "\"address \" is not a known RPSL attribute"]
 
@@ -403,7 +403,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         def messages = ack.errorMessagesFor("Create", "[person] FPE1-TEST")
         messages.length == 1
         messages[0].startsWith("Syntax error in First ")
@@ -439,7 +439,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 3, 0)
+        ack.countErrorWarnInfo(1, 2, 0)
         ack.objErrorContains("Create", "FAILED", "person", "FPEü1-TEST   First Person Error","Syntax error in FPE")
 
         queryNothing("-rGBT person FPE1-TEST")
@@ -474,7 +474,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
 
         queryObject("-rGBT person FP1-TEST", "person", "First Person")
     }
@@ -617,7 +617,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errorMessagesFor("Modify", "[person] FOP1-TEST   First Optional Person") ==
                 ["End of line comments not allowed on \"source:\" attribute"]
 

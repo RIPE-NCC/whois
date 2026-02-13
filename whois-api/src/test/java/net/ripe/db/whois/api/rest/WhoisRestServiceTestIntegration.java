@@ -846,7 +846,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://0.0.0.0:%s/test/person", getPort())));
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
     }
 
     @Test
@@ -858,7 +858,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://[::1]:%s/test/person", getPort())));
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
     }
 
 
@@ -1693,7 +1693,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString(""+
                 "    <errormessages>\n" +
-                "        <errormessage severity=\"Warning\" text=\"MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.\"/>\n" +
+                "        <errormessage severity=\"Warning\" text=\"MD5 hashed password authentication is deprecated and support will be removed soon. Please switch to an alternative authentication method before then.\"/>\n" +
                 "    </errormessages>"));
     }
 
@@ -2041,7 +2041,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
 
         final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
@@ -2084,7 +2084,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
         assertThat(object.getSource().getId(), is("test-nonauth"));
@@ -2113,7 +2113,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getErrorMessages().get(1).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3333\""));
         final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
@@ -2172,7 +2172,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(map(TEST_AS_SET), MediaType.APPLICATION_XML), WhoisResources.class);
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
 
         assertThat(whoisResources.getErrorMessages().get(1).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3333\""));
         final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
@@ -2206,7 +2206,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getErrorMessages().get(1).toString(), is("The \"source:\" attribute value has been updated from \"TEST-NONAUTH\" to \"TEST\" to match the referenced AUT-NUM \"AS3333\""));
         final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
 
@@ -2449,7 +2449,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person", getPort())));
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST"), is(not(nullValue())));
     }
 
@@ -2766,7 +2766,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getErrorMessages(), hasSize(2));
         assertThat(response.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
 
         assertThat(response.getErrorMessages().get(1).getText(), is("Invalid character(s) were substituted in attribute \"%s\" value"));
         assertThat(response.getErrorMessages().get(1).getArgs(), hasSize(1));
@@ -2809,7 +2809,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         RestTest.assertWarningCount(response, 3);
 
         RestTest.assertErrorMessage(response, 0, "Warning", "MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then.");
+                "removed soon. Please switch to an alternative authentication method before then.");
         RestTest.assertErrorMessage(response, 1, "Warning", "Submitted object identical to database object");
         RestTest.assertErrorMessage(response, 2, "Warning", "Invalid character(s) were substituted in attribute " +
                 "\"%s\" value", "person");
@@ -3192,7 +3192,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
@@ -3238,7 +3238,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%d/test/mntner", getPort())));
     }
@@ -3353,7 +3353,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "        </object>\n" +
                 "    </objects>\n" +
                 "    <errormessages>\n" +
-                "        <errormessage severity=\"Warning\" text=\"MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.\"/>\n" +
+                "        <errormessage severity=\"Warning\" text=\"MD5 hashed password authentication is deprecated and support will be removed soon. Please switch to an alternative authentication method before then.\"/>\n" +
                 "    </errormessages>\n" +
                 "    <terms-and-conditions xlink:type=\"locator\" xlink:href=\"https://docs.db.ripe.net/terms-conditions.html\"/>\n" +
                 "</whois-resources>", getPort())));
@@ -3467,7 +3467,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  \"errormessages\" : {\n" +
                 "    \"errormessage\" : [ {\n" +
                 "      \"severity\" : \"Warning\",\n" +
-                "      \"text\" : \"MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.\"\n" +
+                "      \"text\" : \"MD5 hashed password authentication is deprecated and support will be removed soon. Please switch to an alternative authentication method before then.\"\n" +
                 "    } ]\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
@@ -3505,7 +3505,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
         assertThat(object.getType(), is("mntner"));
         assertThat(object.getLink(), is(Link.create("http://rest-test.db.ripe.net/test/mntner/PASSWORD-ONLY-MNT")));
@@ -3664,7 +3664,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(2));
         assertThat(messages.getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(messages.get(1).getText(), is("Dry-run performed, no changes to the database have been made"));
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
     }
@@ -3678,7 +3678,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(2));
         assertThat(messages.getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(messages.get(1).getText(), is("Dry-run performed, no changes to the database have been made"));
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.NOT_FOUND_404));
     }
@@ -3692,7 +3692,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(1));
         assertThat(messages.getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.OK_200));
     }
 
@@ -3771,7 +3771,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
         assertThat(whoisResources.getErrorMessages(), is(not(empty())));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getAttributes(), hasItem(new Attribute("person", "Pauleth Palthen")));
     }
@@ -3950,7 +3950,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), is(not(empty())));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person?unformatted", getPort())));
 
@@ -4013,7 +4013,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         try {
             databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
@@ -4035,7 +4035,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         try {
             databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST");
@@ -4096,7 +4096,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
 
@@ -4339,7 +4339,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(2));
         assertThat(messages.getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(messages.get(1).getText(), is("Dry-run performed, no changes to the database have been made"));
         assertThat(RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get().getStatus(), is(HttpStatus.OK_200));
     }
@@ -4357,7 +4357,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getAttributes(), contains(
@@ -4429,7 +4429,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getSource().getId(), is("test-nonauth"));
@@ -4459,7 +4459,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
         assertThat(object.getSource().getId(), is("test-nonauth"));
@@ -4495,7 +4495,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(3));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getErrorMessages().get(1).toString(), is("The \"source:\" attribute value has been updated from \"TEST\" to \"TEST-NONAUTH\" to match the referenced AUT-NUM \"AS3334\""));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
@@ -4535,7 +4535,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(3));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getErrorMessages().get(1).toString(), is("Supplied attribute 'source' has been replaced with a generated value"));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
@@ -4664,7 +4664,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response, containsString("<attribute name=\"remarks\" value=\"updated\"/>"));
         assertThat(response, containsString("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
     }
 
     @Test
@@ -4782,7 +4782,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "  \"errormessages\" : {\n" +
                 "    \"errormessage\" : [ {\n" +
                 "      \"severity\" : \"Warning\",\n" +
-                "      \"text\" : \"MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.\"\n" +
+                "      \"text\" : \"MD5 hashed password authentication is deprecated and support will be removed soon. Please switch to an alternative authentication method before then.\"\n" +
                 "    } ]\n" +
                 "  },\n" +
                 "  \"terms-and-conditions\" : {\n" +
@@ -5249,7 +5249,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
         assertThat(whoisResources.getLink().getHref(), is(String.format("http://localhost:%s/test/person/PP1-TEST?unformatted", getPort())));
 
@@ -5292,7 +5292,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final List<ErrorMessage> messages = whoisResources.getErrorMessages();
         assertThat(messages, hasSize(2));
         assertThat(messages.getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(messages.get(1).getText(), is("Dry-run performed, no changes to the database have been made"));
 
         final String storedObject = RestTest.target(getPort(), "whois/test/person/PP1-TEST").request().get(String.class);

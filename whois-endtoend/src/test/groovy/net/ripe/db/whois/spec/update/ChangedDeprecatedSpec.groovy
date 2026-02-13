@@ -121,7 +121,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyCreateSuccess(PERSON_WITHOUT_CHANGED,response)
-        mailVerifyHasWarnings(response, 2)
+        mailVerifyHasWarnings(response, 1)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED)
     }
 
@@ -399,7 +399,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyModifySuccess(PERSON_WITHOUT_CHANGED_ADJUSTED,response)
-        mailVerifyHasWarnings(response, 2)
+        mailVerifyHasWarnings(response, 1)
         verifyExistsAndEquals(PERSON_WITHOUT_CHANGED_ADJUSTED)
     }
 
@@ -446,7 +446,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITH_CHANGED,response)
-        mailVerifyHasWarnings(response, 2)
+        mailVerifyHasWarnings(response, 1)
         doesNotExist(PERSON_WITH_CHANGED)
     }
 
@@ -583,7 +583,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
 
         then:
         mailVerifyDeleteSuccess(PERSON_WITHOUT_CHANGED,response)
-        mailVerifyHasWarnings(response, 2)
+        mailVerifyHasWarnings(response, 1)
         doesNotExist(PERSON_WITHOUT_CHANGED)
     }
 
@@ -787,7 +787,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
         boolean found = false;
         for (ErrorMessage msg : errorsAndWarnings) {
             if( msg.toString().contains("Deprecated attribute \"changed\". This attribute has been removed.") ||
-                msg.toString().contains("MD5 hashed password authentication is deprecated and support will be removed at the end of 2025. Please switch to an alternative authentication method before then.")) {
+                msg.toString().contains("MD5 hashed password authentication is deprecated and support will be removed soon. Please switch to an alternative authentication method before then.")) {
                 found = true;
                 break;
             }

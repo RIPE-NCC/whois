@@ -116,7 +116,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 0, 1)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Delete" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Delete", "[role] FR1-TEST   First Role") == [
                 "Object [role] FR1-TEST First Role does not exist in the database"]
@@ -146,7 +146,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[role] FR1-TEST   First Role" }
 
         queryObjectNotFound("-rBGT role FR1-TEST", "role", "FR1-TEST")
@@ -186,7 +186,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
 
         query_object_matches("-rBT role FR1-TEST", "role", "First Role", "mnt-by:\\s*OWNER-MNT")
@@ -226,7 +226,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   Second Role" }
 
         queryObject("-rBT role FR1-TEST", "role", "Second Role")
@@ -265,7 +265,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FR1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FR1-TEST   First Person") ==
                 ["The nic-hdl \"FR1-TEST\" is not available"]
@@ -309,7 +309,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["The nic-hdl \"FR1-TEST\" is not available"]
@@ -356,7 +356,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
         ack.warningSuccessMessagesFor("Modify", "[role] FR1-TEST   First Role") == [
                 "Referenced person object NMP1-TEST from mntner: NO-MB-PN-MNT is missing mandatory attribute \"mnt-by:\"",
@@ -403,7 +403,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   First Role") == [
                 "Referenced person object NMP1-TEST from mntner: NO-MB-PN-MNT is missing mandatory attribute \"mnt-by:\"",
@@ -444,7 +444,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
 
         queryObject("-rBT role FR1-TEST", "role", "First Role")
@@ -505,7 +505,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   First Role") == [
                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
@@ -543,7 +543,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 2, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["Self reference is not allowed for attribute type \"admin-c\"",
@@ -590,7 +590,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[role] FR1-TEST   First Role" }
 
         queryObject("-rBT role FR1-TEST", "role", "First Role")
@@ -628,7 +628,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 2, 0)
+        ack.countErrorWarnInfo(2, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
         ack.errorMessagesFor("Create", "[role] FR1-TEST   First Role") ==
                 ["Unknown object referenced XX1-TEST",
@@ -667,7 +667,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   First Role" }
 
         query_object_not_matches("-rBT role FR1-TEST", "role", "First Role", "admin-c:")

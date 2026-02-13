@@ -29,18 +29,11 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
     private MessageService messageService;
 
 
-    private static final String FORMATTED_PASSWORD_WARN = """
-            ***Warning: Password authentication will be removed from Mailupdates in a future
-                        Whois release as the mail message may have been sent insecurely.
-                        Please switch to PGP signing for authentication or use a different
-                        update method such as the REST API or Syncupdates.
-            """;
-
-    private static final String PASSWORD_RELATED_WARN = FORMATTED_PASSWORD_WARN + """
-          ***Warning: MD5 hashed password authentication is deprecated and support will be
-                      removed at the end of 2025. Please switch to an alternative
-                      authentication method before then.
-          """;
+    private static final String PASSWORD_RELATED_WARN = """
+        ***Warning: MD5 hashed password authentication is deprecated and support will be
+                    removed soon. Please switch to an alternative authentication method
+                    before then.
+        """;
 
     @Test
     public void testNoBouncedEmailFromCorrectEmail() throws MessagingException, MailParsingException {
@@ -83,7 +76,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         // send message and read acknowledgement reply
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
-        assertThat(acknowledgement, containsString(FORMATTED_PASSWORD_WARN));
+        assertThat(acknowledgement, containsString(PASSWORD_RELATED_WARN));
     }
 
     @Test
@@ -104,7 +97,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
 
-        assertThat(acknowledgement, not(containsString(FORMATTED_PASSWORD_WARN)));
+        assertThat(acknowledgement, not(containsString(PASSWORD_RELATED_WARN)));
     }
 
     @Test
@@ -135,7 +128,7 @@ public class MessageServiceTestIntegration extends AbstractMailMessageIntegratio
         final String from = insertIncomingMessage("NEW", incomingMessage);
         final String acknowledgement = mailSenderStub.getMessage(from).getContent().toString();
 
-        assertThat(acknowledgement, containsString(FORMATTED_PASSWORD_WARN));
+        assertThat(acknowledgement, containsString(PASSWORD_RELATED_WARN));
     }
 
     @Test

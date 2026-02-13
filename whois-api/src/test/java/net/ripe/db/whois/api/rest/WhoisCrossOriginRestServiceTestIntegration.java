@@ -382,7 +382,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "PP1-TEST"), is(not(nullValue())));
     }
 
@@ -447,7 +447,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
-                "removed at the end of 2025. Please switch to an alternative authentication method before then."));
+                "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 

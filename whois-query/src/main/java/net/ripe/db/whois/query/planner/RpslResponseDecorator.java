@@ -24,6 +24,7 @@ import net.ripe.db.whois.query.executor.decorators.FilterPersonalDecorator;
 import net.ripe.db.whois.query.executor.decorators.FilterPlaceholdersDecorator;
 import net.ripe.db.whois.query.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -63,6 +64,7 @@ public class RpslResponseDecorator {
     private final ToKeysFunction toKeysFunction;
     private final ClientAuthCertificateValidator clientAuthCertificateValidator;
     private final OverrideCredentialValidator overrideCredentialValidator;
+    private final boolean isPasswordSupported;
 
     @Autowired
     public RpslResponseDecorator(final RpslObjectDao rpslObjectDao,
@@ -75,6 +77,7 @@ public class RpslResponseDecorator {
                                  final AuthServiceClient authServiceClient,
                                  final ClientAuthCertificateValidator clientAuthCertificateValidator,
                                  final OverrideCredentialValidator overrideCredentialValidator,
+                                 @Value("${md5.password.supported:true}") final boolean isPasswordSupported,
                                  final PrimaryObjectDecorator... decorators) {
         this.rpslObjectDao = rpslObjectDao;
         this.filterPersonalDecorator = filterPersonalDecorator;
@@ -91,6 +94,7 @@ public class RpslResponseDecorator {
         this.toKeysFunction = new ToKeysFunction();
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
         this.overrideCredentialValidator = overrideCredentialValidator;
+        this.isPasswordSupported = isPasswordSupported;
     }
 
     public Iterable<? extends ResponseObject> getResponse(final Query query, Iterable<? extends ResponseObject> result) {
@@ -160,7 +164,7 @@ public class RpslResponseDecorator {
     }
 
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
-        final List<String> passwords = query.getPasswords();
+        final List<String> passwords = this.isPasswordSupported ? query.getPasswords() : Collections.emptyList();
         final UserSession userSession = query.getUserSession();
         final OAuthSession oAuthSession = query.getoAuthSession();
         final List<X509CertificateWrapper> certificates = query.getCertificates();

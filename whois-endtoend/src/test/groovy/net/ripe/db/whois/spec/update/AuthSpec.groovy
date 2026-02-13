@@ -106,7 +106,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-ripE   First Person" }
 
         queryObject("-rBT person FP1-ripE", "person", "First Person")
@@ -147,7 +147,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-RIPE   First Person" }
 
         queryObject("-rBT person FP1-RIPE", "person", "First Person")
@@ -182,7 +182,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.authFailCheck("Create", "FAILED", "person", "FP1-TEST   First Person", "", "person", "FP1-TEST", "mnt-by", "OWNER-MNT")
 
@@ -221,7 +221,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person" }
 
         query_object_matches("-rBGT person FP1-TEST", "person", "First Person", "mnt-by:\\s*owner2-mnt")
@@ -259,7 +259,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errors.any { it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person" }
         ack.authFailCheck("Modify", "FAILED", "person", "FP1-TEST   First Person", "", "person", "FP1-TEST", "mnt-by", "OWNER-MNT")
 
@@ -296,7 +296,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -366,7 +366,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(2, 2, 1)
+        ack.countErrorWarnInfo(2, 1, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Unknown object referenced non-exist-mnt",
@@ -405,7 +405,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(3, 1, 1)
+        ack.countErrorWarnInfo(3, 0, 1)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.errorMessagesFor("Create", "[person] FP1-TEST   First Person") == [
                 "Unknown object referenced non-exist-mnt",
@@ -449,7 +449,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
@@ -489,7 +489,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -528,7 +528,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObject("-rBT person FP1-TEST", "person", "First Person")
@@ -567,7 +567,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.authFailCheck("Create", "FAILED", "person", "FP1-TEST   First Person", "", "organisation", "ORG-TO1-TEST", "mnt-ref", "OWNER3-MNT")
 
@@ -647,7 +647,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.authFailCheck("Create", "FAILED", "person", "FP1-TEST   First Person", "", "person", "FP1-TEST", "mnt-by", "OWNER-MNT")
 
@@ -688,7 +688,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
         ack.errors.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
         ack.authFailCheck("Create", "FAILED", "person", "FP1-TEST   First Person", "", "organisation", "ORG-TO1-TEST", "mnt-ref", "OWNER3-MNT")
 
@@ -730,7 +730,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person" }
 
         query_object_matches("-rBT person FP1-TEST", "person", "First Person", "org:\\s*ORG-TO1-TEST")
@@ -771,7 +771,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 1, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person" }
 
         query_object_matches("-rBT person FP1-TEST", "person", "First Person", "org:\\s*ORG-TO1-TEST")
@@ -812,7 +812,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 0, 0, 1, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
         ack.successes.any { it.operation == "Delete" && it.key == "[person] FP1-TEST   First Person" }
 
         queryObjectNotFound("-rBT person FP1-TEST", "person", "First Person")
@@ -1338,7 +1338,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 2, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
 
         ack.errorMessagesFor("Create", "[person] AP1-TEST   Another Person") == [
                 "Authorisation for [person] AP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
@@ -1424,7 +1424,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
     def "No warning if auth lines removed but update succeeds with PGP signed update"() {
@@ -1515,7 +1515,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 2, 0)
+        ack.countErrorWarnInfo(0, 1, 0)
     }
 
 }

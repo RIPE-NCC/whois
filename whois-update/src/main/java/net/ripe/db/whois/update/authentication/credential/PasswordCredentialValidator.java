@@ -11,6 +11,7 @@ import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -19,9 +20,13 @@ import java.util.Collection;
 class PasswordCredentialValidator implements CredentialValidator<PasswordCredential, PasswordCredential> {
     private final LoggerContext loggerContext;
 
+    private final boolean isPasswordSupported;
+
     @Autowired
-    PasswordCredentialValidator(LoggerContext loggerContext) {
+    PasswordCredentialValidator(@Value("${md5.password.supported:true}") final boolean isPasswordSupported,
+                                final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
+        this.isPasswordSupported = isPasswordSupported;
     }
 
     @Override
@@ -40,6 +45,11 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
                                       final Collection<PasswordCredential> offeredCredentials,
                                       final PasswordCredential knownCredential,
                                       final RpslObject maintainer) {
+
+        if (!offeredCredentials.isEmpty() && !isPasswordSupported){
+            updateContext.addGlobalMessage(ValidationMessages.ignoredPasswordAuthentication());
+            return false;
+        }
 
         for (final PasswordCredential offeredCredential : offeredCredentials) {
             try {

@@ -112,7 +112,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS655" }
         ack.errorMessagesFor("Create", "[as-block] AS655") ==
@@ -236,7 +236,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS655 - AS-2" }
         ack.errorMessagesFor("Create", "[as-block] AS655 - AS-2") ==
@@ -276,7 +276,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS-1 - AS655" }
         ack.errorMessagesFor("Create", "[as-block] AS-1 - AS655") ==
@@ -392,7 +392,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
-        ack.countErrorWarnInfo(1, 1, 0)
+        ack.countErrorWarnInfo(1, 0, 0)
 
         ack.errors.any { it.operation == "Create" && it.key == "[as-block] AS333 - AS222" }
         ack.errorMessagesFor("Create", "[as-block] AS333 - AS222") ==
@@ -590,7 +590,7 @@ class AsBlockSpec extends BaseQueryUpdateSpec {
         ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 0, 1, 0)
-        ack.countErrorWarnInfo(2, 1, 0)
+        ack.countErrorWarnInfo(2, 0, 0)
 
         ack.errors.any { it.operation == "Modify" && it.key == "[as-block] AS222 - AS333" }
         ack.errorMessagesFor("Modify", "[as-block] AS222 - AS333") == [

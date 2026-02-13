@@ -5,9 +5,9 @@ import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.log.LoggerContext;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -24,7 +24,12 @@ public class PasswordCredentialValidatorTest {
     @Mock private Update update;
     @Mock private UpdateContext updateContext;
     @Mock private LoggerContext loggerContext;
-    @InjectMocks private PasswordCredentialValidator subject;
+    private PasswordCredentialValidator subject;
+
+    @BeforeEach
+    public void setUp() {
+        subject = new PasswordCredentialValidator(true, loggerContext);
+    }
 
     @Test
     public void authenticatePassword() {
