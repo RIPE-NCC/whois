@@ -1,6 +1,7 @@
 package net.ripe.db.whois.update.authentication.credential;
 
 import net.ripe.db.whois.common.credentials.PasswordCredential;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -28,7 +29,7 @@ public class PasswordCredentialValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        subject = new PasswordCredentialValidator(true, loggerContext);
+        subject = new PasswordCredentialValidator(true, true, loggerContext);
     }
 
     @Test
@@ -53,7 +54,9 @@ public class PasswordCredentialValidatorTest {
     }
 
     private boolean authenticate(final String offered, final String known) {
-        return subject.hasValidCredential(preparedUpdate, updateContext, Collections.singleton(new PasswordCredential(offered)), new PasswordCredential(known), null);
+        return subject.hasValidCredential(preparedUpdate, updateContext,
+                Collections.singleton(new PasswordCredential(offered)), new PasswordCredential(known),
+                RpslObject.parse("mntner: MHM-MNT\nnic-hdl: TP2-TEST\nmnt-by: OWNER-MNT\nsource: test"));
     }
 
     @Test

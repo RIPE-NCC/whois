@@ -3,6 +3,7 @@ package net.ripe.db.whois.update.authentication.credential;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.credentials.PasswordCredential;
+import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.PasswordHelper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.ValidationMessages;
@@ -20,13 +21,17 @@ import java.util.Collection;
 class PasswordCredentialValidator implements CredentialValidator<PasswordCredential, PasswordCredential> {
     private final LoggerContext loggerContext;
 
-    private final boolean isPasswordSupported;
+    private final boolean isMntSupported;
+
+    private final boolean isIrtPasswordSupported;
 
     @Autowired
-    PasswordCredentialValidator(@Value("${md5.password.supported:true}") final boolean isPasswordSupported,
+    PasswordCredentialValidator(@Value("${md5.password.supported:true}") final boolean isMntSupported,
+                                @Value("${irt.password.supported:true}") final boolean isIrtPasswordSupported,
                                 final LoggerContext loggerContext) {
         this.loggerContext = loggerContext;
-        this.isPasswordSupported = isPasswordSupported;
+        this.isMntSupported = isMntSupported;
+        this.isIrtPasswordSupported = isIrtPasswordSupported;
     }
 
     @Override
@@ -46,7 +51,7 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
                                       final PasswordCredential knownCredential,
                                       final RpslObject maintainer) {
 
-        if (!offeredCredentials.isEmpty() && !isPasswordSupported){
+        if (!offeredCredentials.isEmpty() && !isPasswordSupported(maintainer)){
             updateContext.addGlobalMessage(ValidationMessages.ignoredPasswordAuthentication());
             return false;
         }
@@ -70,5 +75,9 @@ class PasswordCredentialValidator implements CredentialValidator<PasswordCredent
         }
 
         return false;
+    }
+
+    private boolean isPasswordSupported(final RpslObject maintainer){
+        return maintainer.getType() == ObjectType.IRT ? isIrtPasswordSupported : isMntSupported;
     }
 }

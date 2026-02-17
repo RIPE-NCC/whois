@@ -58,10 +58,35 @@ public class WhoisRestServicePasswdNotSupportedTestIntegration extends AbstractH
             source:      TEST
             """;
 
+    private static final String IRT = """
+            irt:          irt-test
+            address:      RIPE NCC
+            e-mail:       irt-dbtest@ripe.net
+            auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+            auth:         SSO person@net.net
+            irt-nfy:      irt_nfy1_dbtest@ripe.net
+            notify:       nfy_dbtest@ripe.net
+            admin-c:      TP1-TEST
+            tech-c:       TP1-TEST
+            mnt-by:       OWNER-MNT
+            source:       TEST
+            """;
+
+    private static final String INETNUM = """
+            inetnum:      192.168.0.0 - 192.168.255.255
+            netname:      RIPE-NET1
+            country:      NL
+            admin-c:      TP1-TEST
+            tech-c:       TP1-TEST
+            status:       ALLOCATED PA
+            mnt-by:       OWNER-MNT
+            source:       TEST
+            """;
 
     @BeforeAll
     public static void setUp() {
         System.setProperty("md5.password.supported", "false");
+        System.setProperty("irt.password.supported", "false");
 
         System.setProperty("apikey.authenticate.enabled","true");
         System.setProperty("apikey.max.scope","2");
@@ -70,6 +95,7 @@ public class WhoisRestServicePasswdNotSupportedTestIntegration extends AbstractH
     @AfterAll
     public static void clearProperties() {
         System.clearProperty("md5.password.supported");
+        System.clearProperty("irt.password.supported");
 
         System.clearProperty("apikey.authenticate.enabled");
         System.clearProperty("apikey.max.scope");
@@ -77,7 +103,12 @@ public class WhoisRestServicePasswdNotSupportedTestIntegration extends AbstractH
 
     @BeforeEach
     public void setup() {
-        databaseHelper.addObjects(RpslObject.parse(TEST_PERSON_STRING), RpslObject.parse(OWNER_MNT));
+        databaseHelper.addObject("inetnum: 0.0.0.0 - 255.255.255.255\nstatus: ALLOCATED UNSPECIFIED\nsource: TEST");
+        databaseHelper.addObjects(RpslObject.parse(TEST_PERSON_STRING),
+                RpslObject.parse(OWNER_MNT),
+                RpslObject.parse(IRT),
+                RpslObject.parse(INETNUM));
+        ipTreeUpdater.rebuild();
     }
 
     // Lookup
@@ -304,6 +335,126 @@ public class WhoisRestServicePasswdNotSupportedTestIntegration extends AbstractH
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
+    @Test
+    public void create_new_resource_with_irt_password_error() {
+
+        final RpslObject createResource = RpslObject.parse("""
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       OWNER-MNT
+                mnt-irt:      irt-test
+                source:       TEST
+                """);
+
+        final NotAuthorizedException notAuthorizedException = assertThrows(NotAuthorizedException.class, () ->
+                SecureRestTest.target(getSecurePort(), "whois/test/inetnum?password=irt")
+                .request()
+                .post(Entity.entity(map(createResource), MediaType.APPLICATION_JSON), WhoisResources.class)
+        );
+
+        final WhoisResources whoisResources = notAuthorizedException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages().size(), is(4));
+
+        assertThat(whoisResources.getErrorMessages().getFirst().toString(), is("""
+                Authorisation for parent [inetnum] 192.168.0.0 - 192.168.255.255 failed
+                using "mnt-by:"
+                not authenticated by: OWNER-MNT"""));
+        assertThat(whoisResources.getErrorMessages().get(1).toString(), is("""
+                Authorisation for [inetnum] 192.168.200.0 - 192.168.200.255 failed
+                using "mnt-by:"
+                not authenticated by: OWNER-MNT"""));
+        assertThat(whoisResources.getErrorMessages().get(2).toString(), is("""
+                Authorisation for [inetnum] 192.168.200.0 - 192.168.200.255 failed
+                using "mnt-irt:"
+                not authenticated by: irt-test"""));
+        assertThat(whoisResources.getErrorMessages().get(3).toString(), is("""
+                MD5 hashed password authentication has been ignored because is not longer supported."""));
+    }
+
+    @Test
+    public void create_new_irt_with_password_using_apikeys_error() {
+
+        final RpslObject createIrt = RpslObject.parse("""
+                irt:          irt-1test
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """);
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                SecureRestTest.target(getSecurePort(), "whois/test/irt")
+                        .request()
+                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                        .post(Entity.entity(map(createIrt), MediaType.APPLICATION_JSON), WhoisResources.class)
+        );
+
+        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages().size(), is(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().toString(), is("""
+                MD5 hashed password authentication is deprecated. Please switch to an alternative authentication method."""));
+    }
+
+    @Test
+    public void create_new_irt_without_password_using_apikeys_succeed() {
+
+        final RpslObject createIrt = RpslObject.parse("""
+                irt:          irt-1test
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .post(Entity.entity(map(createIrt), MediaType.APPLICATION_JSON), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void create_new_resource_with_irt_apikey_succeed() {
+
+        final RpslObject createResource = RpslObject.parse("""
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       OWNER-MNT
+                mnt-irt:      irt-test
+                source:       TEST
+                """);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/inetnum")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .post(Entity.entity(map(createResource), MediaType.APPLICATION_JSON), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
 
     // PUT
 
@@ -471,6 +622,145 @@ public class WhoisRestServicePasswdNotSupportedTestIntegration extends AbstractH
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
     }
 
+
+    @Test
+    public void update_resource_with_irt_password_error() {
+
+        databaseHelper.addObject("""
+                organisation:  ORG-OT1-TEST
+                org-type:      LIR
+                abuse-c:       TP1-TEST
+                mnt-by:        OWNER-MNT
+                mnt-ref:      OWNER-MNT
+                source:        TEST
+                """);
+
+        final RpslObject updatedResource = RpslObject.parse("""
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                org:          ORG-OT1-TEST
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                mnt-irt:      irt-test
+                source:       TEST
+                """);
+
+        final NotAuthorizedException notAuthorizedException = assertThrows(NotAuthorizedException.class, () ->
+                SecureRestTest.target(getSecurePort(), "whois/test/inetnum/192.168.0.0%20-%20192.168.255.255?password=irt")
+                .request()
+                .put(Entity.entity(map(updatedResource), MediaType.APPLICATION_JSON), WhoisResources.class)
+        );
+
+        final WhoisResources whoisResources = notAuthorizedException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages().size(), is(4));
+
+        assertThat(whoisResources.getErrorMessages().getFirst().toString(), is("""
+                Authorisation for [inetnum] 192.168.0.0 - 192.168.255.255 failed
+                using "mnt-by:"
+                not authenticated by: OWNER-MNT"""));
+        assertThat(whoisResources.getErrorMessages().get(1).toString(), is("""
+                Authorisation for [inetnum] 192.168.0.0 - 192.168.255.255 failed
+                using "mnt-irt:"
+                not authenticated by: irt-test"""));
+        assertThat(whoisResources.getErrorMessages().get(2).toString(), is("""
+                Authorisation for [organisation] ORG-OT1-TEST failed
+                using "mnt-ref:"
+                not authenticated by: OWNER-MNT"""));
+        assertThat(whoisResources.getErrorMessages().get(3).toString(), is("""
+                MD5 hashed password authentication has been ignored because is not longer supported."""));
+    }
+
+    @Test
+    public void update_irt_with_password_using_apikeys_error() {
+
+        final RpslObject updateIrt = RpslObject.parse("""
+                irt:          irt-test
+                address:      RIPE NCC 123
+                e-mail:       irt-dbtest@ripe.net
+                auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """);
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test")
+                        .request()
+                        .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                        .put(Entity.entity(map(updateIrt), MediaType.APPLICATION_JSON), WhoisResources.class)
+        );
+
+        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages().size(), is(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().toString(), is("""
+                MD5 hashed password authentication is deprecated. Please switch to an alternative authentication method."""));
+    }
+
+    @Test
+    public void update_irt_without_password_using_apikeys_succeed() {
+
+        final RpslObject updateIrt = RpslObject.parse("""
+                irt:          irt-test
+                address:      RIPE NCC 123
+                e-mail:       irt-dbtest@ripe.net
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-test")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .put(Entity.entity(map(updateIrt), MediaType.APPLICATION_JSON), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
+    @Test
+    public void update_resource_with_irt_apikey_succeed() {
+
+        databaseHelper.addObject("""
+                organisation:  ORG-OT1-TEST
+                org-type:      LIR
+                abuse-c:       TP1-TEST
+                mnt-by:        OWNER-MNT
+                mnt-ref:      OWNER-MNT
+                source:        TEST
+                """);
+
+        final RpslObject updateResource = RpslObject.parse("""
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                org:          ORG-OT1-TEST
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                mnt-irt:      irt-test
+                source:       TEST
+                """);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/inetnum/192.168.0.0%20-%20192.168.255.255")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .put(Entity.entity(map(updateResource), MediaType.APPLICATION_JSON), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
     // DELETE
 
     @Test
@@ -553,6 +843,71 @@ public class WhoisRestServicePasswdNotSupportedTestIntegration extends AbstractH
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
                 .delete(WhoisResources.class);
 
+
+        assertThat(whoisResources.getErrorMessages(), is(empty()));
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+    }
+
+
+
+    @Test
+    public void delete_irt_with_password_error() {
+
+        final RpslObject irtObject = RpslObject.parse("""
+                irt:          irt-1test
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """);
+
+        databaseHelper.addObject(irtObject);
+
+        final NotAuthorizedException notAuthorizedException = assertThrows(NotAuthorizedException.class, () ->
+                SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-1test?password=irt")
+                .request()
+                .delete(WhoisResources.class)
+        );
+
+        final WhoisResources whoisResources = notAuthorizedException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages().size(), is(2));
+        assertThat(whoisResources.getErrorMessages().getFirst().toString(), containsString("""
+                Authorisation for [irt] irt-1test failed
+                using "mnt-by:"
+                not authenticated by: OWNER-MNT"""));
+        assertThat(whoisResources.getErrorMessages().get(1).toString(), is(
+                "MD5 hashed password authentication has been ignored because is not longer supported."));
+    }
+
+    @Test
+    public void delete_irt_with_crowd_succeed() {
+
+        final String irtObject = """
+                irt:          irt-1test
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """;
+
+        databaseHelper.addObject(irtObject);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/irt/irt-1test")
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));

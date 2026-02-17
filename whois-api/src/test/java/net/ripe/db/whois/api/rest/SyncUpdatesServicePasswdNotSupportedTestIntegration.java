@@ -41,9 +41,35 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
             source:      TEST
             """;
 
+    private static final String IRT = """
+            irt:          irt-test
+            address:      RIPE NCC
+            e-mail:       irt-dbtest@ripe.net
+            auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+            auth:         SSO person@net.net
+            irt-nfy:      irt_nfy1_dbtest@ripe.net
+            notify:       nfy_dbtest@ripe.net
+            admin-c:      TP1-TEST
+            tech-c:       TP1-TEST
+            mnt-by:       OWNER-MNT
+            source:       TEST
+            """;
+
+    private static final String INETNUM = """
+            inetnum:      192.168.0.0 - 192.168.255.255
+            netname:      RIPE-NET1
+            country:      NL
+            admin-c:      TP1-TEST
+            tech-c:       TP1-TEST
+            status:       ALLOCATED PA
+            mnt-by:       OWNER-MNT
+            source:       TEST
+            """;
+
     @BeforeAll
     public static void setUp() {
         System.setProperty("md5.password.supported", "false");
+        System.setProperty("irt.password.supported", "false");
 
         System.setProperty("apikey.authenticate.enabled","true");
         System.setProperty("apikey.max.scope","2");
@@ -52,6 +78,7 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
     @AfterAll
     public static void clearProperties() {
         System.clearProperty("md5.password.supported");
+        System.clearProperty("irt.password.supported");
 
         System.clearProperty("apikey.authenticate.enabled");
         System.clearProperty("apikey.max.scope");
@@ -59,7 +86,12 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
 
     @BeforeEach
     public void setup() {
-        databaseHelper.addObjects(RpslObject.parse(TEST_PERSON_STRING), RpslObject.parse(OWNER_MNT));
+        databaseHelper.addObject("inetnum: 0.0.0.0 - 255.255.255.255\nstatus: ALLOCATED UNSPECIFIED\nsource: TEST");
+        databaseHelper.addObjects(RpslObject.parse(TEST_PERSON_STRING),
+                RpslObject.parse(OWNER_MNT),
+                RpslObject.parse(IRT),
+                RpslObject.parse(INETNUM));
+        ipTreeUpdater.rebuild();
     }
 
     // POST
@@ -219,6 +251,118 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
 
+    @Test
+    public void create_new_resource_with_irt_password_error() {
+
+        final String createResource = """
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       OWNER-MNT
+                mnt-irt:      irt-test
+                source:       TEST
+                """;
+
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(createResource + "\npassword: irt"))
+                .request()
+                .get(String.class);
+
+        assertThat(errorString, containsString("Number of objects processed successfully:  0"));
+        assertThat(errorString, containsString("""
+                ***Warning: MD5 hashed password authentication has been ignored because is not
+                            longer supported.
+                """));
+        assertThat(errorString, containsString("""
+                ***Error:   Authorisation for [inetnum] 192.168.200.0 - 192.168.200.255 failed
+                            using "mnt-irt:"
+                            not authenticated by: irt-test
+                """));
+    }
+
+    @Test
+    public void create_new_irt_with_password_using_apikeys_error() {
+
+        final String createIrt = """
+                irt:          irt-1test
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """;
+
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(createIrt))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(errorString, containsString("Number of objects processed successfully:  0"));
+        assertThat(errorString, containsString("""
+                ***Error:   MD5 hashed password authentication is deprecated. Please switch to
+                            an alternative authentication method.
+                """));
+    }
+
+    @Test
+    public void create_new_irt_without_password_using_apikeys_succeed() {
+
+        final String createIrt = """
+                irt:          irt-1test
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """;
+
+        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(createIrt))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
+    }
+
+    @Test
+    public void create_new_resource_with_irt_apikey_succeed() {
+
+        final String createResource = """
+                inetnum:      192.168.200.0 - 192.168.200.255
+                netname:      RIPE-NET1
+                descr:        /24 assigned
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ASSIGNED PA
+                mnt-by:       OWNER-MNT
+                mnt-irt:      irt-test
+                source:       TEST
+                """;
+
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(createResource))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(errorString, containsString("Number of objects processed successfully:  1"));
+    }
 
     // PUT
 
@@ -357,6 +501,128 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
 
+
+    @Test
+    public void update_resource_with_irt_password_error() {
+
+        final String updatedResource = """
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                mnt-irt:      irt-test
+                source:       TEST
+                """;
+
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(updatedResource + "\npassword: irt"))
+                .request()
+                .get(String.class);
+
+        assertThat(errorString, containsString("Number of objects processed successfully:  0"));
+        assertThat(errorString, containsString("""
+                ***Warning: MD5 hashed password authentication has been ignored because is not
+                            longer supported.
+                """));
+        assertThat(errorString, containsString("""
+                ***Error:   Authorisation for [inetnum] 192.168.0.0 - 192.168.255.255 failed
+                            using "mnt-irt:"
+                            not authenticated by: irt-test
+                """));
+    }
+
+    @Test
+    public void update_irt_with_password_using_apikeys_error() {
+
+        final String updateIrt = """
+                irt:          irt-test
+                address:      RIPE NCC 123
+                e-mail:       irt-dbtest@ripe.net
+                auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """;
+
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(updateIrt))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(errorString, containsString("Number of objects processed successfully:  0"));
+        assertThat(errorString, containsString("""
+                ***Error:   MD5 hashed password authentication is deprecated. Please switch to
+                            an alternative authentication method.
+                """));
+    }
+
+    @Test
+    public void update_irt_without_password_using_apikeys_succeed() {
+
+        final String updateIrt = """
+                irt:          irt-test
+                address:      RIPE NCC 123
+                e-mail:       irt-dbtest@ripe.net
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """;
+
+        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(updateIrt))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
+    }
+
+    @Test
+    public void update_resource_with_irt_apikey_succeed() {
+
+        databaseHelper.addObject("""
+                organisation:  ORG-OT1-TEST
+                org-type:      LIR
+                abuse-c:       TP1-TEST
+                mnt-by:        OWNER-MNT
+                mnt-ref:      OWNER-MNT
+                source:        TEST
+                """);
+
+        final String updateResource = """
+                inetnum:      192.168.0.0 - 192.168.255.255
+                netname:      RIPE-NET1
+                org:          ORG-OT1-TEST
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                mnt-irt:      irt-test
+                source:       TEST
+                """;
+
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
+                        "DATA=" + SyncUpdateUtils.encode(updateResource))
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(errorString, containsString("Number of objects processed successfully:  1"));
+    }
+
     // DELETE
 
     @Test
@@ -453,6 +719,7 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
 
+
     @Test
     public void delete_person_with_both_crowd_and_password_succeed() {
 
@@ -478,6 +745,68 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
+
+    @Test
+    public void delete_irt_with_password_error() {
+
+        final String irtObject = """
+                irt:          irt-1test
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """;
+
+        databaseHelper.addObject(irtObject);
+
+        final String errorString = SecureRestTest.target(getSecurePort(),
+                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(irtObject + "delete: test" + "\npassword: irt"))
+                .request()
+                .get(String.class);
+
+        assertThat(errorString, not(containsString("""
+                ***Error:   Authorisation for [mntner] OWNER-MNT failed
+                            using "mnt-by:"
+                            not authenticated by: OWNER-MNT""")));
+        assertThat(errorString, containsString("""
+            ***Warning: MD5 hashed password authentication has been ignored because is not
+                        longer supported."""));
+    }
+
+    @Test
+    public void delete_irt_with_crowd_succeed() {
+
+        final String irtObject = """
+                irt:          irt-1test
+                address:      RIPE NCC
+                e-mail:       irt-dbtest@ripe.net
+                auth:         MD5-PW $1$qxm985sj$3OOxndKKw/fgUeQO7baeF/  #irt
+                auth:         SSO person@net.net
+                irt-nfy:      irt_nfy1_dbtest@ripe.net
+                notify:       nfy_dbtest@ripe.net
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       OWNER-MNT
+                source:       TEST
+                """;
+
+        databaseHelper.addObject(irtObject);
+
+        final String succeeded = SecureRestTest.target(getSecurePort(),
+                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(irtObject + "delete: test"))
+                .request()
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
+    }
+
 
     private void initObjects(){
         databaseHelper.addObject("""

@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PasswordsInMntnerValidator extends AbstractPasswordsValidator {
+public class PasswordsInIrtValidator extends AbstractPasswordsValidator {
 
-    PasswordsInMntnerValidator(@Value("${md5.password.supported:true}") final boolean isPasswordSupported){
-        super(isPasswordSupported, ImmutableList.of(ObjectType.MNTNER));
+    PasswordsInIrtValidator(@Value("${irt.password.supported:true}") final boolean isIrtPasswordSupported){
+        super(isIrtPasswordSupported, ImmutableList.of(ObjectType.IRT));
     }
 }
