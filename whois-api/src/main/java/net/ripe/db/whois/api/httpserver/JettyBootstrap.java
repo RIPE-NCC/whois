@@ -118,6 +118,8 @@ public class JettyBootstrap implements ApplicationService {
 
     private final IpBlockListFilter ipBlockListFilter;
 
+    private final BlockPathListFilter blockPathListFilter;
+
     private final IpRanges ipRanges;
 
     private final String[] allowedHostsforCrossOrigin;
@@ -143,7 +145,8 @@ public class JettyBootstrap implements ApplicationService {
                           @Value("${http.x_forwarded_for:true}") final boolean xForwardedForHttp,
                           @Value("${https.x_forwarded_for:true}") final boolean xForwardedForHttps,
                           @Value("${dos.filter.enabled:false}") final boolean dosFilterEnabled,
-                          final IpBlockListFilter ipBlockListFilter
+                          final IpBlockListFilter ipBlockListFilter,
+                          final BlockPathListFilter blockPathListFilter
                         ) {
         this.remoteAddressFilter = remoteAddressFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
@@ -168,6 +171,7 @@ public class JettyBootstrap implements ApplicationService {
         this.ipBlockListFilter = ipBlockListFilter;
         this.ipRanges = ipRanges;
         this.allowedHostsforCrossOrigin = allowedHostsforCrossOrigin;
+        this.blockPathListFilter = blockPathListFilter;
     }
 
     @Override
@@ -224,6 +228,7 @@ public class JettyBootstrap implements ApplicationService {
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(blockPathListFilter), "/*", EnumSet.allOf(DispatcherType.class));
 
         if (!dosFilterEnabled) {
             LOGGER.info("DoSFilter is *not* enabled");
