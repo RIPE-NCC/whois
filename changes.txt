@@ -1,5 +1,13 @@
 # next
 
+# 1.121
+
+* [all] Removed support for mntner and IRT passwords
+* [all] NWI-21: Added "reg-nr:" attribute to the organisation object type
+* [all] Run GRS mirror imports after dump is updated, not all at midnight
+* [rdap] Fix RDAP publicIds array
+* [rdap] Return top-level IANA allocation or redirect RDAP domain queries
+
 # 1.120
 
 [all] Make scope mandatory in OAuth2
