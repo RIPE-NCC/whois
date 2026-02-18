@@ -4242,4 +4242,185 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
     }
+
+    // Registration number
+
+    def "create end user organisation, user cannot add reg-nr attribute"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    auto-1
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          owner2-mnt
+                reg-nr:          12345
+                source:          TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+        ack.countErrorWarnInfo(1, 1, 0)
+
+        ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
+        ack.errorMessagesFor("Create", "[organisation] auto-1") == [
+                "The \"reg-nr\" attribute can only be added or removed by the RIPE NCC"]
+    }
+
+    def "create end user organisation, RIPE NCC maintainer can add reg-nr attribute"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                organisation:    auto-1
+                org-type:        LIR
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          ripe-NCC-hM-mnT
+                reg-nr:          12345
+                source:          TEST
+
+                password: hm
+                """.stripIndent(true)
+            )
+
+        then:
+            ack.success
+
+            ack.summary.nrFound == 1
+            ack.summary.assertSuccess(1, 1, 0, 0, 0)
+            ack.summary.assertErrors(0, 0, 0, 0)
+
+            ack.countErrorWarnInfo(0, 1, 0)
+
+            queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+    }
+
+    def "create end user organisation, override can add reg-nr attribute"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+        def message = syncUpdate("""\
+                organisation:    auto-1
+                org-type:        other
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          owner2-mnt
+                mnt-by:          ripe-ncc-hm-mnt
+                reg-nr:          12345
+                source:          TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 2, 1)
+
+    }
+
+    def "modify end user organisation, user cannot add reg-nr attribute"() {
+        expect:
+        queryObject("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-OTO1-TEST
+                org-type:        other
+                org-name:        Other Test org
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                language:        NL
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          owner2-mnt
+                reg-nr:          12345
+                source:  TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OTO1-TEST") == [
+                "The \"reg-nr\" attribute can only be added or removed by the RIPE NCC"]
+
+        query_object_not_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "12345")
+    }
+
+    def "modify end user organisation, override can add reg-nr attribute"() {
+        expect:
+        queryObject("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST")
+
+        when:
+        def message = syncUpdate("""\
+                organisation:    ORG-OTO1-TEST
+                org-type:        other
+                org-name:        Other Test org
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                language:        NL
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          owner2-mnt
+                reg-nr:          12345
+                source:  TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+
+        query_object_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "12345")
+    }
+
 }

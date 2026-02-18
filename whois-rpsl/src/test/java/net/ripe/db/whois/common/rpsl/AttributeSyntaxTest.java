@@ -1141,6 +1141,13 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void regNr() {
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.REG_NR, "registration-number");
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.REG_NR, "1");
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.REG_NR, "1234");
+    }
+
+    @Test
     public void remarks() {
         verifySuccess(ObjectType.PERSON, AttributeType.REMARKS, "");
 

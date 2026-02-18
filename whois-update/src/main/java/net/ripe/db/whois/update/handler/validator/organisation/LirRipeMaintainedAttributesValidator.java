@@ -3,7 +3,6 @@ package net.ripe.db.whois.update.handler.validator.organisation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -19,8 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 // Validates that RIPE NCC maintained attributes are not changed for an LIR
@@ -66,11 +63,6 @@ public class LirRipeMaintainedAttributesValidator implements BusinessRuleValidat
 
     private boolean isLir(final RpslObject organisation) {
         return OrgType.getFor(organisation.getValueForAttribute(AttributeType.ORG_TYPE)) == OrgType.LIR;
-    }
-
-    private boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {
-        return !originalObject.getValuesForAttribute(attributeType)
-                    .equals(updatedObject.getValuesForAttribute(attributeType));
     }
 
     @Override

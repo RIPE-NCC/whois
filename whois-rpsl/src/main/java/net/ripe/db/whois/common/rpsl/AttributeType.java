@@ -575,6 +575,10 @@ public enum AttributeType implements Documented {
                     "objects returned by the query contains an abuse-mailbox attribute.")
             .syntax(EMAIL_SYNTAX)),
 
+    REG_NR(new Builder("reg-nr", "re")
+            .doc("Organisation registration number.")
+            .syntax(FREE_FORM_SYNTAX)),
+
     REMARKS(new Builder("remarks", "rm")
             .doc("Contains remarks.")
             .syntax(FREE_FORM_SYNTAX)),

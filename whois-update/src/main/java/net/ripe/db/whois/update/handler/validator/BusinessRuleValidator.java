@@ -5,7 +5,10 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.MessageWithAttribute;
 import net.ripe.db.whois.common.Messages;
+import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.authentication.Principal;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
@@ -13,6 +16,7 @@ import net.ripe.db.whois.update.domain.UpdateContext;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface BusinessRuleValidator {
@@ -62,4 +66,28 @@ public interface BusinessRuleValidator {
                                 :  new Message(Messages.Type.WARNING,  message.getText(), message.getArgs());
             addMessageToContext(update, updateContext, warningMsg);
     }
+
+    default boolean wasAttributeAddedOrRemoved(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {
+        return (originalObject.findAttributes(attributeType).size() != updatedObject.findAttributes(attributeType).size());
+    }
+
+    default boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType) {
+        return haveAttributesChanged(originalObject, updatedObject, attributeType, false);
+    }
+
+    default boolean haveAttributesChanged(final RpslObject originalObject, final RpslObject updatedObject, final AttributeType attributeType, final boolean caseSensitive) {
+        if (caseSensitive) {
+            return !mapToStrings(originalObject.getValuesForAttribute(attributeType))
+                        .equals(mapToStrings(updatedObject.getValuesForAttribute(attributeType)));
+        }
+
+        return !originalObject.getValuesForAttribute(attributeType)
+                    .equals(updatedObject.getValuesForAttribute(attributeType));
+    }
+
+    private Set<String> mapToStrings(final Set<CIString> values) {
+        return values.stream().map(ciString -> ciString.toString()).collect(Collectors.toSet());
+    }
+
+
 }

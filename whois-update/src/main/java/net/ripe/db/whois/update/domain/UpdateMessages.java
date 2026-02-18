@@ -218,6 +218,14 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "The \"remarks\" attribute can only be added or removed by the RIPE NCC");
     }
 
+    public static Message cantAddorRemoveRipeNccRegNr() {
+        return new Message(Type.ERROR, "The \"reg-nr\" attribute can only be added or removed by the RIPE NCC");
+    }
+
+    public static Message regNrChanged(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.ERROR, attribute,"The \"reg-nr\" attribute can only be changed by the RIPE NCC");
+    }
+
     public static Message cantCreateShortFormatAsName() {
         return new Message(Type.ERROR, "Cannot create AS-SET object with a short format name. Only hierarchical " +
                 "AS-SET creation is allowed, i.e. at least one ASN must be referenced");
