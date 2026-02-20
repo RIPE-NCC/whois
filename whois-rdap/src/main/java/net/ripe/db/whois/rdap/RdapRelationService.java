@@ -1,9 +1,11 @@
 package net.ripe.db.whois.rdap;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
+import net.ripe.db.whois.common.dao.jdbc.BulkRpslReadOnlyLoader;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.ip.Interval;
 import net.ripe.db.whois.common.ip.IpInterval;
@@ -33,6 +35,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -59,6 +62,7 @@ public class RdapRelationService {
     private final RdapQueryHandler rdapQueryHandler;
     private final RdapObjectMapper rdapObjectMapper;
     private final RdapLookupService rdapLookupService;
+    private final BulkRpslReadOnlyLoader bulkRpslReadOnlyLoader;
 
     @Autowired
     public RdapRelationService(final Ipv4Tree ip4Tree,
@@ -68,6 +72,7 @@ public class RdapRelationService {
                                @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
                                final RdapQueryHandler rdapQueryHandler,
                                final RdapObjectMapper rdapObjectMapper,
+                               final BulkRpslReadOnlyLoader bulkRpslReadOnlyLoader,
                                final RdapLookupService rdapLookupService) {
         this.ip4Tree = ip4Tree;
         this.ip6Tree = ip6Tree;
@@ -77,6 +82,7 @@ public class RdapRelationService {
         this.rdapQueryHandler = rdapQueryHandler;
         this.rdapObjectMapper = rdapObjectMapper;
         this.rdapLookupService = rdapLookupService;
+        this.bulkRpslReadOnlyLoader = bulkRpslReadOnlyLoader;
     }
 
     protected Object handleRelationQuery(final HttpServletRequest request,
@@ -85,6 +91,7 @@ public class RdapRelationService {
                                          final String requestUrl,
                                          final int maxResultSize) {
         final List<RpslObject> rpslObjects;
+
         final boolean shouldReturnLookup = relationType.equals(RelationType.UP) || relationType.equals(RelationType.TOP);
         switch (requestType) {
             case DOMAINS -> {
@@ -96,29 +103,20 @@ public class RdapRelationService {
                     final Stream<RpslObject> inetnumResult = rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(INETNUM, INET6NUM), ipEntry.getKey().toString()), request);
                     return rdapLookupService.getDomainEntity(request, Stream.of(domainObject), inetnumResult, ipEntry.getKey().toString());
                 }
-                //TODO: [MH] This call should not be necessary, we should be able to get the reverseIp out of the IP
-                final List<String> relatedPkeys = domainEntries
-                        .stream()
-                        .map(ipEntry -> rpslObjectDao.getById(ipEntry.getObjectId()).getKey().toString())
-                        .toList();
 
-                rpslObjects = relatedPkeys
-                        .stream()
-                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(ImmutableSet.of(DOMAIN), relatedPkey), request))
-                        .toList();
+                rpslObjects = bulkRpslReadOnlyLoader.getByObjectIds(domainEntries.stream().map(IpEntry::getObjectId).toList());
 
             }
             case IPS -> {
-                final List<String> relatedPkeys = getInetnumRelationPkeys(key, relationType);
+
+                final ObjectType objectType = IpInterval.parse(key) instanceof Ipv4Resource ? INETNUM : INET6NUM;
+                final List<CIString> relatedPkeys = getInetnumRelationPkeys(key, relationType);
 
                 if (shouldReturnLookup){
-                    return rdapLookupService.lookupObject(request, objectTypes, relatedPkeys.getFirst());
+                    return rdapLookupService.lookupObject(request, objectTypes, relatedPkeys.getFirst().toString());
                 }
 
-                rpslObjects = relatedPkeys
-                        .stream()
-                        .flatMap(relatedPkey -> rdapQueryHandler.handleQueryStream(getQueryObject(objectTypes, relatedPkey), request))
-                        .toList();
+                rpslObjects = bulkRpslReadOnlyLoader.getByKeys(relatedPkeys, objectType);
 
             }
             default -> throw new RdapException("Bad Request", "Invalid or unknown type " + requestType.toString().toLowerCase(), HttpStatus.BAD_REQUEST_400);
@@ -137,12 +135,13 @@ public class RdapRelationService {
         return getEntries(getIpDomainTree(reverseIp), relationType, reverseIp);
     }
 
-    private List<String> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
+    private List<CIString> getInetnumRelationPkeys(final String pkey, final RelationType relationType){
         final IpInterval ip = IpInterval.parse(pkey);
         final List<IpEntry> ipEntries = getEntries(getIpTree(ip), relationType, ip);
         return ipEntries
                 .stream()
                 .map(ipEntry -> transformToIpRangeString(ipEntry.getKey()))
+                .map(CIString::ciString)
                 .toList();
     }
 
