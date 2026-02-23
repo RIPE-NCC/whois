@@ -4,11 +4,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Validate;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
-import net.ripe.db.whois.common.Validate;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -87,7 +87,8 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
     }
 
     public static RpslObject parse(final String input) {
-        return new RpslObject(RpslObjectBuilder.getAttributes(input));
+        return new
+                RpslObject(RpslObjectBuilder.getAttributes(input));
     }
 
     public static RpslObject parse(final byte[] input) {

@@ -44,9 +44,54 @@ public class RpslObjectBuilder {
         return attributes;
     }
 
-    // Note: we use ISO_8859_1 encoding everywhere as it is the only one that maps directly from byte to char (as in, it effectively is a '(char)byteValue')
+
     public static List<RpslAttribute> getAttributes(final String input) {
-        return getAttributes(input.getBytes(StandardCharsets.ISO_8859_1));
+        Validate.notNull(input, "Object can not be null");
+        final List<RpslAttribute> newAttributes = new ArrayList<>(32);
+
+        int pos = 0;
+        while (pos < input.length()) {
+            int start = pos;
+            final int colon = input.indexOf(':', pos);
+
+            if (colon == -1) {
+                throw new IllegalArgumentException("No key found");
+            }
+
+            if (colon == 0) {
+                throw new IllegalArgumentException("Read zero sized key");
+            }
+
+            final String key = input.substring(start, colon);
+
+            pos = colon + 1;
+            start = pos;
+            int valueStop = pos;
+
+            while (pos < input.length()) {
+                char nextChar = input.charAt(pos++);
+
+                if (nextChar == '\r') {
+                    continue;
+                }
+
+                if (nextChar == '\n') {
+                    if (pos < input.length()) { // position incremented by pos++
+                        char next = input.charAt(pos);
+                        if (next != ' ' && next != '\t' && next != '+') {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+
+                valueStop = pos;
+            }
+            final String value = input.substring(start, valueStop);
+            newAttributes.add(new RpslAttribute(key, value));
+        }
+        return newAttributes;
     }
 
     public static List<RpslAttribute> getAttributes(final byte[] buf) {
