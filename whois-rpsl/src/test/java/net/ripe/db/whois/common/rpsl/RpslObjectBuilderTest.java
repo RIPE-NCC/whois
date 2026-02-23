@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 public class RpslObjectBuilderTest {
 
@@ -71,11 +70,11 @@ public class RpslObjectBuilderTest {
         //latin1 parsing mangled output
         assertThat(
                 new RpslObjectBuilder(utf8Input).get(),
-                is(not(RpslObject.parse(
+                is(RpslObject.parse(
                         """
                                 person:     Test Person3
-                                address:    Flughafenstra\\u00DFe 109\\u20AC/a😀
-                                address:    Münchenß, Germany€
+                                address:        Flughafenstra\\u00DFe 109\\u20AC/að
+                                address:        MÃ¼nchenÃ, Germanyâ¬
                                 phone:      +49 282 411141
                                 fax-no:     +49 282 411140
                                 nic-hdl:    TP3-TEST
@@ -83,7 +82,7 @@ public class RpslObjectBuilderTest {
                                 mnt-by:     UPD-MNT
                                 source:     TEST
                                 password: update
-                                """))));
+                                """)));
 
         //utf8 parsing correct output
         assertThat(
