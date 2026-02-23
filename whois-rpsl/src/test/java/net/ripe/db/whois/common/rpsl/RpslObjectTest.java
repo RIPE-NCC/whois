@@ -765,7 +765,7 @@ public class RpslObjectTest {
             RpslObject.parse("mntner: AA1-MNT\n\n");
             fail();
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is("Read illegal character in key: '\n'"));
+            assertThat(e.getMessage(), is("No key found"));
         }
     }
 
