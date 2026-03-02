@@ -5,9 +5,9 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.Latin1Conversion;
-import net.ripe.db.whois.common.x509.KeyWrapper;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.x509.KeyWrapper;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.SignatureSubpacketTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -60,7 +60,7 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         }
 
         try {
-            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(object).getBytes(StandardCharsets.ISO_8859_1);
+            final byte[] bytes = RpslObjectFilter.getCertificateFromKeyCert(object).getBytes(StandardCharsets.UTF_8);
             final ArmoredInputStream armoredInputStream = (ArmoredInputStream) PGPUtil.getDecoderStream(new ByteArrayInputStream(bytes));
             PGPPublicKey masterKey = null;
             List<PGPPublicKey> subKeys = Lists.newArrayList();

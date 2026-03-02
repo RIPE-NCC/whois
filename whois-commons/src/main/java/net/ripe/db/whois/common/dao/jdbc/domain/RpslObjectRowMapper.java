@@ -9,6 +9,6 @@ import java.sql.SQLException;
 public class RpslObjectRowMapper implements RowMapper<RpslObject> {
     @Override
     public RpslObject mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-        return RpslObject.parse(rs.getInt(1), rs.getBytes(2));
+        return RpslObject.parseUtf8(rs.getInt(1), rs.getBytes(2));
     }
 }

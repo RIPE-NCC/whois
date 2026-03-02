@@ -46,7 +46,7 @@ public final class X509CertificateWrapper implements KeyWrapper {
             throw new IllegalArgumentException("The supplied object has no key");
         }
 
-        return parse(RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.ISO_8859_1));
+        return parse(RpslObjectFilter.getCertificateFromKeyCert(rpslObject).getBytes(StandardCharsets.UTF_8));
     }
 
     public static X509CertificateWrapper parse(final String certificate) {

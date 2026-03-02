@@ -6271,45 +6271,34 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_person_utf8_remark_then_OK() {
-        final RpslObject createPerson = RpslObject.parse("""
-                person:    Pauleth Palthen
-                address:   Singel 258
-                phone:     +31-1234567890
-                e-mail:    noreply@ripe.net
-                mnt-by:    OWNER-MNT
-                nic-hdl:   PP1-TEST
-                remarks:   你好ا Avenue
-                source:    TEST
+    public void create_person_utf8_free_text_then_OK() {
+        final RpslObject createMntner = RpslObject.parse("""
+                mntner:        OWNER1-MNT
+                descr:         Road \\u0645\\u0631\\u062D\\u0628\\u0627
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                remarks:       你好ا Avenue
+                mnt-by:        OWNER1-MNT
+                source:        TEST
                 """);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner?password=test")
                 .request()
-                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+                .post(Entity.entity(map(createMntner), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "Road مرحبا")));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
-    }
 
-    @Test
-    public void create_person_utf8_unicode_escape_notation_address_then_OK() {
-        final RpslObject createPerson = RpslObject.parse("""
-                person:    Pauleth Palthen
-                address:   Singel 258
-                phone:     +31-1234567890
-                e-mail:    noreply@ripe.net
-                mnt-by:    OWNER-MNT
-                nic-hdl:   PP1-TEST
-                remarks:   \\u4F60\\u597D\\u0627 Avenue
-                source:    TEST
-                """);
-
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+        // Getting the mntner from database keeps the utf8 encoding intacted
+        final WhoisResources mntner = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT?unfilter&password=test")
                 .request()
-                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+                .get(WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "Road مرحبا")));
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
     }
 
     // helper methods

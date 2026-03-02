@@ -103,6 +103,10 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
         return new RpslObject(objectId, RpslObjectBuilder.getAttributes(input));
     }
 
+    public static RpslObject parseUtf8(final Integer objectId, final byte[] input) {
+        return new RpslObject(objectId, RpslObjectBuilder.getAttributes(new String(input, StandardCharsets.UTF_8)));
+    }
+
     @Override
     public int getObjectId() {
         return objectId;
@@ -243,7 +247,7 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
 
     @Override
     public void writeTo(final OutputStream out) throws IOException {
-        writeTo(new OutputStreamWriter(out, StandardCharsets.ISO_8859_1));
+        writeTo(new OutputStreamWriter(out, StandardCharsets.UTF_8));
     }
 
     @Override
