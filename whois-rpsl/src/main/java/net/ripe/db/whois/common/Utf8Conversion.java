@@ -52,27 +52,4 @@ public class Utf8Conversion {
         }
         return DOMAIN_ATTRIBUTES.contains(type.toString().toLowerCase());
     }
-
-    private static String unescapeUnicode(String input) {
-        StringBuilder result = new StringBuilder();
-        int length = input.length();
-
-        for (int i = 0; i < length; i++) {
-            char c = input.charAt(i);
-            if (c == '\\' && i + 5 < length && input.charAt(i + 1) == 'u') {
-                String hex = input.substring(i + 2, i + 6);
-                try {
-                    int codePoint = Integer.parseInt(hex, 16);
-                    result.append((char) codePoint);
-                    i += 5; // skip \\uXXXX
-                    continue;
-                } catch (NumberFormatException ignored) {
-                    // leave as-is if invalid escape
-                }
-            }
-            result.append(c);
-        }
-
-        return result.toString();
-    }
 }

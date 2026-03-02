@@ -761,4 +761,8 @@ public final class UpdateMessages {
     public static Message passwordsNotSupported() {
         return new Message(Type.ERROR, "MD5 hashed password authentication is deprecated. Please switch to an alternative authentication method.");
     }
+
+    public static Message notSupportUtf8Attribute() {
+        return new Message(Type.ERROR, "UTF-8 is only supported in descr: or remarks: attributes");
+    }
 }

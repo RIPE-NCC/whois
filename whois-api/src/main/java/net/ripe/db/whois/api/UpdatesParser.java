@@ -4,22 +4,22 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.Latin1Conversion;
-import net.ripe.db.whois.common.credentials.OAuthCredential;
 import net.ripe.db.whois.common.credentials.ClientCertificateCredential;
-import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.common.credentials.Credential;
+import net.ripe.db.whois.common.credentials.OAuthCredential;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
+import net.ripe.db.whois.update.domain.ContentWithCredentials;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Operation;
-import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.update.domain.Paragraph;
-import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.update.domain.PgpCredential;
-import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
-import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -207,7 +207,7 @@ public class UpdatesParser {
             }
 
             try {
-                updates.add(createUpdate(paragraph, operation, deleteReasons, content, updateContext));
+                updates.add(createUpdate(paragraph, operation, deleteReasons, content));
             } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
             }
