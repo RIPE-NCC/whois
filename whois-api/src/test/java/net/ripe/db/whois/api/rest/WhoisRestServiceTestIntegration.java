@@ -2639,7 +2639,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_succeeds_non_latin1_characters_substituted_in_response() {
+    public void create_succeeds_non_latin1_characters_in_response() {
         final String response = RestTest.target(getPort(), "whois/test/person?password=test")
             .request()
             .post(Entity.entity(
@@ -2660,8 +2660,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, containsString("<attribute name=\"remarks\" value=\"????????\"/>"));
-        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Value changed due to conversion into the ISO-8859-1 (Latin-1) character set\"/>"));
+        assertThat(response, containsString("<attribute name=\"remarks\" value=\"ελληνικά\"/>"));
     }
 
     @Test
@@ -2686,10 +2685,6 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
         assertThat(response, containsString("<attribute name=\"address\" value=\"Test?? Address\"/>"));
-        assertThat(response, containsString("<errormessage severity=\"Warning\" text=\"Invalid character(s) were substituted in attribute &quot;%s&quot; value\">"));
-        assertThat(response, containsString("<attribute name=\"address\" value=\"        Test?? Address\"/>")); // TODO: [ES] attribute value not trimmed
-        assertThat(response, containsString("<args value=\"address\"/>"));
-        assertThat(response, containsString("</errormessage>"));
     }
 
     @Test
@@ -2803,13 +2798,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
 
-        RestTest.assertWarningCount(response, 3);
+        RestTest.assertWarningCount(response, 2);
 
         RestTest.assertErrorMessage(response, 0, "Warning", "MD5 hashed password authentication is deprecated and support will be " +
                 "removed soon. Please switch to an alternative authentication method before then.");
         RestTest.assertErrorMessage(response, 1, "Warning", "Submitted object identical to database object");
-        RestTest.assertErrorMessage(response, 2, "Warning", "Invalid character(s) were substituted in attribute " +
-                "\"%s\" value", "person");
     }
 
     @Test
@@ -3694,11 +3687,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_person_non_latin1_characters_are_substituted() {
+    public void update_person_non_latin1_characters_in_remarks_succeed() {
         {
             final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
-                    .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
-                            new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва")).sort().get();
+                    .addAttributeAfter(new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва"), AttributeType.ADDRESS).sort().get();
 
             final WhoisResources response =
                     RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
@@ -3706,11 +3698,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                                     WhoisResources.class);
 
-            RestTest.assertWarningCount(response, 2);
-            RestTest.assertErrorMessage(response, 1, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+            RestTest.assertWarningCount(response, 1);
 
             final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
-            assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        ???????? ?????,??????"));
+            assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getCleanValue(), is("Тверская улица,москва"));
         }
         {
             final WhoisResources response =
@@ -3718,7 +3709,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             .request()
                             .get(WhoisResources.class);
 
-            assertThat(response.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("address", "???????? ?????,??????")));
+            assertThat(response.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("address", "Тверская улица,москва")));
         }
     }
 
