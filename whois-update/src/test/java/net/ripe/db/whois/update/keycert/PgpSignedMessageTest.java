@@ -422,7 +422,7 @@ public class PgpSignedMessageTest {
                 "1rHkHnYy6gEcaO37/M9GsbKP7xoGJfzabw9xoU/hVoEXvBl+NSbDgVbfol4hkVQb\n" +
                 "/uMu1kyTSjDpuQX8iOsorW7w+cAFGN3pS6mUo+5qIJI5SjnU8XZLl6SRe5FDnuc=\n" +
                 "=Cqk0\n" +
-                "-----END PGP SIGNATURE-----", StandardCharsets.UTF_8);
+                "-----END PGP SIGNATURE-----", StandardCharsets.ISO_8859_1);
 
         assertThat(pgpSignedMessage.verify(getPublicKey_5763950D()), is(true));
     }
