@@ -1,7 +1,7 @@
 package net.ripe.db.whois.update.domain;
 
-import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.keycert.PgpSignedMessage;
 import org.bouncycastle.openpgp.PGPPublicKey;
 
@@ -30,7 +30,7 @@ public class PgpCredential implements Credential {
     }
 
     public static PgpCredential createOfferedCredential(@Nullable final String clearText) {
-        return createOfferedCredential(clearText, StandardCharsets.ISO_8859_1);
+        return createOfferedCredential(clearText, StandardCharsets.UTF_8);
     }
 
     public static PgpCredential createOfferedCredential(@Nullable final String clearText, final Charset charset) {

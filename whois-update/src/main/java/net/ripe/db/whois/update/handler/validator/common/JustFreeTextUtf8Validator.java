@@ -25,7 +25,7 @@ public class JustFreeTextUtf8Validator implements BusinessRuleValidator {
 
     private static final ImmutableList<String> FREE_TEXT_ATTRIBUTES = ImmutableList.of(AttributeType.DESCR.getName(), AttributeType.REMARKS.getName());
 
-    private static final int MAX_ASCII_RANGE_CODE = 127;
+    private static final int MAX_UTF8_RANGE_CODE = 255;
 
     @Override
     public ImmutableList<Action> getActions() {
@@ -50,7 +50,7 @@ public class JustFreeTextUtf8Validator implements BusinessRuleValidator {
     public static boolean hasInvalidUtf8(RpslObject object) {
         for (RpslAttribute attribute : object.getAttributes()) {
             if (!FREE_TEXT_ATTRIBUTES.contains(attribute.getKey())) {
-                if (attribute.getValue().codePoints().anyMatch(cp -> cp > MAX_ASCII_RANGE_CODE)) {
+                if (attribute.getValue().codePoints().anyMatch(cp -> cp > MAX_UTF8_RANGE_CODE)) {
                     return true;
                 }
             }

@@ -926,8 +926,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("address:        Test???? Address"));
+        final RpslObject rpslObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST");
+        assertThat(rpslObject.findAttributes(AttributeType.ADDRESS).getFirst(), is(new RpslAttribute(AttributeType.ADDRESS, "Test???? Address")));
     }
 
 
@@ -977,7 +977,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void post_multipart_data_with_latin1_email_address_converted_to_punycode() {
+    public void post_multipart_data_with_latin1_email_address_converted_utf8() {
         databaseHelper.addObject(PERSON_ANY1_TEST);
         databaseHelper.addObject(MNTNER_TEST_MNTNER);
 
@@ -992,11 +992,13 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "source:         TEST\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
+
         RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .post(Entity.entity(multipart, new MediaType("multipart", "form-data", StandardCharsets.ISO_8859_1.displayName())), String.class);
+                .post(Entity.entity(multipart, new MediaType("multipart", "form-data",
+                        StandardCharsets.ISO_8859_1.displayName())), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("e-mail:         no-reply@xn--zrich-kva.example"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("e-mail:         no-reply@zürich.example"));
     }
 
     @Test

@@ -111,7 +111,7 @@ public class SyncUpdateBuilder {
 
         private static final Joiner.MapJoiner PARAM_JOINER = Joiner.on('&').withKeyValueSeparator("=");
         private static final Pattern CHARSET_PATTERN = Pattern.compile(".*;charset=(.*)");
-        private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
+        private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
         private final URL url;
         private final MultivaluedMap<String, String> headers;
