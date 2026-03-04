@@ -54,7 +54,7 @@ public class Utf8Conversion {
     private static RpslAttribute createUtf8Attribute(final IDNA idna, final RpslAttribute attribute){
         final StringBuilder result = new StringBuilder();
 
-        for (char ch : attribute.getCleanValue().toString().toCharArray()) {
+        for (char ch : attribute.getValue().toCharArray()) {
             //ASCII Substitutes
             final char transformedCharacter = ControlCharacterSubstitutions.substitute(ch);
 
