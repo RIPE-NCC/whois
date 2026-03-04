@@ -14,9 +14,7 @@ public class UpdateCreator {
                                       final Operation operation,
                                       final List<String> deleteReasons,
                                       final String rpslObject) {
-
         final RpslObject convertedObject = Utf8Conversion.convert(rpslObject);
         return new Update(paragraph, operation, deleteReasons, convertedObject);
-
     }
 }

@@ -2764,13 +2764,10 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(response.getErrorMessages(), hasSize(2));
+        assertThat(response.getErrorMessages(), hasSize(1));
         assertThat(response.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
                 "removed soon. Please switch to an alternative authentication method before then."));
 
-        assertThat(response.getErrorMessages().get(1).getText(), is("Invalid character(s) were substituted in attribute \"%s\" value"));
-        assertThat(response.getErrorMessages().get(1).getArgs(), hasSize(1));
-        assertThat(response.getErrorMessages().get(1).getArgs().getFirst().getValue(), is("person"));
         assertThat(response.getWhoisObjects(), hasSize(1));
         assertThat(response.getWhoisObjects().getFirst().getAttributes().getFirst().getValue(), is("New Person"));
     }
@@ -3478,23 +3475,23 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void create_non_latin1_characters_are_substituted() {
+    public void create_utf8_characters_are_not_substituted() {
         final RpslObject person = RpslObject.parse("" +
                 "person:    Pauleth Palthen\n" +
-                "address:   Тверская улица,москва\n" +
+                "address:   remarks\n" +
                 "phone:     +31-1234567890\n" +
                 "e-mail:    noreply@ripe.net\n" +
                 "mnt-by:    OWNER-MNT\n" +
                 "nic-hdl:   PP1-TEST\n" +
-                "remarks:   remark\n" +
+                "remarks:   Тверская улица,москва\n" +
                 "source:    TEST\n");
 
         final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
                 .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        final WhoisObject responseObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(responseObject.getAttributes().get(1).getValue(), is("???????? ?????,??????"));
+        final WhoisObject responseObject = whoisResources.getWhoisObjects().getFirst();
+        assertThat(responseObject.getAttributes().get(6).getValue(), is("Тверская улица,москва"));
     }
 
     @Test

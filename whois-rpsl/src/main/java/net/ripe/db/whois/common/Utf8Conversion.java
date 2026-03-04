@@ -16,6 +16,12 @@ import java.util.stream.Collectors;
 import static com.ibm.icu.text.IDNA.Error.DISALLOWED;
 import static com.ibm.icu.text.IDNA.Error.INVALID_ACE_LABEL;
 
+/***
+ * Punycode conversion
+ * Decode escape sequences into corresponding characters
+ * ASCII substitutions
+ * UTF-8 substitutions
+ */
 public class Utf8Conversion {
 
     private Utf8Conversion() {
@@ -23,12 +29,18 @@ public class Utf8Conversion {
     }
 
     public static RpslObject convert(final String input) {
-        final IDNA idna = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_ASCII);
-        final RpslObject rpslObject = RpslObject.parse(input);
+        final IDNA idna = UTS46.getUTS46Instance(IDNA.DEFAULT);
+
+        final String punycodeConversion = PunycodeConversion.convert(input);
+
+        //TODO: consider using org.apache.commons.text.StringEscapeUtils.unescapeUnicode
+        final String utf8Value = StringEscapeUtils.unescapeJava(punycodeConversion);
+
+        final RpslObject rpslObject = RpslObject.parse(utf8Value);
         final List<RpslAttribute> attrsToConvert = rpslObject.getAttributes();
 
         final Map<RpslAttribute, RpslAttribute> convertedMap = attrsToConvert.stream()
-                .distinct() //No need to proceed same attributes
+                .distinct() //No need to process the same attributes
                 .collect(Collectors.toMap(
                         Function.identity(),
                         attr -> createUtf8Attribute(idna, attr)
@@ -42,19 +54,20 @@ public class Utf8Conversion {
     private static RpslAttribute createUtf8Attribute(final IDNA idna, final RpslAttribute attribute){
         final StringBuilder result = new StringBuilder();
 
-        //TODO: consider using org.apache.commons.text.StringEscapeUtils.unescapeUnicode
-        final String utf8Value = StringEscapeUtils.unescapeJava(attribute.getValue());
-
-        for (char ch : utf8Value.toCharArray()) {
+        for (char ch : attribute.getCleanValue().toString().toCharArray()) {
+            //ASCII Substitutes
             final char transformedCharacter = ControlCharacterSubstitutions.substitute(ch);
 
             final Info info = new Info();
-            idna.nameToASCII(String.valueOf(transformedCharacter), new StringBuilder(), info);
+            final StringBuilder idnaTransformation = new StringBuilder();
+            idna.nameToUnicode(String.valueOf(transformedCharacter), idnaTransformation, info);
 
             if (hasRelevantError(info)) {
                 result.append(ControlCharacterSubstitutions.CHARACTER_REPLACEMENT);
             } else {
-                result.append(transformedCharacter);  // Append the valid character as is
+                result.append(Character.isUpperCase(transformedCharacter) ?
+                        idnaTransformation.toString().toUpperCase() :
+                        idnaTransformation);
             }
         }
 

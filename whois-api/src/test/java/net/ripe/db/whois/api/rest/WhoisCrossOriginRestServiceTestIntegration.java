@@ -389,8 +389,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
     @Test
     public void update_only_allowed_from_allowed_origin_list() {
         final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
-                .replaceAttribute(TEST_PERSON.findAttribute(AttributeType.ADDRESS),
-                        new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва")).sort().get();
+                .addAttributeAfter(new RpslAttribute(AttributeType.REMARKS, "Тверская улица,москва"), AttributeType.ADDRESS).sort().get();
 
         final WhoisResources response = RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
                     .request()
@@ -399,11 +398,11 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
                             WhoisResources.class);
 
-        RestTest.assertWarningCount(response, 2);
-        RestTest.assertErrorMessage(response, 1, "Warning", "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
+        RestTest.assertWarningCount(response, 1);
+        RestTest.assertErrorMessage(response, 0, "Warning", "MD5 hashed password authentication is deprecated and support will be removed soon. Please switch to an alternative authentication method before then.");
 
         final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
-        assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getValue(), is("        ???????? ?????,??????"));
+        assertThat(lookupObject.findAttribute(AttributeType.REMARKS).getCleanValue(), is("Тверская улица,москва"));
 
         assertThrows(NotAuthorizedException.class, () -> {
             RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
