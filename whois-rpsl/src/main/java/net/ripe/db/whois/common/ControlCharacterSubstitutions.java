@@ -8,7 +8,8 @@ public class ControlCharacterSubstitutions {
             '\u000b',
             '\u000c',
             '\u007F',
-            '\u008f'
+            '\u008f',
+            '\u0008'
     );
     public static final char CHARACTER_REPLACEMENT = '?';
 
