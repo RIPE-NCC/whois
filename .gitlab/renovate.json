@@ -57,6 +57,79 @@
         "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
       ],
       "enabled": false
+    },
+    {
+      "description": "Dont upgrade to Jersey 4.x until EE11 upgrade",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "org.glassfish.jersey.containers:jersey-container-servlet",
+        "org.glassfish.jersey.core:jersey-client",
+        "org.glassfish.jersey.media:jersey-media-multipart",
+        "org.glassfish.jersey.media:jersey-media-jaxb",
+        "org.glassfish.jersey.ext:jersey-spring6"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Dont upgrade JSONPath to 3.0 until Jackson is updated to 3.0",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "com.jayway.jsonpath:json-path"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Dont upgrade to Hazelcast 5.x for now",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "com.hazelcast:hazelcast-all"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Dont upgrade Servlet API until EE11",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "jakarta.servlet:jakarta.servlet-api"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Dont upgrade Shedlock to 7.x for now",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "net.javacrumbs.shedlock:shedlock-spring",
+        "net.javacrumbs.shedlock:shedlock-provider-jdbc-template"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Dont upgrade SolrJ for now",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "org.apache.solr:solr-solrj"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Dont upgrade to Spring Framework 7.x for now",
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "org.springframework:spring-aop",
+        "org.springframework:spring-aspects",
+        "org.springframework:spring-beans",
+        "org.springframework:spring-context",
+        "org.springframework:spring-context-support",
+        "org.springframework:spring-core",
+        "org.springframework:spring-expression",
+        "org.springframework:spring-jcl",
+        "org.springframework:spring-jdbc",
+        "org.springframework:spring-oxm",
+        "org.springframework:spring-tx",
+        "org.springframework:spring-web"
+      ],
+      "enabled": false
     }
+
   ]
 }
