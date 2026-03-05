@@ -6,6 +6,7 @@ import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
 import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
 import co.elastic.clients.elasticsearch.indices.GetIndexRequest;
 import co.elastic.clients.elasticsearch.indices.GetIndexResponse;
@@ -28,7 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
-import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -297,7 +297,7 @@ public class ElasticFullTextRebuild {
                 rs -> {
                     final int objectId = rs.getInt(1);
                     try {
-                        results.add(RpslObject.parse(objectId, rs.getBytes(2)));
+                        results.add(RpslObject.parseUtf8(objectId, rs.getBytes(2)));
                     } catch (final Exception ex) {
                         LOGGER.warn("failed to parse rpsl object for {} {}", objectId, ex );
                     }
