@@ -29,7 +29,7 @@ public class Utf8Conversion {
     }
 
     public static RpslObject convert(final String input) {
-        final IDNA idna = UTS46.getUTS46Instance(IDNA.DEFAULT);
+        final IDNA idna = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to ss for example
 
         final String punycodeConversion = PunycodeConversion.convert(input);
 

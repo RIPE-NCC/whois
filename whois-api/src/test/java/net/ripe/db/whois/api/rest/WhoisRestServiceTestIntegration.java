@@ -3690,7 +3690,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void update_person_non_latin1_characters_in_remarks_succeed() {
         {
             final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
-                    .addAttributeAfter(new RpslAttribute(AttributeType.ADDRESS, "Тверская улица,москва"), AttributeType.ADDRESS).sort().get();
+                    .addAttributeAfter(new RpslAttribute(AttributeType.REMARKS, "Тверская улица,москва"), AttributeType.ADDRESS).sort().get();
 
             final WhoisResources response =
                     RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
@@ -3701,7 +3701,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             RestTest.assertWarningCount(response, 1);
 
             final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
-            assertThat(lookupObject.findAttribute(AttributeType.ADDRESS).getCleanValue(), is("Тверская улица,москва"));
+            assertThat(lookupObject.findAttribute(AttributeType.REMARKS).getCleanValue(), is("Тверская улица,москва"));
         }
         {
             final WhoisResources response =
@@ -3709,7 +3709,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                             .request()
                             .get(WhoisResources.class);
 
-            assertThat(response.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("address", "Тверская улица,москва")));
+            assertThat(response.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "Тверская улица,москва")));
         }
     }
 

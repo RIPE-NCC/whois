@@ -793,20 +793,19 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
-                    "person:    Test Person again\n" +
-                    "address:   Тверская улица,москва\n" +
-                    "phone:     +31-6-123456\n" +
-                    "nic-hdl:   TP2-TEST\n" +
-                    "mnt-by:    mntner-mnt\n" +
-                    "source:    TEST\n" +
-                    "password:  emptypassword"),
-                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+        final String response= RestTest.target(getPort(), "whois/syncupdates/test")
+                    .request()
+                    .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                                    "person:    Test Person again\n" +
+                                            "address:   Тверская улица,москва\n" +
+                                            "phone:     +31-6-123456\n" +
+                                            "nic-hdl:   TP2-TEST\n" +
+                                            "mnt-by:    mntner-mnt\n" +
+                                            "source:    TEST\n" +
+                                            "password:  emptypassword"),
+                            MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("address:        ???????? ?????,??????"));
+        assertThat(response, containsString("***Error:   UTF-8 is only supported in descr: or remarks: attributes"));
     }
 
     @Test
@@ -857,7 +856,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        assertThat(response, containsString("***Warning: Value changed due to conversion of IDN email address(es) into\n            Punycode\n"));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("e-mail:         no-reply@xn--zrich-kva.example"));
     }
@@ -880,7 +878,6 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        assertThat(response, containsString("***Warning: Value changed due to conversion of IDN email address(es) into\n            Punycode\n"));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("e-mail:         no-reply@xn--80adxhks.ru"));
     }
@@ -1000,7 +997,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .post(Entity.entity(multipart, new MediaType("multipart", "form-data",
                         StandardCharsets.ISO_8859_1.displayName())), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("e-mail:         no-reply@zürich.example"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(), containsString("e-mail:         no-reply@xn--zrich-kva.example"));
     }
 
     @Test
