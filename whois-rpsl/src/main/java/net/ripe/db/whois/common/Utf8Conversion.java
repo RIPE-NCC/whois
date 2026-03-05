@@ -51,6 +51,7 @@ public class Utf8Conversion {
                 .get();
     }
 
+
     private static RpslAttribute createUtf8Attribute(final IDNA idna, final RpslAttribute attribute){
         final StringBuilder result = new StringBuilder();
 
@@ -71,7 +72,7 @@ public class Utf8Conversion {
             }
         }
 
-        return new RpslAttribute(attribute.getType(), result.toString());
+        return new RpslAttribute(attribute.getKey(), result.toString());
 
     }
 
