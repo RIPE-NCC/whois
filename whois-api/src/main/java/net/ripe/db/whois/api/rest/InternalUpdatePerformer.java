@@ -192,7 +192,8 @@ public class InternalUpdatePerformer {
                 createParagraph(updateContext, rpslObject, passwords, override),
                 deleteReason != null ? Operation.DELETE : Operation.UNSPECIFIED,
                 deleteReason != null ? Lists.newArrayList(deleteReason) : null,
-                rpslObject.toString()
+                rpslObject.toString(),
+                updateContext
         );
     }
 

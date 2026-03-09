@@ -28,10 +28,8 @@ public class Utf8Conversion {
         // do not instantiate
     }
 
-    public static RpslObject convert(final String input) {
+    public static RpslObject convert(final String punycodeConversion) {
         final IDNA idna = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to ss for example
-
-        final String punycodeConversion = PunycodeConversion.convert(input);
 
         //TODO: consider using org.apache.commons.text.StringEscapeUtils.unescapeUnicode
         final String utf8Value = StringEscapeUtils.unescapeJava(punycodeConversion);

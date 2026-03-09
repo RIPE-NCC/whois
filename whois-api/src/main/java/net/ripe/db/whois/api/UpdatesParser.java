@@ -207,7 +207,7 @@ public class UpdatesParser {
             }
 
             try {
-                updates.add(createUpdate(paragraph, operation, deleteReasons, content));
+                updates.add(createUpdate(paragraph, operation, deleteReasons, content, updateContext));
             } catch (IllegalArgumentException e) {
                 updateContext.ignore(paragraph);
             }
