@@ -26,7 +26,7 @@ public class Utf8ConversionTest {
                 address:    \\u043F\\u0440\\u0438\\u0432\\u0435\\u0442 Lane
                 address:    \\u0645\\u0631\\u062D\\u0628\\u0627 Road
                 address:    \\u4F60\\u597D\\u0627 Avenue
-                e-mail:     example@москва.ru
+                e-mail:     example@xn--80adxhks.ru
                 nic-hdl:    UNICODE-TEST
                 mnt-by:     UPD-MNT
                 source:     TEST

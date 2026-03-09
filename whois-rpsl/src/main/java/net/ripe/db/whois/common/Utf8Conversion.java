@@ -17,7 +17,6 @@ import static com.ibm.icu.text.IDNA.Error.DISALLOWED;
 import static com.ibm.icu.text.IDNA.Error.INVALID_ACE_LABEL;
 
 /***
- * Punycode conversion
  * Decode escape sequences into corresponding characters
  * ASCII substitutions
  * UTF-8 substitutions
