@@ -4,6 +4,8 @@ package net.ripe.db.whois.spec.integration
 import net.ripe.db.whois.common.source.Source
 import net.ripe.db.whois.spec.domain.SyncUpdate
 
+import java.nio.charset.StandardCharsets
+
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class VersionQuerySpec extends BaseWhoisSourceSpec {
     @Override
@@ -910,7 +912,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         updateResponse =~ "SUCCESS"
 
         when:
-        def response = query "--show-version 3 AS1000"
+        def response = query("--show-version 3 AS1000", StandardCharsets.UTF_8)
 
         then:
         response =~ header

@@ -13,9 +13,9 @@ import net.ripe.db.whois.api.rest.client.NotifierCallback;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateBuilder;
-import net.ripe.db.whois.common.configuration.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.TestDateTimeProvider;
+import net.ripe.db.whois.common.configuration.Slf4JLogConfiguration;
 import net.ripe.db.whois.common.dao.AuthoritativeResourceDao;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
@@ -50,6 +50,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.sql.DataSource;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -281,6 +282,10 @@ public class WhoisFixture {
 
     public String query(final String query) {
         return TelnetWhoisClient.queryLocalhost(queryServer.getPort(), query);
+    }
+
+    public String query(final String query, final Charset charset) {
+        return new TelnetWhoisClient(queryServer.getPort(), charset).sendQuery(query);
     }
 
     public RpslObject restLookup(ObjectType objectType, String pkey, String... passwords) {

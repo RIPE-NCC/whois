@@ -11,14 +11,12 @@ import net.ripe.db.whois.common.rpsl.ObjectType
 import net.ripe.db.whois.common.rpsl.RpslAttribute
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.query.support.TestWhoisLog
-import net.ripe.db.whois.spec.domain.AckResponse
-import net.ripe.db.whois.spec.domain.Message
-import net.ripe.db.whois.spec.domain.NotificationResponse
-import net.ripe.db.whois.spec.domain.SyncUpdate
-import net.ripe.db.whois.spec.domain.SyncUpdateResponse
+import net.ripe.db.whois.spec.domain.*
 import net.ripe.db.whois.update.dns.DnsGatewayStub
 import org.apache.commons.lang3.StringUtils
 import spock.lang.Specification
+
+import java.nio.charset.Charset
 
 class BaseEndToEndSpec extends Specification {
     static WhoisFixture whoisFixture
@@ -45,6 +43,25 @@ class BaseEndToEndSpec extends Specification {
     def query(String query) {
         whoisFixture.reloadTrees()
         def result = whoisFixture.query(query)
+
+        print """\
+>>>>> QUERY
+
+query : ${query}
+
+----
+
+${result}
+
+<<<<<
+"""
+
+        result
+    }
+
+    def query(String query, Charset clientCharset) {
+        whoisFixture.reloadTrees()
+        def result = whoisFixture.query(query, clientCharset)
 
         print """\
 >>>>> QUERY

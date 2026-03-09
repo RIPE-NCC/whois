@@ -796,7 +796,10 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.success
         ack.summary.nrFound == 1
 
-        ack.countErrorWarnInfo(0, 1, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
+                "Value changed due to conversion of IDN email address(es) into Punycode"]
 
         queryMatches("-Br FP1-TEST", "e-mail:         example@xn--80adxhks.ru")
     }
