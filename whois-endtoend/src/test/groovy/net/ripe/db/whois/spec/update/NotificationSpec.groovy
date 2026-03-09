@@ -1235,7 +1235,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
     }
 
-    def "modify inetnum, add remarks: with syntax error, no notifs sent"() {
+    def "modify inetnum, add remarks: with syntax error, syntax error sent"() {
         given:
         syncUpdate(getTransient("ASSPI") + "override: denis,override1")
 
@@ -1266,17 +1266,16 @@ class NotificationSpec extends BaseQueryUpdateSpec {
         then:
         def ack = ackFor message
 
-        ack.summary.nrFound == 0
+        ack.summary.nrFound == 1
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
-        ack.summary.assertErrors(0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
 
-        ack.countErrorWarnInfo(0, 0, 0)
-        ack.garbageContains("inetnum:      192.168.200.0 - 192.168.200.255");
-        ack.garbageContains("remarks      just added")
+        ack.countErrorWarnInfo(2, 0, 0)
 
+        ack.errorMessagesFor("Modify", "[inetnum] 192.168.200.0 - 192.168.200.255") ==
+                ["\"remarks just added source\" is not a known RPSL attribute",
+                "Mandatory attribute \"source\" is missing"]
         noMoreMessages()
-
-        query_object_not_matches("-rGBT inetnum 192.168.200.0 - 192.168.200.255", "inetnum", "192.168.200.0 - 192.168.200.255", "just added")
     }
 
     def "create inetnum"() {

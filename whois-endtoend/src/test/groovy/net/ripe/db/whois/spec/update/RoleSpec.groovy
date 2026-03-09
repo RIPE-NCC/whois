@@ -703,11 +703,8 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
-        ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
-                ["Value changed due to conversion of IDN email address(es) into Punycode",
-                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
 
         query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "email@xn--zrich-kva.example")
     }
@@ -743,11 +740,9 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 4, 0)
+        ack.countErrorWarnInfo(0, 3, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
 
-        ack.contents.contains("***Warning: Value changed due to conversion of IDN email address(es) into\n" +
-                "            Punycode")
         ack.contents.contains("***Warning: There are no limits on queries for ROLE objects containing\n" +
                 "            \"abuse-mailbox:\"")
         ack.contents.contains("***Warning: This Syncupdates request used insecure HTTP, which will be removed\n" +
@@ -787,11 +782,8 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(1, 1, 0, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 0)
+        ack.countErrorWarnInfo(0, 2, 0)
         ack.successes.any { it.operation == "Create" && it.key == "[role] FR1-TEST   Abuse Role" }
-        ack.warningSuccessMessagesFor("Create", "[role] FR1-TEST   Abuse Role") ==
-                ["Value changed due to conversion of IDN email address(es) into Punycode",
-                 "There are no limits on queries for ROLE objects containing \"abuse-mailbox:\""]
 
         query_object_matches("-T role FR1-TEST", "role", "Abuse Role", "abuse-mailbox:  abuse@xn--80adxhks.ru")
     }
@@ -825,9 +817,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
-        ack.warningMessagesFor("Create", "[role] FR1-TEST") =~
-                ["Value changed due to conversion of IDN email address(es) into Punycode"]
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[role] FR1-TEST") ==
                 ["Syntax error in abüse@xn--tst-jma.nl"]
 
@@ -860,9 +850,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(0, 0, 0, 0, 0)
         ack.summary.assertErrors(1, 1, 0, 0)
 
-        ack.countErrorWarnInfo(1, 1, 0)
-        ack.warningMessagesFor("Create", "[role] FR1-TEST") =~
-                ["Value changed due to conversion of IDN email address(es) into Punycode"]
+        ack.countErrorWarnInfo(1, 0, 0)
         ack.errorMessagesFor("Create", "[role] FR1-TEST") =~
                 ["Mandatory attribute \"address\" is missing"]
 
