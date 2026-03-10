@@ -4,6 +4,8 @@ package net.ripe.db.whois.spec.integration
 import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
+import java.nio.charset.StandardCharsets
+
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
@@ -680,6 +682,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         createAck.countErrorWarnInfo(0, 1, 0)
 
         queryMatches("-r FP1-TEST", "remarks:\\s+\\?\\?\\?\\?\\?\\?\\?\\? \\?\\?\\?\\?\\?,\\?\\?\\?\\?\\?\\?")
+        queryMatches("-r -Z utf8 FP1-TEST", "remarks:\\s+Тверская улица,москва", StandardCharsets.UTF_8)
 
       then:
         def update = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
@@ -712,6 +715,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         updateAck.countErrorWarnInfo(0, 3, 0)
 
         queryMatches("-r FP1-TEST", "remarks:\\s+\\?\\?\\?\\?\\?\\?\\?\\? \\?\\?\\?\\?\\?,\\?\\?\\?\\?\\?\\?")
+        queryMatches("-r -Z utf8 FP1-TEST", "remarks:\\s+Тверская улица,москва", StandardCharsets.UTF_8)
     }
 
     def "latin-1 control characters are substituted when querying by default"() {

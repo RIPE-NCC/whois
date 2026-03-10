@@ -130,6 +130,11 @@ ${result}
         qry =~ /(?i)(?s)${matchStr}/
     }
 
+    def queryMatches(String qryStr, String matchStr, Charset charset) {
+        def qry = query(qryStr, charset)
+        qry =~ /(?i)(?s)${matchStr}/
+    }
+
     def queryLineMatches(String qryStr, String matchStr) {
         def qry = query(qryStr)
         qry =~ /(?i)(?m)${matchStr}/
