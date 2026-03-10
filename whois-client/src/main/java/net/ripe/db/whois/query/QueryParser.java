@@ -10,7 +10,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import joptsimple.OptionSpecBuilder;
 import net.ripe.db.whois.common.IllegalArgumentExceptionMessage;
-import net.ripe.db.whois.common.Latin1Conversion;
+import net.ripe.db.whois.common.Utf8Conversion;
 import net.ripe.db.whois.common.domain.CIString;
 
 import javax.annotation.concurrent.Immutable;
@@ -42,7 +42,7 @@ public class QueryParser {
     public QueryParser(final String query) {
         originalStringQuery = query;
 
-        final String substituted = Latin1Conversion.convertString(query);
+        final String substituted = Utf8Conversion.convertString(query);
         hasSubstitutions = !substituted.equals(query);
 
         options = PARSER.parse(Iterables.toArray(SPACE_SPLITTER.split(substituted), String.class));

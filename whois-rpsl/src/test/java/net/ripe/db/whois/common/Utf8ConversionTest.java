@@ -33,4 +33,9 @@ public class Utf8ConversionTest {
                 """;
         assertThat(Utf8Conversion.convert(utf8String), is(Utf8Conversion.convert(rpslObjectUtfEscaped)));
     }
+
+    @Test
+    public void convert_utf8_string() {
+        assertThat(Utf8Conversion.convertString("你好ا Avenue"), is(Utf8Conversion.convertString("\\u4F60\\u597D\\u0627 Avenue")));
+    }
 }
