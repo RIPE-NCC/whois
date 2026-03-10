@@ -66,7 +66,7 @@ public class ApiKeyAuthServiceClient {
                 .build();
     }
 
-    @Cacheable(cacheNames="apiKeyOAuth")
+    @Cacheable(cacheNames="apiKeyOAuth", unless = "#result == null")
     @Nullable
     public String validateApiKey(final String basicHeader,  final String apiKeyId) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
