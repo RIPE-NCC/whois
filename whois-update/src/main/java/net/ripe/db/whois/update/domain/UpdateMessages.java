@@ -762,7 +762,7 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "MD5 hashed password authentication is deprecated. Please switch to an alternative authentication method.");
     }
 
-    public static Message notSupportUtf8Attribute() {
-        return new Message(Type.ERROR, "UTF-8 is only supported in descr: or remarks: attributes");
+    public static Message valueChangedDueToCharsetConversion(final CIString originalAttribute, final CIString convertedAttribute) {
+        return new Message(Type.WARNING, String.format("The attribute \"%s:\" has been updated to \"%s:\" due to charset conversion", originalAttribute, convertedAttribute));
     }
 }

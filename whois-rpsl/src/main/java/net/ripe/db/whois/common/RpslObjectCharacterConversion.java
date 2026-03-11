@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -14,19 +15,29 @@ public class RpslObjectCharacterConversion {
 
     private final static List<String> FREE_TEXT_ATTRIBUTES = List.of(AttributeType.DESCR.getName(), AttributeType.REMARKS.getName());
 
-    public static RpslObject paragraphConversion(final String paragraph){
+    public static CharsetConversionResult paragraphConversion(final String paragraph){
         final RpslObject rpslObjectToConvert = RpslObject.parse(paragraph);
         final List<RpslAttribute> attrsToConvert = rpslObjectToConvert.getAttributes();
+
+        final Map<RpslAttribute, RpslAttribute> substitutedAttributes = new HashMap<>();
         final Map<RpslAttribute, RpslAttribute> convertedMap = attrsToConvert.stream()
                 .distinct() //No need to process the same attributes
                 .collect(Collectors.toMap(
                         Function.identity(),
-                        RpslObjectCharacterConversion::convertAttribute
+                        attr -> {
+                            final RpslAttribute convertedAttribute = convertAttribute(attr);
+                            if (!convertedAttribute.equals(attr)){
+                                substitutedAttributes.put(attr, convertedAttribute);
+                            }
+                            return convertedAttribute;
+                        }
                 ));
 
-        return new RpslObjectBuilder(rpslObjectToConvert)
+        final RpslObject convertedRpslObject = new RpslObjectBuilder(rpslObjectToConvert)
                 .replaceAttributes(convertedMap)
                 .get();
+
+        return new CharsetConversionResult(convertedRpslObject, substitutedAttributes);
     }
 
     private static RpslAttribute convertAttribute(final RpslAttribute attribute){
