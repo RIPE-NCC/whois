@@ -783,9 +783,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        assertThat(response, containsString("address:        Тверская улица,москва"));
         assertThat(response, containsString("***Error:   Unrecognized source: INVALID"));
-        assertThat(response, containsString("***Error:   UTF-8 is only supported in descr: or remarks: attributes"));
+        assertThat(response, containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
@@ -793,19 +792,20 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
         rpslObjectUpdateDao.createObject(RpslObject.parse(MNTNER_TEST_MNTNER));
 
-        final String response= RestTest.target(getPort(), "whois/syncupdates/test")
-                    .request()
-                    .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
-                                    "person:    Test Person again\n" +
-                                            "address:   Тверская улица,москва\n" +
-                                            "phone:     +31-6-123456\n" +
-                                            "nic-hdl:   TP2-TEST\n" +
-                                            "mnt-by:    mntner-mnt\n" +
-                                            "source:    TEST\n" +
-                                            "password:  emptypassword"),
-                            MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
+        RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .post( Entity.entity("DATA=" +  SyncUpdateUtils.encode(
+                    "person:    Test Person again\n" +
+                    "address:   Тверская улица,москва\n" +
+                    "phone:     +31-6-123456\n" +
+                    "nic-hdl:   TP2-TEST\n" +
+                    "mnt-by:    mntner-mnt\n" +
+                    "source:    TEST\n" +
+                    "password:  emptypassword"),
+                  MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
-        assertThat(response, containsString("***Error:   UTF-8 is only supported in descr: or remarks: attributes"));
+        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
+                containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
@@ -890,7 +890,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final FormDataMultiPart multipart = new FormDataMultiPart()
                 .field("DATA",
                         "person:         Test Person\n" +
-                        "address:        123123\n" +
+                        "address:        Тверская улица,москва\n" +
                         "phone:          +31 6 12345678\n" +
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
@@ -902,8 +902,9 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("remarks:        Тверская улица,москва"));
+        final String person = databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString();
+        assertThat(person, containsString("remarks:        Тверская улица,москва"));
+        assertThat(person, containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
