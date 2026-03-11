@@ -4,7 +4,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.DateUtil;
-import net.ripe.db.whois.common.Utf8Conversion;
+import net.ripe.db.whois.common.Latin1Conversion;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.x509.KeyWrapper;
@@ -159,10 +159,10 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
 
     private Iterator<String> transformUserIdsToLatin1() {
         try {
-            return Iterators.transform(masterKey.getUserIDs(), Utf8Conversion::convertString);
+            return Iterators.transform(masterKey.getUserIDs(), Latin1Conversion::convertString);
         } catch (IllegalArgumentException e) {
             // Invalid UTF-8 input
-            return Iterators.transform(masterKey.getRawUserIDs(), bytes -> Utf8Conversion.convertString(new String(bytes)));
+            return Iterators.transform(masterKey.getRawUserIDs(), bytes -> Latin1Conversion.convertString(new String(bytes)));
         }
     }
 

@@ -10,22 +10,24 @@ public class Utf8ConversionTest {
     @Test
     public void convert_utf8_rpsl_string() {
         final String utf8String = """
-                person:     Test Unicode
-                address:    ΣΔ Street
-                address:    привет Lane
-                address:    مرحبا Road
-                address:    你好ا Avenue
-                e-mail:     example@xn--80adxhks.ru
-                nic-hdl:    UNICODE-TEST
-                mnt-by:     UPD-MNT
-                source:     TEST
+                person:         Test Unicode
+                address:        ?test
+                address:        ΣΔ Street
+                address:        привет Lane
+                address:        مرحبا Road
+                address:        你好ا Avenue
+                e-mail:         example@xn--80adxhks.ru
+                nic-hdl:        UNICODE-TEST
+                mnt-by:         UPD-MNT
+                source:         TEST
                 """;
         final String rpslObjectUtfEscaped = """
                 person:     Test Unicode
-                address:    \\u03A3\\u0394 Street
-                address:    \\u043F\\u0440\\u0438\\u0432\\u0435\\u0442 Lane
-                address:    \\u0645\\u0631\\u062D\\u0628\\u0627 Road
-                address:    \\u4F60\\u597D\\u0627 Avenue
+                address:    \u0000test
+                address:    \u03A3\u0394 Street
+                address:    \u043F\u0440\u0438\u0432\u0435\u0442 Lane
+                address:    \u0645\u0631\u062D\u0628\u0627 Road
+                address:    \u4F60\u597D\u0627 Avenue
                 e-mail:     example@xn--80adxhks.ru
                 nic-hdl:    UNICODE-TEST
                 mnt-by:     UPD-MNT
@@ -36,6 +38,6 @@ public class Utf8ConversionTest {
 
     @Test
     public void convert_utf8_string() {
-        assertThat(Utf8Conversion.convertString("你好ا Avenue"), is(Utf8Conversion.convertString("\\u4F60\\u597D\\u0627 Avenue")));
+        assertThat(Utf8Conversion.convertString("你好ا Avenue"), is(Utf8Conversion.convertString("\u4F60\u597D\u0627 Avenue")));
     }
 }

@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api;
 
 import net.ripe.db.whois.common.PunycodeConversion;
-import net.ripe.db.whois.common.Utf8Conversion;
+import net.ripe.db.whois.common.RpslObjectCharacterConversion;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
@@ -20,7 +20,7 @@ public class UpdateCreator {
                                       final UpdateContext updateContext) {
 
         final String punycodeConversion = PunycodeConversion.convert(rpslObject);
-        final RpslObject convertedRpsl = Utf8Conversion.convert(punycodeConversion);
+        final RpslObject convertedRpsl = RpslObjectCharacterConversion.paragraphConversion(punycodeConversion);
 
         final Update update = new Update(paragraph, operation, deleteReasons, convertedRpsl);
         if (!punycodeConversion.equals(rpslObject)) {

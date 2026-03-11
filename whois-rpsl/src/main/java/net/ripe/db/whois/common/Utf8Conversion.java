@@ -21,6 +21,7 @@ import static com.ibm.icu.text.IDNA.Error.INVALID_ACE_LABEL;
  * ASCII substitutions
  * UTF-8 substitutions
  */
+
 public class Utf8Conversion {
 
     private Utf8Conversion() {
@@ -57,32 +58,33 @@ public class Utf8Conversion {
         return result.toString();
     }
 
-    private static void convertChar(final StringBuilder result, final char ch) {
-        final IDNA idna = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to ss for example
-
-        final char transformedCharacter = ControlCharacterSubstitutions.substitute(ch);
-        final Info info = new Info();
-        final StringBuilder idnaTransformation = new StringBuilder();
-        idna.nameToUnicode(String.valueOf(transformedCharacter), idnaTransformation, info);
-
-        if (hasRelevantError(info)) {
-            result.append(ControlCharacterSubstitutions.CHARACTER_REPLACEMENT);
-        } else {
-            result.append(Character.isUpperCase(transformedCharacter) ?
-                    idnaTransformation.toString().toUpperCase() :
-                    idnaTransformation);
-        }
-    }
-
-    private static RpslAttribute createUtf8Attribute(final RpslAttribute attribute){
+    public static RpslAttribute createUtf8Attribute(final RpslAttribute attribute){
         final StringBuilder result = new StringBuilder();
+        final String utf8Value = StringEscapeUtils.unescapeJava(attribute.getValue());
 
-        for (char ch : attribute.getValue().toCharArray()) {
+        for (char ch : utf8Value.toCharArray()) {
             //ASCII Substitutes
             convertChar(result, ch);
         }
 
         return new RpslAttribute(attribute.getKey(), result.toString());
+    }
+
+    private static void convertChar(final StringBuilder result, final char ch) {
+        final IDNA idna = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to ss for example
+
+        final char transformedCharacter = CharacterSubstitutions.substitute(ch);
+        final Info info = new Info();
+        final StringBuilder idnaTransformation = new StringBuilder();
+        idna.nameToUnicode(String.valueOf(transformedCharacter), idnaTransformation, info);
+
+        if (hasRelevantError(info)) {
+            result.append("?"); // Unknown characters are replaced by question marks
+        } else {
+            result.append(Character.isUpperCase(transformedCharacter) ?
+                    idnaTransformation.toString().toUpperCase() :
+                    idnaTransformation);
+        }
     }
 
     private static boolean hasRelevantError(final Info info){

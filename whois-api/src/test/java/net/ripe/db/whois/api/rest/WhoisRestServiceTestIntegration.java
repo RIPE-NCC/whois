@@ -6211,7 +6211,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
 
     @Test
-    public void create_person_utf8_address_then_error() {
+    public void create_person_utf8_address_then_substituted() {
         final RpslObject createPerson = RpslObject.parse("""
                 person:    Pauleth Palthen
                 address:   Singel 258
@@ -6224,14 +6224,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 source:    TEST
                 """);
 
-        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> RestTest.target(getPort(),
-                        "whois/test/person?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
-                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class));
+                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
-        assertThat(whoisResources.getErrorMessages(), hasSize(2));
-        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("UTF-8 is only supported in descr: or remarks: attributes"));
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(2), is(new Attribute("address", "??? Avenue")));
     }
 
     @Test
@@ -6239,7 +6237,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject createPerson = RpslObject.parse("""
                 person:    Pauleth Palthen
                 address:   Singel 258
-                address:    \\u4F60\\u597D\\u0627 Avenue
+                address:    \u4F60\u597D\u0627 Avenue
                 phone:     +31-1234567890
                 e-mail:    noreply@ripe.net
                 mnt-by:    OWNER-MNT
@@ -6248,14 +6246,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 source:    TEST
                 """);
 
-        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> RestTest.target(getPort(),
-                        "whois/test/person?password=test")
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
                 .request()
-                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class));
+                .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
-        assertThat(whoisResources.getErrorMessages(), hasSize(2));
-        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("UTF-8 is only supported in descr: or remarks: attributes"));
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(2), is(new Attribute("address", "??? Avenue")));
     }
 
     @Test
