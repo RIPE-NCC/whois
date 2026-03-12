@@ -94,7 +94,7 @@ release:
     - whois
   stage: test
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
       when: always
     - when: manual
   artifacts:
@@ -233,12 +233,22 @@ sonar:
     GIT_DEPTH: "0" # Tells git to fetch all the branches of the project, required by the analysis task
   stage: code_quality
   rules:
-    - if: "$CI_PIPELINE_SOURCE == 'schedule'"
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+      when: always
   tags:
     - whois
   script:
     - echo PWD=$PWD
-    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA -Dsonar.projectKey=whois -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.projectName=whois -Dsonar.coverage.jacoco.xmlReportPaths=$PWD/whois-api/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-client/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-commons/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-db/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm4/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-query/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco-merged-test-coverage-report/jacoco.xml -DskipITs -Dsonar.test.exclusions=**/test/*
+    - >-
+      mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      -Dsonar.projectVersion=$CI_COMMIT_SHORT_SHA
+      -Dsonar.projectKey=whois
+      -Dsonar.host.url=${SONAR_HOST_URL}
+      -Dsonar.login=${SONAR_TOKEN}
+      -Dsonar.projectName=whois
+      -Dsonar.coverage.jacoco.xmlReportPaths=$PWD/whois-api/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-client/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-commons/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-db/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-nrtm4/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-query/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-rpsl/target/site/jacoco-merged-test-coverage-report/jacoco.xml,$PWD/whois-scheduler/target/site/jacoco-merged-test-coverage-report/jacoco.xml
+      -DskipITs
+      -Dsonar.test.exclusions=**/test/*
 
 .deploy_template: &deploy_env
   stage: deploy
