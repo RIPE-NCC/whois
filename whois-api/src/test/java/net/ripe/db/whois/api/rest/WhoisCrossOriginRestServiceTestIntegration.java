@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import com.google.common.net.HttpHeaders;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
@@ -334,18 +335,67 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
     }
 
     @Test
-    public void create_object_syncupdate_only_data_parameter_not_allowed() {
+    public void create_object_syncupdate_using_get_not_allowed() {
         rpslObjectUpdateDao.createObject(RpslObject.parse(PERSON_ANY1_TEST));
 
-        final Response whoisResources =
+        final Response response =
                 RestTest.target(getPort(), "whois/syncupdates/test?" +
                             "DATA=" + SyncUpdateUtils.encode(MNTNER_TEST_MNTNER + "\npassword: emptypassword"))
                     .request()
-                    .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stats.ripe.net")
-                    .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
+                    .header(com.google.common.net.HttpHeaders.ORIGIN, "https://stat.ripe.net")
+                    .header(com.google.common.net.HttpHeaders.HOST, "syncupdates.db.ripe.net")
                     .get(Response.class);
 
-        assertThat(whoisResources.getStatus(), is(200));
+        assertThat(response.getStatus(), is(403));
+    }
+
+    @Test
+    public void create_object_syncupdate_using_post_not_allowed_invalid_origin_cors() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://invalid.com")
+                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:        Test Person\n" +
+                                        "address:       Amsterdam\n" +
+                                        "phone:         +31\n" +
+                                        "nic-hdl:       TP2-RIPE\n" +
+                                        "mnt-by:        mntner-mnt\n" +
+                                        "changed:       user@host.org 20171025\n" +
+                                        "source:        TEST\n" +
+                                        "password: emptypassword\n"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), Response.class);
+
+        assertThat(response.getStatus(), is(403));
+    }
+
+    @Test
+    public void create_object_syncupdate_using_post_allowed_valid_origin_cors() {
+        databaseHelper.addObject(PERSON_ANY1_TEST);
+        databaseHelper.addObject(MNTNER_TEST_MNTNER);
+
+        final Response response = RestTest.target(getPort(), "whois/syncupdates/test")
+                .request()
+                .header(com.google.common.net.HttpHeaders.ORIGIN, "https://apps.db.ripe.net")
+                .header(com.google.common.net.HttpHeaders.HOST, "rest.db.ripe.net")
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
+                                "person:        Test Person\n" +
+                                        "address:       Amsterdam\n" +
+                                        "phone:         +31\n" +
+                                        "nic-hdl:       TP2-RIPE\n" +
+                                        "mnt-by:        mntner-mnt\n" +
+                                        "changed:       user@host.org 20171025\n" +
+                                        "source:        TEST\n" +
+                                        "password: emptypassword\n"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), Response.class);
+
+        assertThat(response.getHeaderString(com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN), is("https://apps.db.ripe.net"));
+        assertThat(response.getHeaderString(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS), is("true"));
+
+        assertThat(response.getStatus(), is(200));
     }
 
     @Test
