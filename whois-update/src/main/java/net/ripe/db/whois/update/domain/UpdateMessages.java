@@ -762,7 +762,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "MD5 hashed password authentication is deprecated. Please switch to an alternative authentication method.");
     }
 
-    public static Message valueChangedDueToCharsetConversion(final CIString originalAttribute, final CIString convertedAttribute) {
-        return new Message(Type.WARNING, String.format("The attribute \"%s:\" has been updated to \"%s:\" due to charset conversion", originalAttribute, convertedAttribute));
+    public static Message valueChangedDueToCharsetConversion(final String attributeName,
+                                                             final CIString originalAttribute,
+                                                             final CIString convertedAttribute) {
+        return new Message(Type.WARNING, String.format("The attribute \"%s:\" has been updated from \"%s:\" to \"%s:\" due to charset conversion",
+                attributeName, originalAttribute, convertedAttribute));
     }
 }

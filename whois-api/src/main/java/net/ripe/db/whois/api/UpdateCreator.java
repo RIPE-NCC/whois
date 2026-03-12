@@ -29,7 +29,8 @@ public class UpdateCreator {
 
         conversionResult.getSubstitutedAttributes()
                 .forEach((key, value) ->
-                        updateContext.addMessage(update, key, UpdateMessages.valueChangedDueToCharsetConversion(key.getCleanValue(), value.getCleanValue()))
+                        updateContext.addMessage(update, key,
+                                UpdateMessages.valueChangedDueToCharsetConversion(key.getKey(), key.getCleanValue(), value.getCleanValue()))
                 );
 
         return update;
