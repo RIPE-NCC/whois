@@ -765,7 +765,7 @@ public final class UpdateMessages {
     public static Message valueChangedDueToCharsetConversion(final String attributeName,
                                                              final CIString originalAttribute,
                                                              final CIString convertedAttribute) {
-        return new Message(Type.WARNING, String.format("The attribute \"%s:\" has been updated from \"%s:\" to \"%s:\" due to charset conversion",
+        return new Message(Type.WARNING, String.format("The attribute \"%s:\" has been updated from \"%s\" to \"%s\" due to charset conversion",
                 attributeName, originalAttribute, convertedAttribute));
     }
 }

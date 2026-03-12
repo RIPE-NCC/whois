@@ -2759,9 +2759,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(response.getErrorMessages(), hasSize(1));
+        assertThat(response.getErrorMessages(), hasSize(2));
         assertThat(response.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
                 "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(response.getErrorMessages().get(1).getText(), is("""
+                The attribute "person:" has been updated from "New\u00a0Person" to "New Person" due to charset conversion"""));
 
         assertThat(response.getWhoisObjects(), hasSize(1));
         assertThat(response.getWhoisObjects().getFirst().getAttributes().getFirst().getValue(), is("New Person"));
@@ -2798,11 +2800,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), WhoisResources.class);
 
-        RestTest.assertWarningCount(response, 2);
+        RestTest.assertWarningCount(response, 3);
 
         RestTest.assertErrorMessage(response, 0, "Warning", "MD5 hashed password authentication is deprecated and support will be " +
                 "removed soon. Please switch to an alternative authentication method before then.");
         RestTest.assertErrorMessage(response, 1, "Warning", "Submitted object identical to database object");
+        RestTest.assertErrorMessage(response, 2, "Warning", """
+                The attribute "person:" has been updated from "New\u00a0Person" to "New Person" due to charset conversion""");
     }
 
     @Test
@@ -6228,7 +6232,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(1).getText(), is("""
+                The attribute "address:" has been updated from "你好ا Avenue" to "??? Avenue" due to charset conversion"""));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(2), is(new Attribute("address", "??? Avenue")));
     }
 
@@ -6250,7 +6256,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(map(createPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(1).getText(), is("""
+                The attribute "address:" has been updated from "\u4F60\u597D\u0627 Avenue" to "??? Avenue" due to charset conversion"""));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(2), is(new Attribute("address", "??? Avenue")));
     }
 
@@ -6272,7 +6280,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(map(createMntner), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(1).getText(), is("""
+                The attribute "descr:" has been updated from "Road \\u0645\\u0631\\u062D\\u0628\\u0627" to "Road مرحبا" due to charset conversion"""));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "Road مرحبا")));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
 
