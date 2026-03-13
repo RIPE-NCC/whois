@@ -61,8 +61,8 @@
         <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
 
-        <jackson.version>2.20.2</jackson.version>
-        <jackson-annotations.version>2.20</jackson-annotations.version>
+        <jackson.version>2.21.1</jackson.version>
+        <jackson-annotations.version>2.21</jackson-annotations.version>
         <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
         <jaxb.api.version>4.0.5</jaxb.api.version>
         <jaxb.impl.version>4.0.6</jaxb.impl.version>
@@ -71,7 +71,7 @@
         <!-- Jersey Jakarta REST 3.1 for EE10 compatible https://projects.eclipse.org/projects/ee4j.jersey/releases/3.1.0 -->
         <jersey.version>3.1.11</jersey.version>
         <!-- Jetty Server EE10 compatible https://jetty.org/docs/jetty/12/index.html -->
-        <jetty.version>12.0.32</jetty.version>
+        <jetty.version>12.0.33</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsonassert.version>1.5.3</jsonassert.version>
