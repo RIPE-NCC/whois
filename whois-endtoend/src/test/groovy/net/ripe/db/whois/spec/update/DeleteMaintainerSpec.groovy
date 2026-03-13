@@ -47,7 +47,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 country:     NL
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
-                status:      ASSIGNED PA
+                status:      SUB-ALLOCATED PA
                 mnt-by:      OWNER-MNT
                 mnt-lower:   DEL-MNT
                 source:      TEST
@@ -59,7 +59,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 country:     NL
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
-                status:      ASSIGNED PA
+                status:      SUB-ALLOCATED PA
                 mnt-by:      OWNER-MNT
                 mnt-domains: DEL-MNT
                 source:      TEST
@@ -71,7 +71,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
                 country:     NL
                 admin-c:     TP1-TEST
                 tech-c:      TP1-TEST
-                status:      ASSIGNED PA
+                status:      SUB-ALLOCATED PA
                 mnt-by:      OWNER-MNT
                 mnt-routes:  DEL-MNT {10.0.0.0/32}
                 source:      TEST
@@ -108,7 +108,7 @@ class DeleteMaintainerSpec extends BaseQueryUpdateSpec {
         noMoreMessages()
     }
 
-    def "delete maintainer with override password"() {
+    def "delete non-existent maintainer with override password"() {
       given:
         def non_exist = object(getTransient("DEL-MNT"))
 

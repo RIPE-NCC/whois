@@ -719,7 +719,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 inetnum:      192.168.128.2 - 192.168.128.2
@@ -731,7 +730,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: hm
@@ -4346,7 +4344,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       lir-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 inetnum:      192.168.0.100 - 192.168.0.100
@@ -4358,7 +4355,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       lir-MNT
-                mnt-lower:    LIR-MNT
                 remarks:      updated
                 source:       TEST
 
@@ -4402,7 +4398,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       lir-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: owner3
@@ -4442,7 +4437,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 inetnum:      192.168.0.128 - 192.168.0.255
@@ -4454,7 +4448,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 inetnum:      192.168.0.0 - 192.168.0.255
@@ -4518,7 +4511,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -4571,7 +4563,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -4612,7 +4603,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 inetnum:      192.168.0.190 - 192.169.0.195
@@ -4677,7 +4667,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -4718,7 +4707,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 inetnum:      192.168.0.190 - 192.169.0.195
@@ -4771,7 +4759,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 inetnum:      192.168.0.128 - 192.168.0.255
@@ -4783,7 +4770,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -4827,7 +4813,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 inetnum:      192.168.0.0 - 192.168.0.128
@@ -4839,7 +4824,6 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir

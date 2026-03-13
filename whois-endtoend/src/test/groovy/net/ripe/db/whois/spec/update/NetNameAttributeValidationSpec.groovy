@@ -255,7 +255,6 @@ class NetNameAttributeValidationSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PA
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 password: lir
                 """.stripIndent(true)

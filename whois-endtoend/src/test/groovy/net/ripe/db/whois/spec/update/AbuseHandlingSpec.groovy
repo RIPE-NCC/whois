@@ -124,7 +124,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 status:       ASSIGNED PI
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 """,
                 "LEGACY": """\
@@ -665,7 +664,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP2-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 override:   denis,override1
 
@@ -677,7 +675,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP2-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -719,7 +716,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP2-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 override:   denis,override1
 
@@ -732,7 +728,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP2-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -773,7 +768,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP2-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 override:   denis,override1
 
@@ -786,7 +780,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 abuse-c:      AH1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -827,7 +820,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 abuse-c:      AH1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 override:   denis,override1
 
@@ -841,7 +833,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 abuse-c:      AH1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
                 password:   lir
 
@@ -2723,7 +2714,6 @@ class AbuseHandlingSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-LIRA-TEST
                 mnt-by:       RIPE-NCC-HM-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
 
                 password: owner3
