@@ -1,5 +1,9 @@
 # next
 
+# 1.121.1
+
+* [api] Prevent cross-origin Syncupdates requests
+
 # 1.121
 
 * [all] Removed support for mntner and IRT passwords
