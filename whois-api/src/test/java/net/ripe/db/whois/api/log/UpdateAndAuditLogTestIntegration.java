@@ -250,18 +250,19 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     public void syncupdate_gets_logged_override() throws Exception {
         databaseHelper.insertUser(User.createWithPlainTextPassword("personadmin", OVERRIDE_PASSWORD, ObjectType.values()));
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
-        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(secondPerson + "override: personadmin," + OVERRIDE_PASSWORD) + "&NEW=yes")
+        RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "127.0.0.1")
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(secondPerson + "override: personadmin," + OVERRIDE_PASSWORD) + "&NEW=yes",
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("Header: X-Forwarded-For=127.0.0.1"));
-        assertThat(audit, containsString("<![CDATA[GET /whois/syncupdates/test?DATA"));
+        assertThat(audit, containsString("<![CDATA[POST /whois/syncupdates/test"));
         assertThat(audit, not(containsString(OVERRIDE_PASSWORD)));
-        assertThat(audit, containsString("override%3A+personadmin,FILTERED"));
+        assertThat(audit, containsString("OverrideCredential{personadmin,FILTERED}"));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/001.msg-in.txt.gz"));
         assertThat(msgIn, containsString("REQUEST FROM:127.0.0.1"));
@@ -355,18 +356,18 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     @Test
     public void syncupdates_create_gets_logged() throws Exception {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
-        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(secondPerson + "\npassword: " + PASSWORD) + "&NEW=yes")
+        RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(secondPerson + "\npassword: " + PASSWORD) + "&NEW=yes",
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_100/000.audit.xml.gz"));
         assertThat(audit, containsString("<query"));
         assertThat(audit, containsString("<sql"));
         assertThat(audit, containsString("Header: X-Forwarded-For=10.20.30.40"));
-        assertThat(audit, containsString("<![CDATA[GET /whois/syncupdates/test?DATA"));
+        assertThat(audit, containsString("<![CDATA[POST /whois/syncupdates/test"));
         assertThat(audit, not(containsString(PASSWORD)));
-        assertThat(audit, containsString("password%3AFILTERED"));
 
         final String msgIn = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_100/001.msg-in.txt.gz"));
         assertThat(msgIn, containsString("REQUEST FROM:10.20.30.40"));
@@ -402,11 +403,12 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject person = buildGenericObject(TEST_PERSON, "nic-hdl: ZYZ-TEST");
 
-        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(person.toString()) + "&NEW=yes")
+        RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .cookie(new Cookie("crowd.token_key", "valid-token"))
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(person.toString()) + "&NEW=yes",
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+ZYZ-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
@@ -415,14 +417,15 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void syncupdates_invalid_data_gets_logged() {
-        RestTest.target(getPort(), "whois/syncupdates/test?" + "DATA=invalid")
+        RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
-                .get(String.class);
+                .post(Entity.entity("DATA=invalid",
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_10.20.30.40_100/000.audit.xml.gz"));
 
-        assertThat(audit, containsString("<![CDATA[GET /whois/syncupdates/test?DATA=invalid"));
+        assertThat(audit, containsString("<![CDATA[POST /whois/syncupdates/test"));
     }
 
     @Test

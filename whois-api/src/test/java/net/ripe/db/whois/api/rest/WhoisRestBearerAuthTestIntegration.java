@@ -208,11 +208,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "source:        TEST";
         databaseHelper.addObject(mntner);
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(mntner + "\nremarks: updated"))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner + "\nremarks: updated"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Modify SUCCEEDED: [mntner] SSO-MNT"));
     }
@@ -228,10 +228,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create SUCCEEDED: [mntner] SSO-MNT"));
     }
@@ -247,10 +248,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_TEST_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
     }
@@ -266,10 +268,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: The Access Token cannot be used because it was created for a\n" +
@@ -287,10 +290,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer invalid")
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: Invalid OAUTH"));
@@ -307,10 +311,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_INACTIVE_TOKEN))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: Session associated with Access Token is not active"));
@@ -327,10 +332,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NULL_SCOPE))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: Whois scope can not be empty"));
@@ -347,10 +353,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_MULTIPLE_MNT_WITH_ANY))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: Whois scopes can either have ANY or specific maintainers"));
@@ -367,10 +374,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_MNT_EXCEED_LIMIT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: Whois scopes can not be more than 2"));
@@ -388,10 +396,11 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         "mnt-by:        SSO-MNT\n" +
                         "source:        TEST";
 
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(mntner))
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_NO_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
         assertThat(response, containsString("***Warning: Whois scope can not be empty"));
