@@ -9,7 +9,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>whois-endtoend</artifactId>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -17,37 +16,23 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
+            <artifactId>whois-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
             <artifactId>whois-commons</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-client</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-db</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-query</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
             <artifactId>whois-nrtm</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-query</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-update</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
@@ -55,36 +40,33 @@
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-scheduler</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-query</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-update</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>whois-nrtm4-client</artifactId>
         </dependency>
         <dependency>
             <groupId>net.ripe.db</groupId>
-            <artifactId>whois-api</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-query</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-update</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.ripe.db</groupId>
-                    <artifactId>whois-client</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>whois-query</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-rdap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-rpsl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-scheduler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-smtp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.ripe.db</groupId>
+            <artifactId>whois-update</artifactId>
+        </dependency>
+
 
         <!-- testing -->
         <dependency>
@@ -143,6 +125,33 @@
                         </aspectLibrary>
                     </aspectLibraries>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.14</version>
+                <executions>
+                    <execution>
+                        <!-- https://www.eclemma.org/jacoco/trunk/doc/report-aggregate-mojo.html
+                         The report is created from all modules this project depends on, and this module itself
+                         -->
+                        <id>report-aggregate</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <dataFileIncludes>
+                                <dataFileInclude>**/target/jacoco-unit-tests.exec</dataFileInclude>
+                                <dataFileInclude>**/target/jacoco-integration-tests.exec</dataFileInclude>
+                            </dataFileIncludes>
+                            <includeCurrentProject>true</includeCurrentProject>
+                            <outputDirectory>
+                                ${project.reporting.outputDirectory}/jacoco-aggregate
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
