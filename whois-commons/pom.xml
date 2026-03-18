@@ -142,11 +142,11 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.14</version>
-                <!-- TODO: Including this in jacoco plugin throws Can't add different class with same name: org/apache/commons/collections/ArrayStack
-                            I tried to exclude this file, package  and dependency also still from some other dependency tree it gets included
-                 -->
                 <configuration>
-                    <skip>true</skip>
+                    <excludes>
+                        <!-- TODO: Including this in jacoco plugin throws Can't add different class with same name: org/apache/commons/collections/ArrayStack -->
+                        <exclude>org/apache/commons/collections/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>

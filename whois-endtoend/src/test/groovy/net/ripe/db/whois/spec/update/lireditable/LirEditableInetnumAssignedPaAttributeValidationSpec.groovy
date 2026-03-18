@@ -8,7 +8,7 @@ class LirEditableInetnumAssignedPaAttributeValidationSpec extends BaseLirEditabl
     // data for tests
     def resourceType = "inetnum"
     def resourceValue = "192.168.0.0 - 192.169.255.255"
-    def resourceStatus = "ASSIGNED PA"
+    def resourceStatus = "SUB-ALLOCATED PA"
     def resourceRipeMntner = "RIPE-NCC-END-MNT"
     def resourceRipeMntnerPassword = "nccend"
     // other resource specifics

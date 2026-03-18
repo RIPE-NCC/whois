@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import jakarta.servlet.DispatcherType;
 import net.ripe.db.whois.api.httpserver.ServletDeployer;
+import net.ripe.db.whois.api.httpserver.SyncUpdateCORSFilter;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
@@ -21,6 +22,7 @@ public class WhoisServletDeployer implements ServletDeployer {
     private final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter;
     private final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter;
     private final WhoisCrossOriginFilter whoisCrossOriginFilter;
+    private final SyncUpdateCORSFilter syncUpdateCORSFilter;
 
     @Autowired
     public WhoisServletDeployer(
@@ -30,6 +32,7 @@ public class WhoisServletDeployer implements ServletDeployer {
                     final HttpsBasicAuthFiler httpsBasicAuthFiler,
                     final HttpsAuthHeaderFiler httpsAuthHeaderFiler,
                     final HttpsAPIKeyAuthFilter httpsAPIKeyAuthFilter,
+                    final SyncUpdateCORSFilter syncUpdateCORSFilter,
                     final SyncUpdatesHttpSchemeFilter syncUpdatesHttpSchemeFilter) {
         this.resourceConfig = resourceConfig;
         this.maintenanceModeFilter = maintenanceModeFilter;
@@ -38,6 +41,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         this.httpsAPIKeyAuthFilter = httpsAPIKeyAuthFilter;
         this.syncUpdatesHttpSchemeFilter = syncUpdatesHttpSchemeFilter;
         this.whoisCrossOriginFilter = whoisCrossOriginFilter;
+        this.syncUpdateCORSFilter = syncUpdateCORSFilter;
     }
 
     @Override
@@ -47,6 +51,7 @@ public class WhoisServletDeployer implements ServletDeployer {
         context.addFilter(new FilterHolder(httpsAPIKeyAuthFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(httpsBasicAuthFiler), "/whois/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(syncUpdatesHttpSchemeFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(syncUpdateCORSFilter), "/whois/syncupdates/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(whoisCrossOriginFilter), "/whois/*", EnumSet.allOf(DispatcherType.class));
 
         context.addServlet(new ServletHolder("Whois REST API", new ServletContainer(resourceConfig)), "/whois/*");

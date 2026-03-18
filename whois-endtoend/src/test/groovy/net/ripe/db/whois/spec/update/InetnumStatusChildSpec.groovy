@@ -713,7 +713,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: owner3
@@ -770,7 +769,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: owner3
@@ -3757,7 +3755,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       lir-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: owner3
@@ -3800,7 +3797,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LiR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: owner3
@@ -3844,7 +3840,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       lir-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: owner3
@@ -3891,7 +3886,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: owner3
@@ -4063,7 +4057,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -4104,7 +4097,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -4146,7 +4138,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -4190,7 +4181,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir
@@ -4234,7 +4224,6 @@ class InetnumStatusChildSpec extends BaseQueryUpdateSpec {
                 tech-c:       TP1-TEST
                 status:       ASSIGNED PA
                 mnt-by:       LIR-MNT
-                mnt-lower:    LIR-MNT
                 source:       TEST
 
                 password: lir

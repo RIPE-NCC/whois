@@ -122,7 +122,16 @@ public class BearerTokenExtractor   {
 
             final JWKSource<SecurityContext> keySource = JWKSourceBuilder
                     .create(jwksSetUrl.toURL())
-                    .retrying(true)
+                    // 15 mins cache and after 5 minutes may refresh the cache
+                    .cache(15 * 60 * 1000L, 5 * 60 * 1000L)
+                    .retrying(event -> {
+                        // Log retry attempt, helps in debugging network timeout issue
+                        LOGGER.warn("JWKS fetch retry: {}", event);
+                    })
+                    //in case the remote JWK set endpoint goes down set 4 hours value
+                    .outageTolerant(4 * 60 * 60 * 1000L , event -> {
+                        LOGGER.warn("JWKS outage event : {}", event);
+                    })
                     .build();
 
             final JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(

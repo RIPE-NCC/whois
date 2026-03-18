@@ -2439,8 +2439,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Create SUCCEEDED: \[inetnum\] 192.168.200.0 - 192.168.200.255/
     }
 
-
-    def "update, not more specific allowed status with mnt-lower attribute"() {
+    def "update inetnum more specific not allowed ASSIGNED PI status with mnt-lower attribute"() {
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
                                         inetnum: 193.0.0.0 - 193.0.0.255
@@ -2462,7 +2461,29 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status/
     }
 
-    def "update, not more specific allowed status with mnt-lower attribute override"() {
+    def "update inetnum more specific not allowed ASSIGNED PA status with mnt-lower attribute"() {
+        when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum: 193.0.0.0 - 193.0.0.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PA
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        update =~ /FAIL/
+        update =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED PA:"
+            status/
+    }
+
+    def "update inetnum more specific not allowed ASSIGNED PI status with mnt-lower attribute and override"() {
         when:
         def update = syncUpdate(new SyncUpdate(data: """\
                                         inetnum: 193.0.0.0 - 193.0.0.255
@@ -2484,7 +2505,7 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         update.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\"\n            status");
     }
 
-    def "create, not more specific allowed status with mnt-lower attribute"() {
+    def "create inetnum more specific not allowed ASSIGNED PI status with mnt-lower attribute"() {
         when:
         def insert = syncUpdate(new SyncUpdate(data: """\
                                         inetnum:      192.168.200.0 - 192.168.200.255
@@ -2506,7 +2527,29 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
             status/
     }
 
-    def "create, not more specific allowed status with mnt-lower attribute override"() {
+    def "create inetnum more specific not allowed ASSIGNED PA status with mnt-lower attribute"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      192.168.200.0 - 192.168.200.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PA
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        password: update
+                                    """.stripIndent(true)))
+        then:
+        insert =~ /FAIL/
+        insert =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED PA:"
+            status/
+    }
+
+    def "create inetnum more specific not allowed ASSIGNED PI status with mnt-lower attribute and override"() {
         when:
         def insert = syncUpdate(new SyncUpdate(data: """\
                                         inetnum:      192.168.200.0 - 192.168.200.255
@@ -2526,5 +2569,27 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
         insert.contains("Create SUCCEEDED: [inetnum] 192.168.200.0 - 192.168.200.255")
         insert.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PI:\"\n            status");
     }
+
+    def "create inetnum more specific not allowed ASSIGNED PA status with mnt-lower attribute and override"() {
+        when:
+        def insert = syncUpdate(new SyncUpdate(data: """\
+                                        inetnum:      194.168.200.0 - 194.168.200.255
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: DK
+                                        admin-c: TEST-PN
+                                        tech-c: TEST-PN
+                                        status: ASSIGNED PA
+                                        org: ORG-TOL2-TEST
+                                        mnt-by: TEST-MNT
+                                        mnt-lower: TEST-MNT
+                                        source: TEST
+                                        override: denis,override1
+                                    """.stripIndent(true)))
+        then:
+        insert.contains("Create SUCCEEDED: [inetnum] 194.168.200.0 - 194.168.200.255")
+        insert.contains("Warning: \"mnt-lower:\" attribute not allowed for resources with \"ASSIGNED PA:\"\n            status");
+    }
+
 
 }

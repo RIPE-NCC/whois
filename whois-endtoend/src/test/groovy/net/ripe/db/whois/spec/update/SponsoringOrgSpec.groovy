@@ -1109,7 +1109,6 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
                 sponsoring-org: ORG-OFA10-TEST
                 mnt-by:       RIPE-NCC-END-MNT
                 mnt-by:       LIR-MNT
-                mnt-lower:    RIPE-NCC-HM-MNT
                 source:       TEST
                 override:     denis,override1
 
