@@ -105,6 +105,11 @@ public class SyncUpdatesService {
             @HeaderParam(HttpHeaders.CONTENT_TYPE) final String contentType,
             @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
+
+        if(StringUtils.isNotEmpty(data)) {
+           return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
         final Request request = new Request.RequestBuilder()
                 .setData(decode(data, getCharset(contentType)))
                 .setNew(nnew)
