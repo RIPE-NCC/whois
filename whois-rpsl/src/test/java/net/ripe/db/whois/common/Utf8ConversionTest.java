@@ -40,4 +40,5 @@ public class Utf8ConversionTest {
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "привет Lane")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u043F\u0440\u0438\u0432\u0435\u0442 Lane"))));
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "你好ا Avenue")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u4F60\u597D\u0627 Avenue"))));
     }
+
 }

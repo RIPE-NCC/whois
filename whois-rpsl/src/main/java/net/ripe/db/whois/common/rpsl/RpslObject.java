@@ -103,6 +103,7 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
         return new RpslObject(objectId, RpslObjectBuilder.getAttributes(input));
     }
 
+    //TODO: Send encoding as parameter instead hardcoding the name in method name
     public static RpslObject parseUtf8(final Integer objectId, final byte[] input) {
         return new RpslObject(objectId, RpslObjectBuilder.getAttributes(new String(input, StandardCharsets.UTF_8)));
     }

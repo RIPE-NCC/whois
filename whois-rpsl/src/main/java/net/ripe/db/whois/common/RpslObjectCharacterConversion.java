@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class RpslObjectCharacterConversion {
 
-    private final static List<String> FREE_TEXT_ATTRIBUTES = List.of(AttributeType.DESCR.getName(), AttributeType.REMARKS.getName());
+    private final static List<String> UTF8_ALLOWED_ATTRIBUTES = List.of(AttributeType.DESCR.getName(), AttributeType.REMARKS.getName());
 
     public static CharsetConversionResult paragraphConversion(final String paragraph){
         final RpslObject rpslObjectToConvert = RpslObject.parse(paragraph);
@@ -41,7 +41,7 @@ public class RpslObjectCharacterConversion {
     }
 
     private static RpslAttribute convertAttribute(final RpslAttribute attribute){
-        return FREE_TEXT_ATTRIBUTES.contains(attribute.getKey()) ?
+        return UTF8_ALLOWED_ATTRIBUTES.contains(attribute.getKey()) ?
                 Utf8Conversion.createUtf8Attribute(attribute) :
                 Latin1Conversion.createLatin1Attribute(attribute);
     }

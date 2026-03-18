@@ -11,7 +11,6 @@ public class PunycodeConversion {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PunycodeConversion.class);
 
-    //TODO: shall we change this by com.ibm.icu.text.IDNA? The results are different
     private static final IDNEmailAddressConverter CONVERTER = new IDNEmailAddressConverter();
 
     private static final Pattern EMAIL_ADDRESS_PATTERN = Pattern.compile("(?m)^(abuse-mailbox|e-mail|irt-nfy|mnt-nfy|notify|ref-nfy|upd-to)(?:\\:)([^#\\n]*)(.*)(\\n|$)");

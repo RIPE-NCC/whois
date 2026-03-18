@@ -6266,7 +6266,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void create_person_utf8_free_text_then_OK() {
         final RpslObject createMntner = RpslObject.parse("""
                 mntner:        OWNER1-MNT
-                descr:         Road \\u0645\\u0631\\u062D\\u0628\\u0627
+                descr:         ü
                 admin-c:       TP1-TEST
                 upd-to:        upd-to@ripe.net
                 notify:        notify@ripe.net

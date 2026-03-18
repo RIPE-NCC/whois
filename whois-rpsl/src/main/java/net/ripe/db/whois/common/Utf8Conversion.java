@@ -16,7 +16,8 @@ import static com.ibm.icu.text.IDNA.Error.INVALID_ACE_LABEL;
  * ASCII substitutions
  * UTF-8 substitutions
  */
-
+//TODO: Try to split a little bit more to understand better. IDN step should be separated
+// Same class but distinct steps
 public class Utf8Conversion {
 
     private Utf8Conversion() {
@@ -47,6 +48,7 @@ public class Utf8Conversion {
         return new RpslAttribute(attribute.getKey(), result.toString());
     }
 
+    //TOOD: Separate the IDN transformation
     private static void convertChar(final StringBuilder result, final char ch) {
         final IDNA idna = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to ss for example
 
