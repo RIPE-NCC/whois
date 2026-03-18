@@ -112,6 +112,13 @@
         <velocity.version>2.4.1</velocity.version>
 
         <ibm.idna.version>70.1</ibm.idna.version>
+        <!-- https://docs.sonarsource.com/sonarqube-server/analyzing-source-code/test-coverage/java-test-coverage#multi-module-maven-project
+        Configuration for jacoco multi-module report
+        -->
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${maven.multiModuleProjectDirectory}/whois-endtoend/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+
         <whois.main>OVERRIDE</whois.main>
     </properties>
 
@@ -914,27 +921,19 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.14</version>
                 <executions>
+                    <!--unit tests -->
                     <execution>
                         <id>before-unit-test-execution</id>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
-                            <destFile>${project.build.directory}/jacoco-output/jacoco-unit-tests.exec</destFile>
+                            <destFile>${project.build.directory}/jacoco-unit-tests.exec</destFile>
                             <propertyName>surefire.jacoco.args</propertyName>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>after-unit-test-execution</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/jacoco-output/jacoco-unit-tests.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-unit-test-coverage-report</outputDirectory>
-                        </configuration>
-                    </execution>
+                    <!-- integration tests -->
                     <execution>
                         <id>before-integration-test-execution</id>
                         <phase>pre-integration-test</phase>
@@ -942,48 +941,8 @@
                             <goal>prepare-agent-integration</goal>
                         </goals>
                         <configuration>
-                            <destFile>${project.build.directory}/jacoco-output/jacoco-integration-tests.exec</destFile>
+                            <destFile>${project.build.directory}/jacoco-integration-tests.exec</destFile>
                             <propertyName>failsafe.jacoco.args</propertyName>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>after-integration-test-execution</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/jacoco-output/jacoco-integration-tests.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-integration-test-coverage-report</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>merge-unit-and-integration</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>merge</goal>
-                        </goals>
-                        <configuration>
-                            <fileSets>
-                                <fileSet>
-                                    <directory>${project.build.directory}/jacoco-output/</directory>
-                                    <includes>
-                                        <include>*.exec</include>
-                                    </includes>
-                                </fileSet>
-                            </fileSets>
-                            <destFile>${project.build.directory}/jacoco-output/merged.exec</destFile>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>create-merged-report</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/jacoco-output/merged.exec</dataFile>
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-merged-test-coverage-report</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
