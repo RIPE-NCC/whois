@@ -1,5 +1,9 @@
 # next
 
+# 1.121.2
+
+* [api] Prevent updates using Syncupdates GET method
+
 # 1.121.1
 
 * [api] Fix for a cross-site vulnerability affecting the Syncupdates service. 
