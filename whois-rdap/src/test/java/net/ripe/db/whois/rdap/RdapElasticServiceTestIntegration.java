@@ -754,7 +754,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 assertErrorTitleContains(e, "Too Many Requests");
                 assertErrorDescription(e,"%ERROR:201: access denied for 127.0.0.1\n%\n% Sorry, access from your host " +
                         "has been permanently\n% denied because of a repeated excessive querying.\n% For more " +
-                        "information, see\n% https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied\n");
+                        "information, see\n% https://docs.db.ripe.net/FAQ#why-did-i-receive-an-error-201-access-denied\n");
             }
         } finally {
             databaseHelper.unbanIp(LOCALHOST_WITH_PREFIX);

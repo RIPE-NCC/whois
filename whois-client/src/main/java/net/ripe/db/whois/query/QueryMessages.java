@@ -287,7 +287,7 @@ public final class QueryMessages {
                 + "Sorry, access from your host has been permanently\n"
                 + "denied because of a repeated excessive querying.\n"
                 + "For more information, see\n"
-                + "https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied",
+                + "https://docs.db.ripe.net/FAQ#why-did-i-receive-an-error-201-access-denied",
                 accountingId);
     }
 
@@ -304,7 +304,7 @@ public final class QueryMessages {
                 + "Queries from your IP address have passed the daily limit of controlled objects.\n"
                 + "Access from your host has been temporarily denied.\n"
                 + "For more information, see\n"
-                + "https://docs.db.ripe.net/FAQ/#why-did-i-receive-an-error-201-access-denied",
+                + "https://docs.db.ripe.net/FAQ#why-did-i-receive-an-error-201-access-denied",
                 accountingId);
     }
 
