@@ -1,6 +1,8 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
@@ -109,10 +111,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:    TEST
                 """;
 
-        final String errorString = RestTest.target(getPort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(createPerson + "\npassword: test"))
+        final String errorString = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(createPerson + "\npassword: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  0"));
         assertThat(errorString, containsString("""
@@ -139,10 +141,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:      TEST
                 """;
 
-        final String errorString = RestTest.target(getPort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(createMd5Mntner + "\npassword: test"))
+        final String errorString = RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(createMd5Mntner + "\npassword: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  0"));
         assertThat(errorString, containsString("""
@@ -172,11 +174,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:      TEST
                 """;
 
-        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(createMd5Mntner))
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(createMd5Mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  0"));
         assertThat(errorString, containsString("""
@@ -199,11 +201,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:      TEST
                 """;
 
-        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(createMd5Mntner))
+        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(createMd5Mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
@@ -220,10 +222,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:    TEST
                 """;
 
-        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" + "DATA=" + SyncUpdateUtils.encode(createPerson))
+        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(createPerson),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
@@ -242,10 +245,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:    TEST
                 """;
 
-        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(createPerson))
+        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
-                .get(String.class);
+                .post(Entity.entity("DATA=" +SyncUpdateUtils.encode(createPerson),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
@@ -267,10 +271,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:       TEST
                 """;
 
-        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(createResource + "\npassword: irt"))
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(createResource + "\npassword: irt"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  0"));
         assertThat(errorString, containsString("""
@@ -301,11 +305,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:       TEST
                 """;
 
-        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(createIrt))
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(createIrt),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  0"));
         assertThat(errorString, containsString("""
@@ -330,11 +334,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:       TEST
                 """;
 
-        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(createIrt))
+        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(createIrt),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
@@ -355,11 +359,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:       TEST
                 """;
 
-        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(createResource))
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(createResource),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  1"));
     }
@@ -380,10 +384,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:      TEST
                 """;
 
-        final String errorString = RestTest.target(getPort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(updateMntner + "\npassword: test"))
+        final String errorString = RestTest.target(getPort(),"whois/syncupdates/test")
                         .request()
-                        .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(updateMntner + "\npassword: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("""
                 ***Error:   Authorisation for [mntner] OWNER-MNT failed
@@ -412,10 +416,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:      TEST
                 """;
 
-        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(updateMntner))
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                         .request()
                         .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                        .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(updateMntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("""
                 ***Error:   MD5 hashed password authentication is deprecated. Please switch to
@@ -438,10 +443,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 """;
 
         final String succeeded = SecureRestTest.target(getSecurePort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(updateMntner))
+                        "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(updateMntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
@@ -461,10 +467,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:    TEST
                 """;
 
-        final String errorString = RestTest.target(getPort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(updatePerson + "\npassword: test"))
+        final String errorString = RestTest.target(getPort(),"whois/syncupdates/test")
                         .request()
-                        .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(updatePerson + "\npassword: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("""
                 ***Error:   Authorisation for [person] PP1-TEST failed
@@ -492,10 +498,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 """;
 
         final String succeeded = SecureRestTest.target(getSecurePort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(updatePerson+ "\npassword: test"))
+                        "whois/syncupdates/test")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
-                .get(String.class);
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(updatePerson+ "\npassword: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
@@ -517,10 +524,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:       TEST
                 """;
 
-        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(updatedResource + "\npassword: irt"))
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(updatedResource + "\npassword: irt"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  0"));
         assertThat(errorString, containsString("""
@@ -551,11 +558,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:       TEST
                 """;
 
-        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(updateIrt))
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(updateIrt),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  0"));
         assertThat(errorString, containsString("""
@@ -580,11 +587,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:       TEST
                 """;
 
-        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(updateIrt))
+        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(updateIrt),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
@@ -614,11 +621,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 source:       TEST
                 """;
 
-        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test?" +
-                        "DATA=" + SyncUpdateUtils.encode(updateResource))
+        final String errorString = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(updateResource),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("Number of objects processed successfully:  1"));
     }
@@ -628,10 +635,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
     @Test
     public void delete_mntner_with_password_error() {
 
-        final String errorString = RestTest.target(getPort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(OWNER_MNT + "delete: test" + "\npassword: test"))
+        final String errorString = RestTest.target(getPort(), "whois/syncupdates/test")
                         .request()
-                        .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(OWNER_MNT + "delete: test" + "\npassword: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, containsString("""
                 ***Error:   Authorisation for [mntner] OWNER-MNT failed
@@ -648,11 +655,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
     @Test
     public void delete_existing_password_mntner_with_apikeys_no_auth_error() {
 
-        final String errorString = SecureRestTest.target(getSecurePort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(OWNER_MNT + "delete: test"))
+        final String errorString = SecureRestTest.target(getSecurePort(),"whois/syncupdates/test" )
                         .request()
                         .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_ANY_MNT))
-                        .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(OWNER_MNT + "delete: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, not(containsString("""
                 ***Error:   Authorisation for [mntner] OWNER-MNT failed
@@ -680,10 +687,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
 
         databaseHelper.addObject(personObject);
 
-        final String errorString = RestTest.target(getPort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(personObject + "delete: test"  + "\npassword: test"))
+        final String errorString = RestTest.target(getPort(),"whois/syncupdates/test")
                         .request()
-                        .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(personObject + "delete: test"  + "\npassword: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, not(containsString("""
                 ***Error:   Authorisation for [mntner] OWNER-MNT failed
@@ -710,11 +717,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
 
         databaseHelper.addObject(personObject);
 
-        final String succeeded = SecureRestTest.target(getSecurePort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(personObject + "delete: test"))
+        final String succeeded = SecureRestTest.target(getSecurePort(),"whois/syncupdates/test")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(personObject + "delete: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }
@@ -736,11 +743,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
 
         databaseHelper.addObject(personObject);
 
-        final String succeeded = SecureRestTest.target(getSecurePort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(personObject + "delete: test" + "\npassword: test"))
+        final String succeeded = SecureRestTest.target(getSecurePort(),"whois/syncupdates/test")
                 .request()
                 .cookie("crowd.token_key", "valid-token")
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(personObject + "delete: test" + "\npassword: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
@@ -765,10 +772,10 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
 
         databaseHelper.addObject(irtObject);
 
-        final String errorString = SecureRestTest.target(getSecurePort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(irtObject + "delete: test" + "\npassword: irt"))
+        final String errorString = SecureRestTest.target(getSecurePort(),"whois/syncupdates/test")
                 .request()
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(irtObject + "delete: test" + "\npassword: irt"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(errorString, not(containsString("""
                 ***Error:   Authorisation for [mntner] OWNER-MNT failed
@@ -798,11 +805,11 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
 
         databaseHelper.addObject(irtObject);
 
-        final String succeeded = SecureRestTest.target(getSecurePort(),
-                        "whois/syncupdates/test?"  + "DATA=" + SyncUpdateUtils.encode(irtObject + "delete: test"))
+        final String succeeded = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test" )
                 .request()
                 .cookie("crowd.token_key", "valid-token")
-                .get(String.class);
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(irtObject + "delete: test"),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(succeeded, containsString("Number of objects processed successfully:  1"));
     }

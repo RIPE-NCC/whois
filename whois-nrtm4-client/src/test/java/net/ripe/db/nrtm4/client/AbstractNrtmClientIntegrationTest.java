@@ -61,6 +61,12 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
         nrtm4ClientInfoRepository.truncateTables();
         nrtm4ClientRepository.truncateTables();
         nrtmServerDummy.resetDefaultMocks();
+        System.setProperty("instance.name", "localhost");
+    }
+
+    @AfterEach
+    public void tearDownLocalHost() {
+        System.clearProperty("instance.name");
     }
 
     @BeforeAll
@@ -72,16 +78,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
     @AfterAll
     public static void tearDown(){
         System.clearProperty("nrtm4.client.enabled");
-    }
-
-    @BeforeEach
-    public void setUpLocalHost() {
-        System.setProperty("instance.name", "localhost");
-    }
-
-    @AfterEach
-    public void tearDownLocalHost() {
-        System.clearProperty("instance.name");
+        System.clearProperty("nrtm4.public.key");
     }
 
     protected List<MirrorRpslObject> getMirrorRpslObject(){

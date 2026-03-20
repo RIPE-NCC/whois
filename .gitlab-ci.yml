@@ -178,6 +178,13 @@ whois-nrtm4:
   script:
     - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm4
 
+whois-nrtm4-client:
+  <<:
+    - *it_env
+    - *mariadb_configuration
+  script:
+    - mvn $MAVEN_OPTS -Ddb.host=mariadb verify -PintegrationAll -pl whois-nrtm4-client
+
 whois-query:
   <<:
     - *it_env
