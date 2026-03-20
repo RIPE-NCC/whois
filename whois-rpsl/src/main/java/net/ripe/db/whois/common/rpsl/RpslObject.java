@@ -87,8 +87,7 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
     }
 
     public static RpslObject parse(final String input) {
-        return new
-                RpslObject(RpslObjectBuilder.getAttributes(input));
+        return new RpslObject(RpslObjectBuilder.getAttributes(input));
     }
 
     public static RpslObject parse(final byte[] input) {
@@ -103,9 +102,12 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
         return new RpslObject(objectId, RpslObjectBuilder.getAttributes(input));
     }
 
-    //TODO: Send encoding as parameter instead hardcoding the name in method name
-    public static RpslObject parseUtf8(final Integer objectId, final byte[] input) {
-        return new RpslObject(objectId, RpslObjectBuilder.getAttributes(new String(input, StandardCharsets.UTF_8)));
+    public static RpslObject parse(final Integer objectId, final byte[] input, final Charset charset) {
+        final List<RpslAttribute> attributes = charset == StandardCharsets.UTF_8 ?
+                RpslObjectBuilder.getAttributes(new String(input, StandardCharsets.UTF_8)) :
+                RpslObjectBuilder.getAttributes(input);
+
+        return new RpslObject(objectId, attributes);
     }
 
     @Override

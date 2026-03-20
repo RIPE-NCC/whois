@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -297,7 +298,7 @@ public class ElasticFullTextRebuild {
                 rs -> {
                     final int objectId = rs.getInt(1);
                     try {
-                        results.add(RpslObject.parseUtf8(objectId, rs.getBytes(2)));
+                        results.add(RpslObject.parse(objectId, rs.getBytes(2), StandardCharsets.UTF_8));
                     } catch (final Exception ex) {
                         LOGGER.warn("failed to parse rpsl object for {} {}", objectId, ex );
                     }
