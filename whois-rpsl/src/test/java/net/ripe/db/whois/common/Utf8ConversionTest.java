@@ -16,7 +16,7 @@ public class Utf8ConversionTest {
     }
 
     @Test
-    public void sanitise_utf8_attributes_string() {
+    public void sanitise_utf8_control_string() {
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u0000test")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?test"))));
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u0001\u0002 \u0003\u0004 Street")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?? ?? Street"))));
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u0005\u0006 \u0007\u0008 Street")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?? ?? Street"))));

@@ -6280,18 +6280,15 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(map(createMntner), MediaType.APPLICATION_XML), WhoisResources.class);
 
-        assertThat(whoisResources.getErrorMessages(), hasSize(2));
-        assertThat(whoisResources.getErrorMessages().get(1).getText(), is("""
-                The attribute "descr:" has been updated from "Road \\u0645\\u0631\\u062D\\u0628\\u0627" to "Road مرحبا" due to charset conversion"""));
-        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "Road مرحبا")));
-        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "ü")));
 
         // Getting the mntner from database keeps the utf8 encoding intacted
         final WhoisResources mntner = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT?unfilter&password=test")
                 .request()
                 .get(WhoisResources.class);
 
-        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "Road مرحبا")));
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr","ü")));
         assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
     }
 

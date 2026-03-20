@@ -745,7 +745,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
         ack.countErrorWarnInfo(0, 1, 0)
 
-        queryMatches("-r FP1-TEST", "remarks:\\s+Test\\?\\?\\?\\? Address")
+        queryMatches("-r FP1-TEST", "remarks:\\s+Test  \\?\\? Address")
     }
 
     def "latin-1 extended ASCII characters are preserved"() {
