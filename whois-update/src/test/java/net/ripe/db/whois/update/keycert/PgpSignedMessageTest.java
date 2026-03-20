@@ -428,7 +428,7 @@ public class PgpSignedMessageTest {
     }
 
     @Test
-    public void verify_utf_8_7_encoded_message_with_greek_characters() {
+    public void verify_iso_8859_7_encoded_message_with_greek_characters() {
         final PgpSignedMessage pgpSignedMessage = PgpSignedMessage.parse(
                 "-----BEGIN PGP SIGNED MESSAGE-----\n" +
                 "Hash: SHA1\n" +

@@ -33,7 +33,7 @@ public class RpslObjectFileReader implements Iterable<String> {
                 if (fileName.endsWith(".gz")) {
                     in = new GZIPInputStream(in);
                 }
-                bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));        // split
+                bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.ISO_8859_1));        // split
                 // files are written as latin-1
             } catch (IOException e) {
                 throw new IllegalArgumentException(fileName, e);

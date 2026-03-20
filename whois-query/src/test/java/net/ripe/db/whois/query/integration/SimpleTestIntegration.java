@@ -3,13 +3,11 @@ package net.ripe.db.whois.query.integration;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.TestDateTimeProvider;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
-import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.iptree.IpTreeUpdater;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
 import net.ripe.db.whois.query.QueryMessages;
-import net.ripe.db.whois.query.QueryServer;
 import net.ripe.db.whois.query.support.AbstractQueryIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -20,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -500,6 +499,37 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
 
         assertThat(response, containsString("ERROR:110: multiple use of flag"));
         assertThat(response, containsString("The flag \"-v\" cannot be used multiple times."));
+    }
+
+
+    @Test
+    public void query_utf8_encoded_object() {
+        databaseHelper.getWhoisTemplate().execute(
+                "UPDATE last SET object = CONVERT(_latin1'" +
+                        "domain:         117.80.81.in-addr.arpa\n" +
+                        "descr:          66121 Saarbrücken\n" +
+                        "' USING utf8) WHERE pkey = '117.80.81.in-addr.arpa'");
+
+        final TelnetWhoisClient utf8Client = new TelnetWhoisClient(queryServer.getPort(), StandardCharsets.UTF_8);
+        final String response = utf8Client.sendQuery("117.80.81.in-addr.arpa");
+
+        //  0x00FC is UTF-8 representation of u-umlaut (2 bytes)
+        assertThat(response, containsString("Saarbr\u00FCcken"));
+    }
+
+
+    @Test
+    public void query_latin1_encoded_object_in_utf8_table() {
+        // 0xFC is latin1 representation of u-umlaut (1 byte)
+        databaseHelper.getWhoisTemplate().execute(
+                "UPDATE last SET object = _latin1'" +
+                        "domain:         117.80.81.in-addr.arpa\n" +
+                        "descr:           66121 Saarbrücken" +
+                        "' WHERE pkey = '117.80.81.in-addr.arpa'");
+
+        final String response = TelnetWhoisClient.queryLocalhost(queryServer.getPort(), "117.80.81.in-addr.arpa");
+
+        assertThat(response, containsString("Saarbr\u00FCcken"));
     }
 
     @Test
