@@ -47,7 +47,7 @@ public class Utf8Conversion {
     }
 
     private static void convertChar(final StringBuilder result, final char ch) {
-        final char transformedCharacter = ControlCharactersSanitation.substitute(ch);
+        final char transformedCharacter = UnicodeControlCharacterSanitiser.sanitise(ch);
         final Info info = new Info();
         final StringBuilder idnaTransformation = new StringBuilder();
         convertUsingIDNA(result, transformedCharacter, idnaTransformation, info);

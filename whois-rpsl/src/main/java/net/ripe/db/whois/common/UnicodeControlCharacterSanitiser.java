@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 // Replace control characters https://www.utf8-chartable.de/
-public class ControlCharactersSanitation {
+public class UnicodeControlCharacterSanitiser {
 
     private static final Map<Character, Character> SUBSTITUTIONS_MAP = new HashMap<>();
     
@@ -88,7 +88,7 @@ public class ControlCharactersSanitation {
     }
 
 
-    public static char substitute(final Character input) {
+    public static char sanitise(final Character input) {
         return SUBSTITUTIONS_MAP.getOrDefault(input, input);
     }
 }
