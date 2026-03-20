@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 // Replace control characters https://www.utf8-chartable.de/
-public class CharacterSubstitutions {
+public class ControlCharactersSanitation {
 
     private static final Map<Character, Character> SUBSTITUTIONS_MAP = new HashMap<>();
     
@@ -19,11 +19,12 @@ public class CharacterSubstitutions {
         SUBSTITUTIONS_MAP.put((char)0x0006, '?');
         SUBSTITUTIONS_MAP.put((char)0x0007, '?');
         SUBSTITUTIONS_MAP.put((char)0x0008, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0009, '?');
-        //SUBSTITUTIONS_MAP.put((char)0x000a, '?'); new line is allowed in free text
-        SUBSTITUTIONS_MAP.put((char)0x000b, '?');
-        SUBSTITUTIONS_MAP.put((char)0x000c, '?');
-        SUBSTITUTIONS_MAP.put((char)0x000d, '?');
+        SUBSTITUTIONS_MAP.put((char)0x0009, '\t');
+        SUBSTITUTIONS_MAP.put((char)0x000a, '\n'); //LF
+        SUBSTITUTIONS_MAP.put((char)0x000b, ' '); // vertical tab
+        SUBSTITUTIONS_MAP.put((char)0x000c, ' '); // form feed
+        SUBSTITUTIONS_MAP.put((char)0x000d, '\n'); //CR
+        SUBSTITUTIONS_MAP.put((char)0x000e, '?');
         SUBSTITUTIONS_MAP.put((char)0x000f, '?');
 
         // 0x10 - 0x1f - control
@@ -41,6 +42,7 @@ public class CharacterSubstitutions {
         SUBSTITUTIONS_MAP.put((char)0x001b, '?');
         SUBSTITUTIONS_MAP.put((char)0x001c, '?');
         SUBSTITUTIONS_MAP.put((char)0x001d, '?');
+        SUBSTITUTIONS_MAP.put((char)0x001e, '?');
         SUBSTITUTIONS_MAP.put((char)0x001f, '?');
 
         // 0x7f - control
@@ -52,7 +54,7 @@ public class CharacterSubstitutions {
         SUBSTITUTIONS_MAP.put((char)0x0082, '?');
         SUBSTITUTIONS_MAP.put((char)0x0083, '?');
         SUBSTITUTIONS_MAP.put((char)0x0084, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0085, '?');
+        SUBSTITUTIONS_MAP.put((char)0x0085, '\n'); // New line
         SUBSTITUTIONS_MAP.put((char)0x0086, '?');
         SUBSTITUTIONS_MAP.put((char)0x0087, '?');
         SUBSTITUTIONS_MAP.put((char)0x0088, '?');
@@ -61,6 +63,7 @@ public class CharacterSubstitutions {
         SUBSTITUTIONS_MAP.put((char)0x008b, '?');
         SUBSTITUTIONS_MAP.put((char)0x008c, '?');
         SUBSTITUTIONS_MAP.put((char)0x008d, '?');
+        SUBSTITUTIONS_MAP.put((char)0x008e, '?');
         SUBSTITUTIONS_MAP.put((char)0x008f, '?');
 
         // 0x90 - 0x9f -control
@@ -78,7 +81,10 @@ public class CharacterSubstitutions {
         SUBSTITUTIONS_MAP.put((char)0x009b, '?');
         SUBSTITUTIONS_MAP.put((char)0x009c, '?');
         SUBSTITUTIONS_MAP.put((char)0x009d, '?');
+        SUBSTITUTIONS_MAP.put((char)0x009e, '?');
         SUBSTITUTIONS_MAP.put((char)0x009f, '?');
+
+        SUBSTITUTIONS_MAP.put((char)0x00a0, ' '); //no-break space
     }
 
 
