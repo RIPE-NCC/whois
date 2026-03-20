@@ -22,39 +22,22 @@ public class Utf8Conversion {
         // do not instantiate
     }
 
-    public static String convertString(final String value) {
-        //TODO: consider using org.apache.commons.text.StringEscapeUtils.unescapeUnicode
-        final String utf8Value = StringEscapeUtils.unescapeJava(value);
-        final StringBuilder result = new StringBuilder();
-
-        for (char ch : utf8Value.toCharArray()) {
-            convertChar(result, ch);
-        }
-
-        return result.toString();
-    }
-
     public static RpslAttribute createUtf8Attribute(final RpslAttribute attribute){
         final StringBuilder result = new StringBuilder();
         final String utf8Value = StringEscapeUtils.unescapeJava(attribute.getValue());
 
         for (char ch : utf8Value.toCharArray()) {
             //ASCII Substitutes
-            convertChar(result, ch);
+            convertUsingIDNA(result, UnicodeControlCharacterSanitiser.sanitise(ch));
         }
 
         return new RpslAttribute(attribute.getKey(), result.toString());
     }
 
-    private static void convertChar(final StringBuilder result, final char ch) {
-        final char transformedCharacter = UnicodeControlCharacterSanitiser.sanitise(ch);
-        final Info info = new Info();
-        final StringBuilder idnaTransformation = new StringBuilder();
-        convertUsingIDNA(result, transformedCharacter, idnaTransformation, info);
-    }
-
-    private static void convertUsingIDNA(StringBuilder result, char transformedCharacter, StringBuilder idnaTransformation, Info info) {
+    private static void convertUsingIDNA(StringBuilder result, char transformedCharacter) {
         final IDNA idna = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to ss for example
+        final StringBuilder idnaTransformation = new StringBuilder();
+        final Info info = new Info();
 
         idna.nameToUnicode(String.valueOf(transformedCharacter), idnaTransformation, info);
 
