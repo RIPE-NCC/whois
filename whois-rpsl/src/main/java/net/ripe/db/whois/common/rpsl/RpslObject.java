@@ -251,7 +251,7 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
 
     @Override
     public void writeTo(final OutputStream out) throws IOException {
-        writeTo(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+        writeTo(new OutputStreamWriter(out, StandardCharsets.ISO_8859_1));
     }
 
     @Override
@@ -271,7 +271,7 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
     public byte[] toByteArray() {
         try {
             final ByteArrayOutput baos = new ByteArrayOutput();
-            writeTo(baos);
+            writeTo(baos, StandardCharsets.UTF_8);
             return baos.toByteArray();
         } catch (IOException e) {
             throw new IllegalStateException("Should never occur", e);

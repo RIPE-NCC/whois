@@ -19,7 +19,7 @@ public class RpslAttributes implements ResponseObject {
 
     @Override
     public void writeTo(final OutputStream out) throws IOException {
-        final OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+        final OutputStreamWriter writer = new OutputStreamWriter(out, StandardCharsets.ISO_8859_1);
 
         for (final RpslAttribute attribute : attributes) {
             attribute.writeTo(writer);
@@ -32,7 +32,7 @@ public class RpslAttributes implements ResponseObject {
     public byte[] toByteArray() {
         try {
             final ByteArrayOutput baos = new ByteArrayOutput();
-            writeTo(baos);
+            writeTo(baos, StandardCharsets.UTF_8);
             return baos.toByteArray();
         } catch (IOException e) {
             throw new IllegalStateException("Should never occur", e);

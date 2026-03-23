@@ -31,6 +31,7 @@ import org.mockito.stubbing.Answer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -430,7 +431,7 @@ public class RpslResponseDecoratorTest {
                 responseObject.writeTo(baos);
                 baos.write('\n');
             }
-            return baos.toString("UTF-8");
+            return baos.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
