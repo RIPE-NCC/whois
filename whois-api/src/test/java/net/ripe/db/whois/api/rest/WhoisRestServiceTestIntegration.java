@@ -2763,7 +2763,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
                 "removed soon. Please switch to an alternative authentication method before then."));
         assertThat(response.getErrorMessages().get(1).getText(), is("""
-                The attribute "person:" has been updated from "New\u00a0Person" to "New Person" due to charset conversion"""));
+                Attribute "person:" has been converted to "New Person" """));
 
         assertThat(response.getWhoisObjects(), hasSize(1));
         assertThat(response.getWhoisObjects().getFirst().getAttributes().getFirst().getValue(), is("New Person"));
@@ -2806,7 +2806,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "removed soon. Please switch to an alternative authentication method before then.");
         RestTest.assertErrorMessage(response, 1, "Warning", "Submitted object identical to database object");
         RestTest.assertErrorMessage(response, 2, "Warning", """
-                The attribute "person:" has been updated from "New\u00a0Person" to "New Person" due to charset conversion""");
+                Attribute "person:" has been converted to "New Person" """);
     }
 
     @Test
@@ -6234,7 +6234,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
         assertThat(whoisResources.getErrorMessages().get(1).getText(), is("""
-                The attribute "address:" has been updated from "你好ا Avenue" to "??? Avenue" due to charset conversion"""));
+                Attribute "address:" has been converted to "??? Avenue" """));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(2), is(new Attribute("address", "??? Avenue")));
     }
 
@@ -6258,7 +6258,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
         assertThat(whoisResources.getErrorMessages().get(1).getText(), is("""
-                The attribute "address:" has been updated from "\u4F60\u597D\u0627 Avenue" to "??? Avenue" due to charset conversion"""));
+                Attribute "address:" has been converted to "??? Avenue" """));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(2), is(new Attribute("address", "??? Avenue")));
     }
 
