@@ -513,7 +513,6 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
         final TelnetWhoisClient utf8Client = new TelnetWhoisClient(queryServer.getPort(), StandardCharsets.UTF_8);
         final String response = utf8Client.sendQuery("117.80.81.in-addr.arpa");
 
-        //  0x00FC is UTF-8 representation of u-umlaut (2 bytes)
         assertThat(response, containsString("Saarbr\u00FCcken"));
     }
 

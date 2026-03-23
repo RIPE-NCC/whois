@@ -103,9 +103,10 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
     }
 
     public static RpslObject parse(final Integer objectId, final byte[] input, final Charset charset) {
-        final List<RpslAttribute> attributes = charset == StandardCharsets.UTF_8 ?
-                RpslObjectBuilder.getAttributes(new String(input, StandardCharsets.UTF_8)) :
-                RpslObjectBuilder.getAttributes(input);
+        final List<RpslAttribute> attributes = charset == StandardCharsets.ISO_8859_1 ?
+                RpslObjectBuilder.getAttributes(input):
+                RpslObjectBuilder.getAttributes(new String(input, charset));
+
 
         return new RpslObject(objectId, attributes);
     }
