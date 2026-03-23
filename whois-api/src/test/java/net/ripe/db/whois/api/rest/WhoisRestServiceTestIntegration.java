@@ -3718,6 +3718,35 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void update_person_non_latin1_characters_in_address_are_substituted() {
+        {
+            final RpslObject update = new RpslObjectBuilder(TEST_PERSON)
+                    .addAttributeAfter(new RpslAttribute(AttributeType.ADDRESS, "Test\u007F\u008f Address"), AttributeType.ADDRESS).sort().get();
+
+            final WhoisResources response =
+                    RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                            .request()
+                            .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, update), MediaType.APPLICATION_XML),
+                                    WhoisResources.class);
+
+            RestTest.assertWarningCount(response, 2);
+
+            assertThat(response.getErrorMessages().getLast().getText(), is("Attribute \"address:\" has been converted to \"Test?? Address\""));
+
+            final RpslObject lookupObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP1-TEST");
+            assertThat(lookupObject.findAttributes(AttributeType.ADDRESS).getLast().getCleanValue(), is("Test?? Address"));
+        }
+        {
+            final WhoisResources response =
+                    RestTest.target(getPort(), "whois/test/person/TP1-TEST?password=test")
+                            .request()
+                            .get(WhoisResources.class);
+
+            assertThat(response.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("address", "Test?? Address")));
+        }
+    }
+
+    @Test
     public void create_invalid_control_character() {
         try {
             RestTest.target(getPort(), "whois/test/person?password=test")

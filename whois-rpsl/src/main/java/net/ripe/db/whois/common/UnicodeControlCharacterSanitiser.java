@@ -10,81 +10,81 @@ public class UnicodeControlCharacterSanitiser {
     
     static {
         // 0x00 - 0x0f - control
-        SUBSTITUTIONS_MAP.put((char)0x0000, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0001, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0002, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0003, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0004, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0005, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0006, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0007, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0008, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0009, '\t');
-        SUBSTITUTIONS_MAP.put((char)0x000a, '\n'); //LF
-        SUBSTITUTIONS_MAP.put((char)0x000b, ' '); // vertical tab
-        SUBSTITUTIONS_MAP.put((char)0x000c, ' '); // form feed
-        SUBSTITUTIONS_MAP.put((char)0x000d, '\n'); //CR
-        SUBSTITUTIONS_MAP.put((char)0x000e, '?');
-        SUBSTITUTIONS_MAP.put((char)0x000f, '?');
+        SUBSTITUTIONS_MAP.put('\u0000', '?');
+        SUBSTITUTIONS_MAP.put('\u0001', '?');
+        SUBSTITUTIONS_MAP.put('\u0002', '?');
+        SUBSTITUTIONS_MAP.put('\u0003', '?');
+        SUBSTITUTIONS_MAP.put('\u0004', '?');
+        SUBSTITUTIONS_MAP.put('\u0005', '?');
+        SUBSTITUTIONS_MAP.put('\u0006', '?');
+        SUBSTITUTIONS_MAP.put('\u0007', '?');
+        SUBSTITUTIONS_MAP.put('\u0008', '?');
+        SUBSTITUTIONS_MAP.put('\u0009', '\t');
+        SUBSTITUTIONS_MAP.put('\n', '\n'); //LF
+        SUBSTITUTIONS_MAP.put('\u000b', ' '); // vertical tab
+        SUBSTITUTIONS_MAP.put('\u000c', ' '); // form feed
+        SUBSTITUTIONS_MAP.put('\r', '\n'); //CR
+        SUBSTITUTIONS_MAP.put('\u000e', '?');
+        SUBSTITUTIONS_MAP.put('\u000f', '?');
 
         // 0x10 - 0x1f - control
-        SUBSTITUTIONS_MAP.put((char)0x0010, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0011, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0012, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0013, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0014, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0015, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0016, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0017, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0018, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0019, '?');
-        SUBSTITUTIONS_MAP.put((char)0x001a, '?');
-        SUBSTITUTIONS_MAP.put((char)0x001b, '?');
-        SUBSTITUTIONS_MAP.put((char)0x001c, '?');
-        SUBSTITUTIONS_MAP.put((char)0x001d, '?');
-        SUBSTITUTIONS_MAP.put((char)0x001e, '?');
-        SUBSTITUTIONS_MAP.put((char)0x001f, '?');
+        SUBSTITUTIONS_MAP.put('\u0010', '?');
+        SUBSTITUTIONS_MAP.put('\u0011', '?');
+        SUBSTITUTIONS_MAP.put('\u0012', '?');
+        SUBSTITUTIONS_MAP.put('\u0013', '?');
+        SUBSTITUTIONS_MAP.put('\u0014', '?');
+        SUBSTITUTIONS_MAP.put('\u0015', '?');
+        SUBSTITUTIONS_MAP.put('\u0016', '?');
+        SUBSTITUTIONS_MAP.put('\u0017', '?');
+        SUBSTITUTIONS_MAP.put('\u0018', '?');
+        SUBSTITUTIONS_MAP.put('\u0019', '?');
+        SUBSTITUTIONS_MAP.put('\u001a', '?');
+        SUBSTITUTIONS_MAP.put('\u001b', '?');
+        SUBSTITUTIONS_MAP.put('\u001c', '?');
+        SUBSTITUTIONS_MAP.put('\u001d', '?');
+        SUBSTITUTIONS_MAP.put('\u001e', '?');
+        SUBSTITUTIONS_MAP.put('\u001f', '?');
 
         // 0x7f - control
-        SUBSTITUTIONS_MAP.put((char)0x007f, '?');
+        SUBSTITUTIONS_MAP.put('\u007f', '?');
 
         // 0x80 - 0x8f - control
-        SUBSTITUTIONS_MAP.put((char)0x0080, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0081, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0082, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0083, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0084, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0085, '\n'); // New line
-        SUBSTITUTIONS_MAP.put((char)0x0086, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0087, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0088, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0089, '?');
-        SUBSTITUTIONS_MAP.put((char)0x008a, '?');
-        SUBSTITUTIONS_MAP.put((char)0x008b, '?');
-        SUBSTITUTIONS_MAP.put((char)0x008c, '?');
-        SUBSTITUTIONS_MAP.put((char)0x008d, '?');
-        SUBSTITUTIONS_MAP.put((char)0x008e, '?');
-        SUBSTITUTIONS_MAP.put((char)0x008f, '?');
+        SUBSTITUTIONS_MAP.put('\u0080', '?');
+        SUBSTITUTIONS_MAP.put('\u0081', '?');
+        SUBSTITUTIONS_MAP.put('\u0082', '?');
+        SUBSTITUTIONS_MAP.put('\u0083', '?');
+        SUBSTITUTIONS_MAP.put('\u0084', '?');
+        SUBSTITUTIONS_MAP.put('\u0085', '\n'); // New line
+        SUBSTITUTIONS_MAP.put('\u0086', '?');
+        SUBSTITUTIONS_MAP.put('\u0087', '?');
+        SUBSTITUTIONS_MAP.put('\u0088', '?');
+        SUBSTITUTIONS_MAP.put('\u0089', '?');
+        SUBSTITUTIONS_MAP.put('\u008a', '?');
+        SUBSTITUTIONS_MAP.put('\u008b', '?');
+        SUBSTITUTIONS_MAP.put('\u008c', '?');
+        SUBSTITUTIONS_MAP.put('\u008d', '?');
+        SUBSTITUTIONS_MAP.put('\u008e', '?');
+        SUBSTITUTIONS_MAP.put('\u008f', '?');
 
         // 0x90 - 0x9f -control
-        SUBSTITUTIONS_MAP.put((char)0x0090, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0091, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0092, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0093, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0094, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0095, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0096, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0097, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0098, '?');
-        SUBSTITUTIONS_MAP.put((char)0x0099, '?');
-        SUBSTITUTIONS_MAP.put((char)0x009a, '?');
-        SUBSTITUTIONS_MAP.put((char)0x009b, '?');
-        SUBSTITUTIONS_MAP.put((char)0x009c, '?');
-        SUBSTITUTIONS_MAP.put((char)0x009d, '?');
-        SUBSTITUTIONS_MAP.put((char)0x009e, '?');
-        SUBSTITUTIONS_MAP.put((char)0x009f, '?');
+        SUBSTITUTIONS_MAP.put('\u0090', '?');
+        SUBSTITUTIONS_MAP.put('\u0091', '?');
+        SUBSTITUTIONS_MAP.put('\u0092', '?');
+        SUBSTITUTIONS_MAP.put('\u0093', '?');
+        SUBSTITUTIONS_MAP.put('\u0094', '?');
+        SUBSTITUTIONS_MAP.put('\u0095', '?');
+        SUBSTITUTIONS_MAP.put('\u0096', '?');
+        SUBSTITUTIONS_MAP.put('\u0097', '?');
+        SUBSTITUTIONS_MAP.put('\u0098', '?');
+        SUBSTITUTIONS_MAP.put('\u0099', '?');
+        SUBSTITUTIONS_MAP.put('\u009a', '?');
+        SUBSTITUTIONS_MAP.put('\u009b', '?');
+        SUBSTITUTIONS_MAP.put('\u009c', '?');
+        SUBSTITUTIONS_MAP.put('\u009d', '?');
+        SUBSTITUTIONS_MAP.put('\u009e', '?');
+        SUBSTITUTIONS_MAP.put('\u009f', '?');
 
-        SUBSTITUTIONS_MAP.put((char)0x00a0, ' '); //no-break space
+        SUBSTITUTIONS_MAP.put('\u00a0', ' '); //no-break space
     }
 
 

@@ -22,7 +22,6 @@ public class Utf8ConversionTest {
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u0005\u0006 \u0007\u0008 Street")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?? ?? Street"))));
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u0009test")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\ttest"))));
 
-
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u001b\u001f \u007f\u0084 Street")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?? ?? Street"))));
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u0085\u008c \u0090\u00a0 Street")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\n? ?  Street "))));
     }
