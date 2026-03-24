@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -51,7 +52,7 @@ class JdbcExportDao implements ExportDao {
             final int objectId = rs.getInt(1);
             RpslObject object = null;
             try {
-                object = RpslObject.parse(objectId, rs.getBytes(2));
+                object = RpslObject.parse(objectId, rs.getBytes(2), StandardCharsets.UTF_8);
             } catch (RuntimeException e) {
                 LOGGER.warn("Unable to parse RPSL object with object_id: {}, {}", objectId, e.toString());
             }

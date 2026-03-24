@@ -82,6 +82,18 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
             objects.add(roleObject);
         }
 
+        databaseHelper.addObject("""
+                mntner:     UTF8-MNT
+                descr:      ü
+                descr:      你好ا Avenue
+                admin-c:    ROLE1-TEST
+                upd-to:     upd-to@ripe.net
+                notify:     notify@ripe.net
+                auth:       SSO mherran@ripe.net
+                mnt-by:     UTF8-MNT
+                source:     TEST
+                """);
+
         queryServer.start();
     }
 
@@ -104,7 +116,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
             checkFile("internal/split/test.db." + objectType.getName() + ".gz");
         }
 
-        checkFile("public/TEST.CURRENTSERIAL", "120");
+        checkFile("public/TEST.CURRENTSERIAL", "121");
 
         checkFile("public/test.db.gz",
                 "person:         Placeholder Person Object\n",
@@ -128,6 +140,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        * http://www.ripe.net/whois\n" +
                         "remarks:        ****************************\n");
 
+
         checkFile("public/split/test.db.person.gz", "person:         Placeholder Person Object");
 
         checkFile("public/split/test.db.mntner.gz",
@@ -150,6 +163,23 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "remarks:        * To view the original object, please query the RIPE Database at:\n" +
                 "remarks:        * http://www.ripe.net/whois\n" +
                 "remarks:        ****************************\n");
+
+        // Contains dummy UTF mntner
+        checkFile("public/split/test.db.mntner.gz", """
+                mntner:         UTF8-MNT
+                admin-c:        DUMY-RIPE
+                upd-to:         unread@ripe.net
+                auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security
+                mnt-by:         UTF8-MNT
+                source:         TEST
+                remarks:        ****************************
+                remarks:        * THIS OBJECT IS MODIFIED
+                remarks:        * Please note that all data that is generally regarded as personal
+                remarks:        * data has been removed from this object.
+                remarks:        * To view the original object, please query the RIPE Database at:
+                remarks:        * http://www.ripe.net/whois
+                remarks:        ****************************
+                """);
 
         checkFile("internal/split/test.db.person.gz",
                 "person:         Test person 0",
@@ -218,6 +248,19 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "mntner:         DEV-MNT10\n" +
                         "auth:           MD5-PW $1$xNv6umMG$cBd9DXqWEpsqeBq2AUjGy/\n" +
                         "source:         TEST");
+
+        checkFile("internal/split/test.db.mntner.gz",
+                """
+                        mntner:         UTF8-MNT
+                        descr:          ü
+                        descr:          ??? Avenue
+                        admin-c:        ROLE1-TEST
+                        upd-to:         upd-to@ripe.net
+                        notify:         notify@ripe.net
+                        auth:           SSO mherran@ripe.net
+                        mnt-by:         UTF8-MNT
+                        source:         TEST
+                        """);
     }
 
     @Test
