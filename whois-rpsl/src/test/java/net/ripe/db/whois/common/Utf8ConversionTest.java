@@ -26,4 +26,22 @@ public class Utf8ConversionTest {
         assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\u0085\u008c \u0090\u00a0 Street")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\n? ?  Street "))));
     }
 
+    @Test
+    public void exploitable_characters_already_handled(){
+        // Variation Selectors: U+FE00 – U+FE0F
+       for (int cp = 0xFE00; cp <= 0xFE0F; cp++) {
+            final String escapedEncoding = String.format("\\u%04X", cp);
+            assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", escapedEncoding + "test")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?test"))));
+        }
+
+        // Variation Selectors Supplement: U+E0100 – U+E01EF
+        for (int cp = 0xE0100; cp <= 0xE01EF; cp++) {
+            final String invisibleString = new String(Character.toChars(cp)); // needs to go in surrogates because 5 hex
+            assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", invisibleString + "test")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?test"))));
+        }
+
+        // Try directly with E0100 surrogates
+        assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "\uDB40\uDD00test")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?test"))));
+    }
+
 }

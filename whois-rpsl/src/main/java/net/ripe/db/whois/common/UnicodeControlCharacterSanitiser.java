@@ -6,89 +6,103 @@ import java.util.Map;
 // Replace control characters https://www.utf8-chartable.de/
 public class UnicodeControlCharacterSanitiser {
 
-    private static final Map<Character, Character> SUBSTITUTIONS_MAP = new HashMap<>();
-    
+    private static final Map<Integer, Character> CODEPOINTS_SUBSTITUTIONS_MAP = new HashMap<>();
+
+    //Codepoints have to be used to avoid issues with surrogates
+    //https://medium.com/@kaustubh.saha/a-java-developers-guide-to-surviving-unicode-strings-6a00cf94309c
+
     static {
         // 0x00 - 0x0f - control
-        SUBSTITUTIONS_MAP.put('\u0000', '?');
-        SUBSTITUTIONS_MAP.put('\u0001', '?');
-        SUBSTITUTIONS_MAP.put('\u0002', '?');
-        SUBSTITUTIONS_MAP.put('\u0003', '?');
-        SUBSTITUTIONS_MAP.put('\u0004', '?');
-        SUBSTITUTIONS_MAP.put('\u0005', '?');
-        SUBSTITUTIONS_MAP.put('\u0006', '?');
-        SUBSTITUTIONS_MAP.put('\u0007', '?');
-        SUBSTITUTIONS_MAP.put('\u0008', '?');
-        SUBSTITUTIONS_MAP.put('\u0009', '\t');
-        SUBSTITUTIONS_MAP.put('\n', '\n'); //LF
-        SUBSTITUTIONS_MAP.put('\u000b', ' '); // vertical tab
-        SUBSTITUTIONS_MAP.put('\u000c', ' '); // form feed
-        SUBSTITUTIONS_MAP.put('\r', '\n'); //CR
-        SUBSTITUTIONS_MAP.put('\u000e', '?');
-        SUBSTITUTIONS_MAP.put('\u000f', '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0000, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0001, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0002, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0003, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0004, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0005, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0006, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0007, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0008, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0009, '\t');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000A, '\n'); //LF
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000B, ' '); // vertical tab
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000C, ' '); // form feed
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000D, '\n'); //CR
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000E, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000F, '?');
 
         // 0x10 - 0x1f - control
-        SUBSTITUTIONS_MAP.put('\u0010', '?');
-        SUBSTITUTIONS_MAP.put('\u0011', '?');
-        SUBSTITUTIONS_MAP.put('\u0012', '?');
-        SUBSTITUTIONS_MAP.put('\u0013', '?');
-        SUBSTITUTIONS_MAP.put('\u0014', '?');
-        SUBSTITUTIONS_MAP.put('\u0015', '?');
-        SUBSTITUTIONS_MAP.put('\u0016', '?');
-        SUBSTITUTIONS_MAP.put('\u0017', '?');
-        SUBSTITUTIONS_MAP.put('\u0018', '?');
-        SUBSTITUTIONS_MAP.put('\u0019', '?');
-        SUBSTITUTIONS_MAP.put('\u001a', '?');
-        SUBSTITUTIONS_MAP.put('\u001b', '?');
-        SUBSTITUTIONS_MAP.put('\u001c', '?');
-        SUBSTITUTIONS_MAP.put('\u001d', '?');
-        SUBSTITUTIONS_MAP.put('\u001e', '?');
-        SUBSTITUTIONS_MAP.put('\u001f', '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0010, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0011, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0012, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0013, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0014, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0015, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0016, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0017, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0018, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0019, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x001A, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x001B, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x001C, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x001D, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x001E, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x001F, '?');
 
         // 0x7f - control
-        SUBSTITUTIONS_MAP.put('\u007f', '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x007f, '?');
 
         // 0x80 - 0x8f - control
-        SUBSTITUTIONS_MAP.put('\u0080', '?');
-        SUBSTITUTIONS_MAP.put('\u0081', '?');
-        SUBSTITUTIONS_MAP.put('\u0082', '?');
-        SUBSTITUTIONS_MAP.put('\u0083', '?');
-        SUBSTITUTIONS_MAP.put('\u0084', '?');
-        SUBSTITUTIONS_MAP.put('\u0085', '\n'); // New line
-        SUBSTITUTIONS_MAP.put('\u0086', '?');
-        SUBSTITUTIONS_MAP.put('\u0087', '?');
-        SUBSTITUTIONS_MAP.put('\u0088', '?');
-        SUBSTITUTIONS_MAP.put('\u0089', '?');
-        SUBSTITUTIONS_MAP.put('\u008a', '?');
-        SUBSTITUTIONS_MAP.put('\u008b', '?');
-        SUBSTITUTIONS_MAP.put('\u008c', '?');
-        SUBSTITUTIONS_MAP.put('\u008d', '?');
-        SUBSTITUTIONS_MAP.put('\u008e', '?');
-        SUBSTITUTIONS_MAP.put('\u008f', '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0080, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0081, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0082, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0083, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0084, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0085, '\n'); // New line
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0086, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0087, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0088, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0089, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x008A, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x008B, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x008C, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x008D, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x008E, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x008F, '?');
 
         // 0x90 - 0x9f -control
-        SUBSTITUTIONS_MAP.put('\u0090', '?');
-        SUBSTITUTIONS_MAP.put('\u0091', '?');
-        SUBSTITUTIONS_MAP.put('\u0092', '?');
-        SUBSTITUTIONS_MAP.put('\u0093', '?');
-        SUBSTITUTIONS_MAP.put('\u0094', '?');
-        SUBSTITUTIONS_MAP.put('\u0095', '?');
-        SUBSTITUTIONS_MAP.put('\u0096', '?');
-        SUBSTITUTIONS_MAP.put('\u0097', '?');
-        SUBSTITUTIONS_MAP.put('\u0098', '?');
-        SUBSTITUTIONS_MAP.put('\u0099', '?');
-        SUBSTITUTIONS_MAP.put('\u009a', '?');
-        SUBSTITUTIONS_MAP.put('\u009b', '?');
-        SUBSTITUTIONS_MAP.put('\u009c', '?');
-        SUBSTITUTIONS_MAP.put('\u009d', '?');
-        SUBSTITUTIONS_MAP.put('\u009e', '?');
-        SUBSTITUTIONS_MAP.put('\u009f', '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0090, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0091, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0092, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0093, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0094, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0095, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0096, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0097, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0098, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x0099, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x009A, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x009B, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x009C, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x009D, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x009E, '?');
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x009F, '?');
 
-        SUBSTITUTIONS_MAP.put('\u00a0', ' '); //no-break space
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x00A0, ' '); //no-break space
+
+
+        // Invisible unicode surrogate pairs
+        for (int cp = 0xE0100; cp <= 0xE01EF; cp++) {
+            CODEPOINTS_SUBSTITUTIONS_MAP.put(cp, '?');
+        }
+
+        // Invisible unicode
+        for (int cp = 0xFE00; cp <= 0xFE0F; cp++) {
+            CODEPOINTS_SUBSTITUTIONS_MAP.put(cp, '?');
+        }
     }
 
-
-    public static char sanitise(final Character input) {
-        return SUBSTITUTIONS_MAP.getOrDefault(input, input);
+    public static char sanitiseCodePoints(final int codePoints) {
+        return CODEPOINTS_SUBSTITUTIONS_MAP.getOrDefault(codePoints, (char)codePoints);
     }
+
 }

@@ -26,10 +26,10 @@ public class Utf8Conversion {
         final StringBuilder result = new StringBuilder();
         final String utf8Value = StringEscapeUtils.unescapeJava(attribute.getValue());
 
-        for (char ch : utf8Value.toCharArray()) {
-            //ASCII Substitutes
-            convertUsingIDNA(result, UnicodeControlCharacterSanitiser.sanitise(ch));
-        }
+        utf8Value.codePoints().forEach(cp -> {
+            char sanitiseCharacter = UnicodeControlCharacterSanitiser.sanitiseCodePoints(cp);
+            convertUsingIDNA(result, sanitiseCharacter);
+        });
 
         return new RpslAttribute(attribute.getKey(), result.toString());
     }

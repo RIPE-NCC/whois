@@ -6312,12 +6312,105 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         assertThat(whoisResources.getErrorMessages(), hasSize(1));
         assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "ü")));
 
-        // Getting the mntner from database keeps the utf8 encoding intacted
+        // Getting the mntner from database keeps the utf8 encoding untouched
         final WhoisResources mntner = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT?unfilter&password=test")
                 .request()
                 .get(WhoisResources.class);
 
         assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr","ü")));
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
+    }
+
+
+    @Test
+    public void create_person_utf8_free_text_invisible_5_hex_characters_pair_then_empty_value() {
+        final RpslObject createMntner = RpslObject.parse(String.format("""
+                mntner:        OWNER1-MNT
+                descr:         %s
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                remarks:       你好ا Avenue
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                """, new String(Character.toChars(0xE0100))));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner?password=test")
+                .request()
+                .post(Entity.entity(map(createMntner), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "")));
+
+        // Getting the mntner from database keeps the utf8 encoding untouched
+        final WhoisResources mntner = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT?unfilter&password=test")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr","")));
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
+    }
+
+    @Test
+    public void create_person_utf8_free_text_invisible_4_hex_characters_pair_then_empty_value() {
+        final RpslObject createMntner = RpslObject.parse(String.format("""
+                mntner:        OWNER1-MNT
+                descr:         %s
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                remarks:       你好ا Avenue
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                """, new String(Character.toChars(0xFE00))));
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner?password=test")
+                .request()
+                .post(Entity.entity(map(createMntner), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(1).getText(), is("Attribute \"descr:\" has been converted to \"?\""));
+
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "?")));
+
+        // Getting the mntner from a database keeps the utf8 encoding untouched
+        final WhoisResources mntner = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT?unfilter&password=test")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr","?")));
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
+    }
+
+    @Test
+    public void create_person_utf8_free_text_surrogate_pair_then_empty_value() {
+        final RpslObject createMntner = RpslObject.parse("""
+                mntner:        OWNER1-MNT
+                descr:         \uDB40\uDD00
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                remarks:       你好ا Avenue
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                """);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner?password=test")
+                .request()
+                .post(Entity.entity(map(createMntner), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr", "")));
+
+        // Getting the mntner from database keeps the utf8 encoding untouched
+        final WhoisResources mntner = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT?unfilter&password=test")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr","")));
         assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
     }
 
