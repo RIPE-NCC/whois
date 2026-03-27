@@ -1611,7 +1611,6 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
 
                 """.stripIndent(true)
         )
-
         then:
         def ack = new AckResponse("", message)
 
@@ -1619,7 +1618,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertSuccess(2, 0, 2, 0, 0)
         ack.summary.assertErrors(0, 0, 0, 0)
 
-        ack.countErrorWarnInfo(0, 3, 2)
+        ack.countErrorWarnInfo(0, 2, 2)
         ack.successes.any { it.operation == "Modify" && it.key == "[inet6num] 2001:600::/32" }
         ack.infoSuccessMessagesFor("Modify", "[inet6num] 2001:600::/32") == [
                 "Authorisation override used"]

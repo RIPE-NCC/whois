@@ -544,7 +544,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                     """.stripIndent(true)))
       then:
         update =~ /FAIL/
-        update =~ /Error:   Changing "mnt-lower:" value requires administrative authorisation/
+        update =~ /Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED\n            ANYCAST:" status/
     }
 
     def "modify, mnt-routes with value outside given address prefix"() {
