@@ -10,7 +10,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
     @Override
     Map<String, String> getTransients() {
         [
-                "RL"             : """\
+            "RL"             : """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -22,7 +22,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 """,
-                "RL-ORG"         : """\
+            "RL-ORG"         : """\
                 role:    First Role
                 address: St James Street
                 address: Burnley
@@ -35,7 +35,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 """,
-                "ORG"            : """\
+            "ORG"            : """\
                 organisation:    auto-1
                 org-type:        other
                 org-name:        First Org
@@ -48,7 +48,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          owner2-mnt
                 source:          TEST
                 """,
-                "ORG-NAME"       : """\
+            "ORG-NAME"       : """\
                 organisation:    ORG-FO1-TEST
                 org-type:        other
                 org-name:        First Org
@@ -62,7 +62,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          owner2-mnt
                 source:          TEST
                 """,
-                "ORG-NAME-COMMENT"       : """\
+            "ORG-NAME-COMMENT"       : """\
                 organisation:    ORG-FO1-COMMENT
                 org-type:        other
                 org-name:        First Org #test comment
@@ -77,7 +77,31 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:          ripe-NCC-hM-mnT
                 source:          TEST
                 """,
-                "ALLOC-PA"       : """\
+            "ORG-OTO1-TEST": """\
+                organisation:    ORG-OTO1-TEST
+                org-type:        other
+                org-name:        Other Test org
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                language:        NL
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+            """,
+            "ORG-HR1-TEST": """\
+                organisation:   ORG-HR1-TEST
+                org-type:       LIR
+                org-name:       Regional Internet Registry
+                country:        NL
+                address:        RIPE NCC
+                e-mail:         dbtest@ripe.net
+                ref-nfy:        dbtest-org@ripe.net
+                mnt-ref:        owner3-mnt
+                mnt-by:         owner2-mnt
+                source:         TEST
+                """,
+            "ALLOC-PA"       : """\
                 inetnum:      192.168.0.0 - 192.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -90,7 +114,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "ASSIGN-PA"      : """\
+            "ASSIGN-PA"      : """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -103,7 +127,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "LEGACY"         : """\
+            "LEGACY"         : """\
                 inetnum:      10.168.0.0 - 10.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -116,7 +140,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "LEGACY-NO-ORG"  : """\
+            "LEGACY-NO-ORG"  : """\
                 inetnum:      10.168.0.0 - 10.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -128,7 +152,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "LEGACY-OTHER"   : """\
+            "LEGACY-OTHER"   : """\
                 inetnum:      10.168.0.0 - 10.169.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -141,7 +165,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "ASSIGN-PI"      : """\
+            "ASSIGN-PI"      : """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -155,7 +179,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "ASSIGN-PI-OTHER": """\
+            "ASSIGN-PI-OTHER": """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -169,7 +193,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "ASSIGN-PA-OTHER": """\
+            "ASSIGN-PA-OTHER": """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -182,7 +206,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-lower:    LIR-MNT
                 source:       TEST
                 """,
-                "AS500"          : """\
+            "AS500"          : """\
                 aut-num:     AS500
                 as-name:     TEST-AS
                 descr:       Testing Authorisation code
@@ -193,7 +217,7 @@ class OrgSpec extends BaseQueryUpdateSpec {
                 mnt-by:      RIPE-NCC-END-MNT
                 source:      TEST
                 """,
-                "ASSIGN-PI-OTHER-OFA11": """\
+            "ASSIGN-PI-OTHER-OFA11": """\
                 inetnum:      192.168.255.0 - 192.168.255.255
                 netname:      TEST-NET-NAME
                 descr:        TEST network
@@ -4315,6 +4339,41 @@ class OrgSpec extends BaseQueryUpdateSpec {
             queryObject("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
     }
 
+    def "create end user organisation, RIPE NCC maintainer can not add two reg-nr attributes"() {
+        expect:
+        queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
+
+        when:
+            def ack = syncUpdateWithResponse("""
+                organisation:    auto-1
+                org-type:        LIR
+                org-name:        First Org
+                address:         RIPE NCC
+                                 Singel 258
+                                 1016 AB Amsterdam
+                                 Netherlands
+                e-mail:          dbtest@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          ripe-NCC-hM-mnT
+                reg-nr:          12345
+                reg-nr:          67890
+                source:          TEST
+
+                password: hm
+                """.stripIndent(true)
+            )
+
+        then:
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 0, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[organisation] auto-1" }
+        ack.errorMessagesFor("Create", "[organisation] auto-1") ==
+                ["Attribute \"reg-nr\" appears more than once"]
+    }
+
     def "create end user organisation, override can add reg-nr attribute"() {
         expect:
         queryObjectNotFound("-r -T organisation ORG-FO1-TEST", "organisation", "ORG-FO1-TEST")
@@ -4346,7 +4405,6 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 2, 1)
-
     }
 
     def "modify end user organisation, user cannot add reg-nr attribute"() {
@@ -4388,6 +4446,43 @@ class OrgSpec extends BaseQueryUpdateSpec {
         query_object_not_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "12345")
     }
 
+    def "modify end user organisation, user cannot remove reg-nr attribute"() {
+      given:
+        syncUpdate(getTransient("ORG-OTO1-TEST") + "reg-nr: N/A\noverride:        denis,override1")
+      expect:
+        query_object_matches("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "reg-nr:\\s*N/A")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                organisation:    ORG-OTO1-TEST
+                org-type:        other
+                org-name:        Other Test org
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                language:        NL
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = ackFor message
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errorMessagesFor("Modify", "[organisation] ORG-OTO1-TEST") == [
+                "The \"reg-nr\" attribute can only be added or removed by the RIPE NCC"]
+    }
+
     def "modify end user organisation, override can add reg-nr attribute"() {
         expect:
         queryObject("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST")
@@ -4419,6 +4514,148 @@ class OrgSpec extends BaseQueryUpdateSpec {
         ack.countErrorWarnInfo(0, 1, 1)
 
         query_object_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "12345")
+    }
+
+    def "modify end user organisation, override can remove reg-nr attribute"() {
+      given:
+        syncUpdate(getTransient("ORG-OTO1-TEST") + "reg-nr: N/A\noverride:        denis,override1")
+      expect:
+        query_object_matches("-r -T organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "reg-nr:\\s*N/A")
+      when:
+        def message = syncUpdate("""\
+                organisation:    ORG-OTO1-TEST
+                org-type:        other
+                org-name:        Other Test org
+                address:         RIPE NCC
+                e-mail:          dbtest@ripe.net
+                language:        NL
+                ref-nfy:         dbtest-org@ripe.net
+                mnt-ref:         owner2-mnt
+                mnt-by:          owner2-mnt
+                source:  TEST
+                override:        denis,override1
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+
+        query_object_not_matches("-r -GBT organisation ORG-OTO1-TEST", "organisation", "ORG-OTO1-TEST", "reg-nr")
+    }
+
+    def "modify LIR organisation, user cannot change reg-nr attribute"() {
+      given:
+        syncUpdate(getTransient("ORG-HR1-TEST") + "reg-nr: N/A\noverride:        denis,override1")
+      expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "reg-nr:\\s*N/A")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """
+                organisation:   ORG-HR1-TEST
+                org-type:       LIR
+                org-name:       Regional Internet Registry
+                country:        NL
+                address:        RIPE NCC
+                e-mail:         dbtest@ripe.net
+                ref-nfy:        dbtest-org@ripe.net
+                mnt-ref:        owner3-mnt
+                mnt-by:         owner2-mnt
+                source:         TEST
+                reg-nr:         changed
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = ackFor message
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errorMessagesFor("Modify", "[organisation] ORG-HR1-TEST") == [
+                "The \"reg-nr\" attribute can only be changed by the RIPE NCC"]
+    }
+
+    def "modify LIR organisation, user cannot remove reg-nr attribute"() {
+      given:
+        syncUpdate(getTransient("ORG-HR1-TEST") + "reg-nr: N/A\noverride:        denis,override1")
+      expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "reg-nr:\\s*N/A")
+      when:
+        def message = send new Message(
+                subject: "",
+                body: """
+                organisation:   ORG-HR1-TEST
+                org-type:       LIR
+                org-name:       Regional Internet Registry
+                country:        NL
+                address:        RIPE NCC
+                e-mail:         dbtest@ripe.net
+                ref-nfy:        dbtest-org@ripe.net
+                mnt-ref:        owner3-mnt
+                mnt-by:         owner2-mnt
+                source:         TEST
+
+                password: owner2
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = ackFor message
+        ack.errors
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 0, 1, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errorMessagesFor("Modify", "[organisation] ORG-HR1-TEST") == [
+                "The \"reg-nr\" attribute can only be added or removed by the RIPE NCC"]
+    }
+
+    def "modify LIR organisation, override can change reg-nr attribute"() {
+      given:
+        syncUpdate(getTransient("ORG-HR1-TEST") + "reg-nr: 12345\noverride:        denis,override1")
+      expect:
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "reg-nr:\\s*12345")
+      when:
+        def message = syncUpdate("""\
+                organisation:   ORG-HR1-TEST
+                org-type:       LIR
+                org-name:       Regional Internet Registry
+                country:        NL
+                address:        RIPE NCC
+                e-mail:         dbtest@ripe.net
+                ref-nfy:        dbtest-org@ripe.net
+                mnt-ref:        owner3-mnt
+                mnt-by:         owner2-mnt
+                source:         TEST
+                reg-nr:         67890
+                override:       denis,override1
+                """.stripIndent(true)
+        )
+
+      then:
+        def ack = new AckResponse("", message)
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 0, 1, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.countErrorWarnInfo(0, 1, 1)
+
+        query_object_matches("-r -T organisation ORG-HR1-TEST", "organisation", "ORG-HR1-TEST", "reg-nr:\\s*67890")
     }
 
 }
