@@ -1501,7 +1501,8 @@ class InetnumIntegrationSpec extends BaseWhoisSourceSpec {
                 """.stripIndent(true))
         then:
         response =~ /Modify FAILED: \[inetnum\] 192.0.0.0 - 192.0.0.255/
-        response =~ /\*\*\*Error:   Changing "mnt-lower:" value requires administrative authorisation/
+        response =~ /\*\*\*Error:   You cannot add or remove a RIPE NCC maintainer/
+        response =~ /\*\*\*Error:   "mnt-lower:" attribute not allowed for resources with "ASSIGNED\n            ANYCAST:" status/
     }
 
 

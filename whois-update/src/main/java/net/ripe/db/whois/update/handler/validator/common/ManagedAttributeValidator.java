@@ -21,13 +21,13 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class ManagedAttrValidator implements BusinessRuleValidator {
+public class ManagedAttributeValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.CREATE, Action.MODIFY, Action.NOOP);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.ORGANISATION, ObjectType.INETNUM, ObjectType.INET6NUM, ObjectType.AUT_NUM);
     private final ManagedAttributeSearch managedAttributeSearch;
 
     @Autowired
-    public ManagedAttrValidator(final ManagedAttributeSearch managedAttributeSearch) {
+    public ManagedAttributeValidator(final ManagedAttributeSearch managedAttributeSearch) {
         this.managedAttributeSearch = managedAttributeSearch;
     }
 
@@ -43,7 +43,7 @@ public class ManagedAttrValidator implements BusinessRuleValidator {
         for(RpslAttribute attribute :updatedObject.getAttributes()) {
 
             if(managedAttributeSearch.isRipeNccMaintained(updatedObject,attribute) && attribute.getCleanComment() != null) {
-                messages.add(UpdateMessages.canNotAddCommentsInManagedAttr(attribute));
+                messages.add(UpdateMessages.canNotAddCommentsInManagedAttribute(attribute));
             }
         }
 
