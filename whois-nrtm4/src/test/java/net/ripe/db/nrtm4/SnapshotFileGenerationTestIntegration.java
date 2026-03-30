@@ -111,12 +111,13 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     }
 
     @Test
-    public void descr_is_removed_when_organisation_object() throws IOException, JSONException {
+    public void remarks_are_removed_when_organisation_object() throws IOException, JSONException {
         databaseHelper.addObject("" +
                 "organisation:  ORG-RN1-TEST\n" +
                 "org-name:      RIPE NCC\n" +
                 "org-type:      RIR\n" +
                 "e-mail:        test@ripe.net\n" +
+                "remarks:       ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
                 "descr:         ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
                 "created:       2024-12-16T17:00:00Z\n" +
                 "last-modified: 2024-12-16T17:00:00Z\n" +
@@ -152,10 +153,11 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
     }
 
     @Test
-    public void descr_is_dummified_when_inetnum_object() throws IOException, JSONException {
+    public void descr_remarks_are_dummified_when_inetnum_object() throws IOException, JSONException {
         databaseHelper.updateObject( "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
+                "remarks:        ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
                 "country:        NL\n" +
                 "tech-c:         TP1-TEST\n" +
                 "admin-c:        TP1-TEST\n" +
@@ -181,6 +183,7 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
                 "descr:          Dummified\n" +
+                "remarks:        Dummified\n" +
                 "country:        NL\n" +
                 "tech-c:         DUMY-RIPE\n" +
                 "admin-c:        DUMY-RIPE\n" +
