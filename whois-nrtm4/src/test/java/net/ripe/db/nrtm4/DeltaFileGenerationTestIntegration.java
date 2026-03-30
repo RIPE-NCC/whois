@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -34,7 +35,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     public void should_get_delta_file() throws JSONException, JsonProcessingException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
-
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -47,7 +47,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-
         generateDeltas(Collections.singletonList(updatedObject));
         updateNotificationFileGenerator.generateFile();
 
@@ -65,7 +64,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     public void should_get_delta_file_sequence_versions() throws JSONException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
-
         final UpdateNotificationFile updateNotificationFile = getNotificationFileBySource("TEST");
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
@@ -98,7 +96,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     @Test
     public void should_have_session_version_hash_value(){
         snapshotFileGenerator.createSnapshot();
-
         updateNotificationFileGenerator.generateFile();
         generateDeltas(Collections.singletonList(RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
@@ -112,19 +109,20 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST")));
-
         updateNotificationFileGenerator.generateFile();
+
         final UpdateNotificationFile firsIteration = getNotificationFileBySource("TEST");
+
         assertThat(firsIteration.getDeltas().get(0).getUrl(), is(notNullValue()));
         assertThat(firsIteration.getSessionID(), is(notNullValue()));
         assertThat(firsIteration.getDeltas().get(0).getVersion(), is(notNullValue()));
         assertThat(firsIteration.getDeltas().get(0).getHash(), is(notNullValue()));
     }
+
     @Test
     public void delta_should_have_same_version_different_session_per_source() throws JSONException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
-
         generateDeltas(Lists.newArrayList(RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -147,6 +145,7 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST-NONAUTH")));
         updateNotificationFileGenerator.generateFile();
+
         final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
         final String[] nonAuthDelta = getDeltasFromUpdateNotificationBySource("TEST-NONAUTH", 0);
 
@@ -160,7 +159,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     public void should_get_delta_file_correct_order() throws JSONException, JsonProcessingException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
-
         final RpslObject updatedObject = RpslObject.parse("" +
                 "inet6num:       ::/0\n" +
                 "netname:        IANA-BLK\n" +
@@ -175,7 +173,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "source:         TEST");
         databaseHelper.updateObject(updatedObject);
         databaseHelper.deleteObject(updatedObject);
-
         deltaFileGenerator.createDeltas();
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
@@ -199,7 +196,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
     public void should_get_correct_objectClass_in_delta_file() throws JSONException, JsonProcessingException {
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
-
         final RpslObject deleteObject = RpslObject.parse("" +
                 "aut-num:       AS102\n" +
                 "as-name:       AS-TEST\n" +
@@ -211,7 +207,6 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2019-02-28T10:14:46Z\n" +
                 "source:        TEST");
         databaseHelper.deleteObject(deleteObject);
-
         deltaFileGenerator.createDeltas();
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
@@ -259,7 +254,9 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST")));
         updateNotificationFileGenerator.generateFile();
+
         final String[] secondDelta = getDeltasFromUpdateNotificationBySource("TEST", 1);
+
         assertThat(getNrtmVersionInfo(firstDelta[0]).getVersion(), is(not(getNrtmVersionInfo(secondDelta[0]).getVersion())));
         assertThat(getNrtmVersionInfo(firstDelta[0]).getSessionID(), is(getNrtmVersionInfo(secondDelta[0]).getSessionID()));
     }
@@ -281,10 +278,11 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST")));
         updateNotificationFileGenerator.generateFile();
+
         final UpdateNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
         final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 0);
-
         final NrtmVersionRecord nrtmVersionFile = getNrtmVersionInfo(testDelta[0]);
+
         assertThat(nrtmVersionFile.getVersion(), is(testUpdateNotification.getVersion()));
         assertThat(nrtmVersionFile.getSource().getName(), is(testUpdateNotification.getSource().getName()));
         assertThat(nrtmVersionFile.getSessionID(), is(testUpdateNotification.getSessionID()));
@@ -306,20 +304,16 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
                 "source:         TEST");
         snapshotFileGenerator.createSnapshot();
         updateNotificationFileGenerator.generateFile();
-
         generateDeltas(Collections.singletonList(updatedObject));
         generateDeltas(Collections.singletonList(updatedObject));
         generateDeltas(Collections.singletonList(updatedObject));
-
         snapshotFileGenerator.createSnapshot();
-
 
         updateNotificationFileGenerator.generateFile();
         final UpdateNotificationFile testUpdateNotification = getNotificationFileBySource("TEST");
         final String[] testDelta = getDeltasFromUpdateNotificationBySource("TEST", 2);
 
         assertThat(testUpdateNotification.getSnapshot().getVersion(), is(new JSONObject(testDelta[0]).getLong("version")));
-
     }
 
     @Test
@@ -396,5 +390,34 @@ public class DeltaFileGenerationTestIntegration extends AbstractNrtmIntegrationT
         assertThat(firstIteration.getDeltas().size(), is(1));
         assertThat(firstIteration.getDeltas().get(0).getVersion(), is(3L));
         assertThat(publishableFile.getSnapshot().getVersion(), is(not(firstIteration.getSnapshot().getVersion())));
+    }
+
+    @Test
+    public void get_delta_file_utf8_descr_remarks_dummified() throws JSONException, JsonProcessingException {
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+        final RpslObject updatedObject = RpslObject.parse("" +
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
+                "remarks:        ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+        generateDeltas(Collections.singletonList(updatedObject));
+        updateNotificationFileGenerator.generateFile();
+
+        final String[] records = getDeltasFromUpdateNotificationBySource("TEST", 0);
+
+        assertThat(records.length, is(2));
+        assertThat(records[1], containsString("inet6num:       ::/0\\n"));
+        assertThat(records[1], containsString("descr:          Dummified\\n"));
+        assertThat(records[1], containsString("remarks:        Dummified\\n"));
+        assertThat(records[1], not(containsString("ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ")));
     }
 }
