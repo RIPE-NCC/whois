@@ -32,6 +32,7 @@ import java.io.Reader;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -107,6 +108,136 @@ public class SnapshotFileGenerationTestIntegration extends AbstractNrtmIntegrati
                 "31.12.202.in-addr.arpa",
                 "OWNER-MNT",
                 "ORG-TEST1-TEST"));
+    }
+
+    @Test
+    public void descr_is_removed_when_organisation_object() throws IOException, JSONException {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-RN1-TEST\n" +
+                "org-name:      RIPE NCC\n" +
+                "org-type:      RIR\n" +
+                "e-mail:        test@ripe.net\n" +
+                "descr:         ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
+                "created:       2024-12-16T17:00:00Z\n" +
+                "last-modified: 2024-12-16T17:00:00Z\n" +
+                "source:        TEST");
+
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+
+        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+
+        final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+        assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
+
+        final List<SnapshotFileRecord> snapshotRecords = getSnapshotRecords(records);
+        final Optional<SnapshotFileRecord> snapshotRecordRole = snapshotRecords.stream().filter(record -> record.getObject().getKey().equals("ORG-RN1-TEST")).findFirst();
+
+        assertThat(snapshotRecordRole.isPresent(), is(true));
+        assertThat(snapshotRecordRole.get().getObject().toString(), is(
+                "organisation:   ORG-RN1-TEST\n" +
+                "org-name:       RIPE NCC\n" +
+                "org-type:       RIR\n" +
+                "e-mail:         unread@ripe.net\n" +
+                "created:        2024-12-16T17:00:00Z\n" +
+                "last-modified:  2024-12-16T17:00:00Z\n" +
+                "source:         TEST\n" +
+                "remarks:        ****************************\n" +
+                "remarks:        * THIS OBJECT IS MODIFIED\n" +
+                "remarks:        * Please note that all data that is generally regarded as personal\n" +
+                "remarks:        * data has been removed from this object.\n" +
+                "remarks:        * To view the original object, please query the RIPE Database at:\n" +
+                "remarks:        * http://www.ripe.net/whois\n" +
+                "remarks:        ****************************\n"));
+    }
+
+    @Test
+    public void descr_is_dummified_when_inetnum_object() throws IOException, JSONException {
+        databaseHelper.updateObject( "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+
+        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+
+        final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+        assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
+
+        final List<SnapshotFileRecord> snapshotRecords = getSnapshotRecords(records);
+        final Optional<SnapshotFileRecord> snapshotRecordRole = snapshotRecords.stream().filter(record -> record.getObject().getKey().equals("::/0")).findFirst();
+
+        assertThat(snapshotRecordRole.isPresent(), is(true));
+        assertThat(snapshotRecordRole.get().getObject().toString(), is(
+                "inet6num:       ::/0\n" +
+                "netname:        IANA-BLK\n" +
+                "descr:          Dummified\n" +
+                "country:        NL\n" +
+                "tech-c:         DUMY-RIPE\n" +
+                "admin-c:        DUMY-RIPE\n" +
+                "status:         OTHER\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:        2022-08-14T11:48:28Z\n" +
+                "last-modified:  2022-10-25T12:22:39Z\n" +
+                "source:         TEST\n" +
+                "remarks:        ****************************\n" +
+                "remarks:        * THIS OBJECT IS MODIFIED\n" +
+                "remarks:        * Please note that all data that is generally regarded as personal\n" +
+                "remarks:        * data has been removed from this object.\n" +
+                "remarks:        * To view the original object, please query the RIPE Database at:\n" +
+                "remarks:        * http://www.ripe.net/whois\n" +
+                "remarks:        ****************************\n"));
+    }
+
+    @Test
+    public void remarks_are_dummified_when_role_with_abuse_mailbox() throws IOException, JSONException {
+        databaseHelper.addObject("" +
+                "role:          Ed Shryane\n" +
+                "nic-hdl:       ES-RIPE\n" +
+                "abuse-mailbox: abuse@ripe.net\n" +
+                "e-mail:        test@ripe.net\n" +
+                "remarks:       ȧƈƈḗƞŧḗḓ ŧḗẋŧ ƒǿř ŧḗşŧīƞɠ\n" +
+                "created:       2024-12-16T17:00:00Z\n" +
+                "last-modified: 2024-12-16T17:00:00Z\n" +
+                "source:        TEST");
+
+        snapshotFileGenerator.createSnapshot();
+        updateNotificationFileGenerator.generateFile();
+
+        final Response response = getSnapshotFromUpdateNotificationBySource("TEST");
+
+        final String[] records = getSnapshotRecords(response.readEntity(byte[].class));
+        assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
+
+        final List<SnapshotFileRecord> snapshotRecords = getSnapshotRecords(records);
+        final Optional<SnapshotFileRecord> snapshotRecordRole = snapshotRecords.stream().filter(record -> record.getObject().getKey().equals("ES-RIPE")).findFirst();
+
+        assertThat(snapshotRecordRole.isPresent(), is(true));
+        assertThat(snapshotRecordRole.get().getObject().toString(), is(
+                "role:           Ed Shryane\n" +
+                "nic-hdl:        ES-RIPE\n" +
+                "abuse-mailbox:  abuse@ripe.net\n" +
+                "e-mail:         unread@ripe.net\n" +
+                "remarks:        Dummified\n" +
+                "created:        2024-12-16T17:00:00Z\n" +
+                "last-modified:  2024-12-16T17:00:00Z\n" +
+                "source:         TEST\n" +
+                "remarks:        ****************************\n" +
+                "remarks:        * THIS OBJECT IS MODIFIED\n" +
+                "remarks:        * Please note that all data that is generally regarded as personal\n" +
+                "remarks:        * data has been removed from this object.\n" +
+                "remarks:        * To view the original object, please query the RIPE Database at:\n" +
+                "remarks:        * http://www.ripe.net/whois\n" +
+                "remarks:        ****************************\n"));
     }
 
     @Test
