@@ -1,6 +1,5 @@
 package net.ripe.db.whois.scheduler.task.export;
 
-import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.SourceContext;
@@ -19,8 +18,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -48,11 +47,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         this.tmpDir = new File(tmpDirNAme);
     }
 
-    Set<RpslObject> objects;
 
     @BeforeEach
     public void setupServer() {
-        objects = Sets.newHashSet();
 
         for (int i = 0; i < 100; i++) {
             final RpslObject rpslObject = RpslObject.parse("" +
@@ -61,7 +58,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                     "source:         TEST");
 
             databaseHelper.addObject(rpslObject);
-            objects.add(rpslObject);
         }
 
         for (int i = 0; i < 10; i++) {
@@ -71,7 +67,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                     "source: TEST");
 
             databaseHelper.addObject(personObject);
-            objects.add(personObject);
 
             final RpslObject roleObject = RpslObject.parse("" +
                     "role: Test role " + i + "\n" +
@@ -79,7 +74,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                     "source: TEST");
 
             databaseHelper.addObject(roleObject);
-            objects.add(roleObject);
         }
 
         databaseHelper.addObject("""
@@ -112,13 +106,15 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("public/split/test.db." + objectType.getName() + ".gz");
-            checkFile("internal/split/test.db." + objectType.getName() + ".gz");
+            checkFile("public/split/test.db." + objectType.getName() + ".gz", StandardCharsets.ISO_8859_1);
+            checkFile("public/split/test.db." + objectType.getName() + ".utf8.gz", StandardCharsets.ISO_8859_1);
+            checkFile("internal/split/test.db." + objectType.getName() + ".gz", StandardCharsets.ISO_8859_1);
+            checkFile("internal/split/test.db." + objectType.getName() + ".utf8.gz", StandardCharsets.ISO_8859_1);
         }
 
-        checkFile("public/TEST.CURRENTSERIAL", "121");
+        checkFile("public/TEST.CURRENTSERIAL", StandardCharsets.ISO_8859_1, "121");
 
-        checkFile("public/test.db.gz",
+        checkFile("public/test.db.gz", StandardCharsets.ISO_8859_1,
                 "person:         Placeholder Person Object\n",
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
@@ -141,9 +137,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "remarks:        ****************************\n");
 
 
-        checkFile("public/split/test.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("public/split/test.db.person.gz", StandardCharsets.ISO_8859_1, "person:         Placeholder Person Object");
 
-        checkFile("public/split/test.db.mntner.gz",
+        checkFile("public/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1,
                 "mntner:         DEV-MNT0\n",
                 "mntner:         DEV-MNT1\n",
                 "mntner:         DEV-MNT2\n",
@@ -165,7 +161,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "remarks:        ****************************\n");
 
         // Contains dummy UTF mntner
-        checkFile("public/split/test.db.mntner.gz", """
+        checkFile("public/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1, """
                 mntner:         UTF8-MNT
                 admin-c:        DUMY-RIPE
                 upd-to:         unread@ripe.net
@@ -181,7 +177,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 remarks:        ****************************
                 """);
 
-        checkFile("internal/split/test.db.person.gz",
+        checkFile("internal/split/test.db.person.gz", StandardCharsets.ISO_8859_1,
                 "person:         Test person 0",
                 "person:         Test person 1",
                 "person:         Test person 2",
@@ -192,7 +188,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "nic-hdl:        PN9-TEST\n" +
                 "source:         TEST");
 
-        checkFile("internal/split/test.db.role.gz",
+        checkFile("internal/split/test.db.role.gz", StandardCharsets.ISO_8859_1,
                 "role:           Test role 0",
                 "role:           Test role 1",
                 "role:           Test role 2",
@@ -203,7 +199,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "nic-hdl:        ROLE9-TEST\n" +
                 "source:         TEST");
 
-        checkFile("internal/split/test.db.mntner.gz",
+        checkFile("internal/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1,
                 "" +
                         "mntner:         DEV-MNT0\n" +
                         "auth:           MD5-PW $1$xNv6umMG$cBd9DXqWEpsqeBq2AUjGy/\n" +
@@ -249,11 +245,24 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "auth:           MD5-PW $1$xNv6umMG$cBd9DXqWEpsqeBq2AUjGy/\n" +
                         "source:         TEST");
 
-        checkFile("internal/split/test.db.mntner.gz",
+        checkFile("internal/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1,
                 """
                         mntner:         UTF8-MNT
                         descr:          ü
                         descr:          ??? Avenue
+                        admin-c:        ROLE1-TEST
+                        upd-to:         upd-to@ripe.net
+                        notify:         notify@ripe.net
+                        auth:           SSO mherran@ripe.net
+                        mnt-by:         UTF8-MNT
+                        source:         TEST
+                        """);
+
+        checkFile("internal/split/test.db.mntner.utf8.gz", StandardCharsets.UTF_8,
+                """
+                        mntner:         UTF8-MNT
+                        descr:          ü
+                        descr:          你好ا Avenue
                         admin-c:        ROLE1-TEST
                         upd-to:         upd-to@ripe.net
                         notify:         notify@ripe.net
@@ -285,38 +294,38 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("public/split/test.db." + objectType.getName() + ".gz");
-            checkFile("internal/split/test.db." + objectType.getName() + ".gz");
+            checkFile("public/split/test.db." + objectType.getName() + ".gz", StandardCharsets.ISO_8859_1);
+            checkFile("internal/split/test.db." + objectType.getName() + ".gz", StandardCharsets.ISO_8859_1);
         }
 
-        checkFile("public/split/test.db.person.gz", "person:         Placeholder Person Object");
+        checkFile("public/split/test.db.person.gz", StandardCharsets.ISO_8859_1, "person:         Placeholder Person Object");
 
-        checkFile("public/split/test.db.role.gz", "" +
+        checkFile("public/split/test.db.role.gz", StandardCharsets.ISO_8859_1, "" +
                 "role:           Abuse role\n" +
                 "nic-hdl:        AR1-TEST\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST");
 
-        checkFile("public/split/test.db.organisation.gz", "" +
+        checkFile("public/split/test.db.organisation.gz", StandardCharsets.ISO_8859_1, "" +
                 "organisation:   ORG1\n" +
                 "reg-nr:         NL1008\n" +
                 "abuse-c:        AR1-TEST\n" +
                 "source:         TEST");
 
-        checkFile("internal/split/test.db.role.gz", "" +
+        checkFile("internal/split/test.db.role.gz", StandardCharsets.ISO_8859_1, "" +
                 "role:           Abuse role\n" +
                 "nic-hdl:        AR1-TEST\n" +
                 "abuse-mailbox:  abuse@mailbox.com\n" +
                 "source:         TEST");
 
-        checkFile("internal/split/test.db.organisation.gz", "" +
+        checkFile("internal/split/test.db.organisation.gz", StandardCharsets.ISO_8859_1,"" +
                 "organisation:   ORG1\n" +
                 "reg-nr:         NL1008\n" +
                 "abuse-c:        AR1-TEST\n" +
                 "source:         TEST");
     }
 
-    private void checkFile(final String name, final String... expectedContents) throws IOException {
+    private void checkFile(final String name, Charset charset, final String... expectedContents) throws IOException {
         final File file = new File(exportDir, name);
 
         assertThat(file.exists(), is(true));
@@ -325,9 +334,9 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         final boolean isDumpFile = name.endsWith(".gz");
 
         if (isDumpFile) {
-            reader = new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), StandardCharsets.ISO_8859_1);
+            reader = new InputStreamReader(new GZIPInputStream(new BufferedInputStream(new FileInputStream(file))), charset);
         } else {
-            reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.ISO_8859_1);
+            reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), charset);
         }
 
         final String contents = FileCopyUtils.copyToString(reader);
@@ -366,17 +375,17 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         assertThat(exportDir.exists(), is(true));
 
         for (final ObjectType objectType : ObjectType.values()) {
-            checkFile("public/split/test.db." + objectType.getName() + ".gz");
-            checkFile("internal/split/test.db." + objectType.getName() + ".gz");
+            checkFile("public/split/test.db." + objectType.getName() + ".gz", StandardCharsets.ISO_8859_1);
+            checkFile("internal/split/test.db." + objectType.getName() + ".gz", StandardCharsets.ISO_8859_1);
             if (ExportFileWriterFactory.NONAUTH_OBJECT_TYPES.contains(objectType)) {
-                checkFile("public/split/test-nonauth.db." + objectType.getName() + ".gz");
-                checkFile("internal/split/test-nonauth.db." + objectType.getName() + ".gz");
+                checkFile("public/split/test-nonauth.db." + objectType.getName() + ".gz", StandardCharsets.ISO_8859_1);
+                checkFile("internal/split/test-nonauth.db." + objectType.getName() + ".gz", StandardCharsets.ISO_8859_1);
             }
         }
 
-        checkFile("public/split/test.db.aut-num.gz", "aut-num:        AS252");
-        checkFile("public/split/test-nonauth.db.aut-num.gz", "aut-num:        AS251");
-        checkFile("public/split/test-nonauth.db.as-set.gz", "as-set:         AS251:AS-ALL");
+        checkFile("public/split/test.db.aut-num.gz", StandardCharsets.ISO_8859_1, "aut-num:        AS252");
+        checkFile("public/split/test-nonauth.db.aut-num.gz", StandardCharsets.ISO_8859_1, "aut-num:        AS251");
+        checkFile("public/split/test-nonauth.db.as-set.gz", StandardCharsets.ISO_8859_1, "as-set:         AS251:AS-ALL");
     }
 
 }

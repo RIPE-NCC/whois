@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 
@@ -41,14 +42,14 @@ public class ExportFileWriterTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        when(filenameStrategy.getFilename(any(ObjectType.class))).thenAnswer(new Answer<String>() {
+        when(filenameStrategy.getFilename(any(ObjectType.class), any(Charset.class))).thenAnswer(new Answer<String>() {
             @Override
             public String answer(InvocationOnMock invocation) throws Throwable {
                 return ((ObjectType) invocation.getArguments()[0]).getName();
             }
         });
 
-        subject = new ExportFileWriter(folder.getAbsoluteFile(), filenameStrategy, decorationStrategy, exportFilter);
+        subject = new ExportFileWriter(folder.getAbsoluteFile(), filenameStrategy, decorationStrategy, exportFilter, StandardCharsets.ISO_8859_1);
     }
 
     @SuppressWarnings("unchecked")
@@ -105,7 +106,7 @@ public class ExportFileWriterTest {
     @Test
     public void unexisting_folder() {
         assertThrows(RuntimeException.class, () -> {
-            new ExportFileWriter(new File(folder.getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter);
+            new ExportFileWriter(new File(folder.getAbsolutePath() + "does not exist"), filenameStrategy, decorationStrategy, exportFilter, StandardCharsets.ISO_8859_1);
 
         });
     }
