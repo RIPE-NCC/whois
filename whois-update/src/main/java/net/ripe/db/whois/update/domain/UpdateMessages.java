@@ -299,7 +299,7 @@ public final class UpdateMessages {
                 "Please contact \"ncc@ripe.net\" to change it.", attributeType.getName());
     }
 
-    public static Message canNotAddCommentsInManagedAttr(final RpslAttribute attribute) {
+    public static Message canNotAddCommentsInManagedAttribute(final RpslAttribute attribute) {
         return new MessageWithAttribute(Type.ERROR, attribute,"Comments are not allowed on RIPE NCC managed Attribute \"%s:\"" , attribute.getType().getName());
     }
 

@@ -2,6 +2,7 @@ package net.ripe.db.whois.update.handler.validator;
 
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.update.authentication.Subject;
 import net.ripe.db.whois.update.domain.Action;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Paragraph;
@@ -17,10 +18,15 @@ public final class ValidatorTestHelper {
     }
 
     public static ObjectMessages validateUpdate(final BusinessRuleValidator subject, final RpslObject originalObject, final RpslObject updatedObject) {
+        return validateUpdate(subject, mock(Subject.class), originalObject, updatedObject);
+    }
+
+    public static ObjectMessages validateUpdate(final BusinessRuleValidator subject, final Subject authenticationSubject, final RpslObject originalObject, final RpslObject updatedObject) {
         final Update update = new Update(new Paragraph(updatedObject.toString()), Operation.UNSPECIFIED, null, updatedObject);
 
         final PreparedUpdate preparedUpdate = new PreparedUpdate(update, originalObject, updatedObject, Action.MODIFY);
         final UpdateContext updateContext = new UpdateContext(mock(LoggerContext.class));
+        updateContext.subject(update, authenticationSubject);
 
        subject.validate(preparedUpdate, updateContext);
 
