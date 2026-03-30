@@ -872,6 +872,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
+        assertThat(response, containsString("***Warning: Value changed due to conversion of IDN email address(es) into\n            Punycode\n"));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("e-mail:         no-reply@xn--zrich-kva.example"));
     }
@@ -894,6 +895,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "password:  emptypassword"),
                   MediaType.valueOf("application/x-www-form-urlencoded; charset=UTF-8")), String.class);
 
+        assertThat(response, containsString("***Warning: Value changed due to conversion of IDN email address(es) into\n            Punycode\n"));
         assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
                 containsString("e-mail:         no-reply@xn--80adxhks.ru"));
     }

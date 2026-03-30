@@ -20,7 +20,6 @@ public class RpslObjectCharacterConversion {
         final List<RpslAttribute> attrsToConvert = rpslObjectToConvert.getAttributes();
 
         final Map<RpslAttribute, RpslAttribute> substitutedAttributes = new HashMap<>();
-        final Map<RpslAttribute, RpslAttribute> removedValues = new HashMap<>();
 
         final Map<RpslAttribute, RpslAttribute> convertedMap = attrsToConvert.stream()
                 .distinct() //No need to process the same attributes
