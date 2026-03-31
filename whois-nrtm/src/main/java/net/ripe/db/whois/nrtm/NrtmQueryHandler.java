@@ -1,6 +1,8 @@
 package net.ripe.db.whois.nrtm;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -12,6 +14,7 @@ import joptsimple.OptionException;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.dao.SerialDao;
+import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.serials.SerialEntry;
 import net.ripe.db.whois.common.domain.serials.SerialRange;
 import net.ripe.db.whois.common.pipeline.ChannelUtil;
@@ -27,6 +30,9 @@ import org.springframework.core.task.TaskRejectedException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -211,7 +217,7 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
                     }
 
                     writeMessage(channel, message);
-                    writeMessage(channel, dummifier.dummify(version, serialEntry.getRpslObject()).toString().trim());
+                    writeMessage(channel, dummifier.dummify(version, serialEntry.getRpslObject()));
                     written = true;
                 }
             }
@@ -283,14 +289,36 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
         ctx.fireChannelInactive();
     }
 
-    private void writeMessage(final Channel channel, final Object message) {
+    private static final Charset CHARSET = StandardCharsets.ISO_8859_1;
+    private static final int DEFAULT_BUFFER_SIZE = 1024;
+    private static final byte[] OBJECT_TERMINATOR = {'\n'};
+
+    private void writeMessage(final Channel channel, final Object object) {
         if (!channel.isOpen()) {
             throw new ChannelException();
         }
 
         PendingWrites.increment(channel);
 
-        channel.writeAndFlush(message + "\n\n").addListener(LISTENER);
+        switch (object) {
+            case ResponseObject responseObject: {
+                try {
+                    final ByteBuf result = channel.alloc().buffer(DEFAULT_BUFFER_SIZE);
+                    final ByteBufOutputStream outputStream = new ByteBufOutputStream(result);
+                    responseObject.writeTo(outputStream, CHARSET);
+                    outputStream.write(OBJECT_TERMINATOR);
+                    channel.writeAndFlush(result).addListener(LISTENER);
+                }  catch (final IOException e) {
+                    LOGGER.error("Writing ResponseObject", e);
+                    throw new ChannelException(e);
+                }
+
+                break;
+            }
+            default: {
+                channel.writeAndFlush(object + "\n\n").addListener(LISTENER);
+            }
+        }
     }
 
     private static final ChannelFutureListener LISTENER = future -> PendingWrites.decrement(future.channel());
