@@ -2698,8 +2698,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            <source id=\"TEST\"/>\n" +
                 "            <attributes>\n" +
                 "                <attribute name=\"person\" value=\"New Person\"/>\n" +
-                "                <attribute name=\"remarks\" value=\"ÖÜëñ\"/>\n" +      // extended ASCII latin-1 characters
-                "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
+                "                <attribute name=\"remarks\" value=\"ÖÜëñ Straße\"/>\n" +      // UTF-8 allowed in remarks
+                "                <attribute name=\"address\" value=\"MünsterStraße\"/>\n" +    // latin-1 extended ASCII allowed in address
                 "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
                 "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
                 "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
@@ -2709,7 +2709,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "    </objects>\n" +
                 "</whois-resources>", MediaType.APPLICATION_XML), String.class);
 
-        assertThat(response, containsString("<attribute name=\"remarks\" value=\"ÖÜëñ\"/>"));
+        assertThat(response, containsString("<attribute name=\"nic-hdl\" value=\"NP1-TEST\"/>"));
+        assertThat(response, containsString("<attribute name=\"remarks\" value=\"ÖÜëñ Straße\"/>"));
+        assertThat(response, containsString("<attribute name=\"address\" value=\"MünsterStraße\"/>"));
+
+        final RpslObject lookup = databaseHelper.lookupObject(ObjectType.PERSON, "NP1-TEST");
+        assertThat(lookup.findAttributes(AttributeType.REMARKS), contains(new RpslAttribute(AttributeType.REMARKS, "ÖÜëñ Straße")));
+        assertThat(lookup.findAttributes(AttributeType.ADDRESS), contains(new RpslAttribute(AttributeType.ADDRESS, "MünsterStraße")));
     }
 
     @Test
