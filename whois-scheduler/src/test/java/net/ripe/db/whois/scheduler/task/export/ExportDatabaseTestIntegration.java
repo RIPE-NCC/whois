@@ -282,7 +282,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
         databaseHelper.addObject(RpslObject.parse("" +
                 "organisation:   ORG1\n" +
-                "reg-nr:         NL1008\n" +
                 "abuse-c:        AR1-TEST\n" +
                 "source:         TEST"));
 
@@ -308,7 +307,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
         checkFile("public/split/test.db.organisation.gz", StandardCharsets.ISO_8859_1, "" +
                 "organisation:   ORG1\n" +
-                "reg-nr:         NL1008\n" +
                 "abuse-c:        AR1-TEST\n" +
                 "source:         TEST");
 
@@ -320,7 +318,6 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
 
         checkFile("internal/split/test.db.organisation.gz", StandardCharsets.ISO_8859_1,"" +
                 "organisation:   ORG1\n" +
-                "reg-nr:         NL1008\n" +
                 "abuse-c:        AR1-TEST\n" +
                 "source:         TEST");
     }
