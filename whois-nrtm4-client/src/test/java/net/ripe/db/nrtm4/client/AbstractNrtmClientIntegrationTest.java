@@ -22,6 +22,7 @@ import org.springframework.util.ResourceUtils;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @ContextConfiguration(classes = WhoisNrtmv4ClientTestConfiguration.class)
@@ -88,7 +89,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
             WHERE sequence_id > 0
             """;
         return nrtmClientTemplate.query(sql,
-                (rs, rn) -> new MirrorRpslObject(RpslObject.parse(rs.getBytes(1))));
+                (rs, rn) -> new MirrorRpslObject(RpslObject.parse(rs.getBytes(1), StandardCharsets.UTF_8)));
     }
 
     @Nullable
@@ -101,7 +102,7 @@ public class AbstractNrtmClientIntegrationTest extends AbstractDatabaseHelperInt
                 AND sequence_id > 0
                 """;
             return nrtmClientTemplate.queryForObject(sql,
-                    (rs, rn) -> RpslObject.parse(rs.getBytes(1)),
+                    (rs, rn) -> RpslObject.parse(rs.getBytes(1), StandardCharsets.UTF_8),
                     primaryKey);
         } catch (EmptyResultDataAccessException ex){
             return null;

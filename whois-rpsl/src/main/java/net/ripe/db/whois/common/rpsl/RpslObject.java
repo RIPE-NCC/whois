@@ -9,6 +9,7 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
+import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -94,6 +95,10 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
         return new RpslObject(RpslObjectBuilder.getAttributes(input));
     }
 
+    public static RpslObject parse(final byte[] input, final Charset charset) {
+        return new RpslObject(getRpslAttributes(input, charset));
+    }
+
     public static RpslObject parse(final Integer objectId, final String input) {
         return new RpslObject(objectId, RpslObjectBuilder.getAttributes(input));
     }
@@ -103,13 +108,9 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
     }
 
     public static RpslObject parse(final Integer objectId, final byte[] input, final Charset charset) {
-        final List<RpslAttribute> attributes = charset == StandardCharsets.ISO_8859_1 ?
-                RpslObjectBuilder.getAttributes(input):
-                RpslObjectBuilder.getAttributes(new String(input, charset));
-
-
-        return new RpslObject(objectId, attributes);
+        return new RpslObject(objectId, getRpslAttributes(input, charset));
     }
+
 
     @Override
     public int getObjectId() {
@@ -316,5 +317,15 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
             }
         }
         return values;
+    }
+
+    private static @NonNull List<RpslAttribute> getRpslAttributes(byte[] input, Charset charset) {
+        if (input == null){
+            throw new IllegalArgumentException("Object can not be null");
+        }
+
+        return charset == StandardCharsets.ISO_8859_1 ?
+                RpslObjectBuilder.getAttributes(input):
+                RpslObjectBuilder.getAttributes(new String(input, charset));
     }
 }

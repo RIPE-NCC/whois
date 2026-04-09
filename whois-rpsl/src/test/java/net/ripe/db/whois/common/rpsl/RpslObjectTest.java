@@ -42,14 +42,14 @@ public class RpslObjectTest {
     @Test
     public void parseNullFails() {
         assertThrows(IllegalArgumentException.class, () -> {
-            RpslObject.parse((byte[]) null);
+            RpslObject.parse(null, StandardCharsets.UTF_8);
         });
     }
 
     @Test
     public void parseEmptyFails() {
         assertThrows(IllegalArgumentException.class, () -> {
-            RpslObject.parse(new byte[]{});
+            RpslObject.parse(new byte[]{}, StandardCharsets.UTF_8);
         });
     }
 
@@ -129,19 +129,19 @@ public class RpslObjectTest {
 
         List<RpslAttribute> addresses = subject.findAttributes(AttributeType.ADDRESS);
         assertThat(addresses, hasSize(2));
-        assertThat(addresses.get(0).getValue(), containsString("Flughafenstraße 120/?"));
+        assertThat(addresses.get(0).getValue(), containsString("Flughafenstraße 120/Σ"));
         assertThat(addresses.get(1).getValue(), containsString("Düsseldorf"));
     }
 
     @Test
-    public void checkThatUtf8CharactersGetConverted() {
+    public void checkThatUtf8Characters() {
         parseAndAssign("person:  New Test Person\n" +
                 "address: Тверская улица,москва\n" +
                 "nic-hdl: ABC-RIPE\n");
 
         List<RpslAttribute> addresses = subject.findAttributes(AttributeType.ADDRESS);
         assertThat(addresses, hasSize(1));
-        assertThat(addresses.get(0).getValue(), containsString("???????? ?????,??????"));
+        assertThat(addresses.get(0).getValue(), containsString("Тверская улица,москва"));
     }
 
     @Test
@@ -208,7 +208,7 @@ public class RpslObjectTest {
     }
 
     private byte[] bytesFrom(String input) {
-        return input.getBytes(StandardCharsets.ISO_8859_1);
+        return input.getBytes(StandardCharsets.UTF_8);
     }
 
     private void parseAndAssign(String input) {
@@ -216,7 +216,7 @@ public class RpslObjectTest {
     }
 
     private RpslObject parse(String input) {
-        return RpslObject.parse(bytesFrom(input));
+        return RpslObject.parse(bytesFrom(input), StandardCharsets.UTF_8);
     }
 
     @Test
