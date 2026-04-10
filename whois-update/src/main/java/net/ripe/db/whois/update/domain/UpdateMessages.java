@@ -674,14 +674,6 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "This resource object must be created with a sponsoring-org attribute");
     }
 
-    public static Message valueChangedDueToLatin1Conversion() {
-        return new Message(Type.WARNING, "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set");
-    }
-
-    public static Message valueChangedDueToLatin1Conversion(final String attributeName) {
-        return new Message(Type.WARNING, "Invalid character(s) were substituted in attribute \"%s\" value", attributeName);
-    }
-
     public static Message valueChangedDueToPunycodeConversion() {
         return new Message(Type.WARNING, "Value changed due to conversion of IDN email address(es) into Punycode");
     }
@@ -760,5 +752,10 @@ public final class UpdateMessages {
 
     public static Message passwordsNotSupported() {
         return new Message(Type.ERROR, "MD5 hashed password authentication is deprecated. Please switch to an alternative authentication method.");
+    }
+
+    public static Message valueChangedDueToCharsetConversion(final String attributeName,
+                                                             final CIString convertedAttribute) {
+        return new Message(Type.WARNING, String.format("Attribute \"%s:\" has been converted to \"%s\"", attributeName, convertedAttribute));
     }
 }

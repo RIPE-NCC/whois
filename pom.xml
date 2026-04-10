@@ -61,6 +61,8 @@
         <hamcrest-json.version>0.3</hamcrest-json.version>
         <hazelcast.version>4.2.8</hazelcast.version>
 
+        <ibm.idna.version>70.1</ibm.idna.version>
+
         <jackson.version>2.21.1</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
@@ -803,6 +805,12 @@
                 <scope>test</scope>
             </dependency>
 
+            <!-- IDNA 2008 library -->
+            <dependency>
+                <groupId>com.ibm.icu</groupId>
+                <artifactId>icu4j</artifactId>
+                <version>${ibm.idna.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

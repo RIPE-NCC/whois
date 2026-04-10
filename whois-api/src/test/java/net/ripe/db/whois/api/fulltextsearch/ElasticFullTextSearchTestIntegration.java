@@ -8,6 +8,7 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
+import net.ripe.db.whois.api.elasticsearch.ElasticFullTextIndex;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
@@ -65,6 +66,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     @Autowired
     JdbcIpAccessControlListDao jdbcIpAccessControlListDao;
     @Autowired IpResourceConfiguration ipResourceConfiguration;
+    @Autowired ElasticFullTextIndex elasticFullTextIndex;
 
     @Value("${api.rest.baseurl}")
     private String restApiBaseUrl;
@@ -2924,6 +2926,101 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(getHighlightRecordsKeys(queryResponse), containsInAnyOrder("mnt-by", "mntner"));
     }
 
+
+    @Test
+    public void search_utf8_person_value() throws IOException {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner:  AARD-MNT\n" +
+                        "source: TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("""
+                        role: test chinese characters
+                        address: 123
+                        remarks: 你好ا chinese character?
+                        e-mail: 123@ripe.net
+                        nic-hdl: CHINESE-TEST
+                        mnt-by:  AARD-MNT
+                        source: TEST
+                        """));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=你好ا&facet=true&hl=true");
+
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("<b>你好ا<\\/b> chinese character?"));
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getResults().getFirst().get("remarks"), is("你好ا chinese character?"));
+    }
+
+    @Test
+    public void search_new_utf8_without_reindex_person_value() throws IOException {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner:  AARD-MNT\n" +
+                        "source: TEST"));
+
+        rebuildIndex();
+
+        databaseHelper.addObject(RpslObject.parse("""
+                        role: test greek characters
+                        address: 123
+                        remarks: Σ maybe is Σ Greek character?
+                        e-mail: 123@ripe.net
+                        nic-hdl: GREEK-TEST
+                        mnt-by:  AARD-MNT
+                        source: TEST
+                        """));
+
+        elasticFullTextIndex.update();
+        final QueryResponse queryAfterUpdate = query("q=Σ&facet=true&hl=true");
+        assertThat(getHighlightValues(queryAfterUpdate), containsInAnyOrder("<b>Σ<\\/b> maybe is <b>Σ<\\/b> Greek character?"));
+        assertThat(queryAfterUpdate.getStatus(), is(0));
+        assertThat(queryAfterUpdate.getResults(), hasSize(1));
+        assertThat(queryAfterUpdate.getResults().getFirst().get("remarks"), is("Σ maybe is Σ Greek character?"));
+    }
+
+    @Test
+    public void search_updated_utf8_without_reindex_person_value() throws IOException {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner:  AARD-MNT\n" +
+                        "source: TEST"));
+
+        databaseHelper.addObject(RpslObject.parse("""
+                        role: test greek characters
+                        address: 123
+                        remarks: Σ maybe is Σ Greek character?
+                        e-mail: 123@ripe.net
+                        nic-hdl: GREEK-TEST
+                        mnt-by:  AARD-MNT
+                        source: TEST
+                        """));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=Σ&facet=true&hl=true");
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("<b>Σ<\\/b> maybe is <b>Σ<\\/b> Greek character?"));
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+        assertThat(queryResponse.getResults().getFirst().get("remarks"), is("Σ maybe is Σ Greek character?"));
+
+
+        databaseHelper.updateObject(RpslObject.parse("""
+                        role: test greek characters
+                        address: 123
+                        remarks: Σ definitely is Σ Greek character?
+                        e-mail: 123@ripe.net
+                        nic-hdl: GREEK-TEST
+                        mnt-by:  AARD-MNT
+                        source: TEST
+                        """));
+
+        elasticFullTextIndex.update();
+        final QueryResponse queryAfterUpdate = query("q=Σ&facet=true&hl=true");
+        assertThat(getHighlightValues(queryAfterUpdate), containsInAnyOrder("<b>Σ<\\/b> definitely is <b>Σ<\\/b> Greek character?"));
+        assertThat(queryAfterUpdate.getStatus(), is(0));
+        assertThat(queryAfterUpdate.getResults(), hasSize(1));
+        assertThat(queryAfterUpdate.getResults().getFirst().get("remarks"), is("Σ definitely is Σ Greek character?"));
+    }
     // helper methods
 
     private QueryResponse query(final String queryString) {

@@ -4,11 +4,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Validate;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.Identifiable;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.io.ByteArrayOutput;
-import net.ripe.db.whois.common.Validate;
+import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -94,6 +95,10 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
         return new RpslObject(RpslObjectBuilder.getAttributes(input));
     }
 
+    public static RpslObject parse(final byte[] input, final Charset charset) {
+        return new RpslObject(getRpslAttributes(input, charset));
+    }
+
     public static RpslObject parse(final Integer objectId, final String input) {
         return new RpslObject(objectId, RpslObjectBuilder.getAttributes(input));
     }
@@ -101,6 +106,11 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
     public static RpslObject parse(final Integer objectId, final byte[] input) {
         return new RpslObject(objectId, RpslObjectBuilder.getAttributes(input));
     }
+
+    public static RpslObject parse(final Integer objectId, final byte[] input, final Charset charset) {
+        return new RpslObject(objectId, getRpslAttributes(input, charset));
+    }
+
 
     @Override
     public int getObjectId() {
@@ -262,7 +272,7 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
     public byte[] toByteArray() {
         try {
             final ByteArrayOutput baos = new ByteArrayOutput();
-            writeTo(baos);
+            writeTo(baos, StandardCharsets.UTF_8);
             return baos.toByteArray();
         } catch (IOException e) {
             throw new IllegalStateException("Should never occur", e);
@@ -307,5 +317,15 @@ public class RpslObject implements Identifiable, ResponseObject, Serializable {
             }
         }
         return values;
+    }
+
+    private static @NonNull List<RpslAttribute> getRpslAttributes(byte[] input, Charset charset) {
+        if (input == null){
+            throw new IllegalArgumentException("Object can not be null");
+        }
+
+        return charset == StandardCharsets.ISO_8859_1 ?
+                RpslObjectBuilder.getAttributes(input):
+                RpslObjectBuilder.getAttributes(new String(input, charset));
     }
 }

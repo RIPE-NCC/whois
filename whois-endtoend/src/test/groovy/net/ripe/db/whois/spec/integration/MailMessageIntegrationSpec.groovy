@@ -4,6 +4,8 @@ package net.ripe.db.whois.spec.integration
 import net.ripe.db.whois.spec.domain.Message
 import spock.lang.Ignore
 
+import java.nio.charset.StandardCharsets
+
 @org.junit.jupiter.api.Tag("IntegrationTest")
 class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
 
@@ -676,10 +678,10 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         createAck.summary.assertSuccess(1, 1, 0, 0, 0)
         createAck.summary.assertErrors(0, 0, 0, 0)
 
-        createAck.countErrorWarnInfo(0, 2, 0)
+        createAck.countErrorWarnInfo(0, 1, 0)
         createAck.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        createAck.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
+//        createAck.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [       // now attribute-level warning, not returned in ack
+//                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
 
         queryMatches("-r FP1-TEST", "address:\\s+\\?\\?\\?\\?\\?\\?\\?\\? \\?\\?\\?\\?\\?,\\?\\?\\?\\?\\?\\?")
 
@@ -710,12 +712,78 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
         updateAck.summary.assertErrors(0, 0, 0, 0)
 
-        updateAck.countErrorWarnInfo(0, 4, 0)
+        updateAck.countErrorWarnInfo(0, 3, 0)
         updateAck.successes.any { it.operation == "Modify" && it.key == "[person] FP1-TEST   First Person" }
-        updateAck.warningSuccessMessagesFor("Modify", "[person] FP1-TEST   First Person") == [
-                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
+//        updateAck.warningSuccessMessagesFor("Modify", "[person] FP1-TEST   First Person") == [        // now attribute-level warning, not returned in ack
+//                "Value changed due to conversion into the ISO-8859-1 (Latin-1) character set"]
 
         queryMatches("-r FP1-TEST", "address:\\s+\\?\\?\\?\\?\\?\\?\\?\\? \\?\\?\\?\\?\\?,\\?\\?\\?\\?\\?\\?")
+    }
+
+    def "non latin-1 characters are handled in utf8 output and substituted in latin1 output"() {
+      when:
+        def create = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: NEW\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: 123\n" +
+                "remarks: Тверская улица,москва\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "source:  TEST\n" +
+                "password: owner\n\n"
+      then:
+        def createAck = ackFor create
+
+        createAck.success
+        createAck.summary.nrFound == 1
+        createAck.summary.assertSuccess(1, 1, 0, 0, 0)
+        createAck.summary.assertErrors(0, 0, 0, 0)
+
+        createAck.countErrorWarnInfo(0, 1, 0)
+
+        queryMatches("-r FP1-TEST", "remarks:\\s+\\?\\?\\?\\?\\?\\?\\?\\? \\?\\?\\?\\?\\?,\\?\\?\\?\\?\\?\\?")
+        queryMatches("-r -Z utf8 FP1-TEST", "remarks:\\s+Тверская улица,москва", StandardCharsets.UTF_8)
+
+      then:
+        def update = send "Date: Fri, 4 Jan 2013 15:29:59 +0100\n" +
+                "From: noreply@ripe.net\n" +
+                "To: test-dbm@ripe.net\n" +
+                "Subject: UPDATE\n" +
+                "Message-Id: <9BC09C2C-D017-4C4A-9A22-1F4F530F1881@ripe.net>\n" +
+                "Content-Type: text/plain; charset=\"utf-8\"\n" +
+                "MIME-Version: 1.0\n" +
+                "Content-Transfer-Encoding: UTF-8\n" +
+                "\n" +
+                "person:  First Person\n" +
+                "address: 123\n" +
+                "remarks: Тверская улица,москва\n" +
+                "remarks: Updated\n" +
+                "phone:   +44 282 420469\n" +
+                "nic-hdl: FP1-TEST\n" +
+                "mnt-by:  OWNER-MNT\n" +
+                "remarks: updated\n" +
+                "source:  TEST\n" +
+                "password: owner\n\n"
+      then:
+        def updateAck = ackFor update
+
+        updateAck.success
+        updateAck.summary.nrFound == 1
+        updateAck.summary.assertSuccess(1, 0, 1, 0, 0)
+        updateAck.summary.assertErrors(0, 0, 0, 0)
+
+        updateAck.countErrorWarnInfo(0, 3, 0)
+
+        queryMatches("-r FP1-TEST", "remarks:\\s+\\?\\?\\?\\?\\?\\?\\?\\? \\?\\?\\?\\?\\?,\\?\\?\\?\\?\\?\\?")
+        queryMatches("-r -Z utf8 FP1-TEST", "remarks:\\s+Тверская улица,москва", StandardCharsets.UTF_8)
     }
 
     def "latin-1 control characters are substituted"() {
@@ -730,7 +798,8 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "Content-Transfer-Encoding: UTF-8\n" +
                 "\n" +
                 "person:  First Person\n" +
-                "address: Test\u000b\u000c\u007F\u008f Address\n" +
+                "address: 123\n" +
+                "remarks: Test\u000b\u000c\u007F\u008f Address\n" +
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
@@ -742,12 +811,9 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
         ack.success
         ack.summary.nrFound == 1
 
-        ack.countErrorWarnInfo(0, 2, 0)
-        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-        ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Invalid character(s) were substituted in attribute \"address\" value"]
+        ack.countErrorWarnInfo(0, 1, 0)
 
-        queryMatches("-r FP1-TEST", "address:\\s+Test\\?\\?\\?\\? Address")
+        queryMatches("-r FP1-TEST", "remarks:\\s+Test  \\?\\? Address")
     }
 
     def "latin-1 extended ASCII characters are preserved"() {

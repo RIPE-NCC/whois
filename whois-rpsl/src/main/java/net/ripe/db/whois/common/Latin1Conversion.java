@@ -118,6 +118,10 @@ public class Latin1Conversion {
         }
     }
 
+    public static RpslAttribute createLatin1Attribute(final RpslAttribute attribute){
+        return new RpslAttribute(attribute.getKey(), convertString(attribute.getValue()));
+    }
+
     public static String convertString(@Nonnull final String value) {
         final CharsetEncoder charsetEncoder = StandardCharsets.ISO_8859_1.newEncoder();
 
@@ -137,5 +141,4 @@ public class Latin1Conversion {
     private static void convert(final ByteBuffer bb) {
         convert(bb.array());
     }
-
 }

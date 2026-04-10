@@ -913,14 +913,16 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
+                        "remarks:        Тверская улица,москва\n" +
                         "password: emptypassword")
                 .field("NEW", "yes");
         RestTest.target(getPort(), "whois/syncupdates/test")
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("address:        ???????? ?????,??????"));
+        final String person = databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString();
+        assertThat(person, containsString("remarks:        Тверская улица,москва"));
+        assertThat(person, containsString("address:        ???????? ?????,??????"));
     }
 
     @Test
@@ -942,8 +944,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .request()
                 .post(Entity.entity(multipart, multipart.getMediaType()), String.class);
 
-        assertThat(databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST").toString(),
-                containsString("address:        Test???? Address"));
+        final RpslObject rpslObject = databaseHelper.lookupObject(ObjectType.PERSON, "TP2-TEST");
+        assertThat(rpslObject.findAttributes(AttributeType.ADDRESS).getFirst(), is(new RpslAttribute(AttributeType.ADDRESS, "Test???? Address")));
     }
 
 

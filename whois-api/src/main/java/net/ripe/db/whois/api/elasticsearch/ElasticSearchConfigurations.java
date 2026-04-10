@@ -1,21 +1,14 @@
 package net.ripe.db.whois.api.elasticsearch;
 
-import co.elastic.clients.elasticsearch._types.analysis.Analyzer;
-import co.elastic.clients.elasticsearch._types.analysis.Normalizer;
-import co.elastic.clients.elasticsearch._types.analysis.TokenFilter;
 import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
-import co.elastic.clients.util.NamedValue;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ElasticSearchConfigurations {
@@ -56,7 +49,7 @@ public class ElasticSearchConfigurations {
                         .analyzer("fulltext_analyzer", az -> az
                                 .custom(c -> c
                                         .tokenizer("whitespace")
-                                        .filter("my_word_delimiter_graph", "lowercase", "asciifolding", "english_stop")
+                                        .filter("my_word_delimiter_graph", "lowercase", "english_stop")
                                 )
                         )
                         .analyzer("my_email_analyzer", az -> az

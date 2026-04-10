@@ -1,6 +1,8 @@
 package net.ripe.db.whois.nrtm;
 
 import com.google.common.util.concurrent.Uninterruptibles;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.EmptyByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFuture;
@@ -28,6 +30,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static net.ripe.db.whois.nrtm.NrtmQueryHandlerTest.ByteBufMatcher.instanceofByteBuf;
 import static net.ripe.db.whois.nrtm.NrtmQueryHandlerTest.StringMatcher.instanceofString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -106,15 +109,14 @@ public class NrtmQueryHandlerTest {
 
         subject.channelRead(contextMock, msg);
 
-        InOrder orderedChannelMock = inOrder(channelMock);
-
-        verify(channelMock, times(7)).writeAndFlush(argThat(instanceofString()));
+        final InOrder orderedChannelMock = inOrder(channelMock);
+        verify(channelMock, times(5)).writeAndFlush(argThat(instanceofString()));
         orderedChannelMock.verify(channelMock).writeAndFlush("%START Version: 2 RIPE 1-2\n\n");
         orderedChannelMock.verify(channelMock).writeAndFlush("%WARNING: NRTM version 2 is deprecated, please consider migrating to version 3!\n\n");
         orderedChannelMock.verify(channelMock).writeAndFlush("ADD\n\n");
-        orderedChannelMock.verify(channelMock).writeAndFlush(inetnum + "\n");
+        orderedChannelMock.verify(channelMock).writeAndFlush(argThat(instanceofByteBuf()));    // inetnum
         orderedChannelMock.verify(channelMock).writeAndFlush("ADD\n\n");
-        orderedChannelMock.verify(channelMock).writeAndFlush(DummifierNrtm.getPlaceholderPersonObject() + "\n");
+        orderedChannelMock.verify(channelMock).writeAndFlush(argThat(instanceofByteBuf()));    // placeholder person object
         orderedChannelMock.verify(channelMock).writeAndFlush("%END RIPE\n\n");
     }
 
@@ -142,14 +144,14 @@ public class NrtmQueryHandlerTest {
     public void gFlagValidRange() {
         String msg = "-g RIPE:3:1-2";
         when(channelMock.attr(any()).get()).thenReturn(new AtomicInteger());
+
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(4)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock, times(3)).writeAndFlush(argThat(instanceofString()));
         verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock).writeAndFlush("ADD 1\n\n");
-        verify(channelMock).writeAndFlush(inetnum.toString() + "\n");
+        verify(channelMock).writeAndFlush(argThat(instanceofByteBuf()));    // inetnum
         verify(channelMock, never()).writeAndFlush("ADD 2\n\n");
-        verify(channelMock, never()).writeAndFlush(person.toString() + "\n");
         verify(channelMock).writeAndFlush("%END RIPE\n\n");
     }
 
@@ -160,27 +162,26 @@ public class NrtmQueryHandlerTest {
 
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(3)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock, times(2)).writeAndFlush(argThat(instanceofString()));
         verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
         verify(channelMock).writeAndFlush("ADD 1\n\n");
-        verify(channelMock).writeAndFlush(inetnum.toString() + "\n");
+        verify(channelMock).writeAndFlush(argThat(instanceofByteBuf()));    // inetnum
     }
 
     @Test
     public void keepaliveEndOfStreamIndicator() {
         String msg = "-g RIPE:3:1-LAST -k";
         when(channelMock.attr(any()).get()).thenReturn(new AtomicInteger());
-
         subject = new NrtmQueryHandler(serialDaoMock, dummifierMock, mySchedulerMock, nrtmLogMock, applicationVersion, SOURCE, NONAUTH_SOURCE, UPDATE_INTERVAL, true);
 
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(4)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock, times(3)).writeAndFlush(argThat(instanceofString()));
         verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
         verify(channelMock).writeAndFlush("ADD 1\n\n");
-        verify(channelMock).writeAndFlush(inetnum.toString() + "\n");
+        verify(channelMock).writeAndFlush(argThat(instanceofByteBuf()));    // inetnum
         verify(channelMock).writeAndFlush("%END 1 - 2\n\n");
     }
 
@@ -191,17 +192,16 @@ public class NrtmQueryHandlerTest {
 
         subject.channelRead(contextMock, msg);
 
-        verify(channelMock, times(4)).writeAndFlush(argThat(instanceofString()));
+        verify(channelMock, times(3)).writeAndFlush(argThat(instanceofString()));
         verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock).writeAndFlush("ADD 1\n\n");
-        verify(channelMock).writeAndFlush(inetnum.toString() + "\n");
+        verify(channelMock).writeAndFlush(argThat(instanceofByteBuf()));    // inetnum
         verify(channelMock).writeAndFlush("%END RIPE\n\n");
     }
 
     @Test
     public void gFlag_InvalidRange() {
-        String msg = "-g RIPE:3:4-5";
-
+        final String msg = "-g RIPE:3:4-5";
         try {
             subject.channelRead(contextMock, msg);
             fail("Didn't catch NrtmException");
@@ -213,8 +213,7 @@ public class NrtmQueryHandlerTest {
     @Test
     public void closedChannel() {
         when(channelMock.isOpen()).thenReturn(false);
-        String msg = "-g RIPE:3:1-2";
-
+        final String msg = "-g RIPE:3:1-2";
         try {
             subject.channelRead(contextMock, msg);
             fail("expected ChannelException");
@@ -226,8 +225,7 @@ public class NrtmQueryHandlerTest {
     @Test
     public void gFlagRequestOutOfDateSerial() {
         when(serialDaoMock.getAgeOfExactOrNextExistingSerial(1)).thenReturn(NrtmQueryHandler.HISTORY_AGE_LIMIT + 1);
-        String msg = "-g RIPE:3:1-2";
-
+        final String msg = "-g RIPE:3:1-2";
         try {
             subject.channelRead(contextMock, msg);
             fail("expected NrtmException");
@@ -240,8 +238,9 @@ public class NrtmQueryHandlerTest {
 
     @Test
     public void gFlagDeprecatedVersion() {
-        String msg = "-g RIPE:2:1-1";
+        final String msg = "-g RIPE:2:1-1";
         when(channelMock.attr(any()).get()).thenReturn(new AtomicInteger());
+
         subject.channelRead(contextMock, msg);
 
         verify(channelMock, times(3)).writeAndFlush(argThat(instanceofString()));
@@ -261,11 +260,11 @@ public class NrtmQueryHandlerTest {
     public void throttleChannelKeepaliveQuery() {
         when(channelMock.attr(any()).get()).thenReturn(new AtomicInteger());
         setPending(channelMock);
-        String msg = "-g RIPE:3:1-LAST -k";
+        final String msg = "-g RIPE:3:1-LAST -k";
 
         messageReceived(msg);
-        unsetPending(channelMock);
 
+        unsetPending(channelMock);
         verify(channelMock).writeAndFlush("%START Version: 3 RIPE 1-2\n\n");
         verify(channelMock, atMost(1)).writeAndFlush(any(String.class));
         verify(mySchedulerMock).scheduleAtFixedRate(any(Runnable.class), anyLong());
@@ -276,7 +275,7 @@ public class NrtmQueryHandlerTest {
     public void retryForAnnotation() {
         when(serialDaoMock.getByIdForNrtm(any(Integer.class))).thenThrow(CannotGetJdbcConnectionException.class);
         when(channelMock.attr(any()).get()).thenReturn(new AtomicInteger());
-        String msg = "-g RIPE:3:1-LAST";
+        final String msg = "-g RIPE:3:1-LAST";
 
         try {
             subject.channelRead(contextMock, msg);
@@ -324,4 +323,19 @@ public class NrtmQueryHandlerTest {
             return instance;
         }
     }
+
+    static class ByteBufMatcher implements ArgumentMatcher<ByteBuf> {
+
+        static final ByteBufMatcher instance = new ByteBufMatcher();
+
+        @Override
+        public boolean matches(final ByteBuf argument) {
+            return ((argument instanceof ByteBuf) && !(argument instanceof EmptyByteBuf));
+        }
+
+        static ByteBufMatcher instanceofByteBuf() {
+            return instance;
+        }
+    }
+
 }

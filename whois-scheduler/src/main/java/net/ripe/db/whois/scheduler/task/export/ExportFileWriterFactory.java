@@ -57,8 +57,8 @@ class ExportFileWriterFactory {
         initDirs(fullDir, splitDir, internalDir);
 
         try {
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDir, String.format("%s.%s", source, CURRENTSERIAL_SUFFIX)));
-            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.ISO_8859_1), new File(fullDir, String.format("%s.%s", nonAuthSource, CURRENTSERIAL_SUFFIX)));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.UTF_8), new File(fullDir, String.format("%s.%s", source, CURRENTSERIAL_SUFFIX)));
+            FileCopyUtils.copy(String.valueOf(lastSerial).getBytes(StandardCharsets.UTF_8), new File(fullDir, String.format("%s.%s", nonAuthSource, CURRENTSERIAL_SUFFIX)));
         } catch (IOException e) {
             throw new RuntimeException("Writing current serial", e);
         }
@@ -73,13 +73,21 @@ class ExportFileWriterFactory {
         final ExportFilter nonAuthSourceFilter = new ExportFilter.SourceExportFilter(nonAuthSource, NONAUTH_OBJECT_TYPES, false);
 
         return Lists.newArrayList(
-                new ExportFileWriter(fullDir, singleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter),
-                new ExportFileWriter(splitDir, splitFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter),
-                new ExportFileWriter(internalDir, splitFile, new DecorationStrategy.None(), sourceFilter),
+                new ExportFileWriter(fullDir, singleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter, StandardCharsets.ISO_8859_1),
+                new ExportFileWriter(splitDir, splitFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter, StandardCharsets.ISO_8859_1),
+                new ExportFileWriter(internalDir, splitFile, new DecorationStrategy.None(), sourceFilter, StandardCharsets.ISO_8859_1),
 
-                new ExportFileWriter(fullDir, nonAuthSingleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), nonAuthSourceFilter),
-                new ExportFileWriter(splitDir, nonAuthSplitFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), nonAuthSourceFilter),
-                new ExportFileWriter(internalDir, nonAuthSplitFile, new DecorationStrategy.None(), nonAuthSourceFilter)
+                new ExportFileWriter(fullDir, singleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter, StandardCharsets.UTF_8),
+                new ExportFileWriter(splitDir, splitFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), sourceFilter, StandardCharsets.UTF_8),
+                new ExportFileWriter(internalDir, splitFile, new DecorationStrategy.None(), sourceFilter, StandardCharsets.UTF_8),
+
+                new ExportFileWriter(fullDir, nonAuthSingleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), nonAuthSourceFilter, StandardCharsets.ISO_8859_1),
+                new ExportFileWriter(splitDir, nonAuthSplitFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), nonAuthSourceFilter, StandardCharsets.ISO_8859_1),
+                new ExportFileWriter(internalDir, nonAuthSplitFile, new DecorationStrategy.None(), nonAuthSourceFilter, StandardCharsets.ISO_8859_1),
+
+                new ExportFileWriter(fullDir, nonAuthSingleFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), nonAuthSourceFilter, StandardCharsets.UTF_8),
+                new ExportFileWriter(splitDir, nonAuthSplitFile, new DecorationStrategy.DummifySplitFiles(dummifierNrtm), nonAuthSourceFilter, StandardCharsets.UTF_8),
+                new ExportFileWriter(internalDir, nonAuthSplitFile, new DecorationStrategy.None(), nonAuthSourceFilter, StandardCharsets.UTF_8)
         );
     }
 

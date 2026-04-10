@@ -2,6 +2,8 @@ package net.ripe.db.whois.common.domain.serials;
 
 import net.ripe.db.whois.common.rpsl.RpslObject;
 
+import java.nio.charset.StandardCharsets;
+
 public class SerialEntry {
     private final int serialId;
     private final Operation operation;
@@ -25,7 +27,7 @@ public class SerialEntry {
 
     public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int objectId, final int lastTimestamp, final int historyTimestamp, final byte[] blob, final String pkey) {
         this(serialId, operation, atLast, lastTimestamp, historyTimestamp, pkey);
-        rpslObject = blob == null ? null : RpslObject.parse(objectId, blob);
+        rpslObject = blob == null ? null : RpslObject.parse(objectId, blob, StandardCharsets.UTF_8);
     }
 
     public SerialEntry(final int serialId, final Operation operation, final boolean atLast, final int objectId, final byte[] blob, final String pkey) {

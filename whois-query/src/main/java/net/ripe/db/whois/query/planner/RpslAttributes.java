@@ -32,7 +32,7 @@ public class RpslAttributes implements ResponseObject {
     public byte[] toByteArray() {
         try {
             final ByteArrayOutput baos = new ByteArrayOutput();
-            writeTo(baos);
+            writeTo(baos, StandardCharsets.UTF_8);
             return baos.toByteArray();
         } catch (IOException e) {
             throw new IllegalStateException("Should never occur", e);
@@ -41,7 +41,7 @@ public class RpslAttributes implements ResponseObject {
 
     @Override
     public String toString() {
-        return new String(toByteArray(), StandardCharsets.ISO_8859_1);
+        return new String(toByteArray(), StandardCharsets.UTF_8);
     }
 
     public Iterable<RpslAttribute> getAttributes() {
