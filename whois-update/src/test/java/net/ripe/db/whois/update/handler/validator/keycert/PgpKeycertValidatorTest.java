@@ -13,7 +13,6 @@ import net.ripe.db.whois.update.domain.UpdateContainer;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +31,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -103,9 +101,7 @@ public class PgpKeycertValidatorTest {
     }
 
     @Test
-    @Disabled
-    //TODO: his test does not seem to be correct
-    public void pgp_key_greater_than_minimum_key_length() {
+    public void pgp_key_greater_than_minimum_key_length_is_ok() {
         final RpslObject object = RpslObject.parse(
                 "key-cert:       PGPKEY-E7220D0A\n" +
                 "method:         PGP\n" +
@@ -172,7 +168,7 @@ public class PgpKeycertValidatorTest {
 
         pgpKeycertValidator.validate(update, updateContext);
 
-        verifyNoMoreInteractions(updateContext);
+        verify(updateContext, never()).addMessage(eq(update), any(Message.class));
     }
 
     @Test
@@ -181,7 +177,7 @@ public class PgpKeycertValidatorTest {
                 "key-cert:       PGPKEY-8947C26B\n" +
                 "method:         PGP\n" +
                 "owner:          Test User <revoked@ripe.net>\n" +
-                "fingerpr:       610A 2457 2BA3 A575 5F85  4DD8 5E62 6C72 C88C A438\n" +
+                "fingerpr:       7489 52E0 F1E7 C625 5F53  D6C2 92A1 98A0 8947 C26B\n" +
                 "certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----\n" +
                 "certif:         Comment: GPGTools - http://gpgtools.org\n" +
                 "certif:         \n" +

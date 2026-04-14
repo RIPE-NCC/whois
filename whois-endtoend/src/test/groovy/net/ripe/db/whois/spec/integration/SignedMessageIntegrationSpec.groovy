@@ -229,7 +229,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 key-cert:       PGPKEY-8947C26B
                 method:         PGP
                 owner:          Test User <revoked@ripe.net>
-                fingerpr:       610A 2457 2BA3 A575 5F85  4DD8 5E62 6C72 C88C A438
+                fingerpr:       7489 52E0 F1E7 C625 5F53  D6C2 92A1 98A0 8947 C26B
                 certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
                 certif:         Comment: GPGTools - http://gpgtools.org
                 certif:         
