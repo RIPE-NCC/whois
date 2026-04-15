@@ -2,9 +2,9 @@ package net.ripe.db.whois.common.dao.jdbc.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.ripe.db.whois.common.Validate;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.Validate;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +19,7 @@ public final class IndexStrategies {
                 new IndexWithReference(AttributeType.ABUSE_C, "abuse_c", "pe_ro_id"),
                 new IndexWithEmailAddressValueAndType(AttributeType.ABUSE_MAILBOX, "abuse_mailbox", "abuse_mailbox"),
                 new Unindexed(AttributeType.ADDRESS),
+                new Unindexed(AttributeType.CONTACT),
                 new IndexWithReference(AttributeType.ADMIN_C, "admin_c", "pe_ro_id"),
                 new Unindexed(AttributeType.AGGR_BNDRY),
                 new Unindexed(AttributeType.AGGR_MTD),

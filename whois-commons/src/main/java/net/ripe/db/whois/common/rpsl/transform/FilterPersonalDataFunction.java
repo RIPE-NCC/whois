@@ -20,6 +20,7 @@ public class FilterPersonalDataFunction implements Function<RpslObject, RpslObje
                 .removeAttributeType(AttributeType.ADMIN_C)
                 .removeAttributeType(AttributeType.AUTHOR)
                 .removeAttributeType(AttributeType.E_MAIL)
+                .removeAttributeType(AttributeType.CONTACT)
                 .removeAttributeType(AttributeType.NOTIFY)
                 .removeAttributeType(AttributeType.PING_HDL)
                 .removeAttributeType(AttributeType.TECH_C)

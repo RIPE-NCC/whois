@@ -3,12 +3,12 @@ package net.ripe.db.whois.rdap;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.rdap.domain.vcard.VCard;
 import net.ripe.db.whois.rdap.domain.vcard.VCardKind;
 import net.ripe.db.whois.rdap.domain.vcard.VCardName;
 import net.ripe.db.whois.rdap.domain.vcard.VCardProperty;
 import net.ripe.db.whois.rdap.domain.vcard.VCardType;
-import net.ripe.db.whois.common.domain.CIString;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +34,7 @@ public class VCardBuilder {
     private static final String PARAMETER_KEY = "type";
     private static final Map ABUSE_MAP = ImmutableMap.of(PARAMETER_KEY,"abuse");
     private static final Map PHONE_MAP = ImmutableMap.of(PARAMETER_KEY, "voice");
+    private static final Map CONTACT_MAP = ImmutableMap.of(PARAMETER_KEY, "voice, text");
     private static final Map EMAIL_MAP = ImmutableMap.of(PARAMETER_KEY,"email");
     private static final Map FAX_MAP = ImmutableMap.of(PARAMETER_KEY, "fax");
     private static final Map EMPTY_MAP = ImmutableMap.of();
@@ -74,6 +75,14 @@ public class VCardBuilder {
 
     public VCardBuilder addTel(final Set<CIString> phones) {
         phones.forEach( phone -> addProperty(TELEPHONE, PHONE_MAP, getTelType(phone), phone));
+        return this;
+    }
+
+
+    public VCardBuilder addContact(final Set<CIString> phones) {
+        phones.stream()
+                .filter(phone -> phone.toLowerCase().startsWith("http"))
+                .forEach( phone -> addProperty(TELEPHONE, CONTACT_MAP, URI, phone));
         return this;
     }
 

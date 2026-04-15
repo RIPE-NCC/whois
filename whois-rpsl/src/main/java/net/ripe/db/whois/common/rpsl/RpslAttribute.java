@@ -2,10 +2,10 @@ package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.common.Validate;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.attrs.MntRoutes;
 import org.apache.commons.lang3.StringUtils;
-import net.ripe.db.whois.common.Validate;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
@@ -162,6 +162,11 @@ public final class RpslAttribute implements Serializable {
             }
 
             if (c == '#') {
+                //signal contains /#p/ in the middle of the URL
+                if (key.equals(AttributeType.CONTACT.getName()) && !space){
+                    cleanedValue.append(c);
+                    continue;
+                }
                 comment = true;
                 continue;
             }

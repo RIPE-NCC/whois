@@ -2231,6 +2231,291 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         }
     }
 
+
+    @Test
+    public void create_person_contact_attribute_using_whatsApp() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://api.whatsapp.com/send?phone=441231231231"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "https://api.whatsapp.com/send?phone=441231231231")));
+    }
+
+    @Test
+    public void create_person_contact_attribute_using_signal() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://signal.me/#p/+441231231231"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "https://signal.me/#p/+441231231231")));
+    }
+
+    @Test
+    public void create_person_contact_attribute_using_sip() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "sip:alice@192.168.1.42"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "sip:alice@192.168.1.42")));
+    }
+
+    @Test
+    public void create_person_contact_attribute_using_commented_signal() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://signal.me/#p/+441231231231 #comments still work"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(4).toString(), is("contact: https://signal.me/#p/+441231231231 # comments still work"));
+    }
+
+    @Test
+    public void create_person_contact_attribute_using_tg() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "tg://msg_url?url=https//example.com&text=Hello%20from%20Telegram"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "tg://msg_url?url=https//example.com&text=Hello%20from%20Telegram")));
+    }
+
+    @Test
+    public void create_person_multiple_contact_attribute() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://t.me/share/url?url=https//example.com&text=Check%20this%20out"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "sip:alice@192.168.1.42"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "https://t.me/share/url?url=https//example.com&text=Check%20this%20out")));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "sip:alice@192.168.1.42")));
+    }
+
+    @Test
+    public void create_person_wrong_contact_attribute_syntax() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "signalaaa.me/#p/+441231231231"))
+                .get();
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                RestTest.target(getPort(), "whois/test/person?password=test")
+                        .request()
+                        .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class)
+        );
+
+        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().toString(), is("Syntax error in signalaaa.me/#p/+441231231231"));
+    }
+
+    @Test
+    public void create_person_wrong_contact_attribute_url() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://telegramaaa.me/share/url?url=https//example.com/page&text=Interesting%20article"))
+                .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+
+        final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(1).toString(), is("Contact attribute syntax is not recognised: https://telegramaaa.me/share/url?url=https//example.com/page&text=Interesting%20article"));
+    }
+
+    @Test
+    public void create_person_multiple_wrong_contact_attribute_url() {
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://telegramaaa.me/share/url?url=https//example.com/page&text=Interesting%20article"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "sip:@12.2.3.4:22"))
+                .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .post(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+
+        final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(3));
+        assertThat(whoisResources.getErrorMessages().get(1).toString(), is("Contact attribute syntax is not recognised: sip:@12.2.3.4:22"));
+        assertThat(whoisResources.getErrorMessages().get(2).toString(), is("Contact attribute syntax is not recognised: https://telegramaaa.me/share/url?url=https//example.com/page&text=Interesting%20article"));
+    }
+
+    @Test
+    public void update_person_contact_attribute_using_whatsApp() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://api.whatsapp.com/send?phone=441231231231"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "https://api.whatsapp.com/send?phone=441231231231")));
+    }
+
+    @Test
+    public void update_person_contact_attribute_using_signal() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://signal.me/#p/+441231231231"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "https://signal.me/#p/+441231231231")));
+    }
+
+    @Test
+    public void update_person_contact_attribute_using_sip() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "sip:alice@192.168.1.42"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "sip:alice@192.168.1.42")));
+    }
+
+    @Test
+    public void update_person_contact_attribute_using_tg() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "tg://msg_url?url=https//example.com&text=Hello%20from%20Telegram"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "tg://msg_url?url=https//example.com&text=Hello%20from%20Telegram")));
+    }
+
+    @Test
+    public void update_person_multiple_contact_attribute() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://wa.me/+441231231231"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "tg://msg_url?url=https//example.com&text=Hello%20from%20Telegram"))
+                .get();
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("MD5 hashed password authentication is deprecated and support will be " +
+                "removed soon. Please switch to an alternative authentication method before then."));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "https://wa.me/+441231231231")));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("contact", "tg://msg_url?url=https//example.com&text=Hello%20from%20Telegram")));
+    }
+
+    @Test
+    public void update_person_wrong_contact_attribute_syntax() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "signalaaa.me/#p/+441231231231"))
+                .get();
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                        .request()
+                        .put(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), WhoisResources.class)
+        );
+
+        final WhoisResources whoisResources = badRequestException.getResponse().readEntity(WhoisResources.class);
+        assertThat(whoisResources.getErrorMessages(), hasSize(1));
+        assertThat(whoisResources.getErrorMessages().getFirst().toString(), is("Syntax error in signalaaa.me/#p/+441231231231"));
+    }
+
+    @Test
+    public void update_person_wrong_contact_attribute_url() {
+        databaseHelper.addObject(PAULETH_PALTHEN);
+
+        final RpslObject personContactAttribute = new RpslObjectBuilder(PAULETH_PALTHEN)
+                .addAttributeSorted(new RpslAttribute(AttributeType.CONTACT, "https://t.me/url?url=https//example.com&text=Check%20this%20out"))
+                .get();
+
+        final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .put(Entity.entity(map(personContactAttribute), MediaType.APPLICATION_XML), Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+
+        final WhoisResources whoisResources = response.readEntity(WhoisResources.class);
+
+        assertThat(whoisResources.getErrorMessages(), hasSize(2));
+        assertThat(whoisResources.getErrorMessages().get(1).toString(), is("Contact attribute syntax is not recognised: https://t.me/url?url=https//example.com&text=Check%20this%20out"));
+    }
+
     @Test
     public void update_person_remove_ripe_ncc_remarks_fails() {
         final RpslObject update = new RpslObjectBuilder(TEST_PERSON)

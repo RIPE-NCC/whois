@@ -80,6 +80,7 @@ import java.util.stream.Stream;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADMIN_C;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CONTACT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DESCR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DS_RDATA;
@@ -714,6 +715,7 @@ public class RdapObjectMapper {
         }
         builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
                 .addTel(rpslObject.getValuesForAttribute(PHONE))
+                .addContact(rpslObject.getValuesForAttribute(CONTACT))
                 .addFax(rpslObject.getValuesForAttribute(FAX_NO))
                 .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
                 .addOrg(rpslObject.getValuesForAttribute(ORG))

@@ -758,4 +758,9 @@ public final class UpdateMessages {
                                                              final CIString convertedAttribute) {
         return new Message(Type.WARNING, String.format("Attribute \"%s:\" has been converted to \"%s\"", attributeName, convertedAttribute));
     }
+
+
+    public static Message contactValueNotRecognised(final RpslAttribute attribute) {
+        return new MessageWithAttribute(Type.WARNING, attribute,"Contact attribute syntax is not recognised: %s", attribute.getCleanValue());
+    }
 }

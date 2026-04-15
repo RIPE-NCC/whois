@@ -23,6 +23,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeSyntax.AUTH_SCHEME_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.CERTIF_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.CHANGED_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.COMPONENTS_SYNTAX;
+import static net.ripe.db.whois.common.rpsl.AttributeSyntax.CONTACT_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.COUNTRY_CODE_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.DEFAULT_SYNTAX;
 import static net.ripe.db.whois.common.rpsl.AttributeSyntax.DOMAIN_SYNTAX;
@@ -167,6 +168,10 @@ public enum AttributeType implements Documented {
     COMPONENTS(new Builder("components", "co")
             .doc("The \"components:\" attribute defines what component routes are used to form the aggregate.")
             .syntax(COMPONENTS_SYNTAX)),
+
+    CONTACT(new Builder("contact", "con")
+            .doc("Specifies a contact URI for messaging platforms such as WhatsApp, Signal, SIP or Telegram.")
+            .syntax(CONTACT_SYNTAX)),
 
     COUNTRY(new Builder("country", "cy")
             .doc("Identifies the country.")

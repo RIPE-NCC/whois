@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
-import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.Validate;
+import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,6 +18,7 @@ import java.util.Set;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ABUSE_MAILBOX;
 import static net.ripe.db.whois.common.rpsl.AttributeType.ADDRESS;
 import static net.ripe.db.whois.common.rpsl.AttributeType.AUTH;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CONTACT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.E_MAIL;
 import static net.ripe.db.whois.common.rpsl.AttributeType.FAX_NO;
 import static net.ripe.db.whois.common.rpsl.AttributeType.IRT_NFY;
@@ -69,10 +70,10 @@ public class DummifierRC implements Dummifier {
                     replacement = replaceAuth(replacement);
                     replacement = replacePhoneFax(replacement);
 
-                    if (replacement.getType() == ADDRESS) {
+                    if (replacement.getType() == ADDRESS || replacement.getType() == CONTACT) {
                         lastAddressLine = replacement;
                         lastAddressLineIndex = i;
-                        replacement = new RpslAttribute(ADDRESS, "***");
+                        replacement = new RpslAttribute(replacement.getType(), "***");
                     }
                 }
                 replacement = replaceEmail(replacement);

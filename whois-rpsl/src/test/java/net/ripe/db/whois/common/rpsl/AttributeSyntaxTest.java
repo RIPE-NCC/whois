@@ -185,6 +185,22 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.INETNUM, AttributeType.COUNTRY, "EN");
     }
 
+
+    @Test
+    public void contact() {
+        //WhatApp
+        verifySuccess(ObjectType.PERSON, AttributeType.CONTACT, "https://wa.me/+441231231231");
+        verifySuccess(ObjectType.PERSON, AttributeType.CONTACT, "https://api.whatsapp.com/send?phone=+441231231231");
+        verifySuccess(ObjectType.PERSON, AttributeType.CONTACT, "sip:alice@192.168.1.42");
+        verifySuccess(ObjectType.PERSON, AttributeType.CONTACT, "https://signal.me/#p/+441231231231");
+        verifySuccess(ObjectType.PERSON, AttributeType.CONTACT, "tg://msg_url?url=https//example.com&text=Hello%20from%20Telegram");
+
+        verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "a");
+        verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "https//wa.me/+441231231231");
+        verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "sipalice@192.168.1.42");
+        verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "/signal.me/+441231231231");
+    }
+
     @Test
     public void descr() {
         verifySuccess(ObjectType.ROUTE, AttributeType.DESCR, "");

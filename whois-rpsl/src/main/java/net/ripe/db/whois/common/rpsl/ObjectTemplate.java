@@ -49,6 +49,7 @@ import static net.ripe.db.whois.common.rpsl.AttributeType.AUTHOR;
 import static net.ripe.db.whois.common.rpsl.AttributeType.AUT_NUM;
 import static net.ripe.db.whois.common.rpsl.AttributeType.CERTIF;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COMPONENTS;
+import static net.ripe.db.whois.common.rpsl.AttributeType.CONTACT;
 import static net.ripe.db.whois.common.rpsl.AttributeType.COUNTRY;
 import static net.ripe.db.whois.common.rpsl.AttributeType.CREATED;
 import static net.ripe.db.whois.common.rpsl.AttributeType.DEFAULT;
@@ -311,6 +312,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(FAX_NO, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(E_MAIL, MANDATORY, MULTIPLE, LOOKUP_KEY),
                         new AttributeTemplate(SIGNATURE, OPTIONAL, MULTIPLE),
+                        new AttributeTemplate(CONTACT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ENCRYPTION, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, MANDATORY, MULTIPLE, INVERSE_KEY),
@@ -369,6 +371,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(PHONE, CONDITIONAL, MULTIPLE),
                         new AttributeTemplate(FAX_NO, CONDITIONAL, MULTIPLE),
                         new AttributeTemplate(E_MAIL, MANDATORY, MULTIPLE, LOOKUP_KEY),
+                        new AttributeTemplate(CONTACT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(GEOLOC, OPTIONAL, SINGLE),
                         new AttributeTemplate(LANGUAGE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(REG_NR, CONDITIONAL, SINGLE),
@@ -406,6 +409,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(PHONE, MANDATORY, MULTIPLE),
                         new AttributeTemplate(FAX_NO, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(E_MAIL, OPTIONAL, MULTIPLE, LOOKUP_KEY),
+                        new AttributeTemplate(CONTACT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(NIC_HDL, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
                         new AttributeTemplate(REMARKS, OPTIONAL, MULTIPLE),
@@ -446,6 +450,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
                         new AttributeTemplate(PHONE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(FAX_NO, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(E_MAIL, MANDATORY, MULTIPLE, LOOKUP_KEY),
+                        new AttributeTemplate(CONTACT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(ADMIN_C, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(TECH_C, OPTIONAL, MULTIPLE, INVERSE_KEY),

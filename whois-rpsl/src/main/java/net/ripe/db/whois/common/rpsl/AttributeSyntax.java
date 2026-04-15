@@ -34,6 +34,7 @@ import net.ripe.db.whois.common.rpsl.attrs.OrgType;
 import net.ripe.db.whois.common.rpsl.attrs.RangeOperation;
 import org.apache.commons.validator.routines.UrlValidator;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -132,6 +133,8 @@ public interface AttributeSyntax extends Documented {
             "Officially Assigned two-letter ISO 3166 country code or \"EU\" (exceptionally reserved).");
 
     AttributeSyntax COMPONENTS_SYNTAX = new ComponentsSyntax();
+
+    AttributeSyntax CONTACT_SYNTAX = new ContactSyntax();
 
     AttributeSyntax DEFAULT_SYNTAX = new AttributeSyntaxParser(new DefaultParser(), "" +
             "to <peering> [action <action>] [networks <filter>]");
@@ -639,6 +642,27 @@ public interface AttributeSyntax extends Documented {
                     "Location coordinates of the resource, in decimal degrees notation.\n" +
                     "Format is latitude followed by longitude, separated by a space.\n" +
                     "Latitude ranges from [-90,+90] and longitude from [-180,+180]\n";
+        }
+    }
+
+
+    class ContactSyntax implements AttributeSyntax {
+
+        @Override
+        public boolean matches(final ObjectType objectType, final String value) {
+            try {
+                URI uri = new URI(value);
+                return uri.getScheme() != null; // ensures it has a scheme like http, sip, tg
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        @Override
+        public String getDescription(final ObjectType objectType) {
+            return """
+                    The syntax of a “contact:” attribute value is a URI. Any valid URI value will be accepted.
+                    """;
         }
     }
 
