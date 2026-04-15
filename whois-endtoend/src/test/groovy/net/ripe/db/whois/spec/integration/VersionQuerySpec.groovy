@@ -49,6 +49,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT
                 source:  TEST

@@ -59,6 +59,7 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:    Test Person\n" +
             "address:   Singel 258\n" +
+            "e-mail:    noreply@ripe.net\n" +
             "phone:     +31 6 12345678\n" +
             "nic-hdl:   TP1-TEST\n" +
             "mnt-by:    OWNER-MNT\n" +

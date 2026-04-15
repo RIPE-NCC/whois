@@ -59,6 +59,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "address: Burnley\n" +
                 "address: UK\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -96,6 +97,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "address: Burnley\n" +
                 "address: UK\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -156,6 +158,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "address: Burnley\n" +
                 "address: UK\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -286,6 +289,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "address: Burnley\n" +
                 "address: UK\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -314,6 +318,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "address: Burnley\n" +
                 "address: UK\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -346,6 +351,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "address: Burnley\n" +
                 "address: UK\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -666,6 +672,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "person:  First Person\n" +
                 "address: Тверская улица,москва\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -697,6 +704,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "\n" +
                 "person:  First Person\n" +
                 "address: Тверская улица,москва\n" +
+                "e-mail:         test@ripe.net\n" +
                 "remarks: Updated\n" +
                 "phone:   +44 282 420469\n" +
                 "nic-hdl: FP1-TEST\n" +
@@ -735,6 +743,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "address: 123\n" +
                 "remarks: Тверская улица,москва\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -767,6 +776,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "remarks: Тверская улица,москва\n" +
                 "remarks: Updated\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "remarks: updated\n" +
@@ -801,6 +811,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "address: 123\n" +
                 "remarks: Test\u000b\u000c\u007F\u008f Address\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -830,6 +841,7 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "person:  First Person\n" +
                 "address:  ÖÜëñ\n" +
                 "phone:   +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl: FP1-TEST\n" +
                 "mnt-by:  OWNER-MNT\n" +
                 "source:  TEST\n" +
@@ -894,6 +906,8 @@ class MailMessageIntegrationSpec extends BaseWhoisSourceSpec {
                   "address: UK\n" +
                   "\t\t\t\n" +
                   "phone: +44 282 420469\n" +
+                  "\t\t\t\n" +
+                  "e-mail:         test@ripe.net\n" +
                   "\t\t\t\n" +
                   "nic-hdl: FP1-TEST\n" +
                   "\t\t\t\n" +

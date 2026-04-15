@@ -787,8 +787,8 @@ class BasicQuerySpec extends BaseQueryUpdateSpec {
                 "      \"person:\" attribute cannot be changed.\n" +
                 "\n" +
                 "person:         [mandatory]  [single]     [lookup key]\n" +
-                "address:        [mandatory]  [multiple]   [ ]\n" +
-                "phone:          [mandatory]  [multiple]   [ ]\n" +
+                "address:        [optional]   [multiple]   [ ]\n" +
+                "phone:          [optional]   [multiple]   [ ]\n" +
                 "fax-no:         [optional]   [multiple]   [ ]")
     }
 

@@ -17,6 +17,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -27,6 +28,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FP1-TEST
                 source:  TEST
                 """,
@@ -36,6 +38,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: ABC1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -46,6 +49,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: ABC3-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -65,6 +69,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: aUtO-1
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -99,6 +104,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: AuTo-123ABC
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -139,6 +145,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: auto-22ABC
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -178,6 +185,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: auto-2A
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -217,6 +225,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: auto-2ABCDE
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -257,6 +266,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: auto-2ABC-NL
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -378,6 +388,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: auto-1
                 mnt-by:  owner-mnt
                 source:  TEST
@@ -412,6 +423,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: auto-1
                 mnt-by:  owner-mnt
                 source:  TEST
@@ -455,6 +467,7 @@ class PersonAutoSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: aUtO-2
                 mnt-by:  OWNER-MNT
                 source:  TEST

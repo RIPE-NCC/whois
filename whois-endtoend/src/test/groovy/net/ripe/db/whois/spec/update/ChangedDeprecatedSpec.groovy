@@ -23,6 +23,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
             address: Burnley
             address: UK
             phone:   +44 282 420469
+            e-mail:  noreply@ripe.net
             nic-hdl: FP1-TEST
             mnt-by:  OWNER-MNT
             source:  TEST
@@ -33,6 +34,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
             address: Amsterdam
             address: NL
             phone:   +44 282 420469
+            e-mail:  noreply@ripe.net
             nic-hdl: FP1-TEST
             mnt-by:  OWNER-MNT
             source:  TEST
@@ -43,6 +45,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
             address: Burnley
             address: UK
             phone:   +44 282 420469
+            e-mail:  noreply@ripe.net
             nic-hdl: FP1-TEST
             mnt-by:  OWNER-MNT
             changed: noreply@ripe.net 20140102
@@ -54,6 +57,7 @@ class ChangedDeprecatedSpec extends BaseQueryUpdateSpec  {
             address: Amsterdam
             address: NL
             phone:   +44 282 420469
+            e-mail:  noreply@ripe.net
             nic-hdl: FP1-TEST
             mnt-by:  OWNER-MNT
             changed: noreply@ripe.net 20140102

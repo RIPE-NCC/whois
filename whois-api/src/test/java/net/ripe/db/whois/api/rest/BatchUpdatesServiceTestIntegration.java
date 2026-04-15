@@ -1,5 +1,9 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Action;
@@ -16,10 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.MediaType;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.common.domain.CIString.ciString;
@@ -234,6 +234,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                         "address: Burnley\n" +
                         "address: UK\n" +
                         "phone:   +44 282 420469\n" +
+                        "e-mail:  test@ripe.net\n" +
                         "nic-hdl: NX-TEST\n" +
                         "mnt-by:  NON-EXISTING-MNT\n" +
                         "source:  TEST")

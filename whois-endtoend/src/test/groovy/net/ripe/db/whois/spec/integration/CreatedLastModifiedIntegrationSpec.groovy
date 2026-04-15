@@ -1,7 +1,7 @@
 package net.ripe.db.whois.spec.integration
 
-
 import net.ripe.db.whois.spec.domain.SyncUpdate
+
 import java.time.LocalDateTime
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
@@ -39,6 +39,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         person:        Test Person
         address:       Singel 258
         phone:         +3112346
+        e-mail:        test@ripe.net
         nic-hdl:       TP3-TEST
         mnt-by:        TST-MNT
         created:       2012-05-03T11:23:66Z
@@ -68,6 +69,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         person:        Test Person
         address:       Singel 258
         phone:         +3112346
+        e-mail:        test@ripe.net
         nic-hdl:       AUTO-1
         mnt-by:        TST-MNT
         source:        TEST
@@ -90,6 +92,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
         person:        Test Person
         address:       Singel 258
         phone:         +3112346
+        e-mail:        test@ripe.net
         nic-hdl:       TP3-TEST
         mnt-by:        TST-MNT
         created:       2012-05-03T11:23:66Z
@@ -119,6 +122,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             address: Town
             address: UK
             phone:   +44 282 411141
+            e-mail:        test@ripe.net
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
             remarks: created
@@ -141,6 +145,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             address: Town
             address: UK
             phone:   +44 282 411141
+            e-mail:        test@ripe.net
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
             remarks: updated
@@ -171,6 +176,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             address: Town
             address: UK
             phone:   +44 282 411141
+            e-mail:        test@ripe.net
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
             source:  TEST
@@ -188,6 +194,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
             address: Town
             address: UK
             phone:   +44 282 411141
+            e-mail:        test@ripe.net
             nic-hdl: OP1-TEST
             mnt-by:  TST-MNT
             source:  TEST
@@ -299,6 +306,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  New Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:        test@ripe.net
                 nic-hdl: NP1-TEST
                 mnt-by:  TST-MNT
                 source:  TEST
@@ -314,6 +322,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  New Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:        test@ripe.net
                 nic-hdl: NP1-TEST
                 created: 2013-06-25T09:00:00Z
                 mnt-by:  TST-MNT
@@ -329,6 +338,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "person:         New Person\n" +
                 "address:        St James Street\n" +
                 "phone:          +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl:        NP1-TEST\n" +
                 "created:        2013-06-25T09:00:00Z\n" +
                 "mnt-by:         TST-MNT\n" +
@@ -345,6 +355,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  New Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:  test@ripe.net
                 nic-hdl: NP1-TEST
                 mnt-by:  TST-MNT
                 source:  TEST
@@ -359,6 +370,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  New Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:        test@ripe.net
                 nic-hdl: NP1-TEST
                 mnt-by:  TST-MNT
                 remarks: testing
@@ -376,6 +388,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "person:         New Person\n" +
                 "address:        St James Street\n" +
                 "phone:          +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl:        NP1-TEST\n" +
                 "mnt-by:         TST-MNT\n" +
                 "remarks:        testing\n" +
@@ -392,6 +405,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  New Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:        test@ripe.net
                 nic-hdl: NP1-TEST
                 mnt-by:  TST-MNT
                 source:  TEST
@@ -406,6 +420,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  New Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:         test@ripe.net
                 nic-hdl: NP1-TEST
                 mnt-by:  TST-MNT
                 remarks: testing
@@ -426,6 +441,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 "person:         New Person\n" +
                 "address:        St James Street\n" +
                 "phone:          +44 282 420469\n" +
+                "e-mail:         test@ripe.net\n" +
                 "nic-hdl:        NP1-TEST\n" +
                 "mnt-by:         TST-MNT\n" +
                 "remarks:        testing\n" +
@@ -447,6 +463,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
+                e-mail:        test@ripe.net
                 nic-hdl:       TP3-TEST
                 mnt-by:        TST-MNT
                 source:        TEST
@@ -463,6 +480,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
+                e-mail:         test@ripe.net
                 nic-hdl:       TP3-TEST
                 mnt-by:        TST-MNT
                 created:        ${currentDateTime}
@@ -482,6 +500,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
+                e-mail:        test@ripe.net
                 nic-hdl:       TP3-TEST
                 mnt-by:        TST-MNT
                 source:        TEST
@@ -497,6 +516,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
+                e-mail:         test@ripe.net
                 nic-hdl:       TP3-TEST
                 mnt-by:        TST-MNT
                 created:        ${currentDateTime}
@@ -516,6 +536,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
+                e-mail:        test@ripe.net
                 nic-hdl:       TP3-TEST
                 mnt-by:        TST-MNT
                 source:        TEST
@@ -537,6 +558,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                 person:        Test Person
                 address:       Singel 258
                 phone:         +3112346
+                e-mail:         test@ripe.net
                 nic-hdl:       TP3-TEST
                 mnt-by:        TST-MNT
                 source:        TEST
@@ -556,6 +578,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     person:  New Person
                     address: St James Street
                     phone:   +44 282 420469
+                    e-mail:        test@ripe.net
                     nic-hdl: NP1-TEST
                     mnt-by:  TST-MNT
                     source:  TEST
@@ -574,6 +597,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  TST-MNT
                     last-modified: 2013-06-25T09:00:00Z
                     phone:   +44 282 420469
+                    e-mail:  test@ripe.net
                     created: 2013-06-25T09:00:00Z
                     remarks: testing
                     source:  TEST
@@ -589,6 +613,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     "mnt-by:         TST-MNT\n" +
                     "last-modified:  2013-06-26T09:00:00Z\n" +
                     "phone:          +44 282 420469\n" +
+                    "e-mail:         test@ripe.net\n" +
                     "created:        2013-06-25T09:00:00Z\n" +
                     "remarks:        testing\n" +
                     "source:         TEST")
@@ -603,6 +628,7 @@ class CreatedLastModifiedIntegrationSpec extends BaseWhoisSourceSpec {
                     mnt-by:  TST-MNT
                     last-modified: 2013-06-25T09:00:00Z
                     phone:   +44 282 420469
+                    e-mail:  test@ripe.net
                     created: 2013-06-25T09:00:00Z
                     remarks: testing
                     source:  TEST

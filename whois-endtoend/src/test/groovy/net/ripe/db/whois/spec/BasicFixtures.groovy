@@ -9,6 +9,7 @@ class BasicFixtures {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail: unread@ripe.net
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -150,6 +151,7 @@ class BasicFixtures {
                 address: Burnley
                 address: UK
                 phone:   +44 282 411141
+                e-mail:  test@ripe.net
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT
                 source:  TEST

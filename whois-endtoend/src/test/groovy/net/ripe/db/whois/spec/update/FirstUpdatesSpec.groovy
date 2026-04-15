@@ -88,6 +88,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
 
@@ -124,6 +125,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   44 282 420469   # missing '+'
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
                 remarks:                 # none
@@ -265,6 +267,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
                 source: owner
@@ -352,6 +355,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -388,6 +392,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FPE1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -424,6 +429,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FPEü1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -458,6 +464,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 address: Bürnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -491,6 +498,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 address: Bürnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -600,6 +608,7 @@ class FirstUpdatesSpec extends BaseQueryUpdateSpec {
                 phone:   +44 282 420469
                 fax-no:  +31 20535 4444
                 org:     ORG-OTO1-TEST
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FOP1-TEST
                 remarks: test person
                 notify:  dbtest-nfy@ripe.net

@@ -1,6 +1,6 @@
 package net.ripe.db.whois.spec.query
-import com.google.common.collect.Sets
 
+import com.google.common.collect.Sets
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper
 import net.ripe.db.whois.common.rpsl.RpslObject
 import net.ripe.db.whois.spec.BaseEndToEndSpec
@@ -43,6 +43,7 @@ class GrsQuerySpec extends BaseEndToEndSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT
                 source:  TEST

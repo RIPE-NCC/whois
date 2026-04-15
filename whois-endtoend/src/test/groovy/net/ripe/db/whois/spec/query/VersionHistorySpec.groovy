@@ -89,6 +89,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail: unread@ripe.net
                 nic-hdl: ff1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -653,6 +654,7 @@ class VersionHistorySpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail: unread@ripe.net
                 nic-hdl: ff1-TEST
                 mnt-by:  OWNER-MNT
                 remarks: version 2

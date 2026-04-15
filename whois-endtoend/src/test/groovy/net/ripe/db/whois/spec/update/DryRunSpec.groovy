@@ -16,6 +16,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                    address: St James Street
                    address: Burnley
                    address: UK
+                   e-mail:  dbtest@ripe.net
                    phone:   +44 282 420469
                    nic-hdl: Fp11-TEst
                    mnt-by:  owner-mnt
@@ -26,6 +27,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                    address: St James Street
                    address: Burnley
                    address: UK
+                   e-mail:  dbtest@ripe.net
                    phone:   +44 282 420469
                    nic-hdl: Sp11-TEst
                    mnt-by:  owner-mnt
@@ -61,6 +63,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -100,6 +103,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -109,6 +113,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Sp11-TEst
                 mnt-by:  owner-mnt
@@ -152,6 +157,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -191,6 +197,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
                 source:  TEST
@@ -227,6 +234,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -266,6 +274,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 dry-run:
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -303,6 +312,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -341,6 +351,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -381,6 +392,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:         test@ripe.net
                 phone:   44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -421,6 +433,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  unread@ripe.net
                 phone:   +44 282 420469
                 remarks: just added
                 nic-hdl: TP1-TEST
@@ -460,6 +473,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 person:  Test Person
                 address: St James Street
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
@@ -498,6 +512,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 person:  Test Person
                 address: St James Street
                 address: UK
+                e-mail:  unread@ripe.net
                 phone:   +44 282 420469
                 remarks: just added
                 nic-hdl: TP1-TEST
@@ -541,6 +556,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -583,6 +599,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Fp11-TEst
                 mnt-by:  owner-mnt
@@ -593,6 +610,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: Sp11-TEst
                 mnt-by:  owner-mnt
@@ -638,6 +656,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 remarks: just added
                 nic-hdl: TP1-TEST
@@ -648,6 +667,7 @@ class DryRunSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 remarks: just added
                 nic-hdl: Fp11-TEst

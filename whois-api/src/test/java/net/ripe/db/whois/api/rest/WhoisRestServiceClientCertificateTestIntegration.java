@@ -61,6 +61,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
     private static final RpslObject TEST_PERSON = RpslObject.parse(
              "person:     Test Person\n" +
             "address:     Amsterdam\n" +
+             "e-mail:        noreply@ripe.net\n" +
             "phone:       +31 6 12345678\n" +
             "nic-hdl:     TP1-TEST\n" +
             "mnt-by:      OWNER-MNT\n" +
@@ -81,6 +82,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
             "person: Test Person\n" +
              "address: Amsterdam\n" +
              "phone: +31 6 12345678\n" +
+            "e-mail:        noreply@ripe.net\n" +
              "remarks: updated\n" +
              "nic-hdl: TP1-TEST\n" +
              "mnt-by: OWNER-MNT\n" +
@@ -111,6 +113,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
             "person: Test Person\n" +
              "address: Amsterdam\n" +
              "phone: +31 6 12345678\n" +
+             "e-mail:        noreply@ripe.net\n" +
              "remarks: updated\n" +
              "nic-hdl: TP1-TEST\n" +
              "mnt-by: OWNER-MNT\n" +
@@ -126,7 +129,8 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
             .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(4).getValue(), containsString(
+                "updated"));
     }
 
     @Test
@@ -135,6 +139,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
             "person: Test Person\n" +
              "address: Amsterdam\n" +
              "phone: +31 6 12345678\n" +
+             "e-mail:        noreply@ripe.net\n" +
              "remarks: updated\n" +
              "nic-hdl: TP1-TEST\n" +
              "mnt-by: OWNER-MNT\n" +
@@ -160,6 +165,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
             "person: Test Person\n" +
              "address: Amsterdam\n" +
              "phone: +31 6 12345678\n" +
+             "e-mail:        noreply@ripe.net\n" +
              "remarks: updated\n" +
              "nic-hdl: TP1-TEST\n" +
              "mnt-by: OWNER-MNT\n" +
@@ -190,6 +196,7 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
             "person: Test Person\n" +
              "address: Amsterdam\n" +
              "phone: +31 6 12345678\n" +
+             "e-mail:        noreply@ripe.net\n" +
              "remarks: updated\n" +
              "nic-hdl: TP1-TEST\n" +
              "mnt-by: OWNER-MNT\n" +
@@ -207,7 +214,8 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
                 .put(Entity.entity(map(updatedPerson), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes().get(3).getValue(), containsString("updated"));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes().get(4).getValue(), containsString(
+                "updated"));
     }
 
     @Test

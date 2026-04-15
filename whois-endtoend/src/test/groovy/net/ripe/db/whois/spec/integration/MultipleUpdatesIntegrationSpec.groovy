@@ -37,6 +37,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person1
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: TP1-TEST
                 mnt-by:  UPD-MNT
@@ -45,6 +46,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
                 mnt-by:  UPD-MNT
@@ -70,6 +72,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person1
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
@@ -78,6 +81,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
@@ -105,6 +109,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person1
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
@@ -113,6 +118,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-2
                 mnt-by:  UPD-MNT
@@ -121,6 +127,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person3
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-3
                 mnt-by:  UPD-MNT
@@ -129,6 +136,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person4
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-4
                 mnt-by:  UPD-MNT
@@ -156,6 +164,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person1
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-11
                 mnt-by:  UPD-MNT
@@ -164,6 +173,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-22
                 mnt-by:  UPD-MNT
@@ -197,6 +207,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
@@ -222,6 +233,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: TP1-TEST
                 mnt-by:  UPD-MNT
@@ -231,6 +243,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: TP1-TEST
                 mnt-by:  UPD-MNT
@@ -256,6 +269,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person1
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  TST-MNT
@@ -300,6 +314,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:       Test Person1
                 address:      UK
                 phone:        +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:       +44 282 411140
                 nic-hdl:      AUTO-2
                 mnt-by:       TST-MNT
@@ -342,6 +357,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:       Test Person1
                 address:      UK
                 phone:        +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:       +44 282 411140
                 nic-hdl:      AUTO-2
                 mnt-by:       UPD-MNT
@@ -391,6 +407,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT
@@ -408,6 +425,7 @@ class MultipleUpdatesIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
                 mnt-by:  TST-MNT

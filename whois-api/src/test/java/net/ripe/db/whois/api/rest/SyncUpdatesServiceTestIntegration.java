@@ -269,6 +269,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:    Test\u00a0Person\n" +
                 "address:   Amsterdam\n" +
                 "phone:     +31-6-123456\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "mnt-by:    SSO-MNT\n" +
                 "source:    TEST";
@@ -298,6 +299,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:    Test Person\n" +
                 "address:   Amsterdam\n" +
                 "phone:     +31-6-123456\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "mnt-by:    SSO-MNT\n" +
                 "source:    TEST";
@@ -326,6 +328,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final String person = "" +
                 "person:    Test Person\n" +
                 "address:   Amsterdam\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "phone:     +31-6-123456\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "mnt-by:    SSO-MNT\n" +
@@ -378,6 +381,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        First Person\n" +
                 "address:       Amsterdam\n" +
                 "phone:         +31\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       FP1-TEST\n" +
                 "mnt-by:        mntner-mnt\n" +
                 "source:        TEST\n";
@@ -385,6 +389,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Second Person\n" +
                 "address:       Amsterdam\n" +
                 "phone:         +31\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       SP1-TEST\n" +
                 "mnt-by:        mntner-mnt\n" +
                 "source:        TEST\n";
@@ -458,6 +463,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "address:       Amsterdam\n" +
                                 "phone:         +31\n" +
                                 "nic-hdl:       TP2-RIPE\n" +
+                                "e-mail:        noreply@ripe.net\n" +
                                 "mnt-by:        mntner-mnt\n" +
                                 "changed:       user@host.org 20171025\n" +
                                 "source:        TEST\n" +
@@ -480,6 +486,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "person:        Test Person\n" +
                                 "address:       Amsterdam\n" +
                                 "phone:         +31\n" +
+                                "e-mail:        noreply@ripe.net\n" +
                                 "nic-hdl:       TP2-RIPE\n" +
                                 "mnt-by:        mntner-mnt\n" +
                                 "changed:       user@host.org 20171025\n" +
@@ -508,6 +515,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "person:        Test Person\n" +
                                 "address:       Amsterdam\n" +
                                 "phone:         +31\n" +
+                                "e-mail:        noreply@ripe.net\n" +
                                 "nic-hdl:       TP2-RIPE\n" +
                                 "mnt-by:        mntner-mnt\n" +
                                 "source:        TEST\n" +
@@ -727,6 +735,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "address:    Flughafenstraße 109/a\n" +
                                 "phone:      +49 282 411141\n" +
                                 "fax-no:     +49 282 411140\n" +
+                                "e-mail:        noreply@ripe.net\n" +
                                 "nic-hdl:    TP1-TEST\n" +
                                 "mnt-by:     mntner\n" +
                                 "source:     INVALID\n" +
@@ -749,6 +758,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "address:    Flughafenstraße 109/a\n" +
                                 "phone:      +49 282 411141\n" +
                                 "fax-no:     +49 282 411140\n" +
+                                "e-mail:        noreply@ripe.net\n" +
                                 "nic-hdl:    TP1-TEST\n" +
                                 "mnt-by:     mntner\n" +
                                 "source:     INVALID\n" +
@@ -770,6 +780,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                                 "person:     Test Person\n" +
                                 "address:    Flughafenstraße 109/a\n" +
                                 "phone:      +49 282 411141\n" +
+                                "e-mail:        noreply@ripe.net\n" +
                                 "fax-no:     +49 282 411140\n" +
                                 "nic-hdl:    TP1-TEST\n" +
                                 "mnt-by:     mntner-mnt\n" +
@@ -793,6 +804,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "person:    Test Person again\n" +
                     "address:   Тверская улица,москва\n" +
                     "phone:     +31-6-123456\n" +
+                    "e-mail:        noreply@ripe.net\n" +
                     "nic-hdl:   TP2-TEST\n" +
                     "mnt-by:    mntner-mnt\n" +
                     "source:    INVALID\n" +
@@ -814,6 +826,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "person:    Test Person again\n" +
                     "address:   Тверская улица,москва\n" +
                     "phone:     +31-6-123456\n" +
+                    "e-mail:        noreply@ripe.net\n" +
                     "nic-hdl:   TP2-TEST\n" +
                     "mnt-by:    mntner-mnt\n" +
                     "source:    TEST\n" +
@@ -844,6 +857,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                     "person:    Test Person again\n" +
                     "address:   Test\u000B\u000c\u007F\u008F Address\n" +
                     "phone:     +31-6-123456\n" +
+                    "e-mail:        noreply@ripe.net\n" +
                     "nic-hdl:   TP2-TEST\n" +
                     "mnt-by:    mntner-mnt\n" +
                     "source:    TEST\n" +
@@ -910,6 +924,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:         Test Person\n" +
                         "address:        Тверская улица,москва\n" +
                         "phone:          +31 6 12345678\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
@@ -935,6 +950,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:         Test Person\n" +
                         "address:        Test\u000b\u000c\u007F\u008f Address\n" +
                         "phone:          +31 6 12345678\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
@@ -959,6 +975,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:         Test Person\n" +
                         "address:        ÅçÅç\n" +
                         "phone:          +31 6 12345678\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
@@ -982,6 +999,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:         Test Person\n" +
                         "address:        ÅçÅç\n" +
                         "phone:          +31 6 12345678\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
@@ -1027,6 +1045,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:         Test Person\n" +
                         "address:        Home\n" +
                         "phone:          +31 6 12345678\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "source:         TEST #Filtered\n" +
@@ -1051,6 +1070,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:         Test Person\n" +
                         "address:        Home\n" +
                         "phone:          +31 6 12345678\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:        TP1-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "remarks:         test remark\n" +
@@ -1080,6 +1100,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:         Test Person\n" +
                         "address:        Home\n" +
                         "phone:          +31 6 12345678\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:        TP1-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "remarks:         test remark\n" +
@@ -1104,6 +1125,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:         Test Person\n" +
                         "address:        ÅçÅç\n" +
                         "phone:          +31 6 12345678\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:        TP2-TEST\n" +
                         "mnt-by:         mntner-mnt\n" +
                         "source:         TEST\n" +
@@ -1165,6 +1187,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject person = new RpslObjectBuilder(PERSON_ANY1_TEST)
                 .addAttributeSorted(new RpslAttribute(AttributeType.NOTIFY, "test@test.net"))
                 .addAttributeSorted(new RpslAttribute(AttributeType.ADDRESS, "address"))
+                .addAttributeSorted(new RpslAttribute(AttributeType.E_MAIL, "123@ripe.net"))
                 .addAttributeSorted(new RpslAttribute(AttributeType.PHONE, "+123456789"))
                 .addAttributeSorted(new RpslAttribute(AttributeType.MNT_BY, "mntner-mnt"))
                 .get();

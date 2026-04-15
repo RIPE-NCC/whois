@@ -47,12 +47,14 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
             "person:         Test Person\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +
+            "e-mail:        noreply@ripe.net\n" +
             "nic-hdl:        TP1-TEST\n" +
             "mnt-by:         OWNER-MNT\n" +
             "source:         TEST\n";
 
     private static final String PERSON_ANY1_TEST = "" +
             "person:        Test Person\n" +
+            "e-mail:        noreply@ripe.net\n" +
             "nic-hdl:       TP4-TEST\n" +
             "source:        TEST";
 
@@ -92,6 +94,7 @@ public class WhoisCrossOriginRestServiceTestIntegration extends AbstractIntegrat
             "role:           Test Role\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +
+            "e-mail:        noreply@ripe.net\n" +
             "nic-hdl:        TR1-TEST\n" +
             "admin-c:        TR1-TEST\n" +
             "abuse-mailbox:  abuse@test.net\n" +

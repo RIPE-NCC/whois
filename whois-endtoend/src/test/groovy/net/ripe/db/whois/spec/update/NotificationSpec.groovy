@@ -108,6 +108,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
                 source:  TEST
@@ -118,6 +119,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -697,6 +699,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -747,6 +750,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -797,6 +801,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
                 source:  TEST
@@ -845,6 +850,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -891,6 +897,7 @@ class NotificationSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 org:     ORG-OTO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt

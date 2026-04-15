@@ -405,10 +405,10 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
                 new ObjectTemplate(ObjectType.PERSON, 50,
                         new AttributeTemplate(PERSON, MANDATORY, SINGLE, LOOKUP_KEY),
-                        new AttributeTemplate(ADDRESS, MANDATORY, MULTIPLE),
-                        new AttributeTemplate(PHONE, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(ADDRESS, OPTIONAL, MULTIPLE),
+                        new AttributeTemplate(PHONE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(FAX_NO, OPTIONAL, MULTIPLE),
-                        new AttributeTemplate(E_MAIL, OPTIONAL, MULTIPLE, LOOKUP_KEY),
+                        new AttributeTemplate(E_MAIL, MANDATORY, MULTIPLE, LOOKUP_KEY),
                         new AttributeTemplate(CONTACT, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(ORG, OPTIONAL, MULTIPLE, INVERSE_KEY),
                         new AttributeTemplate(NIC_HDL, MANDATORY, SINGLE, PRIMARY_KEY, LOOKUP_KEY),
@@ -446,7 +446,7 @@ public final class ObjectTemplate implements Comparable<ObjectTemplate> {
 
                 new ObjectTemplate(ObjectType.ROLE, 49,
                         new AttributeTemplate(ROLE, MANDATORY, SINGLE, LOOKUP_KEY),
-                        new AttributeTemplate(ADDRESS, MANDATORY, MULTIPLE),
+                        new AttributeTemplate(ADDRESS, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(PHONE, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(FAX_NO, OPTIONAL, MULTIPLE),
                         new AttributeTemplate(E_MAIL, MANDATORY, MULTIPLE, LOOKUP_KEY),

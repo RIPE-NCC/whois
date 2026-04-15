@@ -18,6 +18,7 @@ class InetnumSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail: unread@ripe.net
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST

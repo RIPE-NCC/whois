@@ -11,6 +11,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
         return [
                 "TEST-PN": """\
                     person: some one
+                    e-mail:         test@ripe.net
                     nic-hdl: TEST-PN
                     mnt-by: TEST-MNT
                     source: TEST
@@ -669,6 +670,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 person:          Some person
                 address:         Somewhere
                 phone:           +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:          +44 282 411140
                 nic-hdl:         AUTO-1
                 mnt-by:          TEST-MNT
@@ -832,6 +834,7 @@ class DomainIntegrationSpec extends BaseWhoisSourceSpec {
                 person:          Some person
                 address:         Somewhere
                 phone:           +44 282 411141
+                e-mail:         test@ripe.net
                 fax-no:          +44 282 411140
                 nic-hdl:         AUTO-1
                 mnt-by:          TEST-MNT

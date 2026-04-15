@@ -102,6 +102,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     public static final String TEST_PERSON_STRING = "" +
             "person:         Test Person\n" +
+            "e-mail:         test@ripe.net\n" +
             "address:        Singel 258\n" +
             "phone:          +31 6 12345678\n" +
             "nic-hdl:        TP1-TEST\n" +
@@ -662,20 +663,41 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void lookup_object_text_plain_accept_header() {
+        final String filteredObject = """
+                person:         Test Person
+                address:        Singel 258
+                phone:          +31 6 12345678
+                nic-hdl:        TP1-TEST
+                mnt-by:         OWNER-MNT
+                source:         TEST # Filtered
+                
+                """;
+
         final String rpslObject = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
                 .request(MediaType.TEXT_PLAIN)
                 .get(String.class);
 
-        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
+        assertThat(rpslObject, is(filteredObject));
     }
 
     @Test
     public void lookup_object_text_plain_extension() {
+
+        final String filteredObject = """
+                person:         Test Person
+                address:        Singel 258
+                phone:          +31 6 12345678
+                nic-hdl:        TP1-TEST
+                mnt-by:         OWNER-MNT
+                source:         TEST # Filtered
+                
+                """;
+
         final String rpslObject = RestTest.target(getPort(), "whois/test/person/TP1-TEST.txt")
                 .request()
                 .get(String.class);
 
-        assertThat(rpslObject, is(TEST_PERSON_STRING + '\n'));
+        assertThat(rpslObject, is(filteredObject));
     }
 
     @Test
@@ -832,7 +854,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("phone", "+31 6 12345678"),
                 new Attribute("nic-hdl", "TP1-TEST"),
                 new Attribute("mnt-by", "OWNER-MNT", null, "mntner", Link.create("http://rest-test.db.ripe.net/test/mntner/OWNER-MNT"), null),
-                new Attribute("source", "TEST")));
+                new Attribute("source", "TEST", "Filtered", null, null, null)));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
@@ -1500,7 +1522,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "          \"referenced-type\" : \"mntner\"\n" +
                 "        }, {\n" +
                 "          \"name\" : \"source\",\n" +
-                "          \"value\" : \"TEST\"\n" +
+                "          \"value\" : \"TEST\",\n" +
+                "          \"comment\" : \"Filtered\"\n" +
                 "        } ]\n" +
                 "      }\n" +
                 "    } ]\n" +
@@ -2935,6 +2958,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            <attributes>\n" +
                 "                <attribute name=\"person\" value=\"New Person\"/>\n" +
                 "                <attribute name=\"remarks\" value=\"ελληνικά\"/>\n" +      // attribute value is not latin-1
+                "                <attribute name=\"e-mail\" value=\"test@ripe.net\"/>\n" +
                 "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
                 "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
                 "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
@@ -2960,6 +2984,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "            <attributes>\n" +
                 "                <attribute name=\"person\" value=\"New Person\"/>\n" +
                 "                <attribute name=\"address\" value=\"Test\u007F\u008f Address\"/>\n" +      // attribute value contains control characters
+                "                <attribute name=\"e-mail\" value=\"test@ripe.net\"/>\n" +
                 "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
                 "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
                 "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
@@ -2986,6 +3011,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                <attribute name=\"person\" value=\"New Person\"/>\n" +
                 "                <attribute name=\"remarks\" value=\"ÖÜëñ Straße\"/>\n" +      // UTF-8 allowed in remarks
                 "                <attribute name=\"address\" value=\"MünsterStraße\"/>\n" +    // latin-1 extended ASCII allowed in address
+                "                <attribute name=\"e-mail\" value=\"test@ripe.net\"/>\n" +
                 "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
                 "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
                 "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
@@ -3043,6 +3069,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                <attribute name=\"remarks\" value=\"Test\"/>\n" +
                 "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
                 "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"e-mail\" value=\"test@ripe.net\"/>\n" +
                 "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
                 "                <attribute name=\"nic-hdl\" value=\"AUTO-1\"/>\n" +
                 "                <attribute name=\"source\" value=\"TEST\"/>\n" +
@@ -3068,6 +3095,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "remarks:   Test\n" +
             "address:   Amsterdam\n" +
             "phone:     +31-1234567890\n" +
+            "e-mail:    test@ripe.net\n" +
             "mnt-by:    OWNER-MNT\n" +
             "nic-hdl:   NP1-TEST\n" +
             "source:    TEST");
@@ -3084,6 +3112,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "                <attribute name=\"remarks\" value=\"Test\"/>\n" +
                 "                <attribute name=\"address\" value=\"Amsterdam\"/>\n" +
                 "                <attribute name=\"phone\" value=\"+31-1234567890\"/>\n" +
+                "                <attribute name=\"e-mail\" value=\"test@ripe.net\"/>\n" +
                 "                <attribute name=\"mnt-by\" value=\"OWNER-MNT\"/>\n" +
                 "                <attribute name=\"nic-hdl\" value=\"NP1-TEST\"/>\n" +
                 "                <attribute name=\"source\" value=\"TEST\"/>\n" +
@@ -4744,6 +4773,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject updatedObject = RpslObject.parse(
                 "person: Test Person\n" +
                 "nic-hdl: TP2-TEST\n" +
+                "e-mail: test@ripe.net\n" +
                 "address: Amsterdam\n" +
                 "phone: +31-6-12345678\n" +
                 "mnt-by: OWNER-MNT\n" +
@@ -5354,8 +5384,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject TEST_PERSON_2 = RpslObject.parse("" +
                 "person:    Test Person2\n" +
-                "address:   Singel 258\n" +
-                "phone:     +31 6 12345678\n" +
+                "e-mail:    test@ripe.net\n" +
                 "nic-hdl:   TP2-TEST\n" +
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n");

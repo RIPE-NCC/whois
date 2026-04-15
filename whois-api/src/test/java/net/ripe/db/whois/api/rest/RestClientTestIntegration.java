@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.core.Cookie;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import jakarta.ws.rs.core.Cookie;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
@@ -52,6 +52,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:        Test Person\n" +
             "address:       Singel 258\n" +
+            "e-mail:        noreply@ripe.net\n" +
             "phone:         +31 6 12345678\n" +
             "nic-hdl:       TP1-TEST\n" +
             "mnt-by:        OWNER-MNT\n" +
@@ -654,6 +655,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
         final RpslObject person = RpslObject.parse("" +
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP2-TEST\n" +
                 "mnt-by:        OWNER-MNT # comment\n" +
@@ -663,7 +665,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 .addParam("password", "test")
                 .create(person);
 
-        final RpslObject forComparison = new RpslObjectBuilder(person).remove(5).get();
+        final RpslObject forComparison = new RpslObjectBuilder(person).remove(6).get();
         assertThat(created.toString(), containsString(forComparison.toString()));
     }
 

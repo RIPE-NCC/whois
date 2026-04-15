@@ -217,6 +217,7 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
                 person:    Pauleth Palthen
                 address:   Singel 258
                 phone:     +31161715123
+                e-mail:    test@ripe.net
                 mnt-by:    OWNER-MNT
                 nic-hdl:   PP1-TEST
                 source:    TEST

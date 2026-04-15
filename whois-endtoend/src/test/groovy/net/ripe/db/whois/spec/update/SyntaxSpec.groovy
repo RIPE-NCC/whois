@@ -16,6 +16,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 created: 2012-02-22T11:56:08Z
@@ -42,6 +43,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: UK
                 delete:  testing
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -80,6 +82,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -114,6 +117,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: UK
                 password: owner
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -148,6 +152,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -182,6 +187,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -219,6 +225,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -259,6 +266,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -297,6 +305,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                  Burnley
                 + UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -334,6 +343,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                  Burnley
                 + UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -367,6 +377,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 person:  First Person     # pkey comment
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -402,6 +413,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 person:  First Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST     ### fred's # handle
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -437,6 +449,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 person:  First Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST     # source comment
@@ -471,6 +484,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 person:  First Person
                 address: St James Street
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST     #
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -507,6 +521,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 +#eol comment
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -541,6 +556,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: St James\u0008Street
                 +#eol comment
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -579,6 +595,7 @@ class SyntaxSpec extends BaseQueryUpdateSpec {
                 address: ***
                 address: UK
                 phone:   +44 282 4.. ...
+                e-mail:  noreply@ripe.net
                 notify:  ***@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT

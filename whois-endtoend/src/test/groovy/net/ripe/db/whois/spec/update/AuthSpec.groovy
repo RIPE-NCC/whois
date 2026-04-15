@@ -19,6 +19,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -28,6 +29,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -39,6 +41,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: UK
                 phone:   +44 282 420469
                 org:     ORG-TO1-TEST
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -89,6 +92,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-ripE
                 mnt-by:  owner-mnt
                 mnt-by:  owner2-mnt
@@ -125,6 +129,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-RIPE
                 mnt-by:  owner-mnt
                 mnt-by:  owner2-mnt
@@ -166,6 +171,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
                 source:  TEST
@@ -205,6 +211,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner2-mnt
                 source:  TEST
@@ -243,6 +250,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner2-mnt
                 source:  TEST
@@ -280,6 +288,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt, owner2-mnt
                 source:  TEST
@@ -315,6 +324,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt, owner2-mnt
                 source:  TEST
@@ -350,6 +360,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt, non-exist-mnt
                 source:  TEST
@@ -388,6 +399,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
                 mnt-by:  non-exist-mnt
@@ -433,6 +445,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -471,6 +484,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 org:     ORG-TO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -511,6 +525,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 org:     ORG-TO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner3-mnt
@@ -550,6 +565,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 org:     ORG-TO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -590,6 +606,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 org:     ORG-TO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -630,6 +647,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 org:     ORG-TO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -670,6 +688,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 org:     ORG-TO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -712,6 +731,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 org:     ORG-TO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -754,6 +774,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: UK
                 remarks: updated
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 org:     ORG-TO1-TEST
                 nic-hdl: FP1-TEST
                 mnt-by:  owner-mnt
@@ -795,6 +816,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: UK
                 phone:   +44 282 420469
                 org:     ORG-TO1-TEST
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -820,7 +842,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "create person using pgp signed message"() {
       given:
-        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
+        setTime(LocalDateTime.parse("2026-04-13T14:48:04")) // current time must be within 1 hour of signing time
         syncUpdate(
                 "key-cert:       PGPKEY-AAAAAAAA\n" +       // primary key doesn't match public key id
                 "method:         PGP\n" +
@@ -874,27 +896,27 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
+                Hash: SHA256
 
                 person:  First Person
                 address: St James Street
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1
-                Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJVXeIUAAoJELvMuy1XY5UNU9IH/0ppILbAHBJPJ4XakUDWCEqp
-                2ZfQidOTkmcbQFSHwxevZpTRSAQ8S8JciyOSj5h6CfNkBelf9qUpLZU/B6YPKBti
-                b9EGHadc2PuS/UhmpgaU7d6r0QQyAKZtmLa2Q/TXgrxzW0m3N7ZfTesU6dZFWSBG
-                j3OEDI13fQ7qWZqt0WHrOCybW740izn8fJUpbumrEpikkA+MaDxONLLxnGhVS0Ax
-                vT6lb9BY578sarzspGLNtgjhRF3b1cS+TfeRu1aPaQt6/06V1CYLjEMH4nDqSKcU
-                Qe5NwGUoB9i9yLJaHnDA79QVdkCLi5b6G6Y6DzzfNRlwdfdz5yAc42BQZ2StaW4=
-                =vEn+
+                iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnc56cACgkQu8y7LVdj
+                lQ1/+AgAmX5AgdilLSHgNHNyaDs9gMmd2RIh5eSPBGekHXrWliij1acXCqka455y
+                MdVl7Rtnz2KFrDhr8Px3tFNJ40rtNXv4ujS2ccN/7VBghwUiGYRrDu/LcenEixuh
+                Vs8zTLMMfEG93GAZ1YU8jusIlkCwRC0ChwF2at7VVaV0dN+cJc1DZR08ZdZf+Gwj
+                Kz9+cHuIgCiWNt1sxPCK2/Atr96tpOxj9km6tEcsDsqNA/1MTT67rD+4AWIjOF/L
+                AtJnbDwQmOiRdRY8O13azIuRXWn90Zd4DFc8BbPA8PieD1BqArDM5E6i9dIES9WN
+                2/I7ifhUZetIErObrTT+cbhpkuVB1A==
+                =FTVn
                 -----END PGP SIGNATURE-----
                 """.stripIndent(true)
         )
@@ -915,7 +937,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "create person using pgp signed message and maintainer has multiple pgpkeys"() {
       given:
-        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
+        setTime(LocalDateTime.parse("2026-04-13T14:48:04"))// current time must be within 1 hour of signing time
         syncUpdate(
                 "key-cert:       PGPKEY-AAAAAAAA\n" +       // primary key doesn't match public key id
                 "method:         PGP\n" +
@@ -1014,29 +1036,29 @@ class AuthSpec extends BaseQueryUpdateSpec {
         def message = send new Message(
                 subject: "",
                 body: """\
-				-----BEGIN PGP SIGNED MESSAGE-----
-				Hash: SHA1
-
-				person:  First Person
-				address: St James Street
-				address: Burnley
-				address: UK
-				phone:   +44 282 420469
-				nic-hdl: FP1-TEST
-				mnt-by:  OWNER-MNT
-				source:  TEST
-				-----BEGIN PGP SIGNATURE-----
-				Version: GnuPG v1
-				Comment: GPGTools - http://gpgtools.org
-
-				iQEcBAEBAgAGBQJVXeP/AAoJELvMuy1XY5UNRsIH+wQ2gVqjcHonoSrKsqGa/Dpo
-				RI/GSASGG/29OV4qTVblsKwCUAnE7e3IAxkAVA8QDJCvy4HFrx4wTNPQCc5IZgy2
-				BOmRdlz+EXthTiIYZXVJF7wES1yiFzaY+iLBH10k88mFYDk7nZm3wwR6jAsqlwlX
-				3cds2DDRepM+H9UTz//bNxRnfnq5x+Fy9hFN4nl/Lpqex/vX/X3Z82fxyN3ixhgD
-				E3bDCEgHylSvcNoyBjwL7QodwQFniCNKq/ILdXfmQxOQZcLzrbM7PqUmA0906CZ/
-				I5yVaOhDqhXKfCMe4amyDUzsOaefXdDHXA5tgnUdZerYWzieIdKqcx4ZmBIo4h0=
-				=f046
-				-----END PGP SIGNATURE-----
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA256
+                
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                
+                iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnc6PQACgkQu8y7LVdj
+                lQ0esAf8DsXp583aV2UKqdLHVAi9JpaWDM+ETUS22d+M6zvuYpqMIrM0dH6STATm
+                nXcOHweXpPtw5RQn5gFULOM6cTmVSSZ9zWIPZHEg5vPPAGwHdX38qeZxwIYDJ1UE
+                mtvonxW4DHb2MwMBWFXrWBYOX2UvTmN080/DhkoR8r5oXzqz3bUhiegZ/kaUrsj7
+                XH3hUGiExd8zTreHF3GK3A75Mnu/uPpr/HZqU1WhWuVY02beZ2+IzldkKwKQxLsq
+                xuHx5KhWoVBmdu3WMlGZuG20gsFzfeN7IuN8Y7+AHOoIoy8JTWLjSl6IeBnne7js
+                L6xboicRk1PkPsmH6MEQbcV8ZWC2Dg==
+                =J6wp
+                -----END PGP SIGNATURE-----
                 """.stripIndent(true)
         )
 
@@ -1056,7 +1078,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "modify person, PGP RSA signed message, no blank line after obj"() {
       given:
-        setTime(LocalDateTime.parse("2015-05-21T15:48:04")) // current time must be within 1 hour of signing time
+        setTime(LocalDateTime.parse("2026-04-13T14:48:04")) // current time must be within 1 hour of signing time
 
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
@@ -1070,27 +1092,27 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
+                Hash: SHA256
 
                 person:  Test Person
                 address: St James Street
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: TP1-TEST
                 mnt-by:  PGP-MNT
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1
-                Comment: GPGTools - http://gpgtools.org
-
-                iQEcBAEBAgAGBQJVXe6aAAoJELvMuy1XY5UN/wcH/1l63AiE5lMUZGWvota631+K
-                XdaqxoaFS1eXBtT86POXVJnijCV9IMIrpLhN01RmboH91z9JiqIJXSYTraA1DmfC
-                y1euwGJ0xtHwA77Fl+/mCxa3aIaje0AIaktBiL9XKo7rRgyJPv9eQfXteSyWst/t
-                +XicLYng7k2wQ6G6LrjsisXaYfwuLmUY0J51gHzy8kvOg+W+jiExB7f1fRbWCXgQ
-                w32Gic5Sd6MIMEkp1uqi2g5Zop4gFB+OEQoX+DoNKOGirqmsu+aoM8I99E2HU2LA
-                7/IXF0M/7XXNUFCloA748S+3zJcYm5dloZ1tJsrhTMaW78PvJ656PuwghkCL1E8=
-                =3MDy
+                
+                iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnc8HIACgkQu8y7LVdj
+                lQ2Dvwf/Q6Ub/RuW4/CZLB3sT5PjbZixg5yOFvZrGOf52Ji9T8rd4fl4dEBc3Rq8
+                lKTYoJlebbCN63mFFeF/yF+dumy4+ze7rZ1M6Kh8oRkaaNLlBhIZzUoo+rJXkwMf
+                S63DmMJtFi6kIPgBMnyn6fDxGv/+kaF3T8wDCYJnInTkm7rMfqsN1fVaBKKeeptL
+                R5n/x+fj2poS8m6sOjedVA4aX2h06+vYx6XSTAtuPUuA0JV5/LUO45eRnXp4hZQO
+                9fQo/Q3QO+WcD3+k6y/ilxj0I0Y4q6bwgoJI5wL19QF7EoeXFZsbm2MeW5nRsCnO
+                RcweTT4vXHSBMy8RnWbzf/g2rqiU6g==
+                =C6+S
                 -----END PGP SIGNATURE-----
                 """.stripIndent(true)
         )
@@ -1111,7 +1133,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "modify person, PGP RSA signed message, with blank line after obj"() {
       given:
-        setTime(LocalDateTime.parse("2015-05-21T16:48:05")) // current time must be within 1 hour of signing time
+        setTime(LocalDateTime.parse("2026-04-14T12:48:05")) // current time must be within 1 hour of signing time
 
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
@@ -1125,28 +1147,27 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
-
+                Hash: SHA256
+                
                 person:  Test Person
                 address: St James Street
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: TP1-TEST
                 mnt-by:  PGP-MNT
                 source:  TEST
-
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1
-                Comment: GPGTools - http://gpgtools.org
-
-                iQEcBAEBAgAGBQJVXfAlAAoJELvMuy1XY5UNGosH/26gg1OoMAatF2va4CgZSEk0
-                PPYcIDmwuT86D8GLDE63KGTUhRBraD8ZgHDYiUBvf7aeFOG6AZLB3H/Ir3/kJst9
-                9AGfPEpC6RHKRv2zq79zLIHuUAuDtEsljM0BKhuvj52/VVWm/+7si4MyIMOL4AZZ
-                IAFYXVc+ZOtxp/PL+lERI+Xbe7eJx3HR59hpGGUi6mfjBnF6Tt2mh4pikPpO1drB
-                6Cofe3Jh8S7UQQAXTQ+LcXTTG6chYVYtMX07eETt8pVofs6wHUR1ecViDB9oRiGW
-                /E0ll7ksFSbXTjoBlr5FRlbmb3k8igCUyYtsPwX0qgy7YEYW1soxL64I1kVEOaA=
-                =Ox/e
+                
+                iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmneHwsACgkQu8y7LVdj
+                lQ27FQf6A2p/Eme3NQ727kntOv8TouYxjJMJPBj3uVPWO4RO2C6FjJridyPQHKXb
+                IAYjpQj4+D/Roci9mt4hDG49lgRWIpYHydms8tUXv3tfPTQmpKWW3jkmJEIomiP0
+                jIHXap44X6Aj0Y8qTOwYm85IExVWjH3f+7T3v8uparDBBg+ELFka3lI7Yr1F1xW0
+                SzEmhEUf9p4rMEagSaIo5K6N4rB3rTGvh08APfuyGHrzxqFlOKCyh5l+uWlcgsFp
+                DRXIw7w1bsWpZ7NNUpblVGlAyWWRCIMyDWhbkk5Uo3XpWM45P/GEdF+4W+DoVmmI
+                vPZiVuf2VKuGiBWLHOXDx5/4eDt1pw==
+                =2Sho
                 -----END PGP SIGNATURE-----
                 """.stripIndent(true)
         )
@@ -1167,7 +1188,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "modify person, PGP RSA signed message, with 3 blank lines after obj"() {
       given:
-        setTime(LocalDateTime.parse("2015-05-21T16:50:18")) // current time must be within 1 hour of signing time
+        setTime(LocalDateTime.parse("2026-04-14T10:50:18")) // current time must be within 1 hour of signing time
 
       expect:
         queryObject("-r -T person TP1-TEST", "person", "Test Person")
@@ -1181,30 +1202,30 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
-
+                Hash: SHA256
+                
                 person:  Test Person
                 address: St James Street
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: TP1-TEST
                 mnt-by:  PGP-MNT
                 source:  TEST
-
-
-
+                
+                
+                
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1
-                Comment: GPGTools - http://gpgtools.org
-
-                iQEcBAEBAgAGBQJVXfCqAAoJELvMuy1XY5UN9FUIAJjxCiWAt8FkUk6YPZnyHqon
-                7lylztCHzwmLuYFzBAJuTwKU1t8t3VSSmVKlWfINUy7veZudBRdb0w7Lob+q6p7D
-                ty0CFNbfekqQwiy9K9y8kDde8a5dECSOmEn9Ev1nLs35IMKyDv/AvB/qUgrItNj3
-                cwDlFgsGhGkAYCJHVtXcdtWBwuRTiCn4Np1SXBg4yvYXRPBYn77zXoedrNMDBk1M
-                r4jkpTLyt3affZvVIo2bAvAM2miJ1O/Q0+WF8CEuAgBWA4ywGUJzYR5GjV/PTfuV
-                zRaC40WFkdyveVbgytzBX69y6/vQaLJIrGPnzHyZoUQ5aZx6qsc8MC7CXMO6CCs=
-                =0598
+                
+                iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmneBDoACgkQu8y7LVdj
+                lQ1R0Qf+N/9sIlTQBL+DHby5rLJ7Z9Go4Zc6jwTnck6yJPRvsNENCpHRGnrKauSx
+                YNQYbmTxxcA6z1lVZKc/8QHfJnmahqROqtDC1tHMtpv3Y8j2BxkO3vP3ooshM40G
+                fLmtLxvwRV3iDUFXt/rBxThHTCmo551gyXxFH7IXtXlCSlCo8d9XZ708s6o0cJ8J
+                JbS7OwxLYlecugTQ6qo6pAUePVAOQ2f4A4uAHqbg1hDUyE8RPvDvs3mqgSnD1RSI
+                Lg5SUHCzABY9VYyiwRs29bTFzKmd/P7RosOEqLD3YG6Be3/tVarxVQiGOr9UUtoq
+                bIoIHI2e0B6gwBXAIOuu68ZaDEUKWg==
+                =53SZ
                 -----END PGP SIGNATURE-----
                 """.stripIndent(true)
         )
@@ -1324,6 +1345,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: AP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -1367,6 +1389,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: AP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -1410,6 +1433,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: AP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -1429,7 +1453,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
 
     def "No warning if auth lines removed but update succeeds with PGP signed update"() {
       given:
-        setTime(LocalDateTime.parse("2015-07-15T16:51:41"))
+        setTime(LocalDateTime.parse("2026-04-13T14:51:41"))
         databaseHelper.updateObject(
                 "mntner:      PGP-MNT\n" +
                 "descr:       used for testing PGP signed messages\n" +
@@ -1444,27 +1468,27 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 subject: "",
                 body: """\
                 -----BEGIN PGP SIGNED MESSAGE-----
-                Hash: SHA1
+                Hash: SHA256
 
                 person:  Another Person
                 address: St James Street
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: AP1-TEST
                 mnt-by:  PGP-MNT
                 source:  TEST
                 -----BEGIN PGP SIGNATURE-----
-                Version: GnuPG v1
-                Comment: GPGTools - http://gpgtools.org
 
-                iQEcBAEBAgAGBQJVpnN9AAoJELvMuy1XY5UN9k0H/2YTtJRU7QGabOmZqXDJjeT+
-                Q+GNUW8YLbkmwvB2hdLFnvCJiUJrEu81+TORbXqxQ95XtQx1gXS/U19WxTZLoZtY
-                es/GR9rdajb2lWfjwiC+M7dHw/z88H3uvX4bsdDbUG8WxVuHyVN48D+Nc0KqKx2k
-                TPUPXrIIdOzPu6N5DL7AP26stceCwTB957i4kkSsb0FVjOWb/73bJjlYibCWkt0p
-                yrRq5I+HTL3clEyMExP7C0gkpBFSjII3nwuqCYpD7ltPEEnXIElVHzrBG+OGQUPy
-                FrIQEgDdEFAkY5qf4W2JCWPHjzD8tv2Uzp7NfEZsqHiHyFXltuhQbyn3t8LRoBc=
-                =X49Y
+                iQEyBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnc6aAACgkQu8y7LVdj
+                lQ3+YAf3ZL6Rty6k4Yk5lQ7rTmppHzxc5tizfRw/XdlzlzJ+DTF3v3s1hRFHmEk2
+                XsGAo5+MxqP+GcVeOykO18+SwnzRP6H6taatru32/BSYBQgdD3EIOmLtiG+WsthQ
+                utOIiU1nP+0L+tulQprWIJGKPGW+HUGuEcunHvDU13VuXVQHGURT40wUcjdePiZi
+                s/H9zTQUlpnNtqjBId0f3CabLYoNsdteKPAXTdKMIlyKhtukfRMRPMYAUQv/C8q7
+                WquWGsRIBw37m2d1RQvaedfFlzG0T8eAw48dc2WvWET9aEE6qyjIjhTXRFIyQCMn
+                hDMsy5qWWhkOR/0XEpF2YCwMArxl
+                =XgdE
                 -----END PGP SIGNATURE-----
                 """.stripIndent(true)
         )
@@ -1500,6 +1524,7 @@ class AuthSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
                 nic-hdl: AP1-TEST
                 mnt-by:  PGP-MNT
                 mnt-by:  OWNER-MNT

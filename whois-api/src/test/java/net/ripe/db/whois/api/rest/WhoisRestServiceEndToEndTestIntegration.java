@@ -88,6 +88,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
             .put("TP1-TEST", RpslObject.parse("" +
                     "person:    Test Person\n" +
                     "address:   Singel 258\n" +
+                    "e-mail:        noreply@ripe.net\n" +
                     "phone:     +31 6 12345678\n" +
                     "nic-hdl:   TP1-TEST\n" +
                     "mnt-by:    OWNER-MNT\n" +
@@ -96,6 +97,7 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractIntegration
             .put("TR1-TEST", RpslObject.parse("" +
                     "role:      Test Role\n" +
                     "address:   Singel 258\n" +
+                    "e-mail:        noreply@ripe.net\n" +
                     "phone:     +31 6 12345678\n" +
                     "nic-hdl:   TR1-TEST\n" +
                     "admin-c:   TR1-TEST\n" +

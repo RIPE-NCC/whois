@@ -17,6 +17,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: PP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -1576,6 +1577,7 @@ class MemberReclaimSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: PP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST

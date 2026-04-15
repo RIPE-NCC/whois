@@ -18,6 +18,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: FP1-TEST
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -844,6 +845,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: aUtO-2
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -923,6 +925,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: aUtO-2
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -1049,6 +1052,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: aUtO-1
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -1362,6 +1366,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  dbtest@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: aUtO-1
                 mnt-by:  OWNER-MNT
@@ -1526,6 +1531,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: aUtO-1
                 mnt-by:  OWNER-MNT
                 source:  TEST
@@ -2260,6 +2266,7 @@ class KeycertSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: aUtO-2
                 mnt-by:  OWNER-MNT
                 source:  TEST

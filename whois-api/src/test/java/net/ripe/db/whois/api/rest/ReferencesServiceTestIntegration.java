@@ -114,6 +114,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                         "person:    Some Person\n" +
                         "address:   Amsterdam\n" +
                         "phone:     +3161234\n" +
+                        "e-mail:        noreply@ripe.net\n" +
                         "nic-hdl:   AUTO-1\n" +
                         "mnt-by:    SSO-MNT\n" +
                         "source:    TEST"),
@@ -165,6 +166,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                             "person:    Some Person\n" +
                             "address:   Amsterdam\n" +
                             "phone:     +3161234\n" +
+                            "e-mail:        noreply@ripe.net\n" +
                             "nic-hdl:   AUTO-1\n" +
                             "mnt-by:    OWNER-MNT\n" +
                             "source:    TEST"),
@@ -199,6 +201,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                     RpslObject.parse(
                             "person:    SP1-TEST\n" +       // syntax error in person value
                             "address:   Amsterdam\n" +
+                            "e-mail:        noreply@ripe.net\n" +
                             "phone:     +3161234\n" +
                             "nic-hdl:   AUTO-1\n" +
                             "mnt-by:    SSO-MNT\n" +
@@ -373,6 +376,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       TP2-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
@@ -380,12 +384,14 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       TP3-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
         final RpslObject thirdPerson = RpslObject.parse(
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP4-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
@@ -424,6 +430,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject firstPerson = RpslObject.parse(
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP2-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
@@ -431,6 +438,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         final RpslObject secondPerson = RpslObject.parse(
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP3-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
@@ -546,6 +554,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
@@ -602,6 +611,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       TP2-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
@@ -609,6 +619,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         INVALID\n" +    // invalid syntax
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       TP3-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
@@ -616,6 +627,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       TP4-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST");
@@ -645,6 +657,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "remarks:       updated person\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
@@ -676,6 +689,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        Test Person\n" +
                 "address:       Singel 258\n" +
                 "remarks:       updated person\n" +         // added
+                "e-mail:        noreply@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       TP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
@@ -727,6 +741,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        New Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       NP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST"), Action.CREATE);
@@ -752,12 +767,14 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "person:        New Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       NP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST"), Action.CREATE);
         final ActionRequest secondUpdate = new ActionRequest(
             RpslObject.parse(
                 "role:          Test Role\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "nic-hdl:       TR1-TEST\n" +
                 "remarks:       not the same as the database\n" +
                 "source:        TEST"), Action.DELETE);
@@ -790,6 +807,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             RpslObject.parse(
                 "person:        New Person\n" +
                 "address:       Singel 258\n" +
+                "e-mail:        noreply@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       NP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +

@@ -76,6 +76,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     private static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:        Test Person\n" +
             "address:       Singel 258\n" +
+            "e-mail:        123@ripe.net\n" +
             "phone:         +31 6 12345678\n" +
             "nic-hdl:       TP1-TEST\n" +
             "mnt-by:        OWNER-MNT\n" +
@@ -476,6 +477,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
                 "person:        New Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        123@ripe.net\n" +
                 "nic-hdl:       NTP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST"), Action.CREATE);
@@ -484,6 +486,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
                 "person:        Other New Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        123@ripe.net\n" +
                 "nic-hdl:       ONTP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST"), Action.CREATE);
@@ -530,6 +533,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
                 "person:        New Test Person\n" +
                 "address:       Singel 258\n" +
                 "phone:         +31 6 12345678\n" +
+                "e-mail:        123@ripe.net\n" +
                 "nic-hdl:       NTP1-TEST\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "source:        TEST"), Action.CREATE);
@@ -537,6 +541,7 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         ActionRequest newMnt = new ActionRequest(RpslObject.parse(
                 "person:        Other New Test Person\n" +
                 "address:       Singel 258\n" +
+                "e-mail:        123@ripe.net\n" +
                 "phone:         +31 6 12345678\n" +
                 "nic-hdl:       ONTP1-TEST\n" +
                 "source:        TEST"), Action.CREATE);

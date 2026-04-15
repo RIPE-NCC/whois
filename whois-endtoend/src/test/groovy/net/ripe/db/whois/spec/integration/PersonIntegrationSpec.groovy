@@ -43,6 +43,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
             address: Burnley
             address: UK
             phone:   +44 282 411141
+            e-mail:  test@ripe.net
             nic-hdl: TP2-TEST
             mnt-by:  UPD-MNT
             source:  TEST
@@ -216,6 +217,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  New Test Person
                 address: UK
                 phone:   +44 282 411141
+                e-mail:  test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: TP3-TEST
                 mnt-by:  UPD-MNT
@@ -237,6 +239,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 person:     Test Person2
                 address:    Flughafenstraße 109/a
                 address:    München, Germany
+                e-mail:  test@ripe.net
                 phone:      +49 282 411141
                 fax-no:     +49 282 411140
                 nic-hdl:    TP3-TEST
@@ -262,6 +265,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 address:    München, Germany
                 address:    DE
                 phone:      +49 282 411141
+                e-mail:  test@ripe.net
                 nic-hdl:    TEST-RIPE
                 mnt-by:     UPD-MNT
                 source:     TEST
@@ -328,6 +332,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Some person
                 address: Somewhere
                 phone:   +44 282 411141
+                e-mail:  test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
@@ -349,6 +354,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Some person
                 address: Somewhere
                 phone:   +44 282 411141
+                e-mail:  test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
@@ -363,7 +369,9 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Some person
                 address: Somewhere Else
                 phone:   +44 282 411141
+                e-mail:  test@ripe.net
                 fax-no:  +44 282 411140
+                e-mail:  test@ripe.net
                 nic-hdl: AUTO-1
                 mnt-by:  UPD-MNT
                 source:  TEST
@@ -507,6 +515,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               address: UK
               phone:   +44 282 411141
               fax-no:  +44 282 411140
+              e-mail:  test@ripe.net
               nic-hdl: TP2-TEST
               mnt-by:  UPD-MNT
               source:  TEST
@@ -528,6 +537,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               address: UK
               phone:   +44 282 411141
               fax-no:  +44 282 411140
+              e-mail:  test@ripe.net
               nic-hdl: TP2-TEST
               mnt-by:  UPD-MNT
               source:  TEST
@@ -551,6 +561,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               address: Burnley
               address: UK
               phone:   +44 282 411141
+              e-mail:  test@ripe.net
               fax-no:  +44 282 411140
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
@@ -577,6 +588,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               phone:   +44 282 411141
               fax-no:  +44 282 411140
               nic-hdl: TP3-TEST
+              e-mail:  test@ripe.net
               mnt-by:  UPD-MNT
               org:     ORG-NCC2-RIPE
               source:  TEST
@@ -621,6 +633,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               address: UK
               phone:   +44 282 411141
               fax-no:  +44 282 411140
+              e-mail:  test@ripe.net
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
               org:     ORG-NCC1-RIPE
@@ -653,6 +666,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               address: Burnley
               address: UK
               phone:   +44 282 411141
+              e-mail:  test@ripe.net
               fax-no:  +44 282 411140
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT
@@ -694,6 +708,7 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
               address: Burnley
               address: UK
               phone:   +44 282 411141
+              e-mail:         test@ripe.net
               fax-no:  +44 282 411140
               nic-hdl: TP3-TEST
               mnt-by:  UPD-MNT

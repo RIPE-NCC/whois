@@ -2,6 +2,7 @@ package net.ripe.db.whois.spec.integration
 
 import net.ripe.db.whois.spec.domain.Message
 import net.ripe.db.whois.spec.domain.SyncUpdate
+
 import java.time.LocalDateTime
 
 @org.junit.jupiter.api.Tag("IntegrationTest")
@@ -76,6 +77,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     address: 258 Singel
                     phone: +31 60 1234567
+                    e-mail:  test@ripe.net
                     nic-hdl: TEST-PN
                     mnt-by: TEST-MNT
                     notify: test_test@ripe.net
@@ -111,6 +113,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     address: 258 Singel
                     phone: +31 60 1234567
                     nic-hdl: TEST-PN
+                    e-mail:  test@ripe.net
                     mnt-by: TEST-MNT
                     notify: test_test@ripe.net
                     remarks: updated again
@@ -299,6 +302,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: OLW-PN
                     address: street
+                    e-mail:  test@ripe.net
                     phone: +42 33 81394393
                     mnt-by: TEST-MNT
                     notify: modify_test@ripe.net
@@ -308,6 +312,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: OLW-PN
                     address: streetwise
+                    e-mail:  test@ripe.net
                     phone: +42 33 81394393
                     mnt-by: TEST-MNT
                     notify: test_test@ripe.net
@@ -338,6 +343,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: OLW-PN
                     address: street
+                    e-mail:  test@ripe.net
                     phone: +42 33 81394393
                     mnt-by: TEST-MNT
                     notify: modify_test@ripe.net
@@ -354,6 +360,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: OLW-PN
                     address: streetwise
+                    e-mail:  test@ripe.net
                     phone: +42 33 81394393
                     mnt-by: TEST-MNT
                     notify: test_test@ripe.net
@@ -462,6 +469,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: OLW-PN
                     address: street
+                    e-mail:  test@ripe.net
                     phone: +42 33 81394393
                     mnt-by: TEST-MNT
                     notify: modify_person@ripe.net
@@ -479,6 +487,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                     person: some one
                     nic-hdl: TEST-PN
                     address: streetwise
+                    e-mail:  test@ripe.net
                     phone: +42 33 81394393
                     mnt-by: OTHER-MNT
                     notify: test_test@ripe.net
@@ -556,6 +565,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "person:         some one\n" +
                 "nic-hdl:        OLW-PN\n" +
                 "address:        street\n" +
+                "e-mail:         test@ripe.net\n" +
                 "phone:          +42 33 81394393\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "notify:         modify_person@ripe.net\n" +
@@ -651,6 +661,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             person: test person
             nic-hdl: OLW-PN
             address: streetwise
+            e-mail:  test@ripe.net
             phone: +42 33 81394393
             mnt-by: TEST-MNT
             notify: person@ripe.net
@@ -713,6 +724,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
                 "person:         test person\n" +
                 "nic-hdl:        OLW-PN\n" +
                 "address:        streetwise\n" +
+                "e-mail:         test@ripe.net\n" +
                 "phone:          +42 33 81394393\n" +
                 "mnt-by:         TEST-MNT\n" +
                 "notify:         person@ripe.net\n" +
@@ -759,6 +771,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             nic-hdl: OLW-PN
             address: streetwise
             phone: +42 33 81394393
+            e-mail:  test@ripe.net
             mnt-by: TEST-MNT
             notify: person@ripe.net
             source: TEST
@@ -822,6 +835,7 @@ class NotificationIntegrationSpec extends BaseWhoisSourceSpec {
             "nic-hdl:        OLW-PN\n" +
             "address:        streetwise\n" +
             "phone:          +42 33 81394393\n" +
+            "e-mail:         test@ripe.net\n" +
             "mnt-by:         TEST-MNT\n" +
             "notify:         person@ripe.net\n" +
             "created:        %s\n" +

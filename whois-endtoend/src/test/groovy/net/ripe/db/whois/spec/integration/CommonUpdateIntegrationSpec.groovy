@@ -12,6 +12,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 address: St James Street
                 address: Burnley
                 address: UK
+                e-mail:  test@ripe.net
                 phone:   +44 282 420469
                 nic-hdl: TP1-TEST
                 mnt-by:  OWNER-MNT
@@ -172,6 +173,7 @@ class CommonUpdateIntegrationSpec extends BaseWhoisSourceSpec {
                 person:  Test Person2
                 address: UK
                 phone:   +44 282 411141
+                e-mail:  test@ripe.net
                 fax-no:  +44 282 411140
                 nic-hdl: TP2-TEST
                 mnt-by:  OWNER-MNT

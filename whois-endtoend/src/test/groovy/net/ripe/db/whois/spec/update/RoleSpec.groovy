@@ -55,6 +55,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
                 address: Burnley
                 address: UK
                 phone:   +44 282 420469
+                e-mail:  dbtest@ripe.net
                 nic-hdl: NMP1-TEST
                 source:  TEST
                 """,
@@ -843,7 +844,6 @@ class RoleSpec extends BaseQueryUpdateSpec {
         when:
         def message = syncUpdate("""
                 role:          Abuse Role
-                e-mail:        dbtest@ripe.net
                 abuse-mailbox: abuse@tëst.nl
                 nic-hdl:       FR1-TEST
                 mnt-by:        owner-mnt
@@ -864,7 +864,7 @@ class RoleSpec extends BaseQueryUpdateSpec {
         ack.warningMessagesFor("Create", "[role] FR1-TEST") =~
                 ["Value changed due to conversion of IDN email address(es) into Punycode"]
         ack.errorMessagesFor("Create", "[role] FR1-TEST") =~
-                ["Mandatory attribute \"address\" is missing"]
+                ["Mandatory attribute \"e-mail\" is missing"]
 
         queryObjectNotFound("-T role FR1-TEST", "role", "Abuse Role")
     }
