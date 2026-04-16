@@ -37,6 +37,7 @@ public class ExcludedEmailValidatorTest {
 
         when(updateContext.getSubject(preparedUpdate)).thenReturn(subject);
         when(subject.hasPrincipal(ArgumentMatchers.eq(Principal.RS_MAINTAINER))).thenReturn(false);
+        when(subject.hasPrincipal(ArgumentMatchers.eq(Principal.DBM_MAINTAINER))).thenReturn(false);
         when(subject.hasPrincipal(Principal.OVERRIDE_MAINTAINER)).thenReturn(false);
     }
 

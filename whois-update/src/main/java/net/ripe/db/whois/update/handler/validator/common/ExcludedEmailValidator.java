@@ -57,7 +57,7 @@ public class ExcludedEmailValidator implements BusinessRuleValidator {
     @Override
     public List<Message> performValidation(final PreparedUpdate update, final UpdateContext updateContext) {
         final Subject subject = updateContext.getSubject(update);
-        if (subject.hasPrincipal(Principal.RS_MAINTAINER)) {
+        if (subject.hasPrincipal(Principal.RS_MAINTAINER) || subject.hasPrincipal(Principal.DBM_MAINTAINER)) {
             return Collections.emptyList();
         }
 
