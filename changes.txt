@@ -1,5 +1,12 @@
 # next
 
+# 1.122
+
+* [all] Support UTF-8 in Free Text Attributes ("descr:" and "remarks:").
+* [all] NWI-20: Adjusting contact method requirements and adding new methods.
+* [update] Do not allow "mnt-lower:" on inetnum ASSIGNED PA
+* [update] Allow user to remove mnt-lower from ASSIGNED resources
+
 # 1.121.2
 
 * [api] Prevent updates using Syncupdates GET method
