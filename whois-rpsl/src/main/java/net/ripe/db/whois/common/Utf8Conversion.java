@@ -18,6 +18,8 @@ import static com.ibm.icu.text.IDNA.Error.INVALID_ACE_LABEL;
  */
 public class Utf8Conversion {
 
+    private final static IDNA IDNA_INSTANCE = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to  ss for example
+
     private Utf8Conversion() {
         // do not instantiate
     }
@@ -35,11 +37,10 @@ public class Utf8Conversion {
     }
 
     private static void convertUsingIDNA(StringBuilder result, char transformedCharacter) {
-        final IDNA idna = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to ss for example
         final StringBuilder idnaTransformation = new StringBuilder();
         final Info info = new Info();
 
-        idna.nameToUnicode(String.valueOf(transformedCharacter), idnaTransformation, info);
+        IDNA_INSTANCE.nameToUnicode(String.valueOf(transformedCharacter), idnaTransformation, info);
 
         if (hasRelevantError(info)) {
             result.append("?"); // Question marks replace unknown characters
