@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common;
 
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import org.junit.jupiter.api.Test;
 
@@ -7,6 +8,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class Utf8ConversionTest {
+
+    @Test
+    public void normalise_decomposed_unicode_form() {
+        // Java considers the r-caron codepoint U+0159 and decomposed U+0072U+030C to be the same, so we must also check string length to be sure the decomposed form is normalised
+        assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute(AttributeType.DESCR, "\u0072\u030C")).getValue().length(), is(1));
+        assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute(AttributeType.DESCR, "Ond\u0072\u030Cej Caletka")).getValue(), is("Ond\u0159ej Caletka"));
+    }
 
     @Test
     public void convert_utf8_attributes_string() {

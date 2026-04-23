@@ -3,6 +3,7 @@ package net.ripe.db.whois.common;
 import com.ibm.icu.impl.UTS46;
 import com.ibm.icu.text.IDNA;
 import com.ibm.icu.text.IDNA.Info;
+import com.ibm.icu.text.Normalizer2;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -18,7 +19,8 @@ import static com.ibm.icu.text.IDNA.Error.INVALID_ACE_LABEL;
  */
 public class Utf8Conversion {
 
-    private final static IDNA IDNA_INSTANCE = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE); // avoid changing ß to  ss for example
+    private final static IDNA IDNA_INSTANCE = UTS46.getUTS46Instance(IDNA.NONTRANSITIONAL_TO_UNICODE);
+    private static final Normalizer2 NORMALIZER_INSTANCE = Normalizer2.getNFCInstance();
 
     private Utf8Conversion() {
         // do not instantiate
@@ -26,17 +28,18 @@ public class Utf8Conversion {
 
     public static RpslAttribute createUtf8Attribute(final RpslAttribute attribute){
         final StringBuilder result = new StringBuilder();
-        final String utf8Value = StringEscapeUtils.unescapeJava(attribute.getValue());
 
-        utf8Value.codePoints().forEach(cp -> {
-            char sanitiseCharacter = UnicodeControlCharacterSanitiser.sanitiseCodePoints(cp);
-            convertUsingIDNA(result, sanitiseCharacter);
-        });
+        NORMALIZER_INSTANCE.normalize(StringEscapeUtils.unescapeJava(attribute.getValue()))
+                .codePoints()
+                .forEach(cp -> {
+                    char sanitiseCharacter = UnicodeControlCharacterSanitiser.sanitiseCodePoints(cp);
+                    convertUsingIDNA(result, sanitiseCharacter);
+            });
 
         return new RpslAttribute(attribute.getKey(), result.toString());
     }
 
-    private static void convertUsingIDNA(StringBuilder result, char transformedCharacter) {
+    private static void convertUsingIDNA(final StringBuilder result, final char transformedCharacter) {
         final StringBuilder idnaTransformation = new StringBuilder();
         final Info info = new Info();
 
