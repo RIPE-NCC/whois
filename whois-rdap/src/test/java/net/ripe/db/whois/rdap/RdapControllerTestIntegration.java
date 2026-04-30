@@ -3527,6 +3527,20 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertErrorDescription(badRequestException, "Relation upper doesn't exist");
     }
 
+    @Test
+    public void get_invalid_key_relation_domains_then_400(){
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("domains/rirSearch1/rdap-up/?cb=62274")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(badRequestException, "Bad Request");
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorDescription(badRequestException, "empty lookup term");
+    }
+
+
 
     // up
     @Test

@@ -282,7 +282,7 @@ public class RdapController {
         switch (requestType) {
             case AUTNUMS -> throw new RdapException("Not Implemented", "Relation queries not allowed for autnum", HttpStatus.NOT_IMPLEMENTED_501);
             case IPS -> rdapRequestValidator.validateIp(request.getRequestURI(), key);
-            case DOMAIN -> rdapRequestValidator.validateDomain(key);
+            case DOMAINS -> rdapRequestValidator.validateDomain(key);
         }
     }
 
