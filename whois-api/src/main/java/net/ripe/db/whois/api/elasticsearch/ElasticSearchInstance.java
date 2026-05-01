@@ -9,7 +9,6 @@ import net.ripe.db.whois.common.profiles.WhoisProfile;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -30,7 +29,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class ElasticSearchInstance implements ElasticRestHighlevelClient {
 
-    private static final int TIMEOUT_IN_MS = 35000;
+    private static final int SOCKET_TIMEOUT_IN_MS = 35000;
+    private static final int CONNECTION_TIMEOUT_IN_MS = 10000;
     private static final Logger LOGGER = getLogger(ElasticSearchInstance.class);
     private final ElasticsearchClient client;
 
@@ -56,7 +56,10 @@ public class ElasticSearchInstance implements ElasticRestHighlevelClient {
             // Build low-level RestClient for multiple hosts
             RestClientBuilder builder = RestClient.builder(asHttpHosts(elasticHosts))
                     .setRequestConfigCallback(requestConfigBuilder ->
-                            requestConfigBuilder.setSocketTimeout(TIMEOUT_IN_MS))
+                            requestConfigBuilder
+                                    .setSocketTimeout(SOCKET_TIMEOUT_IN_MS)
+                                    .setConnectTimeout(CONNECTION_TIMEOUT_IN_MS)
+                    )
                     .setHttpClientConfigCallback(httpClientBuilder ->
                             httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 
