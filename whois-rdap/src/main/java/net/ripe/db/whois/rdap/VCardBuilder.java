@@ -80,9 +80,7 @@ public class VCardBuilder {
 
 
     public VCardBuilder addContact(final Set<CIString> phones) {
-        phones.stream()
-                .filter(phone -> phone.toLowerCase().startsWith("http"))
-                .forEach( phone -> addProperty(TELEPHONE, CONTACT_MAP, URI, phone));
+        phones.forEach( phone -> addProperty(TELEPHONE, CONTACT_MAP, URI, phone));
         return this;
     }
 
