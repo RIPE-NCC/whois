@@ -2,7 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
-import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
+import org.eclipse.jetty.ee11.servlet.ServletContextRequest;
 
 import javax.annotation.Nullable;
 import java.security.cert.X509Certificate;

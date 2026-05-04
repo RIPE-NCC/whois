@@ -7,7 +7,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
-import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
+import org.eclipse.jetty.ee11.servlet.ServletContextRequest;
 import org.springframework.stereotype.Component;
 
 import java.security.cert.X509Certificate;

@@ -458,7 +458,7 @@ public class ElasticAutocompleteServiceTestIntegration extends AbstractElasticSe
             final String response = e.getResponse().readEntity(String.class);
 
             assertThat(response, is("invalid name for field"));
-            assertThat(e.getResponse().getMediaType(), is(MediaType.TEXT_PLAIN_TYPE));
+            assertThat(e.getResponse().getMediaType().toString(), is("text/plain;charset=utf-8"));
         }
     }
 

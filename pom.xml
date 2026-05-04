@@ -65,15 +65,15 @@
 
         <jackson.version>2.21.1</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
-        <!-- Jakarta XML Binding (JAXB) API for EE10 https://jakarta.ee/specifications/xml-binding/4.0/ -->
+        <!-- Jakarta XML Binding (JAXB) API for EE11 https://jakarta.ee/specifications/xml-binding/4.0/ -->
         <jaxb.api.version>4.0.5</jaxb.api.version>
         <jaxb.impl.version>4.0.6</jaxb.impl.version>
-        <!-- Jakarta REST (JAX-RS) API for EE10 https://jakarta.ee/specifications/restful-ws/3.1/ -->
-        <jaxrs.api.version>3.1.0</jaxrs.api.version>
-        <!-- Jersey Jakarta REST 3.1 for EE10 compatible https://projects.eclipse.org/projects/ee4j.jersey/releases/3.1.0 -->
-        <jersey.version>3.1.11</jersey.version>
-        <!-- Jetty Server EE10 compatible https://jetty.org/docs/jetty/12/index.html -->
-        <jetty.version>12.0.33</jetty.version>
+        <!-- Jakarta REST (JAX-RS) API for EE11 https://jakarta.ee/specifications/restful-ws/4.0/ -->
+        <jaxrs.api.version>4.0.0</jaxrs.api.version>
+        <!-- Jersey Jakarta REST 4.0 for EE11 compatible https://projects.eclipse.org/projects/ee4j.jersey/releases/4.0.0-0 -->
+        <jersey.version>4.0.2</jersey.version>
+        <!-- Jetty Server EE11 compatible https://jetty.org/docs/jetty/12/index.html -->
+        <jetty.version>12.1.8</jetty.version>
         <jflex.version>1.9.1</jflex.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsonassert.version>1.5.3</jsonassert.version>
@@ -98,8 +98,8 @@
         <proprot.version>1.0</proprot.version>
 
         <sentry.version>8.33.0</sentry.version>
-        <!-- Servlet API 6.0 for EE10 : https://jakarta.ee/specifications/servlet/6.0/ -->
-        <servlet.version>6.0.0</servlet.version>
+        <!-- Servlet API 6.1 for EE11 : https://jakarta.ee/specifications/servlet/6.1/ -->
+        <servlet.version>6.1.0</servlet.version>
         <shedlock.version>6.10.0</shedlock.version>
         <slf4j.version>2.0.17</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
@@ -572,8 +572,8 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty.ee10</groupId>
-                <artifactId>jetty-ee10-servlets</artifactId>
+                <groupId>org.eclipse.jetty.ee11</groupId>
+                <artifactId>jetty-ee11-servlets</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -582,8 +582,8 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty.ee10</groupId>
-                <artifactId>jetty-ee10-webapp</artifactId>
+                <groupId>org.eclipse.jetty.ee11</groupId>
+                <artifactId>jetty-ee11-webapp</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <!-- Jetty implements Jakarta Servlet API -->

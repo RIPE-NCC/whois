@@ -110,7 +110,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Response.class);
 
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is(nullValue()));
-        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is("text/plain;charset=utf-8"));
 
         final String responseBody = response.readEntity(String.class);
         assertThat(responseBody, containsString("You have requested Help information from the RIPE NCC Database"));
@@ -127,7 +127,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get(Response.class);
 
         assertThat(response.getHeaderString(HttpHeaders.CONTENT_ENCODING), is("gzip"));
-        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is(MediaType.TEXT_PLAIN));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is("text/plain;charset=utf-8"));
     }
 
     @Test
