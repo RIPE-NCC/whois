@@ -198,6 +198,7 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "a");
         verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "https//wa.me/+441231231231");
         verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "sipalice@192.168.1.42");
+        verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "contact: sip:alice@192.168.1.42");
         verifyFailure(ObjectType.PERSON, AttributeType.CONTACT, "/signal.me/+441231231231");
     }
 

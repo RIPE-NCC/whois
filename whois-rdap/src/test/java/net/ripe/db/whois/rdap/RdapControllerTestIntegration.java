@@ -115,7 +115,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "phone:         +31-1234567890\n" +
                 "e-mail:        noreply@ripe.net\n" +
                 "contact:       https://api.whatsapp.com/send?phone=+441231231231\n" +
-                "contact:       contact: sip:alice@192.168.1.42\n" +
+                "contact:       sip:alice@192.168.1.42\n" +
                 "mnt-by:        OWNER-MNT\n" +
                 "nic-hdl:       PP1-TEST\n" +
                 "remarks:       remark\n" +
@@ -1341,7 +1341,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31-1234567890], " +
                 "[tel, {type=voice, text}, uri, https://api.whatsapp.com/send?phone=+441231231231], " +
-                "[tel, {type=voice, text}, uri, contact: sip:alice@192.168.1.42], " +
+                "[tel, {type=voice, text}, uri, sip:alice@192.168.1.42], " +
                 "[email, {type=email}, text, noreply@ripe.net]]"));
 
         assertThat(entity.getObjectClassName(), is("entity"));
