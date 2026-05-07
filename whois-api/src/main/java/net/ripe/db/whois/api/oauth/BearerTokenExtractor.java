@@ -67,6 +67,14 @@ public class BearerTokenExtractor   {
     private final static int READ_TIMEOUT_MS = 10_000;   // 10 seconds
     private final URI jwksSetUrl;
 
+    private static final long JWKS_CACHE_TIME = 2 * 60 * 60 * 1000L;
+
+    private static final long JWKS_CACHE_REFRESH_TIMEOUT = 30 * 1000L;
+
+    private static final long JWKS_TOKEN_REFRESH_BEFORE_EXPIRE_TIME = 5 * 60 * 1000L;
+
+    private static final long JWKS_WHEN_DOWN_CACHE_TIME = 4 * 60 * 60 * 1000L;
+
     @Autowired
     public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
                                 @Value("${apikey.max.scope:10}") final int maxScopes,
@@ -126,14 +134,16 @@ public class BearerTokenExtractor   {
 
             final JWKSource<SecurityContext> keySource = JWKSourceBuilder
                     .create(jwksSetUrl.toURL(), retriever)
-                    // 15 mins cache and after 5 minutes may refresh the cache
-                    .cache(15 * 60 * 1000L, 5 * 60 * 1000L)
+                    // 2-hour cache and after 30 sec timeout for cache refresh operation to complete after expiration
+                    .cache(JWKS_CACHE_TIME, JWKS_CACHE_REFRESH_TIMEOUT)
+                    // 5-minute refresh before the token gets expired
+                    .refreshAheadCache(JWKS_TOKEN_REFRESH_BEFORE_EXPIRE_TIME, true)
                     .retrying(event -> {
                         // Log retry attempt, helps in debugging network timeout issue
                         LOGGER.warn("JWKS fetch retry: {}", event);
                     })
                     //in case the remote JWK set endpoint goes down set 4 hours value
-                    .outageTolerant(4 * 60 * 60 * 1000L , event -> {
+                    .outageTolerant(JWKS_WHEN_DOWN_CACHE_TIME , event -> {
                         LOGGER.warn("JWKS outage event : {}", event);
                     })
                     .build();
