@@ -8,6 +8,7 @@ import com.nimbusds.jose.proc.BadJWSException;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jwt.JWTClaimNames;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -62,7 +63,8 @@ public class BearerTokenExtractor   {
     private final URI tokenIntrospectEndpoint;
     private final ClientSecretBasic keycloakClient;
     private final int maxScopes;
-
+    private final static int CONNECT_TIMEOUT_MS = 10_000; // 10 seconds
+    private final static int READ_TIMEOUT_MS = 10_000;   // 10 seconds
     private final URI jwksSetUrl;
 
     @Autowired
@@ -120,8 +122,10 @@ public class BearerTokenExtractor   {
 
             final ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 
+            final DefaultResourceRetriever retriever = new DefaultResourceRetriever(CONNECT_TIMEOUT_MS, READ_TIMEOUT_MS, JWKSourceBuilder.DEFAULT_HTTP_SIZE_LIMIT);
+
             final JWKSource<SecurityContext> keySource = JWKSourceBuilder
-                    .create(jwksSetUrl.toURL())
+                    .create(jwksSetUrl.toURL(), retriever)
                     // 15 mins cache and after 5 minutes may refresh the cache
                     .cache(15 * 60 * 1000L, 5 * 60 * 1000L)
                     .retrying(event -> {
