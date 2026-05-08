@@ -131,7 +131,7 @@ public class HazelcastInstanceManager {
         final Config config = new Config();
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
 
-        config.setProperty("hazelcast.jmx", "true")
+        config.setProperty("hazelcast.jmx", "false")
                 .setProperty("hazelcast.version.check.enabled", "false")
                 .setProperty("hazelcast.phone.home.enabled", "false")
                 .setProperty("hazelcast.memcache.enabled","false")

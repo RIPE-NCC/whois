@@ -119,6 +119,11 @@ public class AccessControlListManager {
         return accountingManager.getPersonalObjects();
     }
 
+    public int getPersonalObjectsBySSO(final String username) {
+        final PersonalAccountingManager accountingManager = new SSOAccountingManager(username);
+        return accountingManager.getPersonalObjects();
+    }
+
     private PersonalAccountingManager getAccountingManager(final AccountingIdentifier accountingIdentifier) {
        final String username = accountingIdentifier.getUserName();
 

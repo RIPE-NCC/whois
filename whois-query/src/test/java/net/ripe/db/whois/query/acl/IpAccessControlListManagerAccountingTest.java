@@ -78,6 +78,14 @@ public class IpAccessControlListManagerAccountingTest {
     }
 
     @Test
+    public void limited_sso() {
+        when(ssoResourceConfiguration.getLimit()).thenReturn(500);
+
+        subject.getPersonalObjectsBySSO("person@ripe.net");
+        assertThat(subject.getPersonalObjectsBySSO("person@ripe.net"), is(500));
+    }
+
+    @Test
     public void limit_zero() throws Exception {
         setPersonalLimit(0);
         assertThat(subject.canQueryPersonalObjects(accountingIdentifierIpv4), is(true));
