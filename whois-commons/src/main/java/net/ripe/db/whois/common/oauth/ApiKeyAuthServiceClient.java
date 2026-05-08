@@ -93,7 +93,7 @@ public class ApiKeyAuthServiceClient {
                     .get(String.class);
 
         } catch (final ProcessingException e) {
-            LOGGER.error("Failed to validate api key (Username: {}) due to {}:{}\n\tRetrying", apiKeyId, e.getClass().getName(), e.getMessage());
+            LOGGER.error("Failed to validate api key (Username: {}) (Retrying) due to {}:{}", apiKeyId, e.getClass().getName(), e.getMessage());
             throw e;
         }
     }

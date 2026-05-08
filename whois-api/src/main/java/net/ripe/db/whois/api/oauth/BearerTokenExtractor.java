@@ -4,6 +4,8 @@ import com.google.common.base.Stopwatch;
 import com.google.common.net.HttpHeaders;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
+import com.nimbusds.jose.jwk.source.OutageTolerantJWKSetSource;
+import com.nimbusds.jose.jwk.source.RetryingJWKSetSource;
 import com.nimbusds.jose.proc.BadJWSException;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
@@ -55,7 +57,7 @@ import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_UUID_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.getWhoisScopes;
 
 @Component
-public class BearerTokenExtractor   {
+public class BearerTokenExtractor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BearerTokenExtractor.class);
 
@@ -140,11 +142,23 @@ public class BearerTokenExtractor   {
                     .refreshAheadCache(JWKS_TOKEN_REFRESH_BEFORE_EXPIRE_TIME, true)
                     .retrying(event -> {
                         // Log retry attempt, helps in debugging network timeout issue
-                        LOGGER.warn("JWKS fetch retry: {}", event);
+                        switch (event) {
+                            case RetryingJWKSetSource.RetrialEvent retrialEvent:
+                                LOGGER.warn("JWKS fetch retry: {}: {}", retrialEvent.getException().getClass().getName(), retrialEvent.getException().getMessage());
+                                break;
+                            default:
+                                LOGGER.warn("JWKS fetch retry: {}", event);
+                        }
                     })
                     //in case the remote JWK set endpoint goes down set 4 hours value
-                    .outageTolerant(JWKS_WHEN_DOWN_CACHE_TIME , event -> {
-                        LOGGER.warn("JWKS outage event : {}", event);
+                    .outageTolerant(JWKS_WHEN_DOWN_CACHE_TIME, event -> {
+                        switch (event) {
+                            case OutageTolerantJWKSetSource.OutageEvent outageEvent:
+                                LOGGER.warn("JWKS outage event: {}: {}", outageEvent.getException().getClass().getName(), outageEvent.getException().getMessage());
+                                break;
+                            default:
+                                LOGGER.warn("JWKS outage event : {}", event);
+                        }
                     })
                     .build();
 
@@ -177,13 +191,13 @@ public class BearerTokenExtractor   {
                     .uuid(claimSet.getStringClaim(OAUTH_CUSTOM_UUID_PARAM)).build();
 
         } catch (BadJWSException e) {
-            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Token validation failed, %s", e.getMessage()));
+            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Token validation failed, due to %s: %s", e.getClass().getName(), e.getMessage()));
             return oAuthSessionBuilder.build();
         } catch (ParseException e) {
-            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, "Failed to parse Bearer token from Api Key");
+            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Failed to parse bearer token from API Key, due to %s: %s", e.getClass().getName(), e.getMessage()));
             return oAuthSessionBuilder.build();
         } catch (Exception e) {
-            LOGGER.info("Invalid ApiKey ", e);
+            LOGGER.info("Invalid API key, due to {}: {}", e.getClass().getName(), e.getMessage());
             tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, "Invalid ApiKey");
             return oAuthSessionBuilder.build();
         }
@@ -196,7 +210,7 @@ public class BearerTokenExtractor   {
               SignedJWT.parse(accessToken.getValue());
               return accessToken;
         } catch (Exception e) {
-            LOGGER.debug("Failed to parse BearerToken {}", e.getMessage());
+            LOGGER.debug("Failed to parse bearer token, due to {}: {}", e.getClass().getName(), e.getMessage());
             return null;
         }
     }
@@ -264,7 +278,7 @@ public class BearerTokenExtractor   {
                     .uuid(tokenDetails.getStringParameter(OAUTH_CUSTOM_UUID_PARAM)).build();
 
         } catch (Exception e) {
-            LOGGER.error("Failed to extract OAuth session", e);
+            LOGGER.error("Failed to extract OAuth session, due to {}: {}", e.getClass().getName(), e.getMessage());
             tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Error validating OauthSession");
             return oAuthSessionBuilder.build();
         } finally {
