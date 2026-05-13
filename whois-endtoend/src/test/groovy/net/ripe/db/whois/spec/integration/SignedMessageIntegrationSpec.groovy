@@ -1403,25 +1403,45 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
   }
 
-  @Ignore("TODO")
   def "multipart pgp signed message with crlf stripped from content"() {
+    given:
+      setTime(LocalDateTime.parse("2026-04-17T14:00:40")) // current time must be within 1 hour of signing time
+
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).
-                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
-      def message = send "From: noreply@ripe.net\n" +
+      def message = send "From: Miguel Herran <miguelherran91@gmail.com>\n" +
+              "X-Google-Original-From: Miguel Herran <noreply@ripe.net>\n" +
+              "Message-ID: <f7c06659-2723-4369-bce9-603d3e6c3bbf@ripe.net>\n" +
+              "Date: Fri, 17 Apr 2026 14:25:12 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
               "To: test-dbm@ripe.net\n" +
               "Subject: NEW\n" +
-              "Message-ID: <1361277612.10298.12.camel@galileo.millnert.se>\n" +
-              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-              "Content-Type: multipart/signed; micalg=\"pgp-sha1\"; protocol=\"application/pgp-signature\";\n" +
-              "\tboundary=\"=-8YSQO2TBX+Ao8EuQQc6k\"\n" +
-              "Mime-Version: 1.0\n" +
+              "Content-Type: multipart/signed; micalg=pgp-sha256;\n" +
+              " protocol=\"application/pgp-signature\";\n" +
+              " boundary=\"------------RDGB9f0hAkHeHo31KWR3yl3C\"\n" +
+              "X-RIPE-Signature: 6776a704bd1f90482797b29dbadfef729d796aa688dc5fce68f21b81b38b7593\n" +
               "\n" +
-              "--=-8YSQO2TBX+Ao8EuQQc6k\n" +
-              "Content-Type: text/plain; charset=\"UTF-8\"\n" +
+              "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+              "--------------RDGB9f0hAkHeHo31KWR3yl3C\n" +
+              "Content-Type: multipart/mixed; boundary=\"------------HzZ8VUI2CGx095mGj7RYfjkB\";\n" +
+              " protected-headers=\"v1\"\n" +
+              "Message-ID: <f7c06659-2723-4369-bce9-603d3e6c3bbf@ripe.net>\n" +
+              "Date: Fri, 17 Apr 2026 14:25:12 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
+              "To: test-dbm@ripe.net\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
+              "Subject: NEW\n" +
+              "\n" +
+              "--------------HzZ8VUI2CGx095mGj7RYfjkB\n" +
+              "Content-Type: text/plain; charset=UTF-8\n" +
               "Content-Transfer-Encoding: quoted-printable\n" +
               "\n" +
               "person: First Person\n" +
@@ -1429,33 +1449,31 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "address: Burnley\n" +
               "address: UK\n" +
               "phone: +44 282 420469\n" +
+              "e-mail: test@ripe.net\n" +
               "nic-hdl: FP1-TEST\n" +
               "mnt-by: OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
               "source: TEST\n" +
-              "--=-8YSQO2TBX+Ao8EuQQc6k\n" +
-              "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
-              "Content-Description: This is a digitally signed message part\n" +
-              "Content-Transfer-Encoding: 7bit\n" +
+              "\n" +
+              "\n" +
+              "--------------HzZ8VUI2CGx095mGj7RYfjkB--\n" +
+              "\n" +
+              "--------------RDGB9f0hAkHeHo31KWR3yl3C\n" +
+              "Content-Type: application/pgp-signature; name=\"OpenPGP_signature.asc\"\n" +
+              "Content-Description: OpenPGP digital signature\n" +
+              "Content-Disposition: attachment; filename=\"OpenPGP_signature.asc\"\n" +
               "\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
-              "Version: GnuPG v1.4.12 (Darwin)\n" +
-              "Comment: GPGTools - http://gpgtools.org\n" +
               "\n" +
-              "-----BEGIN PGP SIGNATURE-----\n" +
-              "Version: GnuPG v1.4.12 (Darwin)\n" +
-              "Comment: GPGTools - http://gpgtools.org\n" +
-              "\n" +
-              "iQEcBAEBAgAGBQJRJiUQAAoJEO6ZHuIo9s1sRUwIAKPZTXKmubl/lpWSdUdF5/wj\n" +
-              "JtaeUI5ag/2kHY7KoMMhy7qUnmMJY+INWXsfXQLLev6envjzxzlLUPDC+H5nBXHz\n" +
-              "sW/FfzzJPKLYzmZuJcGqPJDJRzWTmqt2I3/QMuxg3jyS7kneVfM3/WQ8fKP6pCgF\n" +
-              "Z9BeapgwjZGgRx4JCW22oHmsR8X6i9qTnZyTm9zHsYZCK8hAhHQaWGfgx55/x1iR\n" +
-              "RPA5nanT93lZSmnYdoHfFkHv/7ugylV74ubpd3eftL8hrlvyGLnj54R1dkBdjJ0f\n" +
-              "Uef0jxzAqSU60cgAL5V2X3WaGBm7yf+gDxxjRsLMsH+M/y4EdbjDpqoDEJIBeVU=\n" +
-              "=jvFg\n" +
+              "wsB5BAABCAAjFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmniJqkFAwAAAAAACgkQu8y7LVdjlQ0H\n" +
+              "xwgAnsbE41a2CDx6nsKcZ5fidyXst7HTSRBVyo5FT3lTpJK6Lu9H/gs/0kC/ladoOxiwhzCt8xxC\n" +
+              "/pSUyYltks/HvfZZ9mKwOyYZe24SF+qm280RLNtl7oljzuH5dVsmmjwYhl/+mn9lX+rtSs+kpJdY\n" +
+              "rHdtCLKdkGEjLie7Xr8yafhMg3C4F1Q9pc4w3lL0L1dJDPQ2QJI5Ym0Q6gJ8o/DxeByXcU0dwovi\n" +
+              "074AkW2eqjMxz7GNqGvlbhmXkPOx815SEukEp9dMsqtrRqsCBgJUWYt5U0VBuVfdMQuwrjSrE4Hp\n" +
+              "1k1HTrmXF/qbWLfMW6tQTiew/WcJQSHjZSSRjWdMJw==\n" +
+              "=EX8a\n" +
               "-----END PGP SIGNATURE-----\n" +
               "\n" +
-              "--=-8YSQO2TBX+Ao8EuQQc6k--\n\n"
+              "--------------RDGB9f0hAkHeHo31KWR3yl3C--\n\n"
     then:
       def ack = ackFor message
 
@@ -1465,59 +1483,73 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.assertErrors(0, 0, 0, 0)
   }
 
-  @Ignore("TODO: Fix in different task")
+
   def "multipart mixed pgp signed message with base64 encoded signature part"() {
     given:
-      setTime(LocalDateTime.parse("2026-04-14T13:33:40")) // current time must be within 1 hour of signing time
+      setTime(LocalDateTime.parse("2026-04-17T14:00:40")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
-      def message = send "From: upd@ripe.net\n" +
-              "User-Agent: Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Thunderbird/24.6.0\n" +
+      def message = send "Message-ID: <2820b1f7-9734-4b00-a57b-34b091a3a8e0@ripe.net>\n" +
+              "Date: Fri, 17 Apr 2026 13:54:22 +0200\n" +
               "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
               "To: test-dbm@ripe.net\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
               "Subject: NEW\n" +
-              "Date: Wed, 2 Jan 2013 16:53:25 +0100\\n\" +\n" +
-              "Message-Id: <220284EA-D739-4453-BBD2-807C87666F23@ripe.net>\\n\" +\n" +
-              "Content-Type: multipart/mixed;\n" +
-              " boundary=\"------------090202010406090002050801\"\n" +
+              "Content-Type: multipart/signed; micalg=pgp-sha256;\n" +
+              " protocol=\"application/pgp-signature\";\n" +
+              " boundary=\"------------KLfbstvgWkcW787EwjuZt18K\"\n" +
               "\n" +
-              "This is a multi-part message in MIME format.\n" +
-              "--------------090202010406090002050801\n" +
-              "Content-Type: text/plain; charset=ISO-8859-1; format=flowed\n" +
-              "Content-Transfer-Encoding: 7bit\n" +
+              "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+              "--------------KLfbstvgWkcW787EwjuZt18K\n" +
+              "Content-Type: multipart/mixed; boundary=\"------------fMIZ36HxwnvJHstm0nmeIAIw\";\n" +
+              " protected-headers=\"v1\"\n" +
+              "Message-ID: <2820b1f7-9734-4b00-a57b-34b091a3a8e0@ripe.net>\n" +
+              "Date: Fri, 17 Apr 2026 13:54:22 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
+              "To: test-dbm@ripe.net\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
+              "Subject: NEW\n" +
               "\n" +
-              "person:  First Person\n" +
+              "--------------fMIZ36HxwnvJHstm0nmeIAIw\n" +
+              "Content-Type: text/plain; charset=UTF-8\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
+              "\n" +
+              "person: First Person\n" +
               "address: St James Street\n" +
               "address: Burnley\n" +
               "address: UK\n" +
-              "phone:   +44 282 420469\n" +
-              "e-mail:  noreply@ripe.net\n" +
+              "phone: +44 282 420469\n" +
+              "e-mail: test@ripe.net\n" +
               "nic-hdl: FP1-TEST\n" +
-              "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
-              "source:  TEST\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "source: TEST\n" +
               "\n" +
-              "--------------090202010406090002050801\n" +
-              "Content-Type: application/pgp-signature;\n" +
-              " name=\"Attached Message Part\"\n" +
+              "\n" +
+              "\n" +
+              "--------------fMIZ36HxwnvJHstm0nmeIAIw--\n" +
+              "\n" +
+              "--------------KLfbstvgWkcW787EwjuZt18K\n" +
+              "Content-Type: application/pgp-signature; name=\"OpenPGP_signature.asc\"\n" +
               "Content-Transfer-Encoding: base64\n" +
-              "Content-Disposition: attachment;\n" +
-              " filename=\"Attached Message Part\"\n" +
+              "Content-Disposition: attachment; filename=\"OpenPGP_signature.asc\"\n" +
               "\n" +
-              "LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0NClZlcnNpb246IEdudVBHIHYxDQpDb21t\n" +
-              "ZW50OiBHUEdUb29scyAtIGh0dHA6Ly9ncGd0b29scy5vcmcNCg0KaVFFY0JBRUJBZ0FHQlFK\n" +
-              "VUlFRlVBQW9KRUx2TXV5MVhZNVVORkxNSC9ScGxMd2pLYzZaK2tVZG16Uzk3c25uTQ0KS1l6\n" +
-              "c0VXQlFvUEhQZUJXNFFPZUxsUnFXcUsxelU0QzcyYmhEK0doVVB0S1ZuYS9IOHh1NzR6WjVS\n" +
-              "dUw0N082aA0KUENNWDhCVlZMUktyNUxGVk00SjJ6K0lRbjVodUhqaUlKRERGUU05Ry84M2Js\n" +
-              "WTV2dHUrMVNFVFpWWVJHTUdvTQ0KU25pSEowd0tVa2V1RnpBM3VsWG1sTVpwNy9Kc1A5MU8y\n" +
-              "eEVNb3VtSlE2bWRJZGFVS0NtNDlpOUc5cmp2SStUSQ0KVjZOWEM4RmJMc1ZQVHZLUTRoZVpM\n" +
-              "VFVNZEtTM0dkVklLY2hrUkIwa01yZkdTc3J3QXZlMThRTXpOZVdhLzlabg0KK2JEbkNtTlhs\n" +
-              "NGZSbXJ6Qjd4RUVWb0FNam5lbVNySWMyOWFnVnQ5Q2pNaiszVk5CekYxemh0Q3lnaXdDRU9z\n" +
-              "PQ0KPVIvWDQNCi0tLS0tRU5EIFBHUCBTSUdOQVRVUkUtLS0tLQ0K" +
+              "LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0KCndzQjVCQUFCQ0FBakZpRUVpRStPSTJubDV2\n" +
+              "R2ZzMlAwdTh5N0xWZGpsUTBGQW1uaUgyNEZBd0FBQUFBQUNna1F1OHk3TFZkamxRMk4KN0FmK0pH\n" +
+              "bVRFMlJFY3lUVE10bUU2K2M5VWhFZXpOVmwzOWNnUDdHdlFFK3pKM2RTUDN5enNSbzFsTStYYXdz\n" +
+              "cWtBd2x1RFFJUisvQwpES1RzdWJhWEJSRFVrbjROLy9PQ1RITkNjd3VYNTNBeVFhT3pDbzBnenFm\n" +
+              "anV3NFNLaGlrWk03YlVBWDMwR0xBdEQzWGZRbjhDTk91CjFIYlJEbDBJWHdBMnkvR0NtbVJxRStL\n" +
+              "OHNkLy9nVVRiczJ2bWc1ejQzWUgyYTZvSkdEcjIxcm4wbVh4MFhkMU9JZkdCOE5NMzBqOUkKNkdu\n" +
+              "bEF4clpsRFBRTkd6WEd5WWtjZVFraGV0REpac21pc0d3dC96U1RVSGlqY1QvVzRnMWh4blk1TndW\n" +
+              "MjhjSW9JaE1LcXBBRzZ5QQpqSVBjRldDL3g3bU5WQ09HMlVLNUlOdFZkREpiS04zZEx0cVVIWmV6\n" +
+              "RUE9PQo9cUYzNgotLS0tLUVORCBQR1AgU0lHTkFUVVJFLS0tLS0=" +
               "--------------090202010406090002050801--"
     then:
       def ack = ackFor message
@@ -1527,81 +1559,101 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack =~ /Create SUCCEEDED: \[person\] FP1-TEST   First Person/
   }
 
-  @Ignore("TODO: Fix in different task")
   def "multipart alternative pgp signed message"() {
     given:
-      setTime(LocalDateTime.parse("2026-04-14T15:53:25")) // current time must be within 1 hour of signing time
+      setTime(LocalDateTime.parse("2026-04-21T11:53:25")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).
-                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
       def message = send "From: noreply@ripe.net\n" +
-              "Content-Type: multipart/signed;\n" +
-              "\tboundary=\"Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\";\n" +
-              "\tprotocol=\"application/pgp-signature\";\n" +
-              "\tmicalg=pgp-sha1\n" +
               "Subject: NEW\n" +
-              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-              "Message-Id: <220284EA-D739-4453-BBD2-807C87666F23@ripe.net>\n" +
+              "Content-Type: multipart/signed; micalg=pgp-sha256;\n" +
+              " protocol=\"application/pgp-signature\";\n" +
+              " boundary=\"------------38DvWhdnaQHIgwIPgEYP9EkQ\"\n" +
+              "\n" +
+              "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+              "--------------38DvWhdnaQHIgwIPgEYP9EkQ\n" +
+              "Content-Type: multipart/mixed; boundary=\"------------aO42z2s06wCcUEMWjHCAWxtm\";\n" +
+              " protected-headers=\"v1\"\n" +
+              "Message-ID: <19294a4a-0124-4536-8d8e-93d30ca0ad78@ripe.net>\n" +
+              "Date: Tue, 21 Apr 2026 11:56:31 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
               "To: test-dbm@ripe.net\n" +
-              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
+              "Subject: NEW\n" +
               "\n" +
-              "\n" +
-              "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\n" +
+              "--------------aO42z2s06wCcUEMWjHCAWxtm\n" +
               "Content-Type: multipart/alternative;\n" +
-              "\tboundary=\"Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\"\n" +
+              " boundary=\"------------ZYqTqKG010rDNhHDhlMNALXd\"\n" +
               "\n" +
+              "--------------ZYqTqKG010rDNhHDhlMNALXd\n" +
+              "Content-Type: text/plain; charset=UTF-8\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
               "\n" +
-              "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\n" +
-              "Content-Transfer-Encoding: 7bit\n" +
-              "Content-Type: text/plain;\n" +
-              "\tcharset=us-ascii\n" +
-              "\n" +
-              "person:  First Person\n" +
+              "person: First Person\n" +
               "address: St James Street\n" +
               "address: Burnley\n" +
               "address: UK\n" +
-              "phone:   +44 282 420469\n" +
-              "e-mail:  noreply@ripe.net\n" +
+              "phone: +44 282 420469\n" +
+              "e-mail: test@ripe.net\n" +
               "nic-hdl: FP1-TEST\n" +
-              "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
-              "source:  TEST\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "source: TEST\n" +
               "\n" +
               "\n" +
-              "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA\n" +
-              "Content-Transfer-Encoding: 7bit\n" +
-              "Content-Type: text/html;\n" +
-              "\tcharset=us-ascii\n" +
+              "--------------ZYqTqKG010rDNhHDhlMNALXd\n" +
+              "Content-Type: text/html; charset=UTF-8\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
               "\n" +
-              "<html><head></head><body style=\"word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;" +
-              " \"><div style=\"font-size: 13px; \"><b>person: &nbsp;First Person</b></div><div style=\"font-size: 13px; \"><b>" +
-              "address: St James Street</b></div><div style=\"font-size: 13px; \"><b>address: Burnley</b></div><div style=\"font-size: 13px; \">" +
-              "<b>address: UK</b></div><div style=\"font-size: 13px; \"><b>phone: &nbsp; +44 282 420469</b></div><div style=\"font-size: 13px; \">" +
-              "<b>nic-hdl: FP1-TEST</b></div><div style=\"font-size: 13px; \"><b>mnt-by: &nbsp;OWNER-MNT</b></div><div style=\"font-size: 13px; \">" +
-              "<b>changed: <a href=\"mailto:denis@ripe.net\">denis@ripe.net</a> 20121016</b></div><div style=\"font-size: 13px; \">" +
-              "<b>source: &nbsp;TEST</b></div><div><br></div></body></html>\n" +
-              "--Apple-Mail=_40C18EAF-8C7D-479F-9001-D91F1181EEDA--\n" +
+              "<!DOCTYPE html>\n" +
+              "<html>\n" +
+              "  <head>\n" +
               "\n" +
-              "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205\n" +
-              "Content-Transfer-Encoding: 7bit\n" +
-              "Content-Disposition: attachment;\n" +
-              "\tfilename=signature.asc\n" +
-              "Content-Type: application/pgp-signature;\n" +
-              "\tname=signature.asc\n" +
-              "Content-Description: Message signed with OpenPGP using GPGMail\n" +
+              "    <meta http-equiv=3D\"content-type\" content=3D\"text/html; charset=3DUTF=\n" +
+              "-8\">\n" +
+              "  </head>\n" +
+              "  <body>\n" +
+              "    <pre wrap=3D\"\" class=3D\"moz-quote-pre\">person: First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone: +44 282 420469\n" +
+              "e-mail: <a class=3D\"moz-txt-link-abbreviated moz-txt-link-freetext\"\n" +
+              "    href=3D\"mailto:test@ripe.net\">test@ripe.net</a>\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "source: TEST</pre>\n" +
+              "    <p><br>\n" +
+              "    </p>\n" +
+              "  </body>\n" +
+              "</html>\n" +
+              "\n" +
+              "--------------ZYqTqKG010rDNhHDhlMNALXd--\n" +
+              "\n" +
+              "--------------aO42z2s06wCcUEMWjHCAWxtm--\n" +
+              "\n" +
+              "--------------38DvWhdnaQHIgwIPgEYP9EkQ\n" +
+              "Content-Type: application/pgp-signature; name=\"OpenPGP_signature.asc\"\n" +
+              "Content-Description: OpenPGP digital signature\n" +
+              "Content-Disposition: attachment; filename=\"OpenPGP_signature.asc\"\n" +
               "\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
               "\n" +
-              "iHUEAREIAB0WIQRaAfgLCaKeX6bka+NW3fHlgCdDMAUCad5T/gAKCRBW3fHlgCdD\n" +
-              "ML7rAP4sA0g8DiMyjUjpnf/7r63dQ0CF2Fdi9UK+07kyQRHV2wD/egv4Dau8k+er\n" +
-              "Lnvd/rSb/8MnwcrMV9d+19ge+B3FD4g=\n" +
-              "=0NV9\n" +
+              "wsB5BAABCAAjFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnnSc8FAwAAAAAACgkQu8y7LVdjlQ07\n" +
+              "JAgAm0dgOYWfoAxlwgUO6dr0M0KQwBi+MWCGCD1PolVkCsFHaHLQYxEqD8Z1TPQ6hzp9eqJI6OFM\n" +
+              "LI0Bqnx+0V7iujOrfL+D36d9FbeTB8uLh7vAzUnquQOUYm/N09cDBp8G+PNVFgUVoXeXxvUEHzbi\n" +
+              "qa3iAJj7ksRamNpH/HSHeZPpzTmcWOeG06FjPRbx/zaPtIbkYQQ+pZWnOHpZ6QKxJtUffzc08oVZ\n" +
+              "cqB6ZZuyWVCEMaLDAgVqxq8KcKPhSRzH/FhTSRklQpjpg3Lnt6kU0Cv+tvMjoXWKEJB1fCSymKqs\n" +
+              "MXlOZr9JjKXb66ZC8UPehL9yFGxMLtMreWpFnbya8A==\n" +
+              "=4y+8\n" +
               "-----END PGP SIGNATURE-----\n" +
               "\n" +
-              "--Apple-Mail=_8CAC1D90-3ABC-4010-9219-07F34D68A205--"
+              "--------------38DvWhdnaQHIgwIPgEYP9EkQ--\n"
     then:
       def ack = ackFor message
 
@@ -1609,69 +1661,71 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.nrFound == 1
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
-
-      ack.countErrorWarnInfo(0, 1, 0)
-      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-                "Deprecated attribute \"changed\". This attribute has been removed."]
   }
 
-  @Ignore("TODO: Fix in different task")
   def "multipart plaintext pgp signed message"() {
     given:
-      setTime(LocalDateTime.parse("2013-01-03T09:17:29")) // current time must be within 1 hour of signing time
+      setTime(LocalDateTime.parse("2026-04-21T13:27:29")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).
-                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
       def message = send "From: noreply@ripe.net\n" +
-              "Content-Type: multipart/signed;\n" +
-              "\tboundary=\"Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\";\n" +
-              "\tprotocol=\"application/pgp-signature\";\n" +
-              "\tmicalg=pgp-sha1\n" +
               "Subject: NEW\n" +
-              "Date: Wed, 2 Jan 2013 16:53:25 +0100\n" +
-              "Message-Id: <6DBC05F5-9DFF-4FAA-BFAE-223F456A1AA5@ripe.net>\n" +
+              "Content-Type: multipart/signed; micalg=pgp-sha256;\n" +
+              " protocol=\"application/pgp-signature\";\n" +
+              " boundary=\"------------YHZJKFX2Cse9xv8b7KsZa9nA\"\n" +
+              "\n" +
+              "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+              "--------------YHZJKFX2Cse9xv8b7KsZa9nA\n" +
+              "Content-Type: multipart/mixed; boundary=\"------------Ing4RuYgW26x33BsVhEyeTXo\";\n" +
+              " protected-headers=\"v1\"\n" +
+              "Message-ID: <7dc5b67f-68bd-4f51-a14a-cdc573929dd1@ripe.net>\n" +
+              "Date: Tue, 21 Apr 2026 14:14:09 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
               "To: test-dbm@ripe.net\n" +
-              "Mime-Version: 1.0 (Apple Message framework v1283)\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
+              "Subject: NEW\n" +
               "\n" +
+              "--------------Ing4RuYgW26x33BsVhEyeTXo\n" +
+              "Content-Type: text/plain; charset=UTF-8\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
               "\n" +
-              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
-              "Content-Transfer-Encoding: 7bit\n" +
-              "Content-Type: text/plain;\n" +
-              "\tcharset=us-ascii\n" +
-              "\n" +
-              "person:  First Person\n" +
+              "person: First Person\n" +
               "address: St James Street\n" +
               "address: Burnley\n" +
               "address: UK\n" +
-              "phone:   +44 282 420469\n" +
-              "e-mail:  noreply@ripe.net\n" +
+              "phone: +44 282 420469\n" +
+              "e-mail: test@ripe.net\n" +
               "nic-hdl: FP1-TEST\n" +
-              "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
-              "source:  TEST\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "source: TEST\n" +
               "\n" +
               "\n" +
-              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35\n" +
-              "Content-Transfer-Encoding: 7bit\n" +
-              "Content-Disposition: attachment;\n" +
-              "\tfilename=signature.asc\n" +
-              "Content-Type: application/pgp-signature;\n" +
-              "\tname=signature.asc\n" +
-              "Content-Description: Message signed with OpenPGP using GPGMail\n" +
+              "\n" +
+              "--------------Ing4RuYgW26x33BsVhEyeTXo--\n" +
+              "\n" +
+              "--------------YHZJKFX2Cse9xv8b7KsZa9nA\n" +
+              "Content-Type: application/pgp-signature; name=\"OpenPGP_signature.asc\"\n" +
+              "Content-Description: OpenPGP digital signature\n" +
+              "Content-Disposition: attachment; filename=\"OpenPGP_signature.asc\"\n" +
               "\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
               "\n" +
-              "iHUEAREIAB0WIQRaAfgLCaKeX6bka+NW3fHlgCdDMAUCad5T/gAKCRBW3fHlgCdD\n" +
-              "ML7rAP4sA0g8DiMyjUjpnf/7r63dQ0CF2Fdi9UK+07kyQRHV2wD/egv4Dau8k+er\n" +
-              "Lnvd/rSb/8MnwcrMV9d+19ge+B3FD4g=\n" +
-              "=0NV9\n" +
+              "wsB5BAABCAAjFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnnahEFAwAAAAAACgkQu8y7LVdjlQ1V\n" +
+              "Xgf9HnO0F/YXSRE9FKy0vNZiGxXEferAWRb1IlR7pdoy2gA2DtvvYMtKmXPeKnhKhyiXXTVn402T\n" +
+              "P5hbAGOu5vQaU+Lk8iGvJJYSpEUZBTdRaCEHmLkFNb+VQSPrfzilnafk2sMgVsGEGgJ8pqv9RpN/\n" +
+              "4u3ninRZ2VDXfur8gKRxhJFIo8oIl/Gi7k4fxlyJQKUpqcWT64ryYH0Tw6Q+o9CdDqmhdSlcCz+D\n" +
+              "jU9jDKd5VgPG4NeH+qVIUhFJP9TqRaKAM+z22goH/ogyvCSJzHdIFas2T0WYznCxe9mQn7d4/fef\n" +
+              "Edd+yKnGAqsJMGO8ZYahco0IQjOgJK7g+U7x19sBNw==\n" +
+              "=MBor\n" +
               "-----END PGP SIGNATURE-----\n" +
               "\n" +
-              "--Apple-Mail=_E682976F-F49E-487F-82D0-51D5A41A8E35--"
+              "--------------YHZJKFX2Cse9xv8b7KsZa9nA--"
     then:
       def ack = ackFor message
 
@@ -1679,21 +1733,15 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.summary.nrFound == 1
       ack.summary.assertSuccess(1, 1, 0, 0, 0)
       ack.summary.assertErrors(0, 0, 0, 0)
-
-      ack.countErrorWarnInfo(0, 1, 0)
-      ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
-      ack.warningSuccessMessagesFor("Create", "[person] FP1-TEST   First Person") == [
-        "Deprecated attribute \"changed\". This attribute has been removed."]
   }
 
-  @Ignore("TODO: Fix in different task")
   def "multipart plaintext pgp signed message with unknown encoding"() {
     given:
-      setTime(LocalDateTime.parse("2013-01-08T15:05:05")) // current time must be within 1 hour of signing time
+      setTime(LocalDateTime.parse("2026-04-21T22:18:29")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).
-                      replaceAll("source:\\s*TEST", "auth: PGPKEY-28F6CD6C\nsource: TEST")
+                      replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
       def message = send "From: noreply@ripe.net\n" +
@@ -1709,36 +1757,34 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "\n" +
               "--vkogqOf2sHV7VnPd\n" +
               "Content-Type: text/plain; charset=unknown-8bit\n" +
-              "Content-Disposition: inline\n" +
               "Content-Transfer-Encoding: quoted-printable\n" +
               "\n" +
-              "person:  First Person\n" +
+              "person: First Person\n" +
               "address: St James Street\n" +
               "address: Burnley\n" +
               "address: UK\n" +
-              "phone:   +44 282 420469\n" +
+              "phone: +44 282 420469\n" +
               "e-mail: test@ripe.net\n" +
               "nic-hdl: FP1-TEST\n" +
-              "mnt-by:  OWNER-MNT\n" +
-              "changed: denis@ripe.net 20121016\n" +
-              "source:  TEST\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "source: TEST\n" +
               "--vkogqOf2sHV7VnPd\n" +
               "Content-Type: application/pgp-signature\n" +
               "Content-Disposition: inline\n" +
               "\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
-              "Version: GnuPG v1.4.12 (Darwin)\n" +
               "\n" +
-              "iQEcBAEBAgAGBQJQ7CeRAAoJEO6ZHuIo9s1sFLoH/jpT0lzGqjeoPwZIVNlxt2S/\n" +
-              "y5t7w5RdRvsBub6yiQhb0ZJGGzna2xlB3IBjt23iEZYwYQ6EOBwCn5JN+VTfhGyM\n" +
-              "zXLE+eSmW+LQEuUDPerxRPrdxbBIbX89mCsIFtPC0QxaybOKAAnAw/nEJ27nWPvs\n" +
-              "JQORsMPtGF1DXmdz3XWWh1nAhtKYycbLDvTYnICaeSwLSaKJxInRoGc0fSkut1m+\n" +
-              "aGTaYPJSNMOOoS74tmYB4Fh+e/SvX9d8PqDOpl6ZQL+ROkL1J9VtEv2RMcqucOGN\n" +
-              "7w88Iobba2WhADvBJ7HP7SjS0Go9mmu6r5byD11cWoIHZUYziejpXFNdNn5c200=\n" +
-              "=s6S9\n" +
+              "iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnn4fQACgkQu8y7LVdj\n" +
+              "lQ1dHgf9FrxA/6ltL94vWNk4ns9qE9Jgp3ESk2J61/srZlk4k9/lKQwWMQ60chOa\n" +
+              "F3bYVFQ8Jpps5U7PhCDCfYJUnD8zIcFROO4+3M4pG68dN+JNxDcMy61ErZIQNNQ2\n" +
+              "x7DYB0R9brsGZ/pjD7QrgaXAjIb6elgOA3JLUy59o+7EEWoyu2BPI0xUyTW8Mopa\n" +
+              "XcIe2RG0cjTkjyFffvFoQqS4D1fETxg84EljBOqyBOGJnYQlVbgjRegAlEDjgpOK\n" +
+              "yYVZqJ2aZfpQFxYeNP4P2+QcAJqoWc7HXLSvJFuwVbH71ZS7LecFxfXnGDpK6rIV\n" +
+              "ZUL7C9LcG+YUNhjwc4lb4d3sVXbaBA==\n" +
+              "=pf6T\n" +
               "-----END PGP SIGNATURE-----\n" +
               "\n" +
-              "--vkogqOf2sHV7VnPd--"
+              "--vkogqOf2sHV7VnPd"
     then:
       def ack = ackFor message
 
@@ -1880,7 +1926,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
-  @Ignore("TODO: Fix in different task")
+  @Ignore("TODO: Fix x509 in different task")
   def "multipart alternative X509 signed message"() {
     given:
       setTime(LocalDateTime.parse("2013-01-03T09:32:01")) // current time must be within 1 hour of signing time
@@ -2024,7 +2070,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "Deprecated attribute \"changed\". This attribute has been removed."]
   }
 
-  @Ignore("TODO: Fix in different task")
+  @Ignore("TODO: Fix x509 in different task")
   def "multipart plaintext X509 signed message"() {
     given:
       setTime(LocalDateTime.parse("2013-01-03T09:33:44")) // current time must be within 1 hour of signing time
@@ -2151,7 +2197,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
                 "Deprecated attribute \"changed\". This attribute has been removed."]
   }
 
-  @Ignore("TODO: Fix in different task")
+  @Ignore("TODO: Fix x509 in different task")
   def "multipart plaintext X509 signed message has expired"() {
     given:
       setTime(LocalDateTime.parse("2013-01-03T10:34:44")) // current time is more than 1 hour after signing time
@@ -2272,7 +2318,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               ["Message was signed more than one hour ago"]
   }
 
-  @Ignore("TODO: Fix in different task")
+  @Ignore("TODO: Fix x509 in different task")
   def "multipart plaintext X509 signed message in the future"() {
     given:
       setTime(LocalDateTime.parse("2013-01-03T08:32:44")) // current time is more than 1 hour *before* signing time
@@ -2893,7 +2939,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               ["Authorisation for [person] FP1-TEST failed using \"mnt-by:\" not authenticated by: OWNER-MNT"]
   }
 
-  @Ignore("TODO: Fix in different task")
+  @Ignore("TODO: Fix x509 in different task")
   def "multipart plaintext x509 signed message keycert is expired"() {
     given:
       setTime(LocalDateTime.parse("2013-01-11T14:27:09")) // current time must be within 1 hour of signing time
@@ -2980,7 +3026,7 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.contents =~ "Error:   Certificate in keycert X509-1 has expired"
   }
 
-  @Ignore("TODO: Fix in different task")
+  @Ignore("TODO: Fix x509 in different task")
   def "multipart plaintext x509 signed message keycert is not yet valid"() {
     given:
       setTime(LocalDateTime.parse("2013-01-11T12:40:44")) // current time must be within 1 hour of signing time
@@ -3660,10 +3706,9 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack =~ /\*\*\*Error:   No valid update found/
   }
 
-  @Ignore("TODO: Fix in different task")
   def "PGP signed mailupdate with non-ASCII character succeeds"() {
     given:
-      setTime(LocalDateTime.parse("2026-04-14T14:23:56")) // current time must be within 1 hour of signing time
+      setTime(LocalDateTime.parse("2026-04-22T11:23:56")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).
@@ -3681,23 +3726,24 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               "-----BEGIN PGP SIGNED MESSAGE-----\n" +
               "Hash: SHA256\n" +
               "\n" +
-              "person:  First Person\n" +
+              "person: First Person\n" +
               "address: Sl=FCnstrasse 10\n" +
-              "phone:   +49 123456\n" +
-              "e-mail:  noreply@ripe.net\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "e-mail: test@ripe.net\n" +
               "nic-hdl: FP1-TEST\n" +
-              "mnt-by:  OWNER-MNT\n" +
-              "source:  TEST\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "source: TEST\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
               "\n" +
-              "iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmneVpMACgkQu8y7LVdj\n" +
-              "lQ3yIAf+OyH6djx4D5udyMy0hLbHYsiSoYfQHgUkd1ZlrhNfJsJ4rGbKbZF3VI/W\n" +
-              "YD5Ff1xWMIpxd8stL8cYq/DwpudFqAzX1oWk1RmChN9dUQPsz7SiJPj9G8JFxLow\n" +
-              "y2wEVm9jfujsvmvVqWE8P8GZEwjuGCHKEqhIrS1iy4Nm56FAeaoFysjsgksp4RiH\n" +
-              "PpBXFbL99zKkjqw0P8vaeH8DRcdbb24wDms76SMBTcbFER+9Ta0+krkPT+H4dMqC\n" +
-              "Sxzk3C/LHuzJnmlGgFap7sxvwQS9izAqwPFYOmv9fMxVgRD5MJZaGaK3ZzYMLuvt\n" +
-              "HbFa5k+jsfqtasEz+5nXdJz1qi+MSA==\n" +
-              "=ueh7\n" +
+              "iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnolUEACgkQu8y7LVdj\n" +
+              "lQ3/8Qf/YzPDzH7YWwhHIcsFzQWXdU4d0SMNXAKSO9FEd2vDxmkN4Yks31f/a8QM\n" +
+              "6pKbpsPdHZ9YTnodi7aXG9xdMxatsM1yT3ao4apl4ZgE8fzh9bvL06pAKaE80sDT\n" +
+              "9Wtwt08ZJVHu3ob5muGqCNszp8blzS+tkB8vq45F9qjB9XKrGV8bPeHvxn0WeH7V\n" +
+              "rhnyvahtilbGQug8gJlqi12RYWKj0O4XIzEfwzOzzNch1ldfABlJOKvhSZtKoa4s\n" +
+              "SrAWt6GiCNZCe0qEFmRZLiGN9zZGSDevNwpYgngu3WQ9MvCkpmq7i10K11MY0ql8\n" +
+              "7OLnY54opKeI47nXdXe7SJdBEfLImw==\n" +
+              "=ctDE\n" +
               "-----END PGP SIGNATURE-----"
     then:
       def ack = ackFor message
@@ -3867,137 +3913,141 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
               ["Message was signed more than one hour ago"]
   }
 
-  @Ignore("TODO: Fix in different task")
   def "pgp signed multipart/mixed nested part"() {
     given:
-      setTime(LocalDateTime.parse("2026-04-14T16:55:15")) // current time must be within 1 hour of signing time
+      setTime(LocalDateTime.parse("2026-04-22T08:55:15")) // current time must be within 1 hour of signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST")
                       + "password: owner")
     then:
-      def message = send "" +
-                "To: auto-dbm@ripe.net\n" +
-                "From: No Reply <noreply@ripe.net>\n" +
-                "Subject: NEW\n" +
-                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
-                "Date: Thu, 31 Mar 2016 11:05:19 +0200\n" +
-                "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:38.0) Gecko/20100101\n" +
-                " Thunderbird/38.5.1\n" +
-                "MIME-Version: 1.0\n" +
-                "Content-Type: multipart/signed; micalg=pgp-sha1;\n" +
-                " protocol=\"application/pgp-signature\";\n" +
-                " boundary=\"JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\"\n" +
-                "\n" +
-                "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
-                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\n" +
-                "Content-Type: multipart/mixed; boundary=\"SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\"\n" +
-                "From: No Reply <noreply@ripe.net>\n" +
-                "To: auto-dbm@ripe.net\n" +
-                "Message-ID: <56FCE84F.2010807@ripe.net>\n" +
-                "Subject: NEW\n" +
-                "\n" +
-                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh\n" +
-                "Content-Type: text/plain; charset=utf-8\n" +
-                "Content-Transfer-Encoding: quoted-printable\n" +
-                "\n" +
-                "person:  First Person\n" +
-                "address: St James Street\n" +
-                "address: Burnley\n" +
-                "address: UK\n" +
-                "phone:   +44 282 420469\n" +
-                "e-mail: noreply@ripe.net\n" +
-                "nic-hdl: FP1-TEST\n" +
-                "mnt-by:  OWNER-MNT\n" +
-                "source:  TEST\n" +
-                "\n" +
-                "--SWaLakd0w46TEjGoFnX2jpFn3h7kTqgWh--\n" +
-                "\n" +
-                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg\n" +
-                "Content-Type: application/pgp-signature; name=\"signature.asc\"\n" +
-                "Content-Description: OpenPGP digital signature\n" +
-                "Content-Disposition: attachment; filename=\"signature.asc\"\n" +
-                "\n" +
-                "-----BEGIN PGP SIGNATURE-----\n" +
-                "\n" +
-                "iQEzBAEBCAAdFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmneVbQACgkQu8y7LVdj\n" +
-                "lQ316wgAo065JzHup0pWR631WVKdU0aN24cKGDiRKzGcHjkJ+nJw9COU4vOrdiB9\n" +
-                "6yURnvlwLPbYtv5bsjUgP8pwUaMC92CHU5Vj4biKJvoMux4aivBzlnnOfBRf5WZN\n" +
-                "WV2Ef6w+NavgsSwoslDWRSBKcLlU0UYxsxBZp/aKBI7fP07QidpPiWMAVvRTqpN+\n" +
-                "GKK2/z+Ke+ViTdyr3/JGYNd4BShunNbzrEpSxlpBfasVK0M79B129/rG9p8GMoOB\n" +
-                "BXvPIdco1bOKieRsiWFsCohXDXS/C9v+qrutzIdvidwu500a5GSgq+jzPro3SBHs\n" +
-                "fHQpn6y0Wh9RA+/tITGkEoSCUI1sEQ==\n" +
-                "=Kpj7\n" +
-                "-----END PGP SIGNATURE-----\n" +
-                "\n" +
-                "--JOqtbv2KmE4lQ7wD2J932c0LrelKPreUg--"
+      def message = send "Message-ID: <bda57cc9-0063-4a78-b2f1-5427df7ac50a@ripe.net>\n" +
+              "Date: Wed, 22 Apr 2026 09:03:01 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
+              "To: test-dbm@ripe.net\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
+              "Subject: NEW\n" +
+              "Content-Type: multipart/signed; micalg=pgp-sha256;\n" +
+              " protocol=\"application/pgp-signature\";\n" +
+              " boundary=\"------------3XVQ3G00UwGxDF0C9BQVnBSU\"\n" +
+              "\n" +
+              "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
+              "--------------3XVQ3G00UwGxDF0C9BQVnBSU\n" +
+              "Content-Type: multipart/mixed; boundary=\"------------u0f6jFuvd6R301OKcTB9IldZ\";\n" +
+              " protected-headers=\"v1\"\n" +
+              "Message-ID: <bda57cc9-0063-4a78-b2f1-5427df7ac50a@ripe.net>\n" +
+              "Date: Wed, 22 Apr 2026 09:03:01 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
+              "To: test-dbm@ripe.net\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
+              "Subject: NEW\n" +
+              "\n" +
+              "--------------u0f6jFuvd6R301OKcTB9IldZ\n" +
+              "Content-Type: text/plain; charset=UTF-8\n" +
+              "Content-Transfer-Encoding: quoted-printable\n" +
+              "\n" +
+              "person: First Person\n" +
+              "address: St James Street\n" +
+              "address: Burnley\n" +
+              "address: UK\n" +
+              "phone: +44 282 420469\n" +
+              "e-mail:test@ripe.net\n" +
+              "nic-hdl: FP1-TEST\n" +
+              "mnt-by: OWNER-MNT\n" +
+              "source: TEST\n" +
+              "\n" +
+              "\n" +
+              "--------------u0f6jFuvd6R301OKcTB9IldZ--\n" +
+              "\n" +
+              "--------------3XVQ3G00UwGxDF0C9BQVnBSU\n" +
+              "Content-Type: application/pgp-signature; name=\"OpenPGP_signature.asc\"\n" +
+              "Content-Description: OpenPGP digital signature\n" +
+              "Content-Disposition: attachment; filename=\"OpenPGP_signature.asc\"\n" +
+              "\n" +
+              "-----BEGIN PGP SIGNATURE-----\n" +
+              "\n" +
+              "wsB5BAABCAAjFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnocqUFAwAAAAAACgkQu8y7LVdjlQ08\n" +
+              "Vgf9HZU6kSJAvDlgfUnntn1ByT7TlbzeEZXq9NpGuvgu4nk6Lm6u4FG1F8K9POq/YFBu9GqbIGGN\n" +
+              "wC9SycWGGrELQLNN51VNIBzVGmvauTG3F4ZMuz2lrtYWE1vctsEO/T8fG73+WKarjHNrJ34zgamb\n" +
+              "u5pr+oJkv1rHqJCSVy2HG2GKASBK2jqwoUxec/OdAjqE+31Y3J90TbpwbYSUwXOEdHNHOH3WB0m8\n" +
+              "vGBFuHjop8vf4N2c50Igwz6esF2VSmDi1Ui4qz37KCcs9m9rdcNqIStCkZuHovE6lIv0jiCcByvq\n" +
+              "n/k9moOukDJyGD/3SPItNJHKOSzB+h5M3LqEL8DGWA==\n" +
+              "=lbjH\n" +
+              "-----END PGP SIGNATURE-----\n" +
+              "\n" +
+              "--------------3XVQ3G00UwGxDF0C9BQVnBSU--"
     then:
       def ack = ackFor message
       ack =~ "Create SUCCEEDED: \\[person\\] FP1-TEST   First Person"
   }
 
-  @Ignore("TODO: Fix in different task")
   def "pgp signed message with base64 encoded content"() {
     given:
-      setTime(LocalDateTime.parse("2021-09-29T11:23:22")) // current time is >1 hour after signing time
+      setTime(LocalDateTime.parse("2026-04-22T08:23:22")) // current time is >1 hour after signing time
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).
                       replaceAll("source:\\s*TEST", "auth: PGPKEY-5763950D\nsource: TEST") +
                       "password: owner")
     then:
-      def message = send "" +
-              "Message-ID: <a64222cd-6cb7-4a6a-33ec-3111e9e79331@ripe.net>\n" +
-              "Date: Wed, 29 Sep 2021 11:23:17 +0200\n" +
+      def message = send "Message-ID: <59ecf4b8-2ea8-4b7e-8053-c8a9d2c28b46@ripe.net>\n" +
+              "Date: Wed, 22 Apr 2026 08:58:12 +0200\n" +
               "MIME-Version: 1.0\n" +
-              "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)\n" +
-              " Gecko/20100101 Thunderbird/91.1.2\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
               "Content-Language: en-US\n" +
               "To: test-dbm@ripe.net\n" +
-              "From: No Reply <noreply@ripe.net>\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
               "Subject: NEW\n" +
               "Content-Type: multipart/signed; micalg=pgp-sha256;\n" +
               " protocol=\"application/pgp-signature\";\n" +
-              " boundary=\"------------z60obBv7fVfOOgKt1tN8jpOM\"\n" +
+              " boundary=\"------------KuE0XdC60Z3slq085Nilb2mf\"\n" +
               "\n" +
               "This is an OpenPGP/MIME signed message (RFC 4880 and 3156)\n" +
-              "--------------z60obBv7fVfOOgKt1tN8jpOM\n" +
-              "Content-Type: multipart/mixed; boundary=\"------------Vea17wsKD2zUMOZmbw2ly2r0\";\n" +
+              "--------------KuE0XdC60Z3slq085Nilb2mf\n" +
+              "Content-Type: multipart/mixed; boundary=\"------------YRiWuKMdtsKUW09TZ1pc7h5h\";\n" +
               " protected-headers=\"v1\"\n" +
-              "From: No Reply <noreply@ripe.net>\n" +
+              "Message-ID: <59ecf4b8-2ea8-4b7e-8053-c8a9d2c28b46@ripe.net>\n" +
+              "Date: Wed, 22 Apr 2026 08:58:12 +0200\n" +
+              "MIME-Version: 1.0\n" +
+              "User-Agent: Mozilla Thunderbird\n" +
+              "Content-Language: en-US\n" +
               "To: test-dbm@ripe.net\n" +
-              "Message-ID: <a64222cd-6cb7-4a6a-33ec-3111e9e79331@ripe.net>\n" +
+              "From: Miguel Herran <noreply@ripe.net>\n" +
               "Subject: NEW\n" +
               "\n" +
-              "--------------Vea17wsKD2zUMOZmbw2ly2r0\n" +
+              "--------------YRiWuKMdtsKUW09TZ1pc7h5h\n" +
               "Content-Type: text/plain; charset=UTF-8; format=flowed\n" +
               "Content-Transfer-Encoding: base64\n" +
               "\n" +
-              "cGVyc29uOsKgIEZpcnN0IFBlcnNvbg0KYWRkcmVzczogU3QgSmFtZXMgU3RyZWV0DQphZGRy\n" +
-              "ZXNzOiBCdXJubGV5DQphZGRyZXNzOiBVSw0KcGhvbmU6wqDCoCArNDQgMjgyIDQyMDQ2OQ0K\n" +
-              "bmljLWhkbDogRlAxLVRFU1QNCm1udC1ieTrCoCBPV05FUi1NTlQNCnNvdXJjZTrCoCBURVNU\n" +
-              "DQoNCg==\n" +
+              "cGVyc29uOiBGaXJzdCBQZXJzb24NCmFkZHJlc3M6IFN0IEphbWVzIFN0cmVldA0KYWRkcmVz\n" +
+              "czogQnVybmxleQ0KYWRkcmVzczogVUsNCnBob25lOiArNDQgMjgyIDQyMDQ2OQ0KZS1tYWls\n" +
+              "OnRlc3RAcmlwZS5uZXQNCm5pYy1oZGw6IEZQMS1URVNUDQptbnQtYnk6IE9XTkVSLU1OVA0K\n" +
+              "c291cmNlOiBURVNUDQoNCg0K\n" +
               "\n" +
-              "--------------Vea17wsKD2zUMOZmbw2ly2r0--\n" +
+              "--------------YRiWuKMdtsKUW09TZ1pc7h5h--\n" +
               "\n" +
-              "--------------z60obBv7fVfOOgKt1tN8jpOM\n" +
+              "--------------KuE0XdC60Z3slq085Nilb2mf\n" +
               "Content-Type: application/pgp-signature; name=\"OpenPGP_signature.asc\"\n" +
               "Content-Description: OpenPGP digital signature\n" +
-              "Content-Disposition: attachment; filename=\"OpenPGP_signature\"\n" +
+              "Content-Disposition: attachment; filename=\"OpenPGP_signature.asc\"\n" +
               "\n" +
               "-----BEGIN PGP SIGNATURE-----\n" +
               "\n" +
-              "wsB5BAABCAAjFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmFUMIUFAwAAAAAACgkQu8y7LVdjlQ0X\n" +
-              "dAf/TqDMoPLSVz54m6LpJi1/CZ2aG5aEWAZUUkz1Qjf0KbPN6i3tJRvzovb8KWTyge8/JtSIA3tW\n" +
-              "3Srq1OJE9dimlC7cTAjRtk+V5FPn35vWGyH8SbQPZ2GtcIXY7BvChfXFykXZO4nt47+oU2EN+V1V\n" +
-              "Y9HnLnpR6atGTqdGWAGjcHTd5b2wMzxFaXyeTBNehDNAFiiIeKupdoVy8dOES4mW9lgmDIVFIzNq\n" +
-              "gAxdlPUCJoquVHwM+g5VZG6Wb1ahUs/c3ACnb7iw/x/TfnUbtryy22q9m1sgBHRGgUpc6Zp7XyGB\n" +
-              "PbhoRb5m4s95oxOh5crFMcRveIx8SCj45YqX0ONuew==\n" +
-              "=mjpm\n" +
+              "wsB5BAABCAAjFiEEiE+OI2nl5vGfs2P0u8y7LVdjlQ0FAmnocYQFAwAAAAAACgkQu8y7LVdjlQ0F\n" +
+              "Nwf/YRa1ObrlaP6BfpSk2GBLBpUB3YxHVu1kvtHtg+vIO4lCp+IqTS2dJEbpvrpymVrmOzIahm3W\n" +
+              "GTk2r/Jl8WiWpDrRrY/dZazkdS1NJuPB9M+DZrKJ4krcEEcJGAd8Su9EVe4eDsKN89xCLxuAAlDJ\n" +
+              "4z3Plvc9cUMhuRvz1TM+G8uUk8ItK8k1zi/5rQccZTzwGmQj0G4bZScwNHhBnLw2J1Dy6wkxuCPl\n" +
+              "FFKZJfLJ1NN2EwuvFUZZCFyFpzHiQHwywhaohMFqYLblIJxXPw0Uf3x+bASZGjXQbjoCK8FD4uxQ\n" +
+              "UZgZyGw7IJi9W2W7Zl1Ef6EaApQCdS5zntRA2dQTEg==\n" +
+              "=59ZA\n" +
               "-----END PGP SIGNATURE-----\n" +
               "\n" +
-              "--------------z60obBv7fVfOOgKt1tN8jpOM--\n"
+              "--------------KuE0XdC60Z3slq085Nilb2mf--\n"
 
     then:
       def ack = ackFor message
