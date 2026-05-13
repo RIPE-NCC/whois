@@ -56,6 +56,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
+
     @Autowired
     private MailSenderStub mailSenderStub;
 

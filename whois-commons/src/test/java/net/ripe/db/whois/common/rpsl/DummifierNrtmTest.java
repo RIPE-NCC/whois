@@ -2,14 +2,15 @@ package net.ripe.db.whois.common.rpsl;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -21,8 +22,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(MockitoExtension.class)
 public class DummifierNrtmTest {
 
-    @InjectMocks
     DummifierNrtm subject;
+
+    @BeforeEach
+    public void setUp() {
+        subject = new DummifierNrtm(
+                Map.of(AttributeType.AUTH.toString(), "PGP PGP-111",
+                AttributeType.TECH_C.toString(), "CREW-RIPE",
+                AttributeType.ADMIN_C.toString(), "CREW-RIPE")
+        );
+    }
 
     @Test
     public void null_type() {
@@ -185,7 +194,7 @@ public class DummifierNrtmTest {
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
                 "admin-c:        DUMY-RIPE\n" +
-                "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
+                "auth:           PGP PGP-111   # Real value hidden for security\n" +
                 "mnt-by:         FOO\n" +
                 "source:         FOO\n" +
                 "upd-to:         unread@ripe.net\n"));
@@ -217,7 +226,7 @@ public class DummifierNrtmTest {
                 "mntner:         FOO\n" +
                 "created:        2001-02-04T17:00:00Z\n" +
                 "last-modified:  2001-02-04T17:00:00Z\n" +
-                "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
+                "auth:           PGP PGP-111   # Real value hidden for security\n" +
                 "upd-to:         unread@ripe.net\n" +
                 "source:         TEST\n" +
                 "remarks:        ****************************\n" +
@@ -328,7 +337,7 @@ public class DummifierNrtmTest {
 
         final RpslObject dummified = subject.dummify(3, mntner);
 
-        assertThat(dummified.findAttribute(AttributeType.AUTH), is(new RpslAttribute("auth", "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security")));
+        assertThat(dummified.findAttribute(AttributeType.AUTH), is(new RpslAttribute("auth", "PGP PGP-111   # Real value hidden for security")));
         assertThat(dummified.getValueForAttribute(AttributeType.CREATED).toString(), is("2001-02-04T17:00:00Z"));
         assertThat(dummified.getValueForAttribute(AttributeType.LAST_MODIFIED).toString(), is("2001-02-04T17:00:00Z"));
     }

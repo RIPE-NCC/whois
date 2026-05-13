@@ -3,10 +3,11 @@ package net.ripe.db.whois.common.rpsl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.Validate;
+import net.ripe.db.whois.common.domain.CIString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -36,12 +37,15 @@ public class DummifierNrtm implements Dummifier {
     static final Map<AttributeType, String> DUMMIFICATION_REPLACEMENTS = Maps.newEnumMap(AttributeType.class);
     static {
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.ADDRESS, "Dummy address for %s");
-        DUMMIFICATION_REPLACEMENTS.put(AttributeType.AUTH, "MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.CHANGED, "unread@ripe.net 20000101");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.E_MAIL, "unread@ripe.net");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.FAX_NO, "+31205354444");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.PHONE, "+31205354444");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.UPD_TO, "unread@ripe.net");
+    }
+
+    public DummifierNrtm(final @Value("#{${whois.dummy}}") Map<String, String> dummyMap){
+        DUMMIFICATION_REPLACEMENTS.put(AttributeType.AUTH, dummyMap.get(AttributeType.AUTH.toString()) + "   # Real value hidden for security");
     }
 
     public RpslObject dummify(final int version, final RpslObject rpslObject) {

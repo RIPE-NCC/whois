@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.domain.CIString;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,6 +20,10 @@ public class DummifierNrtmV4 extends DummifierNrtm {
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.CERTIF, "Dummified");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.DESCR, "Dummified");
         DUMMIFICATION_REPLACEMENTS.put(AttributeType.REMARKS, "Dummified");
+    }
+
+    public DummifierNrtmV4(final @Value("#{${whois.dummy}}") Map<String, String> dummyMap){
+        super(dummyMap);
     }
 
     private final Set<ObjectType> writtenPlaceHolders = Sets.newHashSet();

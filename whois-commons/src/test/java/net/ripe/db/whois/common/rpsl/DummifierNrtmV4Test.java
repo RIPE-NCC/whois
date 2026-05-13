@@ -1,28 +1,30 @@
 package net.ripe.db.whois.common.rpsl;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+
 
 @ExtendWith(MockitoExtension.class)
 public class DummifierNrtmV4Test {
 
-    @InjectMocks
     DummifierNrtmV4 subject;
+
+    @BeforeEach
+    public void setUp() {
+        subject = new DummifierNrtmV4(
+                Map.of(AttributeType.AUTH.toString(), "PGP PGP-111",
+                        AttributeType.TECH_C.toString(), "CREW-RIPE",
+                        AttributeType.ADMIN_C.toString(), "CREW-RIPE")
+        );
+    }
 
     @Test
     public void dummify_remarks_descr() {

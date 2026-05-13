@@ -126,7 +126,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "mntner:         DEV-MNT7\n",
                 "" +
                         "mntner:         DEV-MNT99\n" +
-                        "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
+                        "auth:           SSO noreply@ripe.net   # Real value hidden for security\n" +
                         "source:         TEST\n" +
                         "remarks:        ****************************\n" +
                         "remarks:        * THIS OBJECT IS MODIFIED\n" +
@@ -150,7 +150,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 mntner:         UTF8-MNT
                 admin-c:        DUMY-RIPE
                 upd-to:         unread@ripe.net
-                auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security
+                auth:           SSO noreply@ripe.net   # Real value hidden for security
                 mnt-by:         UTF8-MNT
                 source:         TEST
                 remarks:        ****************************
@@ -163,7 +163,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 """,
                 "" +
                         "mntner:         DEV-MNT99\n" +
-                        "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
+                        "auth:           SSO noreply@ripe.net   # Real value hidden for security\n" +
                         "source:         TEST\n" +
                         "remarks:        ****************************\n" +
                         "remarks:        * THIS OBJECT IS MODIFIED\n" +
@@ -187,7 +187,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "mntner:         DEV-MNT7\n",
                 "" +
                 "mntner:         DEV-MNT99\n" +
-                "auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security\n" +
+                "auth:           SSO noreply@ripe.net   # Real value hidden for security\n" +
                 "source:         TEST\n" +
                 "remarks:        ****************************\n" +
                 "remarks:        * THIS OBJECT IS MODIFIED\n" +
@@ -202,7 +202,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 mntner:         UTF8-MNT
                 admin-c:        DUMY-RIPE
                 upd-to:         unread@ripe.net
-                auth:           MD5-PW $1$SaltSalt$DummifiedMD5HashValue.   # Real value hidden for security
+                auth:           SSO noreply@ripe.net   # Real value hidden for security
                 mnt-by:         UTF8-MNT
                 source:         TEST
                 remarks:        ****************************

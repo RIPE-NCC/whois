@@ -3,8 +3,8 @@ package net.ripe.db.whois.update.sso;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
-import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
+import net.ripe.db.whois.common.sso.AuthTranslator;
 import net.ripe.db.whois.common.sso.SsoHelper;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
@@ -21,6 +21,13 @@ public class SsoTranslator {
     @Autowired
     public SsoTranslator(final AuthServiceClient authServiceClient) {
         this.authServiceClient = authServiceClient;
+    }
+
+    public String transformToUUIDOrValue(final String value) {
+        if (!value.toUpperCase().startsWith("SSO ")){
+            return value;
+        }
+        return "SSO ".concat(authServiceClient.getUuid(value.substring(3).trim()));
     }
 
     public void populateCacheAuthToUsername(final UpdateContext updateContext, final RpslObject rpslObject) {

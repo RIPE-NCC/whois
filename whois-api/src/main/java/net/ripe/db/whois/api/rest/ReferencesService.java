@@ -105,8 +105,7 @@ public class ReferencesService {
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
     private final WhoisObjectMapper whoisObjectMapper;
-    private final Map dummyMap;
-    private final String dummyRole;
+    private final Map<String, String> dummyMap;
     @Autowired
     public ReferencesService(
             final RpslObjectDao rpslObjectDao,
@@ -130,7 +129,6 @@ public class ReferencesService {
         this.loggerContext = loggerContext;
         this.whoisObjectMapper = whoisObjectMapper;
         this.dummyMap = dummyMap;
-        this.dummyRole = dummyMap.get(AttributeType.ADMIN_C.toString());
     }
 
     /**
@@ -227,7 +225,7 @@ public class ReferencesService {
 
     private RpslObject createMntnerWithDummyAdminC(final WhoisResources whoisResources) {
         final RpslObject mntnerObject = convertToRpslObject(whoisResources, ObjectType.MNTNER);
-        return replaceAdminC(mntnerObject, dummyRole);
+        return replaceAdminC(mntnerObject, dummyMap.get(AttributeType.ADMIN_C.toString()));
     }
 
     private RpslObject replaceAdminC(final RpslObject mntnerObject, final String adminC) {
@@ -640,7 +638,7 @@ public class ReferencesService {
                     if (rpslAttribute.getCleanValue().equals(reference.getKey()) &&
                             (attributeType.getReferences().contains(ObjectType.PERSON) ||
                                     attributeType.getReferences().contains(ObjectType.ROLE))) {
-                        replacements.put(rpslAttribute, new RpslAttribute(attributeType, dummyRole));
+                        replacements.put(rpslAttribute, new RpslAttribute(attributeType, dummyMap.get(AttributeType.ADMIN_C.toString())));
                     }
                 }
             }
@@ -700,7 +698,7 @@ public class ReferencesService {
         final Object dummyValue = dummyMap.get(attributeType.toString());
         if (dummyValue != null)
         {
-            final RpslAttribute attr = new RpslAttribute(attributeType, dummyValue.toString());
+            final RpslAttribute attr = new RpslAttribute(attributeType, ssoTranslator.transformToUUIDOrValue(dummyValue.toString()));
             return builder.addAttributeSorted(attr).get();
         }
         else {

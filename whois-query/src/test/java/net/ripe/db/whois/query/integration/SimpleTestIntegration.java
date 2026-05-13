@@ -440,7 +440,7 @@ public class SimpleTestIntegration extends AbstractQueryIntegrationTest {
                 "\n" +
                 "mntner:         AS760-MNT\n" +
                 "admin-c:        DUMY-RIPE\n" +
-                "auth:           MD5-PW # Filtered\n" +
+                "auth:           SSO # Filtered\n" +
                 "source:         TEST-GRS # Filtered\n" +
                 "remarks:        \\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\\*\n" +
                 "remarks:        \\* THIS OBJECT IS MODIFIED\n" +
