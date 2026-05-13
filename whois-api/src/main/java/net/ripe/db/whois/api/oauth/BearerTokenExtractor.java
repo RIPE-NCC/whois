@@ -54,7 +54,7 @@ import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_EMAIL_PARAM
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_JTI_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_SCOPE_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_UUID_PARAM;
-import static net.ripe.db.whois.common.oauth.OAuthUtils.getWhoisScopes;
+import static net.ripe.db.whois.common.oauth.OAuthUtils.getWhoisMntnerScopes;
 
 @Component
 public class BearerTokenExtractor {
@@ -221,7 +221,7 @@ public class BearerTokenExtractor {
 
     private void populateScope(final Scope scopes,  final OAuthSession.Builder oAuthSessionBuilder) {
 
-        final List<String> whoisScopes = (scopes == null) ? Collections.emptyList() : getWhoisScopes(scopes.toStringList());
+        final List<String> whoisScopes = (scopes == null) ? Collections.emptyList() : getWhoisMntnerScopes(scopes.toStringList());
 
         if(whoisScopes.size() > maxScopes) {
             oAuthSessionBuilder.errorStatus("Whois scopes can not be more than " + maxScopes);
@@ -238,7 +238,7 @@ public class BearerTokenExtractor {
             return;
         }
 
-        oAuthSessionBuilder.errorStatus("Whois scope can not be empty");
+        oAuthSessionBuilder.errorStatus("Wrong APIKEY type. Please use a Maintainer APIKEY.");
     }
 
     private OAuthSession callTokenInspectionEndpoint(final BearerAccessToken accessToken) {

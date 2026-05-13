@@ -339,7 +339,7 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Whois scope can not be empty"));
+        assertThat(response, containsString("***Warning: Wrong APIKEY type. Please use a Maintainer APIKEY."));
     }
 
     @Test
@@ -403,7 +403,7 @@ public class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegration
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Whois scope can not be empty"));
+        assertThat(response, containsString("***Warning: Wrong APIKEY type. Please use a Maintainer APIKEY."));
     }
 
     @Test

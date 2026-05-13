@@ -26,7 +26,7 @@ public class OAuthUtils {
 
     public static boolean validateScope(final OAuthSession oAuthSession, final List<RpslObject> maintainers) {
 
-        final List<String> whoisScopes = getWhoisScopes(oAuthSession.getScopes());
+        final List<String> whoisScopes = getWhoisMntnerScopes(oAuthSession.getScopes());
         final List<CIString> maintainerKeys = maintainers.stream().map(RpslObject::getKey).toList();
 
         return whoisScopes.stream()
@@ -34,7 +34,7 @@ public class OAuthUtils {
                 .anyMatch( scopeKey -> "ANY".equals(scopeKey) || maintainerKeys.contains(CIString.ciString(scopeKey)));
     }
 
-    public static List<String> getWhoisScopes(final List<String> scopes) {
+    public static List<String> getWhoisMntnerScopes(final List<String> scopes) {
         return scopes.stream().filter(scope -> scope.startsWith("whois.mntner")).collect(Collectors.toList());
     }
 
