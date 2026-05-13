@@ -34,7 +34,6 @@ public class DummifierRC implements Dummifier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DummifierRC.class);
 
-    private static final String PERSON_REPLACEMENT = "Name Removed";
     private static final String FILTERED_APPENDIX = " # Filtered";
     private static final Splitter EMAIL_SPLITTER = Splitter.on('@');
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
@@ -172,7 +171,7 @@ public class DummifierRC implements Dummifier {
 
     private RpslAttribute replacePerson(final RpslAttribute attribute) {
         if (attribute.getType() == PERSON) {
-            return new RpslAttribute(attribute.getType(), PERSON_REPLACEMENT);
+            return new RpslAttribute(attribute.getType(), new PhoneticDummifier(attribute.getCleanValue().toString()).toString());
         }
         return attribute;
     }

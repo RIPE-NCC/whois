@@ -3,8 +3,8 @@ package net.ripe.db.whois.common.rpsl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class DummifierRCTest {
 
@@ -93,6 +93,43 @@ public class DummifierRCTest {
             "created:        1970-01-01T00:00:00Z\n" +
             "last-modified:  2020-09-22T09:00:00Z\n" +
             "source:         TEST\n"));
+    }
+
+    @Test
+    public void dummify_person() {
+        final RpslObject before = RpslObject.parse(
+                "person:           Random Person\n" +
+                        "descr:          RIPE NCC Operations\n" +
+                        "address:        Singel 256\n" +
+                        "address:        Amsterdam\n" +
+                        "address:        Netherlands\n" +
+                        "e-mail:         abuse@ripe.net\n" +
+                        "nic-hdl:        RP1-TEST\n" +
+                        "remarks:        Abuse\n" +
+                        "+Contact\n" +
+                        "\tRole\n" +
+                        "abuse-mailbox:  abuse@ripe.net\n" +
+                        "mnt-by:         TEST-MNT\n" +
+                        "created:        1970-01-01T00:00:00Z\n" +
+                        "last-modified:  2020-09-22T09:00:00Z\n" +
+                        "source:         TEST");
+
+        final RpslObject after = subject.dummify(3, before);
+
+        assertThat(after.toString(), is(
+                "person:         Romeo Papa\n" +
+                        "descr:          ***\n" +
+                        "address:        ***\n" +
+                        "address:        ***\n" +
+                        "address:        Netherlands\n" +
+                        "e-mail:         ***@ripe.net\n" +
+                        "nic-hdl:        RP1-TEST\n" +
+                        "remarks:        ***\n" +
+                        "abuse-mailbox:  abuse@ripe.net\n" +
+                        "mnt-by:         TEST-MNT\n" +
+                        "created:        1970-01-01T00:00:00Z\n" +
+                        "last-modified:  2020-09-22T09:00:00Z\n" +
+                        "source:         TEST\n"));
     }
 
     @Test
