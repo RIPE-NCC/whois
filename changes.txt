@@ -1,5 +1,9 @@
 # next
 
+# 1.122.1
+
+* [rdap] Add size limit to RDAP rirsearch1 queries
+
 # 1.122
 
 * [all] Support UTF-8 in Free Text Attributes ("descr:" and "remarks:").
