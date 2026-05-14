@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -63,12 +64,14 @@ public class RdapRelationService {
     private final RdapObjectMapper rdapObjectMapper;
     private final RdapLookupService rdapLookupService;
     private final BulkRpslReadOnlyLoader bulkRpslReadOnlyLoader;
+    private final int resultSizeLimit;
 
     @Autowired
     public RdapRelationService(final Ipv4Tree ip4Tree,
                                final Ipv6Tree ip6Tree,
                                final Ipv4DomainTree ipv4DomainTree,
                                final Ipv6DomainTree ipv6DomainTree,
+                               @Value("${rdap.relation.query.size.limit:10000}") final int resultSizeLimit,
                                @Qualifier("jdbcRpslObjectSlaveDao") final RpslObjectDao rpslObjectDao,
                                final RdapQueryHandler rdapQueryHandler,
                                final RdapObjectMapper rdapObjectMapper,
@@ -83,6 +86,7 @@ public class RdapRelationService {
         this.rdapObjectMapper = rdapObjectMapper;
         this.rdapLookupService = rdapLookupService;
         this.bulkRpslReadOnlyLoader = bulkRpslReadOnlyLoader;
+        this.resultSizeLimit = resultSizeLimit;
     }
 
     protected Object handleRelationQuery(final HttpServletRequest request,
@@ -104,6 +108,7 @@ public class RdapRelationService {
                     return rdapLookupService.getDomainEntity(request, Stream.of(domainObject), inetnumResult, ipEntry.getKey().toString());
                 }
 
+                validateResultSize(domainEntries.size());
                 rpslObjects = bulkRpslReadOnlyLoader.getByObjectIds(domainEntries.stream().map(IpEntry::getObjectId).toList());
 
             }
@@ -116,6 +121,8 @@ public class RdapRelationService {
                     return rdapLookupService.lookupObject(request, objectTypes, relatedPkeys.getFirst().toString());
                 }
 
+                validateResultSize(relatedPkeys.size());
+
                 rpslObjects = bulkRpslReadOnlyLoader.getByKeys(relatedPkeys, objectType);
 
             }
@@ -127,6 +134,12 @@ public class RdapRelationService {
                 requestType,
                 rpslObjects,
                 maxResultSize);
+    }
+
+    private void validateResultSize(final int resultSize) {
+        if(resultSize > resultSizeLimit){
+            throw new RdapException("Too Many Rows", "The result size is too large", HttpStatus.BAD_REQUEST_400);
+        }
     }
 
     private List<IpEntry> getDomainsEntriesByRelationType(final String pkey, final RelationType relationType){
