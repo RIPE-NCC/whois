@@ -34,6 +34,8 @@ import net.ripe.db.whois.rdap.domain.Role;
 import net.ripe.db.whois.rdap.domain.SearchResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -70,6 +72,16 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
 
     @Autowired
     TestWhoisLog queryLog;
+
+    @BeforeAll
+    public static void rdapRelationSetProperties() {
+        System.setProperty("rdap.relation.query.size.limit", "10");
+    }
+
+    @AfterAll
+    public static void rdapRelationClearProperties() {
+        System.clearProperty("rdap.relation.query.size.limit");
+    }
 
     @BeforeEach
     public void setup() {
@@ -4257,6 +4269,115 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(ipResults.get(3).getHandle(), is("2800::/12"));
         assertThat(searchResult.getRdapConformance(), containsInAnyOrder("rirSearch1", "ips", "ipSearchResults",
                 "cidr0", "rdap_level_0", "nro_rdap_profile_0", "redacted"));
+    }
+
+    @Test
+    public void get_down_ipv6_then_bad_request_limit_crossed(){
+        loadIpv6RelationTreeExample();
+        databaseHelper.addObject("" +
+                "inet6num:       2C00::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       3400::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       3000::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       3800::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       3C00::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       2200::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+        databaseHelper.addObject("" +
+                "inet6num:       2E00::/12\n" +
+                "netname:        TEST\n" +
+                "descr:          The whole IPv6 address space\n" +
+                "country:        NL\n" +
+                "tech-c:         TP1-TEST\n" +
+                "admin-c:        TP1-TEST\n" +
+                "status:         ALLOCATED-BY-LIR\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:         TEST");
+
+
+        ipTreeUpdater.rebuild();
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            createResource("ips/rirSearch1/rdap-down/2000::/3")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .get(SearchResult.class);
+        });
+
+        assertErrorTitle(badRequestException, "Too Many Rows");
+        assertErrorStatus(badRequestException, HttpStatus.BAD_REQUEST_400);
+        assertErrorDescription(badRequestException, "The result size is too large");
+
     }
 
     @Test
