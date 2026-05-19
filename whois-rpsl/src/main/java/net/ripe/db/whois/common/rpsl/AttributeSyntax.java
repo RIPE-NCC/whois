@@ -89,12 +89,6 @@ public interface AttributeSyntax extends Documented {
             Pattern.compile("(?i)^(MD5-PW \\$1\\$[A-Z0-9./]{1,8}\\$[A-Z0-9./]{22}|PGPKEY-[A-F0-9]{8}|SSO (.+@.+){1,90}|X509-[1-9][0-9]{0,19}|AUTO-[1-9][0-9]*)$"), "" +
             "<auth-scheme> <scheme-info>       Description\n" +
             "\n" +
-            "MD5-PW        encrypted           We strongly advise phrases longer\n" +
-            "              password, produced  than 8 characters to be used,\n" +
-            "              using the FreeBSD   avoiding the use of words or\n" +
-            "              crypt_md5           combinations of words found in any\n" +
-            "              algorithm           dictionary of any language.\n" +
-            "\n" +
             "PGPKEY-<id>                       Strong scheme of authentication.\n" +
             "                                  <id> is the PGP key ID to be\n" +
             "                                  used for authentication. This string\n" +
