@@ -6,7 +6,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.OidcConfigurationProvider;
 import net.ripe.db.whois.common.Stub;
 import net.ripe.db.whois.common.aspects.RetryFor;
 import net.ripe.db.whois.common.profiles.WhoisProfile;
@@ -19,9 +19,6 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.Callback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -30,22 +27,20 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import static net.ripe.db.whois.api.AbstractIntegrationTest.getRequestBody;
 
 @Profile({WhoisProfile.TEST})
 @Component
 public class OAuthTokenIntrospectDummy implements Stub {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OAuthTokenIntrospectDummy.class);
 
     private Server server;
     private int port = 0;
+    private final OidcConfigurationProvider oidcConfigurationProvider;
 
-    private final BearerTokenExtractor bearerTokenExtractor;
-
-    @Autowired
-    public OAuthTokenIntrospectDummy(final BearerTokenExtractor bearerTokenExtractor) {
-        this.bearerTokenExtractor = bearerTokenExtractor;
+    public OAuthTokenIntrospectDummy(final OidcConfigurationProvider oidcConfigurationProvider) {
+        this.oidcConfigurationProvider = oidcConfigurationProvider;
     }
 
     private static class ApiPublicKeyLoaderTestHandler extends Handler.Abstract {
@@ -104,6 +99,33 @@ public class OAuthTokenIntrospectDummy implements Stub {
                 return true;
             }
 
+            if (request.getHttpURI().getPath().contains("ripe-ncc/.well-known/openid-configuration")) {
+                final int port = request.getHttpURI().getPort();
+                String body = """
+                {
+                  "issuer": "http://localhost:%d/realms/ripe-ncc",
+                  "jwks_uri": "http://localhost:%d/realms/ripe-ncc/protocol/openid-connect/certs",
+                  "introspection_endpoint": "http://localhost:%d/realms/ripe-ncc/protocol/openid-connect/token/introspect",
+                  "subject_types_supported": [
+                    "public"
+                  ],
+                  "id_token_signing_alg_values_supported": [
+                    "RS256"
+                  ]
+                }
+                """.formatted(port, port, port);
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getHeaders().put("Content-Type", "application/json");
+                response.write(
+                        true,
+                        ByteBuffer.wrap(body.getBytes(StandardCharsets.UTF_8)),
+                        callback
+                );
+
+                response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                return true;
+            }
+
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return false;
         }
@@ -122,26 +144,14 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
         this.port = ((NetworkConnector)server.getConnectors()[0]).getLocalPort();
 
-        final URI restUrl = new URIBuilder()
-                            .setScheme("http")
-                            .setHost("localhost")
-                            .setPort(port)
-                            .setPath("realms/ripe-ncc/protocol/openid-connect/token/introspect")
-                            .build();
-
-        LOGGER.info("Validate Token using  dummy server restUrl: {}", restUrl);
-        ReflectionTestUtils.setField(bearerTokenExtractor, "tokenIntrospectEndpoint", restUrl);
-
-        final URI jwsUrl = new URIBuilder()
+        final URI openIdMetadataUrl = new URIBuilder()
                 .setScheme("http")
                 .setHost("localhost")
                 .setPort(port)
-                .setPath("realms/ripe-ncc/protocol/openid-connect/certs")
+                .setPath("realms/ripe-ncc")
                 .build();
 
-        LOGGER.info("Load OAUTH JWS Key  dummy server restUrl: {}", jwsUrl);
-        ReflectionTestUtils.setField(bearerTokenExtractor, "jwksSetUrl", jwsUrl);
-
+        ReflectionTestUtils.setField(this.oidcConfigurationProvider, "openIdMetadataUrl", openIdMetadataUrl.toString());
     }
 
     @PreDestroy
@@ -152,6 +162,7 @@ public class OAuthTokenIntrospectDummy implements Stub {
     public int getPort() {
         return port;
     }
+
 
     @Override
     public void reset() {

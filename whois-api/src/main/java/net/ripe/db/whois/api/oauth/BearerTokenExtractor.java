@@ -2,21 +2,12 @@ package net.ripe.db.whois.api.oauth;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.net.HttpHeaders;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
-import com.nimbusds.jose.jwk.source.OutageTolerantJWKSetSource;
-import com.nimbusds.jose.jwk.source.RetryingJWKSetSource;
 import com.nimbusds.jose.proc.BadJWSException;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jwt.JWTClaimNames;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionRequest;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
@@ -25,7 +16,6 @@ import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -41,11 +31,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.net.URI;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_ANY_MNTNR_SCOPE;
@@ -62,44 +49,22 @@ public class BearerTokenExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(BearerTokenExtractor.class);
 
     private final boolean enabled;
-    private final URI tokenIntrospectEndpoint;
     private final ClientSecretBasic keycloakClient;
     private final int maxScopes;
-    private final static int CONNECT_TIMEOUT_MS = 10_000; // 10 seconds
-    private final static int READ_TIMEOUT_MS = 10_000;   // 10 seconds
-    private final URI jwksSetUrl;
 
-    private static final long JWKS_CACHE_TIME = 2 * 60 * 60 * 1000L;
-
-    private static final long JWKS_CACHE_REFRESH_TIMEOUT = 30 * 1000L;
-
-    private static final long JWKS_TOKEN_REFRESH_BEFORE_EXPIRE_TIME = 5 * 60 * 1000L;
-
-    private static final long JWKS_WHEN_DOWN_CACHE_TIME = 4 * 60 * 60 * 1000L;
+    private final OidcConfigurationProvider oidcConfigurationProvider;
 
     @Autowired
     public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
                                 @Value("${apikey.max.scope:10}") final int maxScopes,
-                                @Value("${openId.metadata.url:}")  final String openIdMetadataUrl,
                                 @Value("${keycloak.idp.password:}")  final String keycloakPassword,
-                                @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId) {
+                                @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId,
+                                final OidcConfigurationProvider oidcConfigurationProvider) {
         this.enabled = enabled;
         this.keycloakClient = new ClientSecretBasic(new ClientID(whoisKeycloakId), new Secret(keycloakPassword));
+        this.oidcConfigurationProvider = oidcConfigurationProvider;
 
-        final OIDCProviderMetadata oidcProviderMetadata = getOIDCMetadata(openIdMetadataUrl);
-        this.tokenIntrospectEndpoint = oidcProviderMetadata != null ? oidcProviderMetadata.getIntrospectionEndpointURI() : null;
-        this.jwksSetUrl =  oidcProviderMetadata != null ? oidcProviderMetadata.getJWKSetURI() : null;
         this.maxScopes = maxScopes;
-    }
-
-    @Nullable
-    private static OIDCProviderMetadata getOIDCMetadata(final String openIdMetadataUrl) {
-        try {
-            return OIDCProviderMetadata.resolve(new Issuer(openIdMetadataUrl));
-        } catch (Exception e) {
-            LOGGER.error("Failed to read OIDC metadata", e);
-            return null;
-        }
     }
 
     @Nullable
@@ -128,55 +93,12 @@ public class BearerTokenExtractor {
         final OAuthSession.Builder oAuthSessionBuilder = new OAuthSession.Builder().keyId(apiKeyId);
 
         try {
-            final SignedJWT signedJWT=  SignedJWT.parse(accessToken.getValue());
+            final ConfigurableJWTProcessor<SecurityContext> processor = this.oidcConfigurationProvider.getProcessorOrInitOidcConfiguration();
+            if (processor == null) {
+                throw new IllegalStateException("Failed to initialize JWT processor");
+            }
 
-            final ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-
-            final DefaultResourceRetriever retriever = new DefaultResourceRetriever(CONNECT_TIMEOUT_MS, READ_TIMEOUT_MS, JWKSourceBuilder.DEFAULT_HTTP_SIZE_LIMIT);
-
-            final JWKSource<SecurityContext> keySource = JWKSourceBuilder
-                    .create(jwksSetUrl.toURL(), retriever)
-                    // 2-hour cache and after 30 sec timeout for cache refresh operation to complete after expiration
-                    .cache(JWKS_CACHE_TIME, JWKS_CACHE_REFRESH_TIMEOUT)
-                    // 5-minute refresh before the token gets expired
-                    .refreshAheadCache(JWKS_TOKEN_REFRESH_BEFORE_EXPIRE_TIME, true)
-                    .retrying(event -> {
-                        // Log retry attempt, helps in debugging network timeout issue
-                        switch (event) {
-                            case RetryingJWKSetSource.RetrialEvent retrialEvent:
-                                LOGGER.warn("JWKS fetch retry: {}: {}", retrialEvent.getException().getClass().getName(), retrialEvent.getException().getMessage());
-                                break;
-                            default:
-                                LOGGER.warn("JWKS fetch retry: {}", event);
-                        }
-                    })
-                    //in case the remote JWK set endpoint goes down set 4 hours value
-                    .outageTolerant(JWKS_WHEN_DOWN_CACHE_TIME, event -> {
-                        switch (event) {
-                            case OutageTolerantJWKSetSource.OutageEvent outageEvent:
-                                LOGGER.warn("JWKS outage event: {}: {}", outageEvent.getException().getClass().getName(), outageEvent.getException().getMessage());
-                                break;
-                            default:
-                                LOGGER.warn("JWKS outage event : {}", event);
-                        }
-                    })
-                    .build();
-
-            final JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(
-                    signedJWT.getHeader().getAlgorithm(),
-                    keySource);
-
-            jwtProcessor.setJWSKeySelector(keySelector);
-
-            jwtProcessor.setJWTClaimsSetVerifier(new DefaultJWTClaimsVerifier<>(
-                    new JWTClaimsSet.Builder().build(),
-                    new HashSet<>(Arrays.asList(
-                            JWTClaimNames.AUDIENCE,
-                            JWTClaimNames.EXPIRATION_TIME,
-                            OAUTH_CUSTOM_EMAIL_PARAM,
-                            OAUTH_CUSTOM_UUID_PARAM))));
-
-            final JWTClaimsSet claimSet = jwtProcessor.process(accessToken.getValue(), null);
+            final JWTClaimsSet claimSet = processor.process(accessToken.getValue(), null);
 
             if (!validateAudience(claimSet.getAudience())) {
                 oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience("API Key").toString());
@@ -247,9 +169,13 @@ public class BearerTokenExtractor {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         try {
+            final OIDCProviderMetadata metadata = oidcConfigurationProvider.getMetadataOrInitOidcConfiguration();
+            if (metadata == null) {
+                throw new IllegalStateException("Failed to initialize JWT processor");
+            }
 
             final TokenIntrospectionResponse response = TokenIntrospectionResponse.parse(new TokenIntrospectionRequest(
-                    tokenIntrospectEndpoint,
+                    metadata.getIntrospectionEndpointURI(),
                     keycloakClient,
                     accessToken).toHTTPRequest().send());
 
@@ -305,4 +231,6 @@ public class BearerTokenExtractor {
             //Ignore exceptions
         }
     }
+
+
 }
