@@ -22,7 +22,7 @@ public class StreamingMarshalTextPlain implements StreamingMarshal {
     private final OutputStreamWriter outputStreamWriter;
 
     StreamingMarshalTextPlain(OutputStream outputStream) {
-        outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.ISO_8859_1);
+        outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
     }
 
     @Override

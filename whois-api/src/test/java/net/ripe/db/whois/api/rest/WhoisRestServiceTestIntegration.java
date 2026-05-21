@@ -759,6 +759,30 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void lookup_role_text_plain_extension_utf8() {
+        final RpslObject person = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   remarks\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   Тверская улица,москва\n" +
+                "source:    TEST\n");
+
+        databaseHelper.addObject(person);
+
+        final Response response = RestTest.target(getPort(), "whois/test/person/PP1-TEST.txt")
+                .request()
+                .get(Response.class);
+
+        final String rpslObject = response.readEntity(String.class);
+        assertThat(rpslObject, containsString("Тверская улица,москва"));
+        assertThat(response.getHeaderString(HttpHeaders.CONTENT_TYPE), is("text/plain;charset=utf-8"));
+
+    }
+
+    @Test
     public void lookup_object_text_plain_not_found_accept_header() {
         try {
             RestTest.target(getPort(), "whois/test/person/PP1-TEST")

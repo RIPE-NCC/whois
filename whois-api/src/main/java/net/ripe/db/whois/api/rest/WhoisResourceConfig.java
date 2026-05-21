@@ -83,8 +83,7 @@ public class WhoisResourceConfig extends ResourceConfig {
         final MessageBodyWriter<WhoisResources> customMessageBodyWriter = new WhoisResourcesPlainTextWriter();
         register(customMessageBodyWriter);
 
-        final MessageBodyWriter<String> utf8MessageBodyWriter = new Utf8StringWriter();
-        register(utf8MessageBodyWriter);
+        register(new Utf8ResponseFilter());
 
         register(new JaxbMessagingBinder());
     }

@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyWriter;
@@ -15,14 +14,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
-import static net.ripe.db.whois.api.rest.Utf8StringWriter.addCharSetWithTextMediaType;
-
 @Produces({"text/plain"})
 public class WhoisResourcesPlainTextWriter implements MessageBodyWriter<WhoisResources> {
 
     @Override
     public boolean isWriteable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return aClass == WhoisResources.class && MediaType.TEXT_PLAIN_TYPE.equals(mediaType);
+        return aClass == WhoisResources.class && MediaType.TEXT_PLAIN_TYPE.isCompatible(mediaType);
     }
 
     @Override
@@ -34,8 +31,6 @@ public class WhoisResourcesPlainTextWriter implements MessageBodyWriter<WhoisRes
     public void writeTo(WhoisResources whoisResources, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> multivaluedMap, OutputStream outputStream) throws IOException, WebApplicationException {
         StringBuilder sb = new StringBuilder();
 
-        addCharSetWithTextMediaType(mediaType, multivaluedMap);
-
         for (ErrorMessage errorMessage : whoisResources.getErrorMessages()) {
             if (errorMessage.getSeverity() != null){
                 sb.append("Severity: ").append(errorMessage.getSeverity()).append('\n');
@@ -46,7 +41,7 @@ public class WhoisResourcesPlainTextWriter implements MessageBodyWriter<WhoisRes
         }
         sb.append(whoisResources.getTermsAndConditions());
 
-        //TODO: should be based on charset or by default UTF8
+        //by default UTF8
         outputStream.write(sb.toString().getBytes(StandardCharsets.UTF_8));
     }
 }
