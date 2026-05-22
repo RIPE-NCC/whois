@@ -59,6 +59,92 @@ public class DummifierRCTest {
     }
 
     @Test
+    public void dummify_organisation_with_parentheses() {
+        final RpslObject before = RpslObject.parse(
+                "organisation:   ORG-RIEN1-TEST\n" +
+                        "org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)\n" +
+                        "org-type:       LIR\n" +
+                        "descr:          RIPE NCC Operations\n" +
+                        "address:        Singel 256\n" +
+                        "address:        Amsterdam\n" +
+                        "address:        Netherlands\n" +
+                        "phone:          +312(1111)52266\n" +
+                        "phone:          +312(1111)52266\n" +
+                        "admin-c:        AC1-TEST\n" +
+                        "admin-c:        AC2-TEST\n" +
+                        "abuse-c:        AR1-TEST\n" +
+                        "mnt-ref:        TEST-MNT\n" +
+                        "mnt-by:         TEST-MNT\n" +
+                        "created:        1970-01-01T00:00:00Z\n" +
+                        "last-modified:  2020-09-22T09:00:00Z\n" +
+                        "source:         TEST");
+
+        final RpslObject after = subject.dummify(3, before);
+
+        assertThat(after.toString(), is(
+                "organisation:   ORG-RIEN1-TEST\n" +
+                        "org-name:       Romeo India Echo November\n" +
+                        "org-type:       LIR\n" +
+                        "descr:          ***\n" +
+                        "address:        ***\n" +
+                        "address:        ***\n" +
+                        "address:        Netherlands\n" +
+                        "phone:          +312(11..).....\n" +
+                        "phone:          +312(11..).....\n" +
+                        "admin-c:        AC1-TEST\n" +
+                        "admin-c:        AC2-TEST\n" +
+                        "abuse-c:        AR1-TEST\n" +
+                        "mnt-ref:        TEST-MNT\n" +
+                        "mnt-by:         TEST-MNT\n" +
+                        "created:        1970-01-01T00:00:00Z\n" +
+                        "last-modified:  2020-09-22T09:00:00Z\n" +
+                        "source:         TEST\n"));
+    }
+
+    @Test
+    public void dummify_organisation_with_closing_parentheses() {
+        final RpslObject before = RpslObject.parse(
+                "organisation:   ORG-RIEN1-TEST\n" +
+                        "org-name:       Reseaux IP Europeens Network Coordination Centre (RIPE NCC)\n" +
+                        "org-type:       LIR\n" +
+                        "descr:          RIPE NCC Operations\n" +
+                        "address:        Singel 256\n" +
+                        "address:        Amsterdam\n" +
+                        "address:        Netherlands\n" +
+                        "phone:          +312(1)11152266\n" +
+                        "phone:          +312(1)11152266\n" +
+                        "admin-c:        AC1-TEST\n" +
+                        "admin-c:        AC2-TEST\n" +
+                        "abuse-c:        AR1-TEST\n" +
+                        "mnt-ref:        TEST-MNT\n" +
+                        "mnt-by:         TEST-MNT\n" +
+                        "created:        1970-01-01T00:00:00Z\n" +
+                        "last-modified:  2020-09-22T09:00:00Z\n" +
+                        "source:         TEST");
+
+        final RpslObject after = subject.dummify(3, before);
+
+        assertThat(after.toString(), is(
+                "organisation:   ORG-RIEN1-TEST\n" +
+                        "org-name:       Romeo India Echo November\n" +
+                        "org-type:       LIR\n" +
+                        "descr:          ***\n" +
+                        "address:        ***\n" +
+                        "address:        ***\n" +
+                        "address:        Netherlands\n" +
+                        "phone:          +312(1)........\n" +
+                        "phone:          +312(1)........\n" +
+                        "admin-c:        AC1-TEST\n" +
+                        "admin-c:        AC2-TEST\n" +
+                        "abuse-c:        AR1-TEST\n" +
+                        "mnt-ref:        TEST-MNT\n" +
+                        "mnt-by:         TEST-MNT\n" +
+                        "created:        1970-01-01T00:00:00Z\n" +
+                        "last-modified:  2020-09-22T09:00:00Z\n" +
+                        "source:         TEST\n"));
+    }
+
+    @Test
     public void dummify_role() {
         final RpslObject before = RpslObject.parse(
             "role:           Abuse Contact\n" +

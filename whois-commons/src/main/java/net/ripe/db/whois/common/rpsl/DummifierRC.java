@@ -37,6 +37,7 @@ public class DummifierRC implements Dummifier {
     private static final String FILTERED_APPENDIX = " # Filtered";
     private static final Splitter EMAIL_SPLITTER = Splitter.on('@');
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ');
+    private static final char CLOSING_PARENTHESIS = ')';
 
     private static final Set<AttributeType> EMAIL_ATTRIBUTES = Sets.immutableEnumSet(E_MAIL, NOTIFY, REF_NFY, IRT_NFY, MNT_NFY, UPD_TO);
     private static final Set<AttributeType> PHONE_FAX_ATTRIBUTES = Sets.immutableEnumSet(PHONE, FAX_NO);
@@ -128,7 +129,7 @@ public class DummifierRC implements Dummifier {
             char[] phone = attribute.getCleanValue().toString().toCharArray();
 
             for (int i = phone.length / 2; i < phone.length; i++) {
-                if (!Character.isWhitespace(phone[i])) {
+                if (!Character.isWhitespace(phone[i]) && phone[i] != CLOSING_PARENTHESIS) {
                     phone[i] = '.';
                 }
             }
