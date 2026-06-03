@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.analysis.PatternTokenizer;
 import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
@@ -9,9 +10,18 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ElasticSearchConfigurations {
+
+    private final static List<AttributeSyntax> SET_TYPES = List.of(
+            AttributeSyntax.AS_SET_SYNTAX,
+            AttributeSyntax.FILTER_SET_SYNTAX,
+            AttributeSyntax.PEERING_SET_SYNTAX,
+            AttributeSyntax.ROUTE_SET_SYNTAX,
+            AttributeSyntax.RTR_SET_SYNTAX
+            );
 
     public static IndexSettings getSettings(final int nodes) {
 
@@ -44,6 +54,17 @@ public class ElasticSearchConfigurations {
                                                 .splitOnCaseChange(false)
                                         )
                                 )
+                        ).filter("colon_sets_combinations", f -> f
+                                .definition(d -> d
+                                        .patternCapture(pc -> pc
+                                                .preserveOriginal(true)
+                                                .patterns("^(.*)$")
+                                        )
+                                )
+                        )
+                        .tokenizer("colon_tokeniser", t -> t
+                                .definition(p -> p
+                                        .pattern(PatternTokenizer.of(pt -> pt.pattern(":"))))
                         )
                         // Analyzers
                         .analyzer("fulltext_analyzer", az -> az
@@ -56,6 +77,12 @@ public class ElasticSearchConfigurations {
                                 .custom(c -> c
                                         .tokenizer("uax_url_email")
                                         .filter("my_word_email_delimiter_graph", "lowercase")
+                                )
+                        )
+                        .analyzer("set_analyzer", az -> az
+                                .custom(c -> c
+                                    .tokenizer("colon_tokeniser")
+                                    .filter("colon_sets_combinations")
                                 )
                         )
                         // Normalizers
@@ -84,9 +111,22 @@ public class ElasticSearchConfigurations {
                 )
         );
 
+        final Property setsFieldProperty = Property.of(p -> p
+                .text(t -> t
+                        .analyzer("fulltext_analyzer")
+                        .searchAnalyzer("fulltext_analyzer")
+                        .fields("custom", f -> f.text(ft -> ft.analyzer("set_analyzer")))
+                        .fields("raw", f -> f.keyword(k -> k.ignoreAbove(10922)))
+                        .fields("lowercase", f -> f.keyword(k -> k.normalizer("my_lowercase_normalizer").ignoreAbove(10922)))
+                )
+        );
+
         for(final AttributeType type : AttributeType.values()) {
             if (type.getSyntax() == AttributeSyntax.EMAIL_SYNTAX) {
                 propertiesMap.put(type.getName(), emailFieldProperty);
+            }
+            if (SET_TYPES.contains(type.getSyntax())) {
+                propertiesMap.put(type.getName(), setsFieldProperty);
             }
         }
 

@@ -3021,6 +3021,191 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryAfterUpdate.getResults(), hasSize(1));
         assertThat(queryAfterUpdate.getResults().getFirst().get("remarks"), is("Σ definitely is Σ Greek character?"));
     }
+
+    @Test
+    public void search_asset_first_value(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=AS8308&facet=true&hl=true");
+
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("<b>AS8308<\\/b>:AS-Peerings:AS8374"));
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void search_asset_second_value(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=AS-Peerings&facet=true&hl=true");
+
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("AS8308:<b>AS-Peerings<\\/b>:AS8374"));
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void search_asset_third_value(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=AS8374&facet=true&hl=true");
+
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("AS8308:AS-Peerings:<b>AS8374<\\/b>"));
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void search_asset_first_two_values(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=AS8308:AS-Peerings&facet=true&hl=true");
+
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("<b>AS8308<\\/b>:<b>AS-Peerings<\\/b>:AS8374"));
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void search_asset_two_last_values(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=AS-Peerings:AS8374&facet=true&hl=true");
+
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("AS8308:<b>AS-Peerings<\\/b>:<b>AS8374<\\/b>"));
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void search_asset_full_value(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final QueryResponse queryResponse = query("q=AS8308:AS-Peerings:AS8374&facet=true&hl=true");
+
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("<b>AS8308:AS-Peerings:AS8374<\\/b>"));
+        assertThat(queryResponse.getStatus(), is(0));
+        assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void search_asset_reverse_two_last_values_not_found(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        assertThat(numFound(query("q=AS8374:AS-Peerings&facet=true&hl=true")), is(0L));
+    }
+
+    @Test
+    public void search_asset_not_continue_values_not_found(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        assertThat(numFound(query("q=AS8374:AS8374&facet=true&hl=true")), is(0L));
+    }
+
     // helper methods
 
     private QueryResponse query(final String queryString) {
