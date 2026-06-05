@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.Inet4Address;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -43,13 +45,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -208,6 +214,64 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults().getNumFound(), is(3L));
         assertThat(getHighlightKeys(queryResponse), containsInAnyOrder("1", "2", "3"));
         assertThat(getHighlightValues(queryResponse), containsInAnyOrder("Some <b>remark<\\/b>", "Second <b>remark<\\/b>", "Other <b>remark<\\/b>"));
+    }
+
+    @Test
+    public void search_multiple_results_highlight_disabled_when_query_too_long() throws Exception {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV2-MNT\n" +
+                        "remarks: Second remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV3-MNT\n" +
+                        "remarks: Other remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV4-MNT\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        // Make query > 500 chars but still match "remark"
+        String longQuery = "remark OR " + "a".repeat(510);
+        String encodedQ = URLEncoder.encode(longQuery, StandardCharsets.UTF_8);
+
+        final QueryResponse queryResponse = query("q=" + encodedQ + "&hl=true");
+
+        // Now it will match correctly
+        assertThat(queryResponse.getResults().getNumFound(), is(3L));
+
+        // Highlight must be disabled due to length validation
+        assertThat(queryResponse.getHighlighting().values(), everyItem(anEmptyMap()));
+    }
+
+    @Test
+    public void search_query_longer_than_1000_chars_should_throw_query_syntax_error() {
+
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+
+        rebuildIndex();
+
+        // Single token >1000 chars (no OR usage)
+        String longQuery = "a".repeat(1005);
+        String encodedQ = URLEncoder.encode(longQuery, StandardCharsets.UTF_8);
+
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query("q=" + encodedQ);
+        });
+
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Query too long"));
+
     }
 
     @Test
@@ -1610,6 +1674,97 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(queryResponse.getResults().getNumFound(), is(1L));
         assertThat(queryResponse.getHighlighting().get("2").containsKey("e-mail"), is(true));
     }
+
+    @Test
+    public void search_query_too_many_OR_clause() throws Exception {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     org\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        rebuildIndex();
+
+        // Build long query (>500 chars)
+        StringBuilder longQueryBuilder = new StringBuilder();
+        while (longQueryBuilder.length() <= 510) {
+            longQueryBuilder.append("e-mail:(domain2.nl) OR ");
+        }
+
+        String longQuery = "(" + longQueryBuilder + ") AND (object-type:organisation)";
+        String encodedQ = URLEncoder.encode(longQuery, StandardCharsets.UTF_8);
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query(
+                    "facet=true&format=xml&hl=true&q=" + encodedQ + "&start=0&wt=json"
+            );
+        });
+
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Too many OR clauses"));
+    }
+
+    @Test
+    public void search_no_leading_wildcard_allowed() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query("facet=true&format=xml&hl=true&q=*TEST%20AND%20BANK%20NOT&start=0&wt=json&rows=10");
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Leading wildcard queries are not allowed"));
+    }
+
+    @Test
+    public void search_more_than_2_wildcard_not_allowed() {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            query("facet=true&format=xml&hl=true&q=TEST*%20AND%20*%20BANK%20*%20NOT&start=0&wt=json&rows=10");
+        });
+        assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
+        assertThat(badRequestException.getResponse().readEntity(String.class), is("Too many wildcards (max 2)"));
+    }
+
+    @Test
+    public void search_query_longer_than_500_chars_should_disable_facet() throws Exception {
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: OWNER-MNT\n" +
+                        "source: RIPE"));
+
+        databaseHelper.addObject(RpslObject.parse(
+                "organisation: ORG-TOS1-TEST\n" +
+                        "org-name:     org\n" +
+                        "org-type:     OTHER\n" +
+                        "descr:        test org\n" +
+                        "address:      street 1\n" +
+                        "e-mail:       test@domain1.domain2.nl\n" +
+                        "mnt-ref:      OWNER-MNT\n" +
+                        "mnt-by:       OWNER-MNT\n" +
+                        "source:       RIPE\n"));
+
+        rebuildIndex();
+
+        // Build a single long search term (>500 chars)
+        String longValue = "domain2.nl" + "a".repeat(520);
+
+        String longQuery = "e-mail:(" + longValue + ") AND object-type:organisation";
+
+        String encodedQ = URLEncoder.encode(longQuery, StandardCharsets.UTF_8);
+
+        final QueryResponse queryResponse = query(
+                "facet=true&format=xml&hl=true&q=" + encodedQ + "&start=0&wt=json"
+        );
+
+        // Facet should be disabled by validation
+        assertThat(queryResponse.getFacetFields(), is(nullValue()));
+    }
+
     @Test
     public void search_email_first_second_domain() {
         databaseHelper.addObject(RpslObject.parse(
@@ -2729,6 +2884,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         final URI uri = URI.create(url);
         return uri.getHost();
     }
+
     @Test
     public void request_bad_syntax_query_bad_request() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
@@ -2737,6 +2893,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(badRequestException.getMessage(), is("HTTP 400 Bad Request"));
         assertThat(badRequestException.getResponse().readEntity(String.class), is("Invalid query syntax"));
     }
+
     @Test
     public void request_more_than_allowed_rows_bad_request() {
         final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {

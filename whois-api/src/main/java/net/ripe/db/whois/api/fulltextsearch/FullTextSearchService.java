@@ -21,14 +21,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Arrays;
 
+import static com.hazelcast.internal.config.DomConfigHelper.getBooleanValue;
 import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.OBJECT_TYPE_FIELD_NAME;
+import static net.ripe.db.whois.api.fulltextsearch.ElasticFulltextSearch.countOccurrences;
 
 @Component
 @Path("/fulltextsearch")
 public class FullTextSearchService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FullTextSearchService.class);
+
+    private static final String LUCENE_SPECIALS = "+-!(){}[]^\"~*?/\\";
 
     private final FulltextSearch fulltextSearch;
 
@@ -61,7 +66,7 @@ public class FullTextSearchService {
                             .setHighlightPre(highlightPre)
                             .setHighlightPost(highlightPost)
                             .setFormat(writerType)
-                            .setFacet(facet)
+                            .setFacet(isFacetSafe(facet, escapeColon(query)))
                             .build(), crowdTokenKey, request));
         } catch (IllegalArgumentException e) {
             return badRequest(e.getMessage());
@@ -111,5 +116,20 @@ public class FullTextSearchService {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private boolean isFacetSafe(final String facet, final String query) {
+
+        if (!getBooleanValue(facet)) return false;
+
+        if (StringUtils.isBlank(query)) return false;
+
+        if (query.length() > 500) return false;
+
+        if (query.trim().startsWith("*")) return false;
+
+        if (countOccurrences(query.toUpperCase(), " OR ") > 10) return false;
+
+        return true;
     }
 }

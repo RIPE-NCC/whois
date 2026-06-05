@@ -58,16 +58,19 @@ public class ElasticFulltextSearch extends FulltextSearch {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticFulltextSearch.class);
 
     private static final Integer GRACEFUL_TIMEOUT_IN_MS = 30000; // 30seconds
+    private static final int MAX_QUERY_LENGTH = 1000;
+    private static final int MAX_WILDCARDS = 2;
 
     public static final TermsAggregation AGGREGATION_BUILDER = TermsAggregation.of(t -> t
             .field("object-type.raw")
-            .size(ObjectType.values().length));
+            .size(ObjectType.values().length)
+            .minDocCount(1));
 
-    public static final SortOptions SORT_BUILDERS = SortOptions.of( s-> s
+    public static final SortOptions SORT_BUILDERS = SortOptions.of(s -> s
             .field(fs -> fs
-                            .field("lookup-key.raw")
-                            .order(SortOrder.Asc)
-                            .unmappedType(FieldType.Keyword)
+                    .field("lookup-key.raw")
+                    .order(SortOrder.Asc)
+                    .unmappedType(FieldType.Keyword)
             )
     );
 
@@ -104,13 +107,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     public SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
-        if (searchRequest.getRows() > maxResultSize) {
-            throw new IllegalArgumentException("Too many results requested, the maximum allowed is " + maxResultSize);
-        }
-
-        if (searchRequest.getStart() + searchRequest.getRows() > MAX_ROW_LIMIT_SIZE) {
-            throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
-        }
+        validateFulltextQuery(searchRequest);
 
         final UserSession userSession = ssoTokenTranslator.translateSsoTokenOrNull(ssoToken);
 
@@ -124,7 +121,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 final List<SearchResponse.Lst> highlightDocs = Lists.newArrayList();
                 final List<SearchResponse.Result.Doc> resultDocumentList = Lists.newArrayList();
 
-                final List<Hit<Map<String , Object>>> hits = fulltextResponse.hits().hits();
+                final List<Hit<Map<String, Object>>> hits = fulltextResponse.hits().hits();
                 for (final Hit<Map<String, Object>> hit : hits) {
                     final Map<String, Object> hitAttributes = hit.source();
                     final SearchResponse.Result.Doc resultDocument = new SearchResponse.Result.Doc();
@@ -142,7 +139,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                     final Set<AttributeType> templateAttributes = ObjectTemplate.getTemplate(objectType).getAllAttributes();
 
                     for (final AttributeType attributeType : templateAttributes) {
-                        if (hitAttributes.containsKey(attributeType.getName())){
+                        if (hitAttributes.containsKey(attributeType.getName())) {
                             filterRpslAttributes(attributeType.getName(), hitAttributes.get(attributeType.getName())).forEach((rpslAttribute) -> {
                                 attributes.add(rpslAttribute);
                                 responseStrs.add(new SearchResponse.Str(rpslAttribute.getKey(), rpslAttribute.getValue()));
@@ -164,7 +161,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
     private co.elastic.clients.elasticsearch.core.SearchResponse performFulltextSearch(final SearchRequest searchRequest) throws IOException {
         try {
             return elasticIndexService.getClient().search(getFulltextRequest(searchRequest), Map.class);
-        } catch (ElasticsearchException ex){
+        } catch (ElasticsearchException ex) {
             // Detect BAD REQUEST (invalid query) from server error type
             if (ex.status() == 400) { // common for bad query DSL
                 LOGGER.info("ElasticFullTextSearch failed due to invalid query syntax: {}", ex.getMessage());
@@ -176,7 +173,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
         }
     }
 
-    private co.elastic.clients.elasticsearch.core.SearchRequest getFulltextRequest(final SearchRequest searchRequest ) {
+    private co.elastic.clients.elasticsearch.core.SearchRequest getFulltextRequest(final SearchRequest searchRequest) {
         final int start = Math.max(0, searchRequest.getStart());
         final Highlight highlight = getHighlight(searchRequest);
 
@@ -186,7 +183,7 @@ public class ElasticFulltextSearch extends FulltextSearch {
                 .from(start)
                 .size(searchRequest.getRows())
                 .timeout(Time.of(t -> t.time(GRACEFUL_TIMEOUT_IN_MS + "ms")).time())
-                .aggregations("types-count", Aggregation.of( a -> a.terms(AGGREGATION_BUILDER)))
+                .aggregations("types-count", Aggregation.of(a -> a.terms(AGGREGATION_BUILDER)))
                 .sort(SORT_BUILDERS)
                 .highlight(highlight)
                 .trackTotalHits(t -> t.enabled(true))
@@ -194,6 +191,11 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private Highlight getHighlight(SearchRequest searchRequest) {
+        if (!isHighlightSafe(searchRequest)) {
+            LOGGER.warn("Highlighting disabled for query: {}", searchRequest.getQuery());
+            return null; // ES will simply not execute highlighting
+        }
+
         return Highlight.of(h -> h
                 .preTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPre()))
                 .postTags(getHighlightTag(searchRequest.getFormat(), searchRequest.getHighlightPost()))
@@ -230,15 +232,15 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private List<RpslAttribute> filterRpslAttributes(final String attributeKey, final Object attributeValue) {
-        if (attributeValue == null){
+        if (attributeValue == null) {
             return Collections.emptyList();
         }
         final AttributeType type = AttributeType.getByName(attributeKey);
         if (ElasticIndexService.SKIPPED_ATTRIBUTES.contains(type)) {
-          return Collections.emptyList();
+            return Collections.emptyList();
         }
 
-        if (attributeValue instanceof List){
+        if (attributeValue instanceof List) {
             return filterValues(type, (List<String>) attributeValue);
         } else {
             return filterValue(type, (String) attributeValue) == null ? Collections.emptyList() :
@@ -251,41 +253,49 @@ public class ElasticFulltextSearch extends FulltextSearch {
         return SearchRequest.XML_FORMAT.equals(format) ? escape(highlightPost) : highlightPost;
     }
 
-   private SearchResponse.Lst createHighlights(final Hit<Map<String, Object>> hit) {
-       final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.id());
-       final List<SearchResponse.Arr> documentArrs = new ArrayList<>();
+    private SearchResponse.Lst createHighlights(final Hit<Map<String, Object>> hit) {
+        final SearchResponse.Lst documentLst = new SearchResponse.Lst(hit.id());
+        final List<SearchResponse.Arr> documentArrs = new ArrayList<>();
 
-       if (hit.highlight() != null) {
+        if (hit.highlight() == null || hit.highlight().isEmpty()) {
+            return documentLst;
+        }
 
-           final Map<String, List<String>> normalized = hit.highlight().entrySet().stream()
-                   .collect(Collectors.toMap(
-                           this::getCleanHighlightField,
-                           Map.Entry::getValue,
-                           (existing, replacement) -> existing,
-                           LinkedHashMap::new
-                   ));
+        try {
+            final Map<String, List<String>> normalized = hit.highlight().entrySet().stream()
+                    .collect(Collectors.toMap(
+                            this::getCleanHighlightField,
+                            Map.Entry::getValue,
+                            (existing, replacement) -> existing,
+                            LinkedHashMap::new
+                    ));
 
-           normalized.forEach((attribute, fragments) -> {
-               if ("lookup-key".equals(attribute) || attribute.contains("lowercase")) {
-                   return;
-               }
+            normalized.forEach((attribute, fragments) -> {
+                if ("lookup-key".equals(attribute) || attribute.contains("lowercase")) {
+                    return;
+                }
 
-               String joined = String.join(",", fragments);
+                String joined = String.join(",", fragments);
 
-               final SearchResponse.Arr arr = new SearchResponse.Arr(attribute);
-               arr.setStr(new SearchResponse.Str(null, joined));
-               documentArrs.add(arr);
-           });
-       }
+                final SearchResponse.Arr arr = new SearchResponse.Arr(attribute);
+                arr.setStr(new SearchResponse.Str(null, joined));
+                documentArrs.add(arr);
+            });
 
-       documentLst.setArrs(documentArrs);
-       return documentLst;
-   }
+            documentLst.setArrs(documentArrs);
+            return documentLst;
+
+        } catch (Exception e) {
+            // NEVER fail search because of highlighting issues
+            LOGGER.warn("Highlight processing failed, returning empty highlights", e);
+            return documentLst;
+        }
+    }
 
     private String getCleanHighlightField(final Map.Entry<String, List<String>> e) {
         return e.getKey().contains(".custom") ?
-                StringUtils.substringBefore( e.getKey(), ".custom") :
-                StringUtils.substringBefore( e.getKey(), ".raw");
+                StringUtils.substringBefore(e.getKey(), ".custom") :
+                StringUtils.substringBefore(e.getKey(), ".raw");
     }
 
     private SearchResponse.Lst getCountByType(final Aggregate agg) {
@@ -330,6 +340,72 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     private List<RpslAttribute> filterValues(final AttributeType attributeType, final List<String> attributeValues) {
-        return attributeValues.stream().map( (attributeValue) -> new RpslAttribute( attributeType, filterValue(attributeType, attributeValue))).collect(Collectors.toList());
+        return attributeValues.stream().map((attributeValue) -> new RpslAttribute(attributeType, filterValue(attributeType, attributeValue))).collect(Collectors.toList());
+    }
+
+    private void validateFulltextQuery(final SearchRequest searchRequest) {
+
+        final String query = searchRequest.getQuery();
+
+        if (searchRequest.getRows() > maxResultSize) {
+            throw new IllegalArgumentException("Too many results requested, the maximum allowed is " + maxResultSize);
+        }
+
+        if (searchRequest.getStart() + searchRequest.getRows() > MAX_ROW_LIMIT_SIZE) {
+            throw new IllegalArgumentException("Exceeded maximum " + MAX_ROW_LIMIT_SIZE + " documents");
+        }
+
+        if (StringUtils.isBlank(query)) {
+            throw new IllegalArgumentException("Query cannot be empty");
+        }
+
+        // Length check
+        if (query.length() > MAX_QUERY_LENGTH) {
+            throw new IllegalArgumentException("Query too long");
+        }
+
+        // Leading wildcard check (very important)
+        if (query.trim().startsWith("*")) {
+            throw new IllegalArgumentException("Leading wildcard queries are not allowed");
+        }
+
+        // Wildcard count check
+        long wildcardCount = query.chars().filter(c -> c == '*').count();
+        if (wildcardCount > MAX_WILDCARDS) {
+            throw new IllegalArgumentException("Too many wildcards (max " + MAX_WILDCARDS + ")");
+        }
+
+        // Optional: block extremely nested boolean abuse
+        long orCount = countOccurrences(query.toUpperCase(), " OR ");
+        if (orCount > 20) {
+            throw new IllegalArgumentException("Too many OR clauses");
+        }
+    }
+
+    public static long countOccurrences(final String text, final String pattern) {
+        return (text.length() - text.replace(pattern, "").length()) / pattern.length();
+    }
+
+    private boolean isHighlightSafe(final SearchRequest request) {
+        if (!request.isHighlight()) {
+            return false;
+        }
+
+        final String query = request.getQuery();
+        if (StringUtils.isBlank(query)) {
+            return false;
+        }
+
+        if (query.length() > 500) {
+            LOGGER.warn("Highlight disabled: query too long");
+            return false;
+        }
+
+        if (request.getRows() > 5000) {
+            LOGGER.warn("Highlight disabled: too many rows requested");
+            return false;
+        }
+
+        return true;
     }
 }

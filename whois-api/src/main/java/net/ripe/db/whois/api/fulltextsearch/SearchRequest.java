@@ -136,8 +136,8 @@ public final class SearchRequest {
             return this;
         }
 
-        public SearchRequestBuilder setFacet(final String facet) {
-            this.facet = getBooleanValue(facet);
+        public SearchRequestBuilder setFacet(final boolean facet) {
+            this.facet = facet;
             return this;
         }
 

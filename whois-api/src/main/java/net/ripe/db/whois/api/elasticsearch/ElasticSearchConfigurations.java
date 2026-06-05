@@ -28,7 +28,10 @@ public class ElasticSearchConfigurations {
         final IndexSettings settings = IndexSettings.of(s -> s
                 .numberOfReplicas(String.valueOf(nodes - 1))
                 .autoExpandReplicas("false")
-                .maxResultWindow(100000)
+                // Prevent huge pagination abuse
+                .maxResultWindow(10000)
+                // Prevent extremely large refresh listener buildup
+                .maxRefreshListeners(2000)
                 .analysis(a -> a
                         // Token Filters
                         .filter("english_stop", f -> f
