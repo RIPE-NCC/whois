@@ -111,9 +111,9 @@ public class SnapshotFileGenerator {
             batches.parallelStream().map(objectBatch -> {
                 final List<RpslObject> rpslObjects = Lists.newArrayList();
 
-                whoisObjectRepository.findRpslMapForObjects(objectBatch).values().forEach( object -> {
+                whoisObjectRepository.findRpslMapForObjects(objectBatch).entrySet().forEach( object -> {
                     try {
-                        final RpslObject rpslObject = RpslObject.parse(object);
+                        final RpslObject rpslObject = RpslObject.parse(object.getValue());
                         if (dummifierNrtmV4.isAllowed(rpslObject)) {
                             if (dummifierNrtmV4.shouldCreatePlaceHolder(rpslObject)){
                                 rpslObjects.add(DummifierNrtm.getPlaceholderPersonObject(rpslObject.getValueForAttribute(AttributeType.SOURCE)));
@@ -121,7 +121,7 @@ public class SnapshotFileGenerator {
                             rpslObjects.add(dummifierNrtmV4.dummify(rpslObject));
                         }
                     } catch (final Exception e) {
-                        LOGGER.warn("Parsing RPSL threw exception", e);
+                        LOGGER.warn("Parsing {} object threw exception", object.getKey());
                     }
                 });
 
