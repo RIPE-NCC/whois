@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.UpdatesParser;
-import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.BearerTokenManager;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.source.Source;
@@ -59,7 +59,7 @@ public class SyncUpdatesServiceTest {
     @Mock SourceContext sourceContext;
     @Mock SsoTokenTranslator ssoTokenTranslator;
     @Mock
-    BearerTokenExtractor bearerTokenExtractor;
+    BearerTokenManager bearerTokenManager;
 
     @InjectMocks SyncUpdatesService subject;
 

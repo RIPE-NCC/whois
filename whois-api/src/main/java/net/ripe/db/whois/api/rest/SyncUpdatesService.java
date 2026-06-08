@@ -20,7 +20,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.UpdatesParser;
-import net.ripe.db.whois.api.oauth.BearerTokenExtractor;
+import net.ripe.db.whois.api.oauth.BearerTokenManager;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
@@ -72,7 +72,7 @@ public class SyncUpdatesService {
     private final LoggerContext loggerContext;
     private final SourceContext sourceContext;
     private final SsoTokenTranslator ssoTokenTranslator;
-    private final BearerTokenExtractor bearerTokenExtractor;
+    private final BearerTokenManager bearerTokenManager;
 
     @Autowired
     public SyncUpdatesService(final DateTimeProvider dateTimeProvider,
@@ -80,7 +80,7 @@ public class SyncUpdatesService {
                               final UpdatesParser updatesParser,
                               final LoggerContext loggerContext,
                               final SourceContext sourceContext,
-                              final BearerTokenExtractor bearerTokenExtractor,
+                              final BearerTokenManager bearerTokenManager,
                               final SsoTokenTranslator ssoTokenTranslator) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
@@ -88,7 +88,7 @@ public class SyncUpdatesService {
         this.loggerContext = loggerContext;
         this.sourceContext = sourceContext;
         this.ssoTokenTranslator = ssoTokenTranslator;
-        this.bearerTokenExtractor = bearerTokenExtractor;
+        this.bearerTokenManager = bearerTokenManager;
     }
 
     @GET
@@ -224,7 +224,7 @@ public class SyncUpdatesService {
 
             setSsoSessionToContext(updateContext, request.getSsoToken());
             setClientCertificates(updateContext, httpServletRequest);
-            updateContext.setOAuthSession(bearerTokenExtractor.extractBearerToken(httpServletRequest, request.getApiKeyId()));
+            updateContext.setOAuthSession(bearerTokenManager.validateBearerTokenAndBuildOauthSession(httpServletRequest, request.getApiKeyId()));
 
             final String content = request.hasParam("DATA") ? request.getParam("DATA") : "";
 

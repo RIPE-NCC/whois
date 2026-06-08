@@ -2,6 +2,8 @@ package net.ripe.db.whois.api.oauth;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.net.HttpHeaders;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.BadJWSException;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimNames;
@@ -14,6 +16,7 @@ import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.Audience;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
@@ -24,6 +27,7 @@ import net.ripe.db.whois.common.oauth.OAuthSession;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,31 +48,36 @@ import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_UUID_PARAM;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.getWhoisMntnerScopes;
 
 @Component
-public class BearerTokenExtractor {
+public class BearerTokenManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BearerTokenExtractor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BearerTokenManager.class);
+
+    private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
+    private static final int CLIENT_READ_TIMEOUT = 60_000;
 
     private final boolean enabled;
     private final ClientSecretBasic keycloakClient;
     private final int maxScopes;
+    private final boolean shouldUseTokenInspector;
 
     private final OidcConfigurationProvider oidcConfigurationProvider;
 
     @Autowired
-    public BearerTokenExtractor(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
-                                @Value("${apikey.max.scope:10}") final int maxScopes,
-                                @Value("${keycloak.idp.password:}")  final String keycloakPassword,
-                                @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId,
-                                final OidcConfigurationProvider oidcConfigurationProvider) {
+    public BearerTokenManager(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
+                              @Value("${apikey.max.scope:10}") final int maxScopes,
+                              @Value("${keycloak.idp.password:}")  final String keycloakPassword,
+                              @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId,
+                              @Value("${oauth.token.inspection:false}") final boolean shouldUseTokenInspector,
+                              final OidcConfigurationProvider oidcConfigurationProvider) {
         this.enabled = enabled;
         this.keycloakClient = new ClientSecretBasic(new ClientID(whoisKeycloakId), new Secret(keycloakPassword));
         this.oidcConfigurationProvider = oidcConfigurationProvider;
-
+        this.shouldUseTokenInspector = shouldUseTokenInspector;
         this.maxScopes = maxScopes;
     }
 
     @Nullable
-    public OAuthSession extractBearerToken(final HttpServletRequest request, final String apiKeyId) {
+    public OAuthSession validateBearerTokenAndBuildOauthSession(final HttpServletRequest request, final String apiKeyId) {
         if(!enabled) return null;
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -83,25 +92,22 @@ public class BearerTokenExtractor {
             return new OAuthSession.Builder().keyId(apiKeyId).errorStatus("Invalid " + authType.name()).build();
         }
 
-        //In case of oauth2 we need to call TokenInspection endpoint as token validity is 1 hour so user can be deleted after issuing of token
-        //With APIkey we recieve token from the filter, so we can do verification of token manually
-        return authType == Update.EffectiveCredentialType.OAUTH ? callTokenInspectionEndpoint(accessToken)
-                                                                    : validateTokenOffline(accessToken, apiKeyId);
+        final String authTypeText = authType.equals(Update.EffectiveCredentialType.APIKEY) ? "API Key" : "Access Token";
+
+        return this.shouldUseTokenInspector ?
+                buildOauthSessionUsingTokenInspector(accessToken, apiKeyId, authTypeText) :
+                buildOauthSessionOffline(accessToken, apiKeyId, authTypeText);
     }
 
-    private OAuthSession validateTokenOffline(final BearerAccessToken accessToken, final String apiKeyId) {
+    private OAuthSession buildOauthSessionOffline(final BearerAccessToken accessToken, final String apiKeyId, final String authType) {
+
         final OAuthSession.Builder oAuthSessionBuilder = new OAuthSession.Builder().keyId(apiKeyId);
 
         try {
-            final ConfigurableJWTProcessor<SecurityContext> processor = this.oidcConfigurationProvider.getProcessorOrInitOidcConfiguration();
-            if (processor == null) {
-                throw new IllegalStateException("Failed to initialize JWT processor");
-            }
-
-            final JWTClaimsSet claimSet = processor.process(accessToken.getValue(), null);
+            final JWTClaimsSet claimSet = getJWTClaimsValidatingToken(accessToken);
 
             if (!validateAudience(claimSet.getAudience())) {
-                oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience("API Key").toString());
+                oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience(authType).toString());
             }
 
             populateScope(Scope.parse(claimSet.getStringClaim(OAUTH_CUSTOM_SCOPE_PARAM)), oAuthSessionBuilder);
@@ -123,6 +129,16 @@ public class BearerTokenExtractor {
             tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, "Invalid ApiKey");
             return oAuthSessionBuilder.build();
         }
+    }
+
+    private JWTClaimsSet getJWTClaimsValidatingToken(final BearerAccessToken accessToken) throws ParseException,
+            BadJOSEException, JOSEException {
+        final ConfigurableJWTProcessor<SecurityContext> processor = this.oidcConfigurationProvider.getProcessorOrInitOidcConfiguration();
+        if (processor == null) {
+            throw new IllegalStateException("Failed to initialize JWT processor");
+        }
+
+        return processor.process(accessToken.getValue(), null);
     }
 
     @Nullable
@@ -163,8 +179,8 @@ public class BearerTokenExtractor {
         oAuthSessionBuilder.errorStatus("Wrong APIKEY type. Please use a Maintainer APIKEY.");
     }
 
-    private OAuthSession callTokenInspectionEndpoint(final BearerAccessToken accessToken) {
-        final OAuthSession.Builder oAuthSessionBuilder = new OAuthSession.Builder();
+    private OAuthSession buildOauthSessionUsingTokenInspector(final BearerAccessToken accessToken, final String apiKeyId, final String authType) {
+        final OAuthSession.Builder oAuthSessionBuilder = new OAuthSession.Builder().keyId(apiKeyId);
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -174,10 +190,7 @@ public class BearerTokenExtractor {
                 throw new IllegalStateException("Failed to initialize JWT processor");
             }
 
-            final TokenIntrospectionResponse response = TokenIntrospectionResponse.parse(new TokenIntrospectionRequest(
-                    metadata.getIntrospectionEndpointURI(),
-                    keycloakClient,
-                    accessToken).toHTTPRequest().send());
+            final TokenIntrospectionResponse response = TokenIntrospectionResponse.parse(prepareHTTPRequest(accessToken, metadata).send());
 
             if (!response.indicatesSuccess()) {
                 tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Failed to validate oAuthSession");
@@ -192,7 +205,7 @@ public class BearerTokenExtractor {
             }
 
             if (!validateAudience(Audience.toStringList(tokenDetails.getAudience()))) {
-                oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience("Access Token").toString());
+                oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience(authType).toString());
             }
 
             populateScope(tokenDetails.getScope(), oAuthSessionBuilder);
@@ -210,6 +223,17 @@ public class BearerTokenExtractor {
         } finally {
             LOGGER.info("Verified using token inspection endpoint in {} ", stopwatch.stop());
         }
+    }
+
+    private @NonNull HTTPRequest prepareHTTPRequest(BearerAccessToken accessToken, OIDCProviderMetadata metadata) {
+        final HTTPRequest httpRequest = new TokenIntrospectionRequest(
+                metadata.getIntrospectionEndpointURI(),
+                keycloakClient,
+                accessToken).toHTTPRequest();
+
+        httpRequest.setConnectTimeout(CLIENT_CONNECT_TIMEOUT);
+        httpRequest.setReadTimeout(CLIENT_READ_TIMEOUT);
+        return httpRequest;
     }
 
     //Try to build an oAuth session from invalid token to help us in Audit

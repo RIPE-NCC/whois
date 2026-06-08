@@ -100,6 +100,9 @@ public class OidcConfigurationProvider {
 
         jwtProcessor.setJWSKeySelector(keySelector);
 
+        //TODO: It with expired values, expired time and issued at expired. Check library (nimbus) to see how can I
+        // check expiration time and issues at.
+        //Just checking if those values are present in bearerToken? check if just doing this
         jwtProcessor.setJWTClaimsSetVerifier(new DefaultJWTClaimsVerifier<>(
                 new JWTClaimsSet.Builder().build(),
                 new HashSet<>(Arrays.asList(
