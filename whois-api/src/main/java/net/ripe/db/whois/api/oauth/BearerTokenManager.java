@@ -119,14 +119,19 @@ public class BearerTokenManager {
                     .uuid(claimSet.getStringClaim(OAUTH_CUSTOM_UUID_PARAM)).build();
 
         } catch (BadJWSException e) {
-            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Token validation failed, due to %s: %s", e.getClass().getName(), e.getMessage()));
+            LOGGER.info("Authentication failed for {}, due to {}: {}", authType, e.getClass().getName(), e.getMessage());
+
+            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Authentication failed for %s", authType));
             return oAuthSessionBuilder.build();
         } catch (ParseException e) {
-            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Failed to parse bearer token from API Key, due to %s: %s", e.getClass().getName(), e.getMessage()));
+            LOGGER.info("Failed to parse {}, due to {}: {}", authType, e.getClass().getName(), e.getMessage());
+
+            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Failed to parse %s", authType));
             return oAuthSessionBuilder.build();
         } catch (Exception e) {
-            LOGGER.info("Invalid API key, due to {}: {}", e.getClass().getName(), e.getMessage());
-            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, "Invalid ApiKey");
+            LOGGER.info("Authentication failed during validation, due to {}: {}", e.getClass().getName(), e.getMessage());
+
+            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, "Authentication failed during validation");
             return oAuthSessionBuilder.build();
         }
     }
