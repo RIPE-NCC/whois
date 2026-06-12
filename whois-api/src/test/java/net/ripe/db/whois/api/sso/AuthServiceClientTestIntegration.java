@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -140,4 +143,40 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
         assertThat(cacheManager.getCache("ssoHistoricalUserDetails").get(UUID), is(nullValue()));
     }
 
+    @Test
+    public void get_user_details_response(){
+        assertThat(Objects.requireNonNull(cacheManager.getCache("userByEmail")).get(USER_EMAIL), is(nullValue()));
+
+        final ValidateTokenResponse validateTokenResponse = authServiceClient.getUserInfoByEmail(USER_EMAIL);
+        assertThat(validateTokenResponse.response, is(not(nullValue())));
+        assertThat(validateTokenResponse.response.content.email, is(USER_EMAIL));
+
+        assertThat(cacheManager.getCache("userByEmail").get(USER_EMAIL), is(not(nullValue())));
+    }
+
+    @Test
+    public void get_user_details_response_with_not_known_email_401(){
+        assertThat(Objects.requireNonNull(cacheManager.getCache("userByEmail")).get(USER_EMAIL), is(nullValue()));
+
+        final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
+            authServiceClient.getUserInfoByEmail("random_email");
+        });
+
+        assertThat(authServiceClientException.getCode(), is(HttpStatus.UNAUTHORIZED_401));
+
+        assertThat(cacheManager.getCache("userByEmail").get(USER_EMAIL), is(nullValue()));
+    }
+
+    @Test
+    public void get_user_details_response_with_null_email_400(){
+        assertThat(Objects.requireNonNull(cacheManager.getCache("userByEmail")).get(USER_EMAIL), is(nullValue()));
+
+        final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
+            authServiceClient.getUserInfoByEmail(null);
+        });
+
+        assertThat(authServiceClientException.getCode(), is(HttpStatus.BAD_REQUEST_400));
+
+        assertThat(cacheManager.getCache("userByEmail").get(USER_EMAIL), is(nullValue()));
+    }
 }

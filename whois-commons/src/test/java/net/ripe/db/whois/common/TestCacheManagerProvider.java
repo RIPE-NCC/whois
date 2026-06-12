@@ -30,6 +30,7 @@ public class TestCacheManagerProvider {
             caches.add(new ConcurrentMapCache("ssoUserDetails"));
             caches.add(new ConcurrentMapCache("ssoValidateToken"));
             caches.add(new ConcurrentMapCache("ssoHistoricalUserDetails"));
+            caches.add(new ConcurrentMapCache("userByEmail"));
             caches.add(new ConcurrentMapCache("apiKeyOAuth"));
             simpleCacheManager.setCaches(caches);
             this.cacheManager = simpleCacheManager;

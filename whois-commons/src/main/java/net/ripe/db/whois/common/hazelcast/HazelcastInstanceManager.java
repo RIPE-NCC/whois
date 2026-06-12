@@ -70,6 +70,14 @@ public class HazelcastInstanceManager {
                     .setEvictionConfig(evictionConfig)
                     .setTimeToLiveSeconds(60));
 
+
+            // @Cacheable(cacheNames="userByEmail", key="#authToken")
+            config.addMapConfig(new MapConfig()
+                    .setName("userByEmail")
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
+
             // @Cacheable(cacheNames="ssoUuid", key="#username")
             config.addMapConfig(new MapConfig()
                     .setName("ssoUuid")

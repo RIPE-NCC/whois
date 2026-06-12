@@ -50,15 +50,12 @@ public class AuthServiceClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceClient.class);
 
     public static final String TOKEN_KEY = "crowd.token_key";
-
+    private static final String USER_PATH = "/user/";
     private static final String VALIDATE_PATH = "/validate";
     private static final String ORGANISATION_MEMBERS_PATH = "/members";
-    private static final String USER_SEARCH_PATH = "/accounts/";
+    private static final String USER_ACCOUNTS_PATH = "/accounts/";
 
     private static final String HISTORICAL_USER_SEARCH_PATH = "/history/user";
-
-    private static final String CONTACT_PATH = "/contacts";
-    private static final String ACCOUNTS_PATH = "/accounts";
     private static final String EMAIL_PATH = "/email";
     private static final String SEARCH_ACCOUNTS_PATH = "/search-accounts";
     private static final String VALIDATE_TOKEN_PERMISSION = "portal";
@@ -127,6 +124,35 @@ public class AuthServiceClient {
         }
     }
 
+
+    @Stopwatch(thresholdMs = 100L)
+    @Cacheable(cacheNames="userByEmail")
+    public ValidateTokenResponse getUserInfoByEmail(final String email) {
+        if (StringUtils.isEmpty(email)) {
+            LOGGER.debug("No email was supplied");
+            throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No Email.");
+        }
+
+        try {
+            return client.target(restUrl)
+                    .path(USER_PATH)
+                    .path(email)
+                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .header(API_KEY, apiKey)
+                    .get(ValidateTokenResponse.class);
+        } catch (NotFoundException | NotAuthorizedException e) {
+            LOGGER.debug("Failed to get user info email {} due to {}:{}\n\tResponse: {}", email, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid email.");
+        } catch (WebApplicationException e) {
+            LOGGER.debug("Failed to get user info email {} due to {}:{}\n\tResponse: {}", email, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        } catch (ProcessingException e) {
+            LOGGER.debug("Failed to get user info email {} due to {}:{}", email, e.getClass().getName(), e.getMessage());
+            throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
+        }
+    }
+
     public UserSession getUserSession(final String token) {
         final ValidateTokenResponse response = validateToken(token);
         return new UserSession(
@@ -147,7 +173,7 @@ public class AuthServiceClient {
 
         try {
             final ValidateTokenResponse response = client.target(restUrl)
-                    .path(USER_SEARCH_PATH)
+                    .path(USER_ACCOUNTS_PATH)
                     .path(EMAIL_PATH)
                     .path(username)
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -177,7 +203,7 @@ public class AuthServiceClient {
 
         try {
             return client.target(restUrl)
-                    .path(USER_SEARCH_PATH)
+                    .path(USER_ACCOUNTS_PATH)
                     .path(uuid)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
