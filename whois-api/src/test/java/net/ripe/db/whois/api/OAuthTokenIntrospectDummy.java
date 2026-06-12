@@ -1,5 +1,9 @@
 package net.ripe.db.whois.api;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils;
 import jakarta.annotation.PostConstruct;
@@ -23,11 +27,18 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+
+
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
+import java.util.Date;
+
 
 import static net.ripe.db.whois.api.AbstractIntegrationTest.getRequestBody;
 
@@ -39,14 +50,22 @@ public class OAuthTokenIntrospectDummy implements Stub {
     private int port = 0;
     private final OidcConfigurationProvider oidcConfigurationProvider;
 
+    private RSAKey jwk;
+
     public OAuthTokenIntrospectDummy(final OidcConfigurationProvider oidcConfigurationProvider) {
         this.oidcConfigurationProvider = oidcConfigurationProvider;
     }
 
     private static class ApiPublicKeyLoaderTestHandler extends Handler.Abstract {
 
-            @Override
-        public boolean handle(Request request, Response response, Callback callback) throws Exception {
+        private final RSAKey jwk;
+
+        ApiPublicKeyLoaderTestHandler(final RSAKey jwk){
+            this.jwk = jwk;
+        }
+
+        @Override
+        public boolean handle(Request request, Response response, Callback callback) {
 
            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
 
@@ -62,7 +81,9 @@ public class OAuthTokenIntrospectDummy implements Stub {
                         return false;
                     }
 
-                    final boolean isActive = !email.equals("inactive@ripe.net");
+                    final Instant issuedAt = signedJWT.getJWTClaimsSet().getIssueTime().toInstant();
+
+                    final boolean isActive = !email.equals("inactive@ripe.net") && issuedAt.isBefore(Instant.now());
 
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
@@ -84,18 +105,16 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
             if (request.getHttpURI().getPath().contains("realms/ripe-ncc/protocol/openid-connect/certs")) {
 
-                try (InputStream is = getClass().getResourceAsStream("/JWT_public.key")) {
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    response.write(
-                            true,
-                            ByteBuffer.wrap(is.readAllBytes()),
-                            callback
-                    );
-                }
+                final String jwks = new JWKSet(jwk).toString();
 
+                response.setStatus(HttpServletResponse.SC_OK);
                 response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                response.write(
+                        true,
+                        ByteBuffer.wrap(jwks.getBytes(StandardCharsets.UTF_8)),
+                        callback
+                );
                 callback.succeeded();
-
                 return true;
             }
 
@@ -133,9 +152,11 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
     @PostConstruct
     @RetryFor(attempts = 5, value = Exception.class)
-    public void start() throws URISyntaxException {
+    public void start() throws Exception {
+        this.initKeys();
+
         server = new Server(0);
-        server.setHandler(new ApiPublicKeyLoaderTestHandler());
+        server.setHandler(new ApiPublicKeyLoaderTestHandler(jwk));
         try {
             server.start();
         } catch (Exception e) {
@@ -154,6 +175,19 @@ public class OAuthTokenIntrospectDummy implements Stub {
         ReflectionTestUtils.setField(this.oidcConfigurationProvider, "openIdMetadataUrl", openIdMetadataUrl.toString());
     }
 
+    public void initKeys() throws Exception {
+        final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        final KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        this.jwk = new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
+                .privateKey((RSAPrivateKey) keyPair.getPrivate())
+                .keyID("dummy-key-id")
+                .keyUse(KeyUse.SIGNATURE)
+                .algorithm(JWSAlgorithm.RS256)
+                .build();
+    }
+
     @PreDestroy
     public void stop() throws Exception {
         server.stop();
@@ -166,5 +200,9 @@ public class OAuthTokenIntrospectDummy implements Stub {
 
     @Override
     public void reset() {
+    }
+
+    public RSAKey getJwk() {
+        return jwk;
     }
 }

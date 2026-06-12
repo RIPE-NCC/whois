@@ -55,11 +55,13 @@ public class OidcConfigurationProvider {
 
     private final String openIdMetadataUrl;
 
+
     private final AtomicReference<OidcConfigurationRecord> oidcConfigurationRecordRef = new AtomicReference<>();
 
     @Autowired
     public OidcConfigurationProvider(@Value("${openId.metadata.url:}")  final String openIdMetadataUrl) {
         this.openIdMetadataUrl = openIdMetadataUrl;
+
         getOidcConfigurationOrInitialise();
     }
 
@@ -100,14 +102,15 @@ public class OidcConfigurationProvider {
 
         jwtProcessor.setJWSKeySelector(keySelector);
 
-        //TODO: It with expired values, expired time and issued at expired. Check library (nimbus) to see how can I
-        // check expiration time and issues at.
-        //Just checking if those values are present in bearerToken? check if just doing this
         jwtProcessor.setJWTClaimsSetVerifier(new DefaultJWTClaimsVerifier<>(
-                new JWTClaimsSet.Builder().build(),
+                new JWTClaimsSet.Builder()
+                        .issuer(metadata.getIssuer().getValue())
+                        .build(),
                 new HashSet<>(Arrays.asList(
+                        JWTClaimNames.ISSUER,
                         JWTClaimNames.AUDIENCE,
                         JWTClaimNames.EXPIRATION_TIME,
+                        JWTClaimNames.ISSUED_AT,
                         OAUTH_CUSTOM_EMAIL_PARAM,
                         OAUTH_CUSTOM_UUID_PARAM))));
         return jwtProcessor;

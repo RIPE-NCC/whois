@@ -54,6 +54,10 @@ public class AuthServiceServerDummy implements Stub {
             usermap.put("test@ripe.net", new SSOUser("test@ripe.net", "Ripe","User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", true));
             usermap.put("person@net.net", new SSOUser("person@net.net", "Test","User", "906635c2-0405-429a-800b-0602bd716124", true));
             usermap.put("noreply@ripe.net", new SSOUser("noreply@ripe.net", "Test","User", "306635c2-0405-429a-800b-0602bd716124", true));
+            usermap.put("expired@net.net", new SSOUser("expired@net.net", "Test","User", "806635c2-0405-429a-800b-0602bd716124", true));
+            usermap.put("issues_at@net.net", new SSOUser("issues_at@net.net", "Test","User", "706635c2-0405-429a-800b-0602bd716124", true));
+            usermap.put("invalid@ripe.net", new SSOUser("invalid@ripe.net", "Test","User", "706635c2-0405-429a-800b-0602bd716124", true));
+            usermap.put("invalid_Iss@net.net", new SSOUser("issues_at@net.net", "Test","User", "706635c2-0405-429a-800b-0602bd716124", true));
 
             usermap.put("ed7cd420-6402-11e3-949a-0800200c9a66", new SSOUser("db-test@ripe.net","Db","User","ed7cd420-6402-11e3-949a-0800200c9a66", true));
             usermap.put("017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", new SSOUser("random@ripe.net", "Random","User", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", true));
@@ -61,6 +65,8 @@ public class AuthServiceServerDummy implements Stub {
             usermap.put("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia", new SSOUser("test@ripe.net", "Ripe","User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", true));
             usermap.put("906635c2-0405-429a-800b-0602bd716124", new SSOUser("person@net.net", "Test","User", "906635c2-0405-429a-800b-0602bd716124", true));
             usermap.put("306635c2-0405-429a-800b-0602bd716124", new SSOUser("noreply@ripe.net", "Test","User", "306635c2-0405-429a-800b-0602bd716124", true));
+            usermap.put("806635c2-0405-429a-800b-0602bd716124", new SSOUser("expired@net.net", "Test","User", "806635c2-0405-429a-800b-0602bd716124", true));
+            usermap.put("706635c2-0405-429a-800b-0602bd716124", new SSOUser("issues_at@net.net", "Test","User", "706635c2-0405-429a-800b-0602bd716124", true));
 
             // for e2e integration test
             usermap.put("aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", new SSOUser("db_e2e_1@ripe.net", "DB","E2E_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", true));
@@ -73,6 +79,7 @@ public class AuthServiceServerDummy implements Stub {
             usermap.put("invalid-token", null);
             usermap.put("db_e2e_1", new SSOUser("db_e2e_1@ripe.net", "DB","E2E_1", "aff2b59f-7bd0-413b-a16f-5bc1c5c3c3ef", true));
             usermap.put("db_e2e_2", new SSOUser("db_e2e_2@ripe.net", "DB","E2E_2", "e74ccc29-75f9-4ce1-aee0-690345a56c96", true));
+
 
         }
 

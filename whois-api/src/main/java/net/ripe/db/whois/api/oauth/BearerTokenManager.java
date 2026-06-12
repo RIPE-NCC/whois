@@ -10,6 +10,7 @@ import com.nimbusds.jwt.JWTClaimNames;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.ExpiredJWTException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionRequest;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
@@ -36,7 +37,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_ANY_MNTNR_SCOPE;
@@ -106,6 +109,10 @@ public class BearerTokenManager {
         try {
             final JWTClaimsSet claimSet = getJWTClaimsValidatingToken(accessToken);
 
+            if (!validateIssuedAt(claimSet.getIssueTime().toInstant())){
+                throw new ExpiredJWTException("Token cannot be used because it was created in the future");
+            }
+
             if (!validateAudience(claimSet.getAudience())) {
                 oAuthSessionBuilder.errorStatus(UpdateMessages.invalidOauthAudience(authType).toString());
             }
@@ -118,23 +125,11 @@ public class BearerTokenManager {
                     .jti(claimSet.getStringClaim(OAUTH_CUSTOM_JTI_PARAM))
                     .uuid(claimSet.getStringClaim(OAUTH_CUSTOM_UUID_PARAM)).build();
 
-        } catch (BadJWSException e) {
-            LOGGER.info("Authentication failed for {}, due to {}: {}", authType, e.getClass().getName(), e.getMessage());
-
-            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Authentication failed for %s", authType));
-            return oAuthSessionBuilder.build();
-        } catch (ParseException e) {
-            LOGGER.info("Failed to parse {}, due to {}: {}", authType, e.getClass().getName(), e.getMessage());
-
-            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Failed to parse %s", authType));
-            return oAuthSessionBuilder.build();
         } catch (Exception e) {
-            LOGGER.info("Authentication failed during validation, due to {}: {}", e.getClass().getName(), e.getMessage());
-
-            tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, "Authentication failed during validation");
-            return oAuthSessionBuilder.build();
+            return handleException(e, accessToken, oAuthSessionBuilder, authType);
         }
     }
+
 
     private JWTClaimsSet getJWTClaimsValidatingToken(final BearerAccessToken accessToken) throws ParseException,
             BadJOSEException, JOSEException {
@@ -156,6 +151,13 @@ public class BearerTokenManager {
             LOGGER.debug("Failed to parse bearer token, due to {}: {}", e.getClass().getName(), e.getMessage());
             return null;
         }
+    }
+
+    private boolean validateIssuedAt(final Instant issuesAt) {
+        if (issuesAt == null) {
+            return false;
+        }
+        return issuesAt.isBefore(Instant.now());
     }
 
     private boolean validateAudience(final List<String> audiences) {
@@ -190,6 +192,9 @@ public class BearerTokenManager {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         try {
+
+            getJWTClaimsValidatingToken(accessToken); //Validate JWT claim (required values are present/algorithm/iss...)
+
             final OIDCProviderMetadata metadata = oidcConfigurationProvider.getMetadataOrInitOidcConfiguration();
             if (metadata == null) {
                 throw new IllegalStateException("Failed to initialize JWT processor");
@@ -222,9 +227,7 @@ public class BearerTokenManager {
                     .uuid(tokenDetails.getStringParameter(OAUTH_CUSTOM_UUID_PARAM)).build();
 
         } catch (Exception e) {
-            LOGGER.error("Failed to extract OAuth session, due to {}: {}", e.getClass().getName(), e.getMessage());
-            tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Error validating OauthSession");
-            return oAuthSessionBuilder.build();
+            return handleException(e, accessToken, oAuthSessionBuilder, authType);
         } finally {
             LOGGER.info("Verified using token inspection endpoint in {} ", stopwatch.stop());
         }
@@ -261,5 +264,38 @@ public class BearerTokenManager {
         }
     }
 
+    private OAuthSession handleException(final Exception e, final BearerAccessToken accessToken, final OAuthSession.Builder oAuthSessionBuilder, final String authType){
+
+        switch (e) {
+            case BadJWSException badJWSException -> {
+                LOGGER.info("Authentication failed for {}, due to {}: {}", authType, badJWSException.getClass().getName(), badJWSException.getMessage());
+
+                tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Authentication failed for %s", authType));
+                return oAuthSessionBuilder.build();
+            }
+            case ParseException parseException -> {
+                LOGGER.info("Failed to parse {}, due to {}: {}", authType, parseException.getClass().getName(), parseException.getMessage());
+
+                tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, String.format("Failed to parse %s", authType));
+                return oAuthSessionBuilder.build();
+            }
+            case ExpiredJWTException expiredJWTException -> {
+                LOGGER.info("{} is expired, due to {}: {}", authType, expiredJWTException.getClass().getName(), expiredJWTException.getMessage());
+                tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, String.format("Session associated with %s is not active", authType));
+                return oAuthSessionBuilder.build();
+            }
+            case BadJOSEException badJOSEException -> {
+                LOGGER.info("{} has an invalid JWT, due to {}: {}", authType, badJOSEException.getClass().getName(), badJOSEException.getMessage());
+                tryToBuildOAuthSession(accessToken, oAuthSessionBuilder, "Invalid " + authType);
+                return oAuthSessionBuilder.build();
+            }
+            default -> {
+                LOGGER.info("Authentication failed during validation, due to {}: {}", e.getClass().getName(), e.getMessage());
+
+                tryToBuildOAuthSession(accessToken,oAuthSessionBuilder, "Authentication failed during validation");
+                return oAuthSessionBuilder.build();
+            }
+        }
+    }
 
 }

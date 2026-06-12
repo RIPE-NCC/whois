@@ -35,9 +35,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -62,16 +63,19 @@ public class ApiKeyAuthServerDummy implements Stub {
     public static final String BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE = "aFR0cm9lZUpWYWlmSWNQR1BZUW5kSmhnOmp5akhYR2g4WDFXRWZyc2M5SVJZcUVYbw==";
     public static final String BASIC_AUTH_INVALID_API_KEY = "aDZsUlpndk9GSXBoamlHd3RDR3VMd3F3OjJDVEdQeDVhbFVFVzRwa1Rrd2FRdGRPNg==";
     public static final String BASIC_AUTH_INVALID_SIGNATURE_API_KEY = "TXp1ZzRxRVlpSTVET1dqOXI1Qkp1Y2k4OnZBdzgyRTFCMkZ2dFVyYjB0MDF0Ykt2cg==";
+    public static final String BASIC_AUTH_INVALID_ISS_API_KEY = "TXp1ZzRxRVlpSTVET1dqOXI1Qkp1Y2k4OnZBdzgyRTFCMkZ2dFVyYjB0MDF0Ykt2cd==";
 
     public static final String BASIC_AUTH_PERSON_NO_MNT = "WVpJUUlVTThOUVo3SUpWSU1HSkZTQ09HOjB2bVNCc2taS0FSMlF5ekNFd0FBRGN5eg==";
     public static final String BASIC_AUTH_PERSON_NULL_SCOPE = "QlBSSTNCSFBPUkhGQUJCUjVHV1M3U1hHOmhlU29ZTYzTXM3elJsM2ppc1czOFJ1Ng==";
+    public static final String BASIC_AUTH_EXPIRED = "WVpJUUlVTThOUVo3SUpWSU1HSkZTQ09HOjB2bVNCc2taS0FSMlF5ekNFd0FBRGN5ec==";
+    public static final String BASIC_AUTH_ISSUES_AT = "WVpJUUlVTThOUVo3SUpWSU1HSkZTQ09HOjB2bVNCc2taS0FSMlF5ekNFd0FBRGN5eD==";
 
 
     public static final Map<String, JWTClaimsSet> APIKEY_TO_OAUTHSESSION =  Maps.newHashMap();
 
     {
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_TEST_NO_MNT, getJWT(AUD,  "test@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY.write"));
-        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INACTIVE_TOKEN, getJWT(AUD,  "inactive@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY.write"));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INACTIVE_TOKEN, getJWT(AUD,  "inactive@ripe.net", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", "profile email whois.mntner:ANY.write", Date.from(Instant.now().minus(1, ChronoUnit.DAYS)), Date.from(Instant.now().minus(1, ChronoUnit.DAYS))));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_ANY_MNT, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "whois.mntner:ANY.write"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_OWNER_MNT,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_MULTIPLE_MNT_WITH_ANY,  getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:OWNER-MNT whois.mntner:ANY.write"));
@@ -83,23 +87,36 @@ public class ApiKeyAuthServerDummy implements Stub {
 
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NO_MNT, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email"));
         APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_PERSON_NULL_SCOPE, getJWT(AUD, "person@net.net", "906635c2-0405-429a-800b-0602bd716124", null));
+
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_EXPIRED, getJWT(AUD, "expired@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:ANY.write", Date.from(Instant.now().minus(1, ChronoUnit.DAYS)), Date.from(Instant.now().minus(1, ChronoUnit.DAYS))));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_ISSUES_AT, getJWT(AUD, "issues_at@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:ANY.write", Date.from(Instant.now().plus(1, ChronoUnit.DAYS)), Date.from(Instant.now().plus(1, ChronoUnit.DAYS))));
+        APIKEY_TO_OAUTHSESSION.put(BASIC_AUTH_INVALID_ISS_API_KEY, getJWT(AUD, "invalid_Iss@net.net", "906635c2-0405-429a-800b-0602bd716124", "profile email whois.mntner:ANY.write"));
     }
 
     private Server server;
     private int port = 0;
 
     private final ApiKeyAuthServiceClient apiKeyAuthServiceClient;
+    private final OAuthTokenIntrospectDummy oAuthTokenIntrospectDummy;
 
     @Autowired
-    public ApiKeyAuthServerDummy(ApiKeyAuthServiceClient apiKeyAuthServiceClient) {
+    public ApiKeyAuthServerDummy(final ApiKeyAuthServiceClient apiKeyAuthServiceClient,
+                                 final OAuthTokenIntrospectDummy oAuthTokenIntrospectDummy) {
         this.apiKeyAuthServiceClient = apiKeyAuthServiceClient;
+        this.oAuthTokenIntrospectDummy = oAuthTokenIntrospectDummy;
     }
 
 
     private class OAuthTestHandler extends Handler.Abstract {
 
+        private final RSAKey privateKey;
+
+        OAuthTestHandler(final RSAKey privateKey){
+            this.privateKey = privateKey;
+        }
+
         @Override
-        public boolean handle(Request request, Response response, Callback callback) throws Exception {
+        public boolean handle(Request request, Response response, Callback callback) {
             response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/xml;charset=utf-8");
 
             if(!request.getHttpURI().getPath().contains("/api/v1/api-keys/authenticate")) {
@@ -110,7 +127,7 @@ public class ApiKeyAuthServerDummy implements Stub {
             final String userKey = StringUtils.substringAfter(request.getHeaders().get("Authorization"), "Basic").trim();
 
             try {
-                final String jwt = convertToJwt(userKey);
+                final String jwt = convertToJwt(userKey, privateKey, oAuthTokenIntrospectDummy.getPort());
 
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.write(true, ByteBuffer.wrap(jwt.getBytes(StandardCharsets.UTF_8)), callback);
@@ -130,26 +147,31 @@ public class ApiKeyAuthServerDummy implements Stub {
         }
     }
 
-    public static String convertToJwt(final String userKey) {
+    public static String convertToJwt(final String userKey, final RSAKey keyPair, final int port) {
 
         final JWTClaimsSet jwt = APIKEY_TO_OAUTHSESSION.get(userKey);
         if (jwt == null) {
             throw new NotFoundException("Api Key not found");
         }
 
-        if(userKey.equals(BASIC_AUTH_INVALID_SIGNATURE_API_KEY)) {
-            throw new NotAuthorizedException("Api Key not valid");
-        }
 
-        try (InputStream is = ApiKeyAuthServerDummy.class.getResourceAsStream("/JWT_private.key")) {
+        try {
+            final JWTClaimsSet jwtWithIss = new JWTClaimsSet.Builder(jwt)
+                    .issuer(userKey.equals(BASIC_AUTH_INVALID_ISS_API_KEY) ?
+                            "http://localhost:" + port + "/wrongRealms" + "/ripe-ncc" :
+                            "http://localhost:" + port + "/realms" + "/ripe-ncc"
+                            )
+                    .build();
 
-            final RSAKey privateKey = RSAKey.parse(new String(is.readAllBytes(), StandardCharsets.UTF_8));
-
-            final JWSSigner signer = new RSASSASigner(privateKey);
+            final JWSSigner signer = new RSASSASigner(keyPair);
 
             JWSObject jwsObject = new JWSObject(
-                    new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(privateKey.getKeyID()).build(),
-                    new Payload(jwt.toJSONObject()));
+                    new JWSHeader.Builder(userKey.equals(
+                            BASIC_AUTH_INVALID_SIGNATURE_API_KEY) ?
+                            JWSAlgorithm.PS256 :
+                            JWSAlgorithm.RS256
+                    ).keyID(keyPair.getKeyID()).build(),
+                    new Payload(jwtWithIss.toJSONObject()));
 
             jwsObject.sign(signer);
 
@@ -164,7 +186,7 @@ public class ApiKeyAuthServerDummy implements Stub {
     @RetryFor(attempts = 5, value = Exception.class)
     public void start() {
         server = new Server(0);
-        server.setHandler(new OAuthTestHandler());
+        server.setHandler(new OAuthTestHandler(this.oAuthTokenIntrospectDummy.getJwk()));
         try {
             server.start();
         } catch (Exception e) {
@@ -192,11 +214,21 @@ public class ApiKeyAuthServerDummy implements Stub {
     }
 
     private static JWTClaimsSet getJWT(final Object AUD, final String email, final String uuid, final String scopes) {
+        return getJWT(AUD, email, uuid, scopes,
+                Date.from(Instant.now().minus(1, ChronoUnit.DAYS)),
+                Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
+        );
+
+    }
+
+    private static JWTClaimsSet getJWT(final Object AUD, final String email, final String uuid, final String scopes,
+                                       final Date issuedTime, final Date expirationTime) {
         return new JWTClaimsSet.Builder()
                 .claim(JWTClaimNames.AUDIENCE, AUD)
+                .claim(JWTClaimNames.ISSUED_AT, issuedTime)
                 .claim(OAUTH_CUSTOM_EMAIL_PARAM, email)
                 .claim( OAUTH_CUSTOM_UUID_PARAM, uuid)
-                .claim( JWTClaimNames.EXPIRATION_TIME, new Date())
+                .claim( JWTClaimNames.EXPIRATION_TIME, expirationTime)
                 .claim("scope", scopes).build();
 
     }
