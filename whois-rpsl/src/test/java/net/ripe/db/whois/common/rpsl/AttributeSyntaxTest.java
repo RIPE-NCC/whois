@@ -8,6 +8,21 @@ import static org.hamcrest.Matchers.is;
 public class AttributeSyntaxTest {
 
     @Test
+    public void abuseMailbox() {
+        verifyFailure(ObjectType.ROLE, AttributeType.ABUSE_MAILBOX, "test");
+
+        verifySuccess(ObjectType.ROLE, AttributeType.ABUSE_MAILBOX, "test@ripe.net");
+        verifySuccess(ObjectType.ROLE, AttributeType.ABUSE_MAILBOX, "Test User <test@ripe.net>");
+    }
+
+    @Test
+    public void abusec() {
+        verifyFailure(ObjectType.ORGANISATION, AttributeType.ABUSE_C, "abuse contact");
+
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.ABUSE_C, "AA1-RIPE");
+    }
+
+    @Test
     public void address() {
         verifySuccess(ObjectType.ORGANISATION, AttributeType.ADDRESS, "gcyudgyducgdugcuydguycd cgduyagcduygcduy gcdyugcyudgcduygcd cdhiuchdghcdiughciudhciudhcdiu cyudghiucdghucidgcdiugdcdiu cduihciudhudcdc");
     }
@@ -37,6 +52,14 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AS_BLOCK, AttributeType.AS_BLOCK, "AS4-AS5");
         verifySuccess(ObjectType.AS_BLOCK, AttributeType.AS_BLOCK, "AS7 - AS7");
         verifySuccess(ObjectType.AS_BLOCK, AttributeType.AS_BLOCK, "AS1877 - AS1901");
+    }
+
+    @Test
+    public void asName() {
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.AS_NAME, "ANY");
+        verifyFailure(ObjectType.AUT_NUM, AttributeType.AS_NAME, "AS Name");
+
+        verifySuccess(ObjectType.AUT_NUM, AttributeType.AS_NAME, "ASNAME");
     }
 
     @Test
@@ -142,6 +165,23 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "md5-pw $1$abc012./$./012345678901234567890");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-0123456");
         verifyFailure(ObjectType.MNTNER, AttributeType.AUTH, "pgpkey-012345678");
+    }
+
+    @Test
+    public void author() {
+        verifyFailure(ObjectType.POEM, AttributeType.AUTHOR, "Mark Twain");
+
+        verifySuccess(ObjectType.POEM, AttributeType.AUTHOR, "AA1-RIPE");
+    }
+
+    @Test
+    public void certif() {
+        verifySuccess(ObjectType.KEY_CERT, AttributeType.CERTIF, "-----BEGIN PGP PUBLIC KEY BLOCK-----");
+        verifySuccess(ObjectType.KEY_CERT, AttributeType.CERTIF, "");
+        verifySuccess(ObjectType.KEY_CERT, AttributeType.CERTIF, "-----END PGP PUBLIC KEY BLOCK-----");
+        verifySuccess(ObjectType.KEY_CERT, AttributeType.CERTIF, "-----BEGIN CERTIFICATE-----");
+        verifySuccess(ObjectType.KEY_CERT, AttributeType.CERTIF, "MIIC8DCCAlmgAwIBAgICBIQwDQYJKoZIhvcNAQEEBQAwXjELMAkGA1UEBhMCTkwx");
+        verifySuccess(ObjectType.KEY_CERT, AttributeType.CERTIF, "-----END CERTIFICATE-----");
     }
 
     @Test
@@ -349,6 +389,14 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void faxNo() {
+        verifyFailure(ObjectType.ORGANISATION, AttributeType.FAX_NO, "06-4826083");
+        verifyFailure(ObjectType.ORGANISATION, AttributeType.FAX_NO, "020-720375");
+
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.FAX_NO, "+3161021077");
+    }
+
+    @Test
     public void filterSet() {
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER_SET, "fltr");
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER_SET, "Fltr1");
@@ -387,6 +435,13 @@ public class AttributeSyntaxTest {
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER, "{ 999/8^+ }");
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER, "invalid");
         verifyFailure(ObjectType.FILTER_SET, AttributeType.FILTER, "{ 192.168.0/16^+, 10/8^+ }");
+    }
+
+    @Test
+    public void form() {
+        verifyFailure(ObjectType.POEM,  AttributeType.FORM, "haiku");
+
+        verifySuccess(ObjectType.POEM,  AttributeType.FORM, "form-haiku");
     }
 
     @Test
@@ -594,6 +649,21 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void irt() {
+        verifyFailure(ObjectType.IRT, AttributeType.IRT, "TEST-MNT");
+
+        verifySuccess(ObjectType.IRT, AttributeType.IRT, "IRT-TEST");
+    }
+
+    @Test
+    public void irtNfy() {
+        verifyFailure(ObjectType.IRT, AttributeType.IRT_NFY, "test");
+
+        verifySuccess(ObjectType.IRT, AttributeType.IRT_NFY, "test@ripe.net");
+        verifySuccess(ObjectType.IRT, AttributeType.IRT_NFY, "Test User <test@ripe.net>");
+    }
+
+    @Test
     public void keyCert() {
         verifyFailure(ObjectType.KEY_CERT, AttributeType.KEY_CERT, "PGPKEY-");
         verifyFailure(ObjectType.KEY_CERT, AttributeType.KEY_CERT, "A6D57ECE");
@@ -630,6 +700,12 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.INET_RTR, AttributeType.LOCAL_AS, "AS0");
         verifySuccess(ObjectType.INET_RTR, AttributeType.LOCAL_AS, "AS3255");
         verifySuccess(ObjectType.INET_RTR, AttributeType.LOCAL_AS, "AS4294967295");
+    }
+
+    @Test
+    public void mbrsByRef() {
+        verifySuccess(ObjectType.AS_SET, AttributeType.MBRS_BY_REF, "ANY");
+        verifySuccess(ObjectType.AS_SET, AttributeType.MBRS_BY_REF, "TEST-MNT");
     }
 
     @Test
@@ -778,6 +854,14 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.IRT, AttributeType.MNT_LOWER, "A1");
         verifySuccess(ObjectType.IRT, AttributeType.MNT_LOWER, "A1, A2");
         verifySuccess(ObjectType.IRT, AttributeType.MNT_LOWER, "FOO-BAR-ZOT");
+    }
+
+    @Test
+    public void mntNfy() {
+        verifyFailure(ObjectType.ORGANISATION, AttributeType.MNT_NFY, "test");
+
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.MNT_NFY, "test@ripe.net");
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.MNT_NFY, "Test User <test@ripe.net>");
     }
 
     @Test
@@ -946,6 +1030,14 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void nnotify() {
+        verifyFailure(ObjectType.ORGANISATION, AttributeType.NOTIFY, "test");
+
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.NOTIFY, "test@ripe.net");
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.NOTIFY, "Test User <test@ripe.net>");
+    }
+
+    @Test
     public void nserver() {
         verifySuccess(ObjectType.DOMAIN, AttributeType.NSERVER, "RIPE.NL");
         verifySuccess(ObjectType.DOMAIN, AttributeType.NSERVER, "ns5.bogus.com");
@@ -990,6 +1082,14 @@ public class AttributeSyntaxTest {
 
     @Test
     public void organisation() {
+        verifyFailure(ObjectType.ORGANISATION, AttributeType.ORGANISATION, "aaa-aa-aa");
+        verifyFailure(ObjectType.ORGANISATION, AttributeType.ORGANISATION, "Test Organisation");
+
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.ORGANISATION, "ORG-AA1-RIPE");
+    }
+
+    @Test
+    public void org() {
         verifyFailure(ObjectType.ORGANISATION, AttributeType.ORG, "aaa-aa-aa");
         verifyFailure(ObjectType.ORGANISATION, AttributeType.ORG, "aaa-");
         verifyFailure(ObjectType.ORGANISATION, AttributeType.ORG, "aaa-aa");
@@ -1132,6 +1232,14 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void pingHdl() {
+        verifyFailure(ObjectType.ROUTE, AttributeType.PING_HDL, "AA1-RIPE-RIPE");
+
+        verifySuccess(ObjectType.ROUTE, AttributeType.PING_HDL, "test");
+        verifySuccess(ObjectType.ROUTE, AttributeType.PING_HDL, "AA1-RIPE");
+    }
+
+    @Test
     public void poem() {
         verifyFailure(ObjectType.POEM, AttributeType.POEM, "poem");
         verifyFailure(ObjectType.POEM, AttributeType.POEM, "poem-");
@@ -1158,10 +1266,20 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void refNfy() {
+        verifyFailure(ObjectType.ORGANISATION, AttributeType.REF_NFY, "test");
+
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.REF_NFY, "test@ripe.net");
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.REF_NFY, "Test User <test@ripe.net>");
+    }
+
+    @Test
     public void regNr() {
+        verifySuccess(ObjectType.ORGANISATION, AttributeType.REG_NR, "");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.REG_NR, "registration-number");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.REG_NR, "1");
         verifySuccess(ObjectType.ORGANISATION, AttributeType.REG_NR, "1234");
+
     }
 
     @Test
@@ -1320,6 +1438,13 @@ public class AttributeSyntaxTest {
     }
 
     @Test
+    public void sponsoringOrg() {
+        verifyFailure(ObjectType.INET6NUM,  AttributeType.SPONSORING_ORG, "TEST");
+
+        verifySuccess(ObjectType.INET6NUM,  AttributeType.SPONSORING_ORG, "ORG-AA1-RIPE");
+    }
+
+    @Test
     public void statusIp4Ip6() {
         verifyFailure(ObjectType.INETNUM, AttributeType.STATUS, "SOME_INVALID_STATUS");
 
@@ -1377,6 +1502,24 @@ public class AttributeSyntaxTest {
         verifySuccess(ObjectType.AS_SET, AttributeType.TECH_C, "HIA1-AFRINIC");
         verifySuccess(ObjectType.AS_SET, AttributeType.TECH_C, "HIA1-ARIN");
     }
+
+    @Test
+    public void updTo() {
+        verifyFailure(ObjectType.MNTNER, AttributeType.UPD_TO, "test");
+
+        verifySuccess(ObjectType.MNTNER, AttributeType.UPD_TO, "test@ripe.net");
+        verifySuccess(ObjectType.MNTNER, AttributeType.UPD_TO, "Test User <test@ripe.net>");
+    }
+
+    @Test
+    public void zonec() {
+        verifyFailure(ObjectType.DOMAIN, AttributeType.ZONE_C, "ZONEC");
+
+        verifySuccess(ObjectType.DOMAIN, AttributeType.ZONE_C, "HIA1-AFRINIC");
+        verifySuccess(ObjectType.DOMAIN, AttributeType.ZONE_C, "HIA1-ARIN");
+   }
+
+    // helper methods
 
     private void verifySuccess(final ObjectType objectType, final AttributeType attributeType, final String value) {
         verify(objectType, attributeType, value, false);
