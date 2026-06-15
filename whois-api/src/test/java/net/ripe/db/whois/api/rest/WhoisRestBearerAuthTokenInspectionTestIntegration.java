@@ -149,14 +149,12 @@ public class WhoisRestBearerAuthTokenInspectionTestIntegration extends AbstractH
     @BeforeAll
     public static void setupApiProperties() {
         System.setProperty("oauth.token.inspection","true");
-        System.setProperty("apikey.authenticate.enabled","true");
         System.setProperty("apikey.max.scope","2");
     }
 
     @AfterAll
     public static void restApiProperties() {
         System.clearProperty("oauth.token.inspection");
-        System.clearProperty("apikey.authenticate.enabled");
         System.clearProperty("apikey.public.key.url");
         System.clearProperty("apikey.max.scope");
     }

@@ -58,7 +58,6 @@ public class BearerTokenManager {
     private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
     private static final int CLIENT_READ_TIMEOUT = 60_000;
 
-    private final boolean enabled;
     private final ClientSecretBasic keycloakClient;
     private final int maxScopes;
     private final boolean shouldUseTokenInspector;
@@ -66,13 +65,11 @@ public class BearerTokenManager {
     private final OidcConfigurationProvider oidcConfigurationProvider;
 
     @Autowired
-    public BearerTokenManager(@Value("${apikey.authenticate.enabled:false}") final boolean enabled,
-                              @Value("${apikey.max.scope:10}") final int maxScopes,
+    public BearerTokenManager(@Value("${apikey.max.scope:10}") final int maxScopes,
                               @Value("${keycloak.idp.password:}")  final String keycloakPassword,
                               @Value("${keycloak.idp.client:whois}") final String whoisKeycloakId,
                               @Value("${oauth.token.inspection:false}") final boolean shouldUseTokenInspector,
                               final OidcConfigurationProvider oidcConfigurationProvider) {
-        this.enabled = enabled;
         this.keycloakClient = new ClientSecretBasic(new ClientID(whoisKeycloakId), new Secret(keycloakPassword));
         this.oidcConfigurationProvider = oidcConfigurationProvider;
         this.shouldUseTokenInspector = shouldUseTokenInspector;
@@ -81,7 +78,6 @@ public class BearerTokenManager {
 
     @Nullable
     public OAuthSession validateBearerTokenAndBuildOauthSession(final HttpServletRequest request, final String apiKeyId) {
-        if(!enabled) return null;
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if(StringUtils.isEmpty(authHeader) || !authHeader.startsWith(AccessTokenType.BEARER.toString())) {

@@ -73,7 +73,6 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
         System.setProperty("md5.password.supported", "false");
         System.setProperty("irt.password.supported", "false");
 
-        System.setProperty("apikey.authenticate.enabled","true");
         System.setProperty("apikey.max.scope","2");
     }
 
@@ -82,7 +81,6 @@ public class SyncUpdatesServicePasswdNotSupportedTestIntegration extends Abstrac
         System.clearProperty("md5.password.supported");
         System.clearProperty("irt.password.supported");
 
-        System.clearProperty("apikey.authenticate.enabled");
         System.clearProperty("apikey.max.scope");
     }
 

@@ -112,8 +112,6 @@ public class WhoisFixture {
         System.setProperty("whois.private.keys", certificatePrivateKeyPair.getPrivateKeyFilename());
         System.setProperty("https.x_forwarded_for", "false");
 
-        // enable APIKEYs
-        System.setProperty("apikey.authenticate.enabled","true");
         System.setProperty("apikey.max.scope","2");
     }
 

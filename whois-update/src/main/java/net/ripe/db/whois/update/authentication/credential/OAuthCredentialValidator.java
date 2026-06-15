@@ -29,8 +29,6 @@ import static net.ripe.db.whois.common.oauth.OAuthUtils.validateScope;
 public class OAuthCredentialValidator implements CredentialValidator<OAuthCredential, SsoCredential> {
     private final LoggerContext loggerContext;
 
-    @Value("${apikey.authenticate.enabled:false}")
-    private boolean enabled;
 
     private final DateTimeProvider dateTimeProvider;
 
@@ -55,9 +53,6 @@ public class OAuthCredentialValidator implements CredentialValidator<OAuthCreden
 
     @Override
     public boolean hasValidCredential(final PreparedUpdate update, final UpdateContext updateContext, final Collection<OAuthCredential> offeredCredentials, final SsoCredential knownCredential, final RpslObject maintainer) {
-        if(!enabled) {
-            return false;
-        }
 
         for (final OAuthCredential offered : offeredCredentials) {
 

@@ -28,14 +28,11 @@ public class HttpsAPIKeyAuthFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpsAPIKeyAuthFilter.class);
 
-    final private boolean isEnabled;
     final ApiKeyAuthServiceClient apiKeyAuthServiceClient;
 
     @Autowired
-    public HttpsAPIKeyAuthFilter(@Value("${apikey.authenticate.enabled:false}") final boolean isEnabled,
-                                 final ApiKeyAuthServiceClient apiKeyAuthServiceClient) {
+    public HttpsAPIKeyAuthFilter(final ApiKeyAuthServiceClient apiKeyAuthServiceClient) {
         this.apiKeyAuthServiceClient = apiKeyAuthServiceClient;
-        this.isEnabled = isEnabled;
     }
 
     @Override
@@ -77,10 +74,6 @@ public class HttpsAPIKeyAuthFilter implements Filter {
     }
 
     private boolean isAPIKeyRequest(final HttpServletRequest httpRequest) {
-        if(!isEnabled) {
-            return false;
-        }
-
        //TODO: Remove this logic when basic auth support is deprecated
        return OAuthUtils.isAPIKeyRequest(httpRequest.getHeader(HttpHeaders.AUTHORIZATION));
     }
