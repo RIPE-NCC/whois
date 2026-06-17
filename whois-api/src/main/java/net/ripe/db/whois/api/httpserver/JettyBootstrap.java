@@ -283,6 +283,7 @@ public class JettyBootstrap implements ApplicationService {
         httpConfiguration.addCustomizer(new RemoteAddressCustomizer(ipRanges, this.xForwardedForHttp));
         httpConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpConfiguration.setUriCompliance(UriCompliance.LEGACY);
+        httpConfiguration.setSendServerVersion(false);
         final ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration), new HTTP2CServerConnectionFactory(httpConfiguration));
         connector.setPort(this.port);
         return connector;
@@ -357,6 +358,7 @@ public class JettyBootstrap implements ApplicationService {
 
         httpsConfiguration.setIdleTimeout(idleTimeout * 1000L);
         httpsConfiguration.setUriCompliance(UriCompliance.LEGACY);
+        httpsConfiguration.setSendServerVersion(false);
 
         final ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory();
         alpn.setDefaultProtocol(HttpVersion.HTTP_1_1.asString());
