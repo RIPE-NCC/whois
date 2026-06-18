@@ -19,6 +19,7 @@ import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.aspects.Stopwatch;
 import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
@@ -34,6 +35,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +59,8 @@ public class AuthServiceClient {
     private static final String USER_ACCOUNTS_PATH = "/accounts/";
 
     private static final String HISTORICAL_USER_SEARCH_PATH = "/history/user";
-    private static final String EMAIL_PATH = "/email";
+
+    private static final String EMAIL_PATH = "email";
     private static final String SEARCH_ACCOUNTS_PATH = "/search-accounts";
     private static final String VALIDATE_TOKEN_PERMISSION = "portal";
 
@@ -105,9 +109,14 @@ public class AuthServiceClient {
         }
 
         try {
-            return client.target(restUrl)
+
+            final WebTarget webTarget = client.target(restUrl)
                     .path(VALIDATE_PATH)
-                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
+                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION);
+
+            validateTarget(webTarget.getUri().normalize(), VALIDATE_PATH);
+
+            return webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .header("Authorization", String.format("Bearer %s", authToken))
@@ -134,10 +143,14 @@ public class AuthServiceClient {
         }
 
         try {
-            return client.target(restUrl)
+            final WebTarget webTarget = client.target(restUrl)
                     .path(USER_PATH)
                     .path(email)
-                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
+                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION);
+
+            validateTarget(webTarget.getUri().normalize(), USER_PATH);
+
+            return webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
@@ -172,10 +185,14 @@ public class AuthServiceClient {
         }
 
         try {
-            final ValidateTokenResponse response = client.target(restUrl)
+            final WebTarget webTarget = client.target(restUrl)
                     .path(USER_ACCOUNTS_PATH)
                     .path(EMAIL_PATH)
-                    .path(username)
+                    .path(username);
+
+            validateTarget(webTarget.getUri().normalize(), USER_ACCOUNTS_PATH);
+
+            final ValidateTokenResponse response = webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
@@ -201,10 +218,14 @@ public class AuthServiceClient {
             throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
         }
 
+        final WebTarget webTarget = client.target(restUrl)
+                .path(USER_ACCOUNTS_PATH)
+                .path(uuid);
+
+        validateTarget(webTarget.getUri().normalize(), USER_ACCOUNTS_PATH);
+
         try {
-            return client.target(restUrl)
-                    .path(USER_ACCOUNTS_PATH)
-                    .path(uuid)
+            return webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
@@ -316,10 +337,14 @@ public class AuthServiceClient {
                 .collect(Collectors.joining(","));
 
         try {
-            return client.target(restUrl)
+            final WebTarget webTarget = client.target(restUrl)
                     .path(ORGANISATION_MEMBERS_PATH)
                     .path(SEARCH_ACCOUNTS_PATH)
-                    .queryParam("by_membershipId", membershipIds)
+                    .queryParam("by_membershipId", membershipIds);
+
+            validateTarget(webTarget.getUri().normalize(), ORGANISATION_MEMBERS_PATH);
+
+            return webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(MemberContactsResponse.class);
@@ -334,5 +359,17 @@ public class AuthServiceClient {
             LOGGER.debug("Failed to get accounts for Lir {} due to {}:{}", membershipIds, e.getClass().getName(), e.getMessage());
             throw new AuthServiceClientException(INTERNAL_SERVER_ERROR.getStatusCode(), "Internal server error");
         }
+    }
+
+    private void validateTarget(final URI normalisedPath, final String path){
+        try {
+            final URI uri = new URI(restUrl);
+            if (normalisedPath.getPath().startsWith(uri.getPath() + path)) {
+                return;
+            }
+        } catch (URISyntaxException ex) {
+            // Ignored throw below
+        }
+        throw new IllegalArgumentException("Unexpected path");
     }
 }

@@ -179,4 +179,15 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(cacheManager.getCache("userByEmail").get(USER_EMAIL), is(nullValue()));
     }
+
+
+    @Test
+    public void path_traversal_when_uuid_vulnerability_then_400() {
+        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUuid("../../" + USER_EMAIL));
+    }
+
+    @Test
+    public void path_traversal_when_user_info_vulnerability_then_400() {
+        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUserInfoByEmail("../" + USER_EMAIL));
+    }
 }
