@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -361,4 +362,42 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         assertThat(whoisResources, containsString("<objects>"));
     }
 
+    @Test
+    public void lookup_role_text_plain_extension_utf8() {
+        final RpslObject inetnumV1 = RpslObject.parse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                remarks:      version 第二
+                source:       TEST
+                """);
+
+        final RpslObject inetnumV2 = RpslObject.parse("""
+                inetnum:      192.168.0.0 - 192.169.255.255
+                netname:      TEST-NET-NAME
+                descr:        TEST network
+                country:      NL
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                status:       ALLOCATED PA
+                mnt-by:       OWNER-MNT
+                remarks:      version 第三
+                source:       TEST
+                """);
+
+        databaseHelper.addObject(inetnumV1);
+        databaseHelper.updateObject(inetnumV2);
+
+        final Response response = RestTest.target(getPort(), "whois/test/inetnum/192.168.0.0 - 192.169.255.255/versions/2")
+                .request()
+                .get(Response.class);
+
+        final String rpslObject = response.readEntity(String.class);
+        assertThat(rpslObject, containsString("version 第三"));
+    }
 }

@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils
 import spock.lang.Specification
 
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 class BaseEndToEndSpec extends Specification {
     static WhoisFixture whoisFixture
@@ -136,7 +137,11 @@ ${result}
     }
 
     def queryLineMatches(String qryStr, String matchStr) {
-        def qry = query(qryStr)
+        queryLineMatches(qryStr, matchStr, StandardCharsets.ISO_8859_1);
+    }
+
+    def queryLineMatches(String qryStr, String matchStr, Charset charset) {
+        def qry = query(qryStr, charset)
         qry =~ /(?i)(?m)${matchStr}/
     }
 

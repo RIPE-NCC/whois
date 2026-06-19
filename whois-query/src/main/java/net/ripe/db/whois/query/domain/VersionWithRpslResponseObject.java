@@ -5,7 +5,10 @@ import net.ripe.db.whois.common.rpsl.RpslObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+
 
 public class VersionWithRpslResponseObject implements ResponseObject {
     private final RpslObject rpslObject;
@@ -25,9 +28,15 @@ public class VersionWithRpslResponseObject implements ResponseObject {
     }
 
     @Override
+    public void writeTo(final OutputStream out, final Charset charset) throws IOException {
+        writeTo(new OutputStreamWriter(out, charset), rpslObject.getAttributes());
+    }
+
+    @Override
     public void writeTo(final OutputStream out) throws IOException {
         rpslObject.writeTo(out, StandardCharsets.UTF_8);
     }
+
 
     @Override
     public byte[] toByteArray() {

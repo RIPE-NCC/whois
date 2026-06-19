@@ -913,7 +913,7 @@ class VersionQuerySpec extends BaseWhoisSourceSpec {
         updateResponse =~ "SUCCESS"
 
         when:
-        def response = query("--show-version 3 AS1000", StandardCharsets.UTF_8)
+        def response = query("--show-version 3 AS1000", StandardCharsets.ISO_8859_1)
 
         then:
         response =~ header

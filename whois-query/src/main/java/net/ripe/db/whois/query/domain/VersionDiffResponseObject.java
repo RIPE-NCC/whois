@@ -5,6 +5,7 @@ import net.ripe.db.whois.common.domain.ResponseObject;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -22,13 +23,18 @@ public class VersionDiffResponseObject implements ResponseObject {
     }
 
     @Override
+    public void writeTo(final OutputStream out, final Charset charset) throws IOException {
+        out.write(toByteArray(charset));
+    }
+
+    @Override
     public void writeTo(final OutputStream out) throws IOException {
         out.write(toByteArray());
     }
 
     @Override
     public byte[] toByteArray() {
-        return formattedText.getBytes(StandardCharsets.ISO_8859_1);
+        return formattedText.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -49,5 +55,9 @@ public class VersionDiffResponseObject implements ResponseObject {
     @Override
     public int hashCode() {
         return Objects.hash(formattedText);
+    }
+
+    private byte[] toByteArray(final Charset charset) {
+        return formattedText.getBytes(charset);
     }
 }

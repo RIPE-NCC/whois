@@ -15,6 +15,7 @@ import java.util.Set;
 import static net.ripe.db.whois.query.QueryFlag.ABUSE_CONTACT;
 import static net.ripe.db.whois.query.QueryFlag.ALL_SOURCES;
 import static net.ripe.db.whois.query.QueryFlag.BRIEF;
+import static net.ripe.db.whois.query.QueryFlag.CHARSET;
 import static net.ripe.db.whois.query.QueryFlag.CLIENT;
 import static net.ripe.db.whois.query.QueryFlag.DIFF_VERSIONS;
 import static net.ripe.db.whois.query.QueryFlag.INVERSE;
@@ -39,9 +40,9 @@ class CombinationValidator implements QueryValidator {
         INVALID_COMBINATIONS.put(VALID_SYNTAX, Lists.newArrayList(NO_VALID_SYNTAX, LIST_VERSIONS, SHOW_VERSION, DIFF_VERSIONS));
 
         final Map<QueryFlag, List<QueryFlag>> limitedCombinations = Maps.newHashMap();
-        limitedCombinations.put(LIST_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT));
-        limitedCombinations.put(DIFF_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT));
-        limitedCombinations.put(SHOW_VERSION, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT));
+        limitedCombinations.put(LIST_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT, CHARSET));
+        limitedCombinations.put(DIFF_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT, CHARSET));
+        limitedCombinations.put(SHOW_VERSION, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT, CHARSET));
 
         for (Map.Entry<QueryFlag, List<QueryFlag>> limitedCombinationEntry : limitedCombinations.entrySet()) {
             final QueryFlag queryFlag = limitedCombinationEntry.getKey();
