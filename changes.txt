@@ -1,5 +1,17 @@
 # next
 
+# 1.123
+
+[query] Fix version query encoding and support charset flag with version flags
+[all] Improved resiliency to API keys backend failures and improved logging
+[all] Normalise decomposed unicode
+[api] HTTP APIs use UTF-8 encoding by default
+[rdap] Relation search uses domains not domain element
+
+# 1.122.1
+
+[rdap] Added size limit to RDAP relations queries
+
 # 1.122
 
 * [all] Support UTF-8 in Free Text Attributes ("descr:" and "remarks:").
