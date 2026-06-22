@@ -40,6 +40,8 @@ public class UserDetailsResponse implements Serializable {
         @XmlElement(required = true)
         public String login;
         @XmlElement(required = true)
+        public String uuid;
+        @XmlElement(required = true)
         public boolean active;
         @XmlElement(required = true)
         public List<ValidateTokenResponse.AccessRole> accessRoles;

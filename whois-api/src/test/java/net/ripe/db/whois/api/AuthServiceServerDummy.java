@@ -162,7 +162,7 @@ public class AuthServiceServerDummy implements Stub {
                           "firstName": "%s",
                           "lastName": "%s",
                           "login": "%s",
-                          "id": "%s",
+                          "uuid": "%s",
                           "active": %s,
                           "accessRoles": [
                           ]
