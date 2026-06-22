@@ -114,57 +114,86 @@ public class AuthServiceServerDummy implements Stub {
             response.setStatus(HttpServletResponse.SC_OK);
             response.getHeaders().put(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON);
             response.write(true,
-                    request.getHttpURI().getPath().contains("history") ? ByteBuffer.wrap(serializeHistoricalDetails(user).getBytes(StandardCharsets.UTF_8)) : ByteBuffer.wrap(serializeUuid(user).getBytes(StandardCharsets.UTF_8)),
+                    formatResponse(request, user),
                     callback);
 
             callback.succeeded();
             return true;
         }
 
+        private ByteBuffer formatResponse(final Request request, final SSOUser user) {
+            if (request.getHttpURI().getPath().contains("history")){
+                return ByteBuffer.wrap(serializeHistoricalDetails(user).getBytes(StandardCharsets.UTF_8));
+            }
+            if (request.getHttpURI().getPath().contains("user")){
+                return ByteBuffer.wrap(serializeUserDetails(user).getBytes(StandardCharsets.UTF_8));
+            }
+            return ByteBuffer.wrap(serializeUuid(user).getBytes(StandardCharsets.UTF_8));
+        }
+
         private String serializeUuid(final SSOUser user) {
-            return String.format("{\n" +
-                    "  \"response\": {\n" +
-                    "    \"status\": 200,\n" +
-                    "    \"message\": \"OK\",\n" +
-                    "    \"totalSize\": 1,\n" +
-                    "    \"links\": [\n" +
-                    "\n" +
-                    "    ],\n" +
-                    "    \"content\": {\n" +
-                    "      \"firstName\": \"%s\",\n" +
-                    "      \"lastName\": \"%s\",\n" +
-                    "      \"email\": \"%s\",\n" +
-                    "      \"id\": \"%s\",\n" +
-                    "      \"active\": %s,\n" +
-                    "      \"accessRoles\": [\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "  }\n" +
-                    "}", user.getFirstName(), user.getLastName(), user.getEmail(), user.getUuid(), user.isActive());
+            return String.format("""
+                    {
+                      "response": {
+                        "status": 200,
+                        "message": "OK",
+                        "totalSize": 1,
+                        "links": [
+                    
+                        ],
+                        "content": {
+                          "firstName": "%s",
+                          "lastName": "%s",
+                          "email": "%s",
+                          "id": "%s",
+                          "active": %s,
+                          "accessRoles": [
+                          ]
+                        }
+                      }
+                    }""", user.getFirstName(), user.getLastName(), user.getEmail(), user.getUuid(), user.isActive());
+        }
+
+        private String serializeUserDetails(final SSOUser user) {
+            return String.format("""
+                    {
+                    "status": 200,
+                    "content": {
+                          "firstName": "%s",
+                          "lastName": "%s",
+                          "login": "%s",
+                          "id": "%s",
+                          "active": %s,
+                          "accessRoles": [
+                          ]
+                        }
+                    }""", user.getFirstName(), user.getLastName(), user.getEmail(), user.getUuid(), user.isActive());
         }
 
         private String serializeHistoricalDetails(final SSOUser user){
-            return String.format("{\n" +
-                    "  \"response\": {\n" +
-                    "    \"results\": [\n " +
-                    "    {\n" +
-                    "      \"eventDateTime\": \"2015-05-08T12:32:01.275379Z\",\n" +
-                    "      \"action\": \"EMAIL_CHANGE\",\n" +
-                    "      \"uuid\": \"%s\",\n" +
-                    "      \"actor\": \"%s\",\n" +
-                    "      \"actingService\": \"crowd_email_migration\",\n" +
-                    "      \"staff\": false,\n" +
-                    "      \"attributeChanges\": [\n" +
-                    "      {\n" +
-                    "         \"name\": \"email\",\n" +
-                    "         \"oldValue\": \"%s\",\n" +
-                    "         \"newValue\": \"%s\"\n" +
-                    "      }\n" +
-                    "      ]\n" +
-                    "    }\n" +
-                    "    ]\n" +
-                    "  }\n" +
-                    "}",  user.getUuid(), user.getEmail(), user.getEmail(), user.getEmail());
+            return String.format("""
+                    {
+                      "response": {
+                        "results": [
+                     \
+                        {
+                          "eventDateTime": "2015-05-08T12:32:01.275379Z",
+                          "action": "EMAIL_CHANGE",
+                          "uuid": "%s",
+                          "actor": "%s",
+                          "actingService": "crowd_email_migration",
+                          "staff": false,
+                          "attributeChanges": [
+                          {
+                             "name": "email",
+                             "oldValue": "%s",
+                             "newValue": "%s"
+                          }
+                          ]
+                        }
+                        ]
+                      }
+                    }""",  user.getUuid(), user.getEmail(), user.getEmail(), user.getEmail());
         }
     }
 

@@ -24,6 +24,7 @@ import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.aspects.Stopwatch;
 import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.common.sso.domain.MemberContactsResponse;
+import net.ripe.db.whois.common.sso.domain.UserDetailsResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientProperties;
@@ -136,7 +137,7 @@ public class AuthServiceClient {
 
     @Stopwatch(thresholdMs = 100L)
     @Cacheable(cacheNames="userByEmail")
-    public ValidateTokenResponse getUserInfoByEmail(final String email) {
+    public UserDetailsResponse getUserInfoByEmail(final String email) {
         if (StringUtils.isEmpty(email)) {
             LOGGER.debug("No email was supplied");
             throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(), "No Email.");
@@ -153,7 +154,7 @@ public class AuthServiceClient {
             return webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
-                    .get(ValidateTokenResponse.class);
+                    .get(UserDetailsResponse.class);
         } catch (NotFoundException | NotAuthorizedException e) {
             LOGGER.debug("Failed to get user info email {} due to {}:{}\n\tResponse: {}", email, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid email.");
