@@ -4,6 +4,7 @@ import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
+import net.ripe.db.whois.common.sso.domain.UserDetailsResponse;
 import net.ripe.db.whois.common.sso.domain.ValidateTokenResponse;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -147,9 +148,9 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     public void get_user_details_response(){
         assertThat(Objects.requireNonNull(cacheManager.getCache("userByEmail")).get(USER_EMAIL), is(nullValue()));
 
-        final ValidateTokenResponse validateTokenResponse = authServiceClient.getUserInfoByEmail(USER_EMAIL);
-        assertThat(validateTokenResponse.response, is(not(nullValue())));
-        assertThat(validateTokenResponse.response.content.email, is(USER_EMAIL));
+        final UserDetailsResponse validateTokenResponse = authServiceClient.getUserInfoByEmail(USER_EMAIL);
+        assertThat(validateTokenResponse.content.firstName, is(not(nullValue())));
+        assertThat(validateTokenResponse.content.login, is(USER_EMAIL));
 
         assertThat(cacheManager.getCache("userByEmail").get(USER_EMAIL), is(not(nullValue())));
     }
