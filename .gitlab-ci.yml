@@ -117,7 +117,7 @@ release:
     - mariadb -uroot -proot -h mariadb -e "SET GLOBAL innodb_lock_wait_timeout = 1000;"
     - mariadb -uroot -proot -h mariadb -e "SET GLOBAL max_connections=10000;"
   services: &mariadb_service
-    - mariadb:11.4
+    - mariadb:12.3
 
 whois-endtoend:
   <<:
