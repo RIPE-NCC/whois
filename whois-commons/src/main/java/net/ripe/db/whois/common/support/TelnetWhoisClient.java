@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -112,17 +113,19 @@ public class TelnetWhoisClient {
 
     @RetryFor(IOException.class)
     private Optional<String> sendQueryWithRetry(final String query, final Function<BufferedReader, Optional<String>> function, final int timeoutMs) throws IOException {
-
-        try (final Socket socket = new Socket(host, port);
-             final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
-             final BufferedReader serverReader =
-                     new BufferedReader(new InputStreamReader(socket.getInputStream(), charset))) {
-
-            if (timeoutMs >= 0) socket.setSoTimeout(timeoutMs);
-
-            serverWriter.print(query + "\r\n");
-            serverWriter.flush();
-            return function.apply(serverReader);
+        try (final Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), timeoutMs);
+            try (final PrintWriter serverWriter = new PrintWriter(socket.getOutputStream(), true);
+                    final BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), charset))) {
+                socket.setSoTimeout(timeoutMs);
+                serverWriter.print(query + "\r\n");
+                serverWriter.flush();
+                return function.apply(serverReader);
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Caught {} to {}:{} ({})", e.getClass().getName(), host, port, e.getMessage());
+            throw e;
         }
     }
+
 }
