@@ -6,6 +6,7 @@
   "vulnerabilityAlerts": {
     "prConcurrentLimit": 0
   },
+  "recreateWhen": "never",
   "packageRules": [
     {
       "description": "Netty 5.x is deprecated. Do not update to major version",
