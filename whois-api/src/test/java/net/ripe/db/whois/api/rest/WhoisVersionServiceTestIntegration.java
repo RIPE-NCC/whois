@@ -184,6 +184,149 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
+    public void versions_return_text() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(response, containsString("Version history for AUT-NUM object \"AS102\""));
+        assertThat(response, containsString("rev#  Date"));
+        assertThat(response, containsString("ADD/UPD"));
+        assertThat(response, stringMatchesRegexp("(?s).*1\\s+" + VERSION_DATE_PATTERN + "\\s+ADD/UPD.*"));
+    }
+
+    @Test
+    public void versions_return_text_with_txt_extension() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions.txt")
+                .request()
+                .get(String.class);
+
+        assertThat(response, containsString("Version history for AUT-NUM object \"AS102\""));
+        assertThat(response, containsString("rev#  Date"));
+        assertThat(response, containsString("ADD/UPD"));
+        assertThat(response, stringMatchesRegexp("(?s).*1\\s+" + VERSION_DATE_PATTERN + "\\s+ADD/UPD.*"));
+    }
+
+    @Test
+    public void versions_text_header_format() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(response, containsString("Version history for AUT-NUM object \"AS102\""));
+        assertThat(response, containsString("rev#  Date"));
+        assertThat(response, containsString("Op."));
+    }
+
+    @Test
+    public void versions_text_single_version_row() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(response, stringMatchesRegexp("(?s).*1\\s+" + VERSION_DATE_PATTERN + "\\s+ADD/UPD.*"));
+    }
+
+    @Test
+    public void versions_text_multiple_versions_listed() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+        databaseHelper.updateObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-3\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(response, stringMatchesRegexp("(?s).*1\\s+" + VERSION_DATE_PATTERN + "\\s+ADD/UPD.*"));
+        assertThat(response, stringMatchesRegexp("(?s).*2\\s+" + VERSION_DATE_PATTERN + "\\s+ADD/UPD.*"));
+    }
+
+    @Test
+    public void versions_text_excludes_leading_deleted_version() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+        databaseHelper.deleteObject(autnum);
+        databaseHelper.addObject(autnum);
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(response, stringMatchesRegexp("(?s).*1\\s+" + VERSION_DATE_PATTERN + "\\s+ADD/UPD.*"));
+        assertThat(response, containsString("Version history for AUT-NUM object \"AS102\""));
+    }
+
+    @Test
+    public void versions_text_no_versions_found_returns_not_found() {
+        assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                    .request(MediaType.TEXT_PLAIN)
+                    .get(String.class);
+        });
+    }
+
+    @Test
     public void versions_last_version_deleted() {
         final RpslObject autnum = RpslObject.parse("" +
                 "aut-num:        AS102\n" +
@@ -210,6 +353,160 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         assertThrows(NotFoundException.class, () -> {
             RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
                     .request(MediaType.APPLICATION_XML)
+                    .get(String.class);
+        });
+    }
+
+    @Test
+    public void version_returns_text() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(response, is("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n"));
+    }
+
+    @Test
+    public void version_returns_text_with_txt_extension() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1.txt")
+                .request()
+                .get(String.class);
+
+        assertThat(response, is("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n"));
+    }
+
+    @Test
+    public void version_text_contains_all_attributes() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String response = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(response, containsString("aut-num:        AS102"));
+        assertThat(response, containsString("as-name:        End-User-2"));
+        assertThat(response, containsString("descr:          description"));
+        assertThat(response, containsString("mnt-by:         OWNER-MNT"));
+        assertThat(response, containsString("source:         TEST"));
+    }
+
+    @Test
+    public void version_text_returns_correct_revision() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.updateObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-3\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        final String version1 = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+        final String version2 = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(version1, containsString("as-name:        End-User-2"));
+        assertThat(version2, containsString("as-name:        End-User-3"));
+    }
+
+    @Test
+    public void version_text_nonexistent_version_returns_not_found() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
+                    .request(MediaType.TEXT_PLAIN)
+                    .get(String.class);
+        });
+    }
+
+    @Test
+    public void version_text_wrong_object_type_returns_not_found() {
+        databaseHelper.addObject("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+
+        assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
+                    .request(MediaType.TEXT_PLAIN)
+                    .get(String.class);
+        });
+    }
+
+    @Test
+    public void version_text_deleted_version_returns_not_found() {
+        final RpslObject autnum = RpslObject.parse("" +
+                "aut-num:        AS102\n" +
+                "as-name:        End-User-2\n" +
+                "descr:          description\n" +
+                "admin-c:        TP1-TEST\n" +
+                "tech-c:         TP1-TEST\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "source:         TEST\n");
+        databaseHelper.addObject(autnum);
+        databaseHelper.deleteObject(autnum);
+
+        assertThrows(NotFoundException.class, () -> {
+            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                    .request(MediaType.TEXT_PLAIN)
                     .get(String.class);
         });
     }

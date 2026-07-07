@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import jakarta.ws.rs.core.HttpHeaders;
 import net.ripe.db.whois.api.QueryBuilder;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -21,8 +22,10 @@ import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
+import net.ripe.db.whois.query.executor.VersionQueryExecutor;
 import net.ripe.db.whois.query.handler.QueryHandler;
 import net.ripe.db.whois.query.query.Query;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +50,7 @@ public class WhoisVersionService {
     private final SourceContext sourceContext;
     private final WhoisObjectMapper whoisObjectMapper;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
+    private final VersionQueryExecutor versionQueryExecutor;
 
     @Autowired
     public WhoisVersionService(
@@ -54,16 +58,18 @@ public class WhoisVersionService {
             final QueryHandler queryHandler,
             final SourceContext sourceContext,
             final WhoisObjectMapper whoisObjectMapper,
-            final WhoisObjectServerMapper whoisObjectServerMapper) {
+            final WhoisObjectServerMapper whoisObjectServerMapper,
+            final VersionQueryExecutor versionQueryExecutor) {
         this.accessControlListManager = accessControlListManager;
         this.queryHandler = queryHandler;
         this.sourceContext = sourceContext;
         this.whoisObjectMapper = whoisObjectMapper;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
+        this.versionQueryExecutor = versionQueryExecutor;
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Path("/{source}/{objectType}/{key:.*}/versions")
     public Response versions(
             @Context final HttpServletRequest request,
@@ -96,6 +102,10 @@ public class WhoisVersionService {
         final List<WhoisVersion> mappedVersions = whoisObjectServerMapper.mapVersions(deleted, versions);
         // if an object existed and was later deleted, the 'delete' will show up as the first version in the list --
         // filter it out.
+        final String accept = request.getHeader(HttpHeaders.ACCEPT);
+        if (accept != null && accept.contains(MediaType.TEXT_PLAIN)) {
+            return Response.ok(versionQueryExecutor.buildVersionsTextResponse(objectType, key, mappedVersions)).build();
+        }
         while (!mappedVersions.isEmpty() && mappedVersions.get(0).getDeletedDate() != null) {
             mappedVersions.remove(0);
         }
@@ -110,7 +120,7 @@ public class WhoisVersionService {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     @Path("/{source}/{objectType}/{key:.*}/versions/{version}")
     public Response version(
             @Context final HttpServletRequest request,
@@ -137,6 +147,12 @@ public class WhoisVersionService {
             throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
                     .entity(RestServiceHelper.createErrorEntity(request, versionsResponseHandler.getErrors()))
                     .build());
+        }
+
+        final String accept = request.getHeader(HttpHeaders.ACCEPT);
+
+        if (StringUtils.isNotEmpty(request.getHeader(HttpHeaders.ACCEPT)) && accept.contains(MediaType.TEXT_PLAIN)) {
+            return Response.ok(versionWithRpslResponseObject.getRpslObject().toString()).build();
         }
 
         // TODO: [AH] this should use StreamingMarshal to properly handle newlines in errormessages

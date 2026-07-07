@@ -3,6 +3,7 @@ package net.ripe.db.whois.query.executor;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
@@ -74,6 +75,24 @@ public class VersionQueryExecutor implements QueryExecutor {
         for (final ResponseObject responseObject : decorate(query, responseObjects)) {
             responseHandler.handle(responseObject);
         }
+    }
+
+    public String buildVersionsTextResponse(final String type, final String key, final List<WhoisVersion> mappedVersions) {
+        final int versionPadding = this.getPadding(mappedVersions.size());
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Version history for ")
+                .append(type.toUpperCase())
+                .append(" object \"")
+                .append(key)
+                .append("\"\n\n");
+        sb.append(String.format("%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER));
+        for (final WhoisVersion version : mappedVersions) {
+            sb.append(String.format("%-5d %-21s %s%n",
+                    version.getRevision(),
+                    version.getDate(),
+                    version.getOperation()));
+        }
+        return sb.toString();
     }
 
     private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
@@ -153,7 +172,7 @@ public class VersionQueryExecutor implements QueryExecutor {
         }
 
         final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
-        int versionPadding = getPadding(versionInfos);
+        int versionPadding = getPadding(versionInfos.size());
 
         messages.add(new MessageObject(String.format("%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
 
@@ -221,9 +240,9 @@ public class VersionQueryExecutor implements QueryExecutor {
         return versionLookupResults;
     }
 
-    private int getPadding(List<VersionInfo> versionInfos) {
+    private int getPadding(final int count) {
         // Minimum is the column header size
-        int versionPadding = String.valueOf(versionInfos.size()).length();
+        int versionPadding = String.valueOf(count).length();
         if (versionPadding < VERSION_HEADER.length()) {
             versionPadding = VERSION_HEADER.length();
         }

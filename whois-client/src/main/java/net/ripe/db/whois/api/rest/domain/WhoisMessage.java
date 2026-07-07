@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 
 import javax.annotation.Nullable;
+import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Objects;
 
@@ -70,9 +71,14 @@ public abstract class WhoisMessage implements Comparable<WhoisMessage>{
 
     @Override
     public String toString() {
-        return (args == null || args.isEmpty() || text == null) ?
-                text :
-                String.format(text, args.toArray());
+        if (args == null || args.isEmpty() || text == null) {
+            return text;
+        }
+        try {
+            return String.format(text, args.toArray());
+        } catch (final IllegalFormatException e) {
+            return text;
+        }
     }
 
     @Override

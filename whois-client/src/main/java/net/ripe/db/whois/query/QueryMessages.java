@@ -114,7 +114,7 @@ public final class QueryMessages {
 
     public static Message versionInformation(final int version, final boolean isCurrentVersion, final CIString key, final String operation, final String timestamp) {
         return new QueryMessage(Type.INFO, ""
-                + "Version %d %sof object \"%s\"\n"
+                + "Version %s %sof object \"%s\"\n"
                 + "This version was a %s operation on %s\n"
                 + "You can use \"%s\" to get a list of versions for an object.",
                 version,
@@ -125,7 +125,7 @@ public final class QueryMessages {
     }
 
     public static Message versionDifferenceHeader(final int earlierVersion, final int laterVersion, final CIString key) {
-        return new QueryMessage(Type.INFO, "Difference between version %d and %d of object \"%s\"",
+        return new QueryMessage(Type.INFO, "Difference between version %s and %s of object \"%s\"",
                 earlierVersion,
                 laterVersion,
                 key);
@@ -266,7 +266,7 @@ public final class QueryMessages {
 
     public static Message versionOutOfRange(final int max) {
         return new QueryMessage(Type.ERROR, "" +
-                "ERROR:117: version cannot exceed %d for this object\n" +
+                "ERROR:117: version cannot exceed %s for this object\n" +
                 "\n" +
                 "Versions are numbers greater or equal to 1\n" +
                 "but cannot exceed the object's current version number.",
@@ -325,7 +325,7 @@ public final class QueryMessages {
                 + "ERROR:306: connections exceeded\n"
                 + "\n"
                 + "Number of connections from a single IP address\n"
-                + "has exceeded the maximum number allowed (%d).", connectionLimit);
+                + "has exceeded the maximum number allowed (%s).", connectionLimit);
     }
 
     public static Message duplicateIpFlagsPassed() {
