@@ -230,7 +230,7 @@ public abstract class AbstractNrtmIntegrationTest extends AbstractIntegrationTes
         final String response = getResponseFromAbsolutePathHttpRequest(composeUrlFromRelativePath(getUpdateNotificationFileAbsolutePath(sourceName),
                         getDeltaNameFromUpdateNotification(updateNotificationResponse, deltaPosition))
                 , "application/json-seq").readEntity(String.class);
-        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPERATOR);
+        return StringUtils.split( response, NrtmFileUtil.RECORD_SEPARATOR);
     }
 
     protected String getDeltaNameFromUpdateNotification(final UpdateNotificationFile notificationFile, final int deltaPosition) {

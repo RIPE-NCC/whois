@@ -1,6 +1,8 @@
 package net.ripe.db.whois.common.configuration;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.mchange.v2.c3p0.impl.DefaultConnectionTester;
+import net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,8 +70,8 @@ public class DataSourceConfigurations {
         source.setMaxIdleTime(7200);
         source.setPreferredTestQuery("SELECT 1");
         source.setIdleConnectionTestPeriod(15);
-        source.setConnectionCustomizerClassName("net.ripe.db.whois.common.jdbc.WhoisConnectorCustomizer");
-        source.setConnectionTesterClassName("com.mchange.v2.c3p0.impl.DefaultConnectionTester");
+        source.setConnectionCustomizerClassName(WhoisConnectorCustomizer.class.getName());
+        source.setConnectionTesterClassName(DefaultConnectionTester.class.getName());
 
         return source;
     }

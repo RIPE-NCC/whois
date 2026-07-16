@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Random;
 
 import static net.ripe.db.nrtm4.util.ByteArrayUtil.byteArrayToHexString;
@@ -15,8 +16,12 @@ import static net.ripe.db.nrtm4.util.ByteArrayUtil.byteArrayToHexString;
 
 public class NrtmFileUtil {
 
-    private static final Random random = new Random();
-    public static final String RECORD_SEPERATOR = "\u001E";
+    final static SecureRandom SECURE_RANDOM = new SecureRandom();
+    public static final String RECORD_SEPARATOR = "\u001E";
+
+    NrtmFileUtil(){
+        SECURE_RANDOM.nextBytes(new byte[20]);
+    }
 
     public static String newFileName(final NrtmVersionInfo file) {
         final String prefix = file.type().getFileNamePrefix();
@@ -44,7 +49,7 @@ public class NrtmFileUtil {
     }
 
     private static String randomHexString() {
-        return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
+        return Long.toHexString(SECURE_RANDOM.nextLong()) + Long.toHexString(SECURE_RANDOM.nextLong());
     }
 
     public static String convertToJSONTextSeq(final NrtmFileRecord record) throws JsonProcessingException {
@@ -53,7 +58,7 @@ public class NrtmFileUtil {
 
     public static StringBuilder convertToJSONTextSeq(final StringBuilder sb, final NrtmFileRecord record) throws JsonProcessingException {
         //TODO[MA]: Should be using a library right now only jq tool supports json-text-sequence
-        return sb.append(RECORD_SEPERATOR)
+        return sb.append(RECORD_SEPARATOR)
                 .append(new ObjectMapper().writeValueAsString(record))
                 .append("\n");
     }

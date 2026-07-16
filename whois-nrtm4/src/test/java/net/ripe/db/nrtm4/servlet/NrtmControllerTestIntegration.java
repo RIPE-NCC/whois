@@ -223,7 +223,7 @@ public class NrtmControllerTestIntegration extends AbstractNrtmIntegrationTest {
         assertThat(response.getStatus(), is(200));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
 
-        final String[] records = StringUtils.split(decompress(response.readEntity(byte[].class)), NrtmFileUtil.RECORD_SEPERATOR);
+        final String[] records = StringUtils.split(decompress(response.readEntity(byte[].class)), NrtmFileUtil.RECORD_SEPARATOR);
 
         assertNrtmFileInfo(records[0], "snapshot", 1, "TEST");
 
@@ -348,7 +348,7 @@ public class NrtmControllerTestIntegration extends AbstractNrtmIntegrationTest {
         assertThat(response.getStatus(), is(Response.Status.OK.getStatusCode()));
         assertThat(response.getHeaderString(HttpHeaders.CACHE_CONTROL), is("public, max-age=604800"));
 
-        final String[] records = StringUtils.split(response.readEntity(String.class), NrtmFileUtil.RECORD_SEPERATOR);
+        final String[] records = StringUtils.split(response.readEntity(String.class), NrtmFileUtil.RECORD_SEPARATOR);
 
         assertNrtmFileInfo(records[0], "delta", 2, "TEST");
 

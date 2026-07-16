@@ -20,7 +20,7 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
 
     @Override
     public void onAcquire(final Connection connection, final String parentDataSourceIdentityToken) {
-        setNames(connection, JDBC_DRIVER_CHARACTER_SET);
+        setNames(connection);
     }
 
     @Override
@@ -38,9 +38,9 @@ public class WhoisConnectorCustomizer implements ConnectionCustomizer {
         // do nothing
     }
 
-    private void setNames(final Connection connection, final String charset) {
+    private void setNames(final Connection connection) {
         try (final Statement statement = connection.createStatement()) {
-            statement.executeQuery(String.format("SET NAMES '%s' COLLATE DEFAULT", charset));
+            statement.executeQuery(String.format("SET NAMES '%s' COLLATE DEFAULT", JDBC_DRIVER_CHARACTER_SET));
         } catch (SQLException e) {
             LOGGER.error("Caught {}: {} (ignored)", e.getClass().getName(), e.getMessage());
         }
