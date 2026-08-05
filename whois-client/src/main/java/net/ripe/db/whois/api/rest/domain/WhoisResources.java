@@ -124,6 +124,15 @@ public class WhoisResources {
         return this;
     }
 
+    public Version getVersion() {
+        return version;
+    }
+
+    public WhoisResources setVersion(final Version version) {
+        this.version = version;
+        return this;
+    }
+
     public Link getTermsAndConditions() {
         return termsAndConditions;
     }

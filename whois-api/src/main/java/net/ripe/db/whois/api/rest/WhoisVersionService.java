@@ -8,9 +8,11 @@ import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
+import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
+import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.ResponseObject;
@@ -51,6 +53,7 @@ public class WhoisVersionService {
     private final WhoisObjectMapper whoisObjectMapper;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final VersionQueryExecutor versionQueryExecutor;
+    private final Version version;
 
     @Autowired
     public WhoisVersionService(
@@ -59,13 +62,18 @@ public class WhoisVersionService {
             final SourceContext sourceContext,
             final WhoisObjectMapper whoisObjectMapper,
             final WhoisObjectServerMapper whoisObjectServerMapper,
-            final VersionQueryExecutor versionQueryExecutor) {
+            final VersionQueryExecutor versionQueryExecutor,
+            final ApplicationVersion applicationVersion) {
         this.accessControlListManager = accessControlListManager;
         this.queryHandler = queryHandler;
         this.sourceContext = sourceContext;
         this.whoisObjectMapper = whoisObjectMapper;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.versionQueryExecutor = versionQueryExecutor;
+        this.version = new Version(
+                applicationVersion.getVersion(),
+                applicationVersion.getTimestamp(),
+                applicationVersion.getCommitId());
     }
 
     @GET
@@ -98,7 +106,7 @@ public class WhoisVersionService {
                     .build());
         }
 
-        final String type = versions.size() > 0 ? versions.get(0).getType().getName() : deleted.get(0).getType().getName();
+        final String type = !versions.isEmpty() ? versions.getFirst().getType().getName() : deleted.getFirst().getType().getName();
         final List<WhoisVersion> mappedVersions = whoisObjectServerMapper.mapVersions(deleted, versions);
         // if an object existed and was later deleted, the 'delete' will show up as the first version in the list --
         // filter it out.
@@ -106,8 +114,8 @@ public class WhoisVersionService {
         if (accept != null && accept.contains(MediaType.TEXT_PLAIN)) {
             return Response.ok(versionQueryExecutor.buildVersionsTextResponse(objectType, key, mappedVersions)).build();
         }
-        while (!mappedVersions.isEmpty() && mappedVersions.get(0).getDeletedDate() != null) {
-            mappedVersions.remove(0);
+        while (!mappedVersions.isEmpty() && mappedVersions.getFirst().getDeletedDate() != null) {
+            mappedVersions.removeFirst();
         }
         final WhoisVersions whoisVersions = new WhoisVersions(type, key, mappedVersions);
 
@@ -115,6 +123,7 @@ public class WhoisVersionService {
         whoisResources.setVersions(whoisVersions);
         whoisResources.setErrorMessages(RestServiceHelper.createErrorMessages(versionsResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
+        whoisResources.setVersion(version);
 
         return Response.ok(whoisResources).build();
     }
@@ -127,13 +136,13 @@ public class WhoisVersionService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
-            @PathParam("version") final Integer version) {
+            @PathParam("version") final Integer objectVersion) {
 
         checkForMainSource(request, source);
 
         final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
-                .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(version));
+                .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(objectVersion));
 
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
@@ -162,6 +171,7 @@ public class WhoisVersionService {
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setErrorMessages(RestServiceHelper.createErrorMessages(versionsResponseHandler.getErrors()));
         whoisResources.includeTermsAndConditions();
+        whoisResources.setVersion(version);
 
         return Response.ok(whoisResources).build();
     }
