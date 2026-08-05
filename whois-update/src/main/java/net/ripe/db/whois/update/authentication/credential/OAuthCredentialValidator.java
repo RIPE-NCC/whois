@@ -6,8 +6,10 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.credentials.OAuthCredential;
 import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.common.oauth.APIKeySession;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
 import net.ripe.db.whois.common.oauth.ApiKeyDetailsCacheManager;
-import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.oauth.DefaultOauthSession;
+import net.ripe.db.whois.common.oauth.OidcSession;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
 import net.ripe.db.whois.update.domain.Update;
@@ -16,7 +18,6 @@ import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -56,37 +57,45 @@ public class OAuthCredentialValidator implements CredentialValidator<OAuthCreden
 
         for (final OAuthCredential offered : offeredCredentials) {
 
-            final OAuthSession oAuthSession = offered.getOfferedOAuthSession();
-            if(oAuthSession == null) {
+            final AbstractOAuthSession abstractOAuthSession = offered.getOfferedOAuthSession();
+            if(abstractOAuthSession == null) {
                 continue;
             }
 
-            if(StringUtils.isNotEmpty(oAuthSession.getErrorStatus())) {
-                updateContext.addMessage(update,  new Message(Messages.Type.WARNING, oAuthSession.getErrorStatus()));
+            if(StringUtils.isNotEmpty(abstractOAuthSession.getErrorStatus())) {
+                updateContext.addMessage(update, new Message(Messages.Type.WARNING, abstractOAuthSession.getErrorStatus()));
                 return false;
             }
 
-            if(!validateScope(oAuthSession, List.of(maintainer))) {
+            if(!validateScope(abstractOAuthSession, List.of(maintainer))) {
                 continue;
             }
 
-            if (oAuthSession.getUuid() != null && oAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
+            if (abstractOAuthSession.getUuid() != null && abstractOAuthSession.getUuid().equals(knownCredential.getKnownUuid())) {
 
                 Update.EffectiveCredentialType effectiveCredentialType;
                 String effectiveCredential;
                 String updateMessage;
 
-                if(oAuthSession instanceof APIKeySession) {
+                switch (abstractOAuthSession){
+                    case APIKeySession apiKeySession -> {
+                        addExpiryWarning(update, updateContext, apiKeySession);
 
-                    addExpiryWarning(update, updateContext, (APIKeySession) oAuthSession);
-
-                    effectiveCredentialType = Update.EffectiveCredentialType.APIKEY;
-                    effectiveCredential = String.format("%s (%s)", oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
-                    updateMessage = String.format("Validated %s with API KEY for user: %s with keyId: %s.", update.getFormattedKey(), oAuthSession.getEmail(), ((APIKeySession) oAuthSession).getKeyId());
-                } else {
-                    effectiveCredentialType = Update.EffectiveCredentialType.OAUTH;
-                    effectiveCredential = oAuthSession.getEmail();
-                    updateMessage = String.format("Validated %s with OAuth Session for user: %s.", update.getFormattedKey(), oAuthSession.getEmail());
+                        effectiveCredentialType = Update.EffectiveCredentialType.APIKEY;
+                        effectiveCredential = String.format("%s (%s)", apiKeySession.getEmail(), apiKeySession.getKeyId());
+                        updateMessage = String.format("Validated %s with API KEY for user: %s with keyId: %s.", update.getFormattedKey(), apiKeySession.getEmail(), apiKeySession.getKeyId());
+                    }
+                    case OidcSession oidcSession -> {
+                        effectiveCredentialType = Update.EffectiveCredentialType.OIDC;
+                        effectiveCredential = oidcSession.getEmail();
+                        updateMessage = String.format("Validated %s with OIDC Session for user: %s.", update.getFormattedKey(), oidcSession.getEmail());
+                    }
+                    case DefaultOauthSession oauthSessionAbstract -> {
+                        effectiveCredentialType = Update.EffectiveCredentialType.OAUTH;
+                        effectiveCredential = abstractOAuthSession.getEmail();
+                        updateMessage = String.format("Validated %s with OAuth Session for user: %s.", update.getFormattedKey(), oauthSessionAbstract.getEmail());
+                    }
+                    default -> throw new IllegalArgumentException("Failed OAuthSession Session");
                 }
 
                 log(update, updateMessage);

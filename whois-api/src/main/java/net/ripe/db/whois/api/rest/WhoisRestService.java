@@ -18,13 +18,11 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.QueryBuilder;
-import net.ripe.db.whois.api.oauth.BearerTokenManager;
 import net.ripe.db.whois.api.rest.domain.Parameters;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.grs.AuthoritativeResourceData;
-import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -71,7 +69,6 @@ public class WhoisRestService {
     private final SsoTranslator ssoTranslator;
     private final LoggerContext loggerContext;
     private final AuthoritativeResourceData authoritativeResourceData;
-    private final BearerTokenManager bearerTokenManager;
     private final OverrideCredentialValidator overrideCredentialValidator;
     private final String baseUrl;
 
@@ -86,7 +83,6 @@ public class WhoisRestService {
                             final SsoTokenTranslator ssoTokenTranslator,
                             final LoggerContext loggerContext,
                             final AuthoritativeResourceData authoritativeResourceData,
-                            final BearerTokenManager bearerTokenManager,
                             final OverrideCredentialValidator overrideCredentialValidator,
                             @Value("${api.rest.baseurl}") final String baseUrl) {
         this.rpslObjectDao = rpslObjectDao;
@@ -99,7 +95,6 @@ public class WhoisRestService {
         this.ssoTranslator = ssoTranslator;
         this.loggerContext = loggerContext;
         this.authoritativeResourceData = authoritativeResourceData;
-        this.bearerTokenManager = bearerTokenManager;
         this.overrideCredentialValidator = overrideCredentialValidator;
         this.baseUrl = baseUrl;
     }
@@ -114,7 +109,6 @@ public class WhoisRestService {
             @PathParam("key") final String key,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun) {
@@ -122,7 +116,7 @@ public class WhoisRestService {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
 
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, AuthenticationUtils.getOauthSession(), request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
                 return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
@@ -174,7 +168,6 @@ public class WhoisRestService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -182,7 +175,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, AuthenticationUtils.getOauthSession(), request);
 
             if(requiresNonAuthRedirect(source, objectType, key)) {
                 return redirectNonAuthOrRequiresRipeRedirect(sourceContext.getNonauthSource().getName().toString(), objectType, key, request.getQueryString());
@@ -230,7 +223,6 @@ public class WhoisRestService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey,
             @QueryParam("override") final String override,
             @QueryParam("dry-run") final String dryRun,
@@ -238,7 +230,7 @@ public class WhoisRestService {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, AuthenticationUtils.getOauthSession(), request);
 
             auditLogRequest(request);
 
@@ -299,7 +291,6 @@ public class WhoisRestService {
             @QueryParam("unformatted") final String unformatted,
             @QueryParam("unfiltered") final String unfiltered,
             @QueryParam("managed-attributes") final String managedAttributes,
-            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @QueryParam("resource-holder") final String resourceHolder,
             @QueryParam("abuse-contact") final String abuseContact) {
 
@@ -324,7 +315,7 @@ public class WhoisRestService {
         try {
             query =
                     Query.parse(queryBuilder.build(key), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), passwords, overrideCredentialValidator.getValidOverrideUser(override), isTrusted(request),
-                            ClientCertificateExtractor.getClientCertificates(request), bearerTokenManager.validateBearerTokenAndBuildOauthSession(request, apiKeyId)).setMatchPrimaryKeyOnly(true);
+                            ClientCertificateExtractor.getClientCertificates(request), AuthenticationUtils.getOauthSession()).setMatchPrimaryKeyOnly(true);
         } catch (QueryException e) {
             throw RestServiceHelper.createWebApplicationException(e, request);
         }

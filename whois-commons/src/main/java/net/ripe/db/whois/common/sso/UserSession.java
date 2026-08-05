@@ -30,10 +30,6 @@ public class UserSession {
         this.expiryDate = expiryDate == null ? LocalDateTime.now().plusHours(1) : LocalDateTime.parse(expiryDate, ISO_DATE_TIME_FORMATTER);
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
     public String getUsername() {
         return username;
     }

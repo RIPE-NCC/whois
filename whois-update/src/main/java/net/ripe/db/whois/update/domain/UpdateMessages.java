@@ -114,7 +114,7 @@ public final class UpdateMessages {
     }
 
     public static Message invalidOauthAudience(final String authType) {
-        return new Message(Type.WARNING, "The %s cannot be used because it was created for a different application or environment", authType);
+        return new Message(Type.WARNING, "This %s cannot be used because it was created for a different application or environment", authType);
     }
 
     public static Message apiKeyGettingExpired(final String apiKeyId, final String expiresAt) {

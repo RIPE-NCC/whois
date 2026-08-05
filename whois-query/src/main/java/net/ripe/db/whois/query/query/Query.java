@@ -10,7 +10,7 @@ import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
-import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -68,7 +68,7 @@ public class Query {
     // TODO: [AH] these fields should be part of QueryContext, not Query
     private List<String> passwords;
     private UserSession userSession;
-    private OAuthSession oAuthSession;
+    private AbstractOAuthSession abstractOAuthSession;
     private final Origin origin;
     private final boolean trusted;
     // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
@@ -139,12 +139,12 @@ public class Query {
 
     public static Query parse(final String args, final UserSession userSession, final List<String> passwords,
                               final User overrideUser, final boolean trusted,
-                              final List<X509CertificateWrapper> certificates, final OAuthSession oAuthSession) {
+                              final List<X509CertificateWrapper> certificates, final AbstractOAuthSession abstractOAuthSession) {
         final Query query = parse(args, Origin.REST, trusted);
         query.userSession = userSession;
         query.passwords = passwords;
         query.certificates = certificates;
-        query.oAuthSession = oAuthSession;
+        query.abstractOAuthSession = abstractOAuthSession;
         query.overrideUser = overrideUser;
         return query;
     }
@@ -157,8 +157,8 @@ public class Query {
         return userSession;
     }
 
-    public OAuthSession getoAuthSession() {
-        return oAuthSession;
+    public AbstractOAuthSession getoAuthSession() {
+        return abstractOAuthSession;
     }
 
     public List<X509CertificateWrapper> getCertificates() {
@@ -641,16 +641,16 @@ public class Query {
     }
 
     public String getEffectiveUsername() {
-        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getEmail())) {
-            return oAuthSession.getEmail();
+        if(abstractOAuthSession != null && !StringUtils.isEmpty(abstractOAuthSession.getEmail())) {
+            return abstractOAuthSession.getEmail();
         }
 
         return userSession == null ? null : userSession.getUsername();
     }
 
     public String getEffectiveUuid() {
-        if(oAuthSession != null && !StringUtils.isEmpty(oAuthSession.getUuid())) {
-            return oAuthSession.getUuid();
+        if(abstractOAuthSession != null && !StringUtils.isEmpty(abstractOAuthSession.getUuid())) {
+            return abstractOAuthSession.getUuid();
         }
 
         return userSession == null ? null : userSession.getUuid();

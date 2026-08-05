@@ -20,13 +20,13 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.UpdatesParser;
-import net.ripe.db.whois.api.oauth.BearerTokenManager;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
 import net.ripe.db.whois.common.domain.CIString;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.source.SourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
@@ -72,7 +72,6 @@ public class SyncUpdatesService {
     private final LoggerContext loggerContext;
     private final SourceContext sourceContext;
     private final SsoTokenTranslator ssoTokenTranslator;
-    private final BearerTokenManager bearerTokenManager;
 
     @Autowired
     public SyncUpdatesService(final DateTimeProvider dateTimeProvider,
@@ -80,7 +79,6 @@ public class SyncUpdatesService {
                               final UpdatesParser updatesParser,
                               final LoggerContext loggerContext,
                               final SourceContext sourceContext,
-                              final BearerTokenManager bearerTokenManager,
                               final SsoTokenTranslator ssoTokenTranslator) {
         this.dateTimeProvider = dateTimeProvider;
         this.updateRequestHandler = updateRequestHandler;
@@ -88,7 +86,6 @@ public class SyncUpdatesService {
         this.loggerContext = loggerContext;
         this.sourceContext = sourceContext;
         this.ssoTokenTranslator = ssoTokenTranslator;
-        this.bearerTokenManager = bearerTokenManager;
     }
 
     @GET
@@ -121,7 +118,7 @@ public class SyncUpdatesService {
                 .setApiKeyId(apiKeyId)
                 .setSsoToken(crowdTokenKey)
                 .build();
-        return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
+        return doSyncUpdate(httpServletRequest, request, getCharset(contentType), AuthenticationUtils.getOauthSession());
     }
 
     @POST
@@ -150,7 +147,7 @@ public class SyncUpdatesService {
                 .setApiKeyId(apiKeyId)
                 .setSsoToken(crowdTokenKey)
                 .build();
-        return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
+        return doSyncUpdate(httpServletRequest, request, getCharset(contentType), AuthenticationUtils.getOauthSession());
     }
 
     @POST
@@ -179,7 +176,7 @@ public class SyncUpdatesService {
                 .setApiKeyId(apiKeyId)
                 .setSsoToken(crowdTokenKey)
                 .build();
-        return doSyncUpdate(httpServletRequest, request, getCharset(contentType));
+        return doSyncUpdate(httpServletRequest, request, getCharset(contentType), AuthenticationUtils.getOauthSession());
     }
 
     @Nullable
@@ -192,7 +189,8 @@ public class SyncUpdatesService {
         }
     }
 
-    private Response doSyncUpdate(final HttpServletRequest httpServletRequest, final Request request, final Charset charset) {
+    private Response doSyncUpdate(final HttpServletRequest httpServletRequest, final Request request,
+                                  final Charset charset, final AbstractOAuthSession oAuthSession) {
         loggerContext.init(getRequestId(request.getRemoteAddress()));
 
         try {
@@ -224,7 +222,7 @@ public class SyncUpdatesService {
 
             setSsoSessionToContext(updateContext, request.getSsoToken());
             setClientCertificates(updateContext, httpServletRequest);
-            updateContext.setOAuthSession(bearerTokenManager.validateBearerTokenAndBuildOauthSession(httpServletRequest, request.getApiKeyId()));
+            updateContext.setOAuthSession(oAuthSession);
 
             final String content = request.hasParam("DATA") ? request.getParam("DATA") : "";
 

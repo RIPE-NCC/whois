@@ -10,12 +10,13 @@ import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.ServiceUnavailableException;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Variant;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
@@ -96,7 +97,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // FIXME: make this into a suite that runs twice: once with XML, once with JSON
 @Tag("IntegrationTest")
-public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
+public class WhoisRestServiceTestIntegration extends AbstractHttpsIntegrationTest {
 
     @Autowired QueryServer queryServer;
 
@@ -110,7 +111,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "source:         TEST\n";
 
     public static final RpslObject TEST_PERSON = RpslObject.parse(TEST_PERSON_STRING);
-    private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
+    static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
             "person:    Pauleth Palthen\n" +
             "address:   Singel 258\n" +
             "phone:     +31-1234567890\n" +
@@ -141,7 +142,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "remarks:   remark\n" +
             "source:    TEST\n");
 
-    private static final RpslObject OWNER_MNT = RpslObject.parse("" +
+    static final RpslObject OWNER_MNT = RpslObject.parse("" +
             "mntner:      OWNER-MNT\n" +
             "descr:       Owner Maintainer\n" +
             "admin-c:     TP1-TEST\n" +
@@ -160,7 +161,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "mnt-by:      PASSWORD-ONLY-MNT\n" +
             "source:      TEST");
 
-    private static final RpslObject SSO_ONLY_MNT = RpslObject.parse("" +
+    static final RpslObject SSO_ONLY_MNT = RpslObject.parse("" +
             "mntner:         SSO-ONLY-MNT\n" +
             "descr:          Maintainer\n" +
             "admin-c:        TP1-TEST\n" +
@@ -169,7 +170,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "upd-to:         noreply@ripe.net\n" +
             "source:         TEST");
 
-    private static final RpslObject SSO_AND_PASSWORD_MNT = RpslObject.parse("" +
+    static final RpslObject SSO_AND_PASSWORD_MNT = RpslObject.parse("" +
             "mntner:         SSO-PASSWORD-MNT\n" +
             "descr:          Maintainer\n" +
             "admin-c:        TP1-TEST\n" +
@@ -188,9 +189,9 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             "abuse-mailbox:  abuse@test.net\n" +
             "mnt-by:         OWNER-MNT\n" +
             "source:         TEST\n";
-    private static final RpslObject TEST_ROLE = RpslObject.parse(TEST_ROLE_STRING);
+    static final RpslObject TEST_ROLE = RpslObject.parse(TEST_ROLE_STRING);
 
-    private static final RpslObject TEST_IRT = RpslObject.parse("" +
+    static final RpslObject TEST_IRT = RpslObject.parse("" +
             "irt:          irt-test\n" +
             "address:      RIPE NCC\n" +
             "e-mail:       noreply@ripe.net\n" +
@@ -209,7 +210,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Autowired private WhoisObjectMapper whoisObjectMapper;
     @Autowired private MaintenanceMode maintenanceMode;
     @Autowired private MailSenderStub mailSenderStub;
-    @Autowired private TestDateTimeProvider testDateTimeProvider;
+    @Autowired TestDateTimeProvider testDateTimeProvider;
     @Autowired private ApplicationVersion applicationVersion;
 
     @Autowired private EmailStatusDao emailStatusDao;
@@ -1310,7 +1311,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().getFirst();
         assertThat(whoisObject.getAttributes(), contains(
                 new Attribute("mntner", "AUTH-MNT"),
                 new Attribute("descr", "Maintainer"),
@@ -1323,30 +1324,14 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new Attribute("source", "TEST", null, null, null, null)));
     }
 
-    @Test
-    public void lookup_mntner_with_valid_crowd_token_without_unfiltered_param_is_filtered() {
-        final WhoisResources whoisResources =
-                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                        .request(MediaType.APPLICATION_XML)
-                        .cookie("crowd.token_key", "valid-token")
-                        .get(WhoisResources.class);
-
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
-        assertThat(whoisObject.getAttributes(), hasItems(
-                new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
-                new Attribute("auth", "SSO person@net.net", null, null, null, null),
-                new Attribute("source", "TEST", "Filtered", null, null, null)));
-    }
 
     @Test
-    public void lookup_mntner_with_valid_crowd_token_and_unfiltered_param_is_unfiltered() {
+    public void lookup_mntner_with_valid_token_and_unfiltered_param_is_unfiltered() {
         final WhoisResources whoisResources =
-                RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?unfiltered")
-                        .request(MediaType.APPLICATION_XML)
-                        .cookie("crowd.token_key", "valid-token")
+                getWebTarget("whois/test/mntner/OWNER-MNT?unfiltered", "valid-token", MediaType.APPLICATION_XML)
                         .get(WhoisResources.class);
 
-        final WhoisObject whoisObject = whoisResources.getWhoisObjects().get(0);
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().getFirst();
         assertThat(whoisObject.getAttributes(), hasItems(
                 new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null),
                 new Attribute("auth", "SSO person@net.net"),
@@ -1354,7 +1339,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void lookup_maintainer_invalid_crowd_uuid() {
+    public void lookup_maintainer_invalid_token() {
         databaseHelper.addObject(
                 "mntner:         MNT-TEST\n" +
                 "descr:          Test maintainer\n" +
@@ -1366,9 +1351,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 "source:         TEST");
 
         try {
-            RestTest.target(getPort(), "whois/TEST/mntner/MNT-TEST?password=123&unfiltered")
-                    .request(MediaType.APPLICATION_XML_TYPE)
-                    .cookie("crowd.access_key", "xyzinvalid")
+            getWebTarget("whois/TEST/mntner/MNT-TEST?password=123&unfiltered", "xyzinvalid", MediaType.APPLICATION_XML_TYPE.toString())
                     .get(WhoisResources.class);
             fail();
         } catch (InternalServerErrorException e) {
@@ -2069,12 +2052,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void lookup_with_override_non_trusted_ip_with_sso_succeeds() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.MNTNER));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                .queryParam("unfiltered", "")
-                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
-                .queryParam("clientIp", "2001:fff:001::")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "db_e2e_1")
+        final WhoisResources whoisResources = getWebTarget("whois/test/mntner/OWNER-MNT?unfiltered&override=db_e2e_1,zoh,reason%20%7Bnotify%3Dfalse%7D&clientIp%3D2001:fff:001::",
+                "db_e2e_1", MediaType.APPLICATION_XML)
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -3941,9 +3920,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void create_self_referencing_maintainer_sso_auth_only() {
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources whoisResources = getWebTarget("whois/test/mntner",
+                "valid-token", MediaType.APPLICATION_XML)
                 .post(Entity.entity(map(SSO_ONLY_MNT), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -3959,9 +3937,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
         try {
             final RpslObject updatedObject = buildGenericObject(SSO_ONLY_MNT, "auth: SSO in@valid.net");
 
-            RestTest.target(getPort(), "whois/test/mntner")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/test/mntner",
+                    "valid-token", MediaType.APPLICATION_XML)
                     .post(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
@@ -3972,9 +3949,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_self_referencing_maintainer_sso_auth_only_invalid_token() {
         try {
-            RestTest.target(getPort(), "whois/test/mntner")
-                    .request()
-                    .cookie("crowd.token_key", "invalid")
+            getWebTarget("whois/test/mntner",
+                    "invalid", MediaType.APPLICATION_XML)
                     .post(Entity.entity(map(SSO_ONLY_MNT), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
@@ -4528,12 +4504,11 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_person_with_crowd_token_succeeds() {
+    public void delete_person_with_token_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources whoisResources = getWebTarget("whois/test/person/PP1-TEST",
+                "valid-token", MediaType.APPLICATION_XML)
                 .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
@@ -4547,17 +4522,16 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_crowd_token_succeeds() {
+    public void delete_self_referencing_maintainer_with_sso_auth_attribute_authenticated_with_token_succeeds() {
         databaseHelper.addObject(SSO_ONLY_MNT);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-ONLY-MNT")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources whoisResources = getWebTarget("whois/test/mntner/SSO-ONLY-MNT",
+                "valid-token", MediaType.APPLICATION_XML)
                 .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("auth", "SSO person@net.net")));
 
         try {
             databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-ONLY-MNT");
@@ -4594,10 +4568,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_self_referencing_maintainer_with_sso_auth_attribute_invalid_token_authenticated_with_password_succeeds() {
         databaseHelper.addObject(SSO_AND_PASSWORD_MNT);
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/mntner/SSO-PASSWORD-MNT")
-                .queryParam("password", "test")
-                .request()
-                .cookie("crowd.token_key", "invalid-token")
+        final WhoisResources whoisResources = getWebTarget("whois/test/mntner/SSO-PASSWORD-MNT?password=test",
+                "invalid-token", MediaType.APPLICATION_XML)
                 .delete(WhoisResources.class);
 
         RestTest.assertInfoCount(whoisResources, 1);
@@ -5337,18 +5309,17 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_person_with_crowd_token_succeeds() {
+    public void update_person_with_token_succeeds() {
         databaseHelper.addObject(PAULETH_PALTHEN);
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources whoisResources = getWebTarget("whois/test/person/PP1-TEST",
+                "valid-token", MediaType.APPLICATION_XML)
                 .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages(), is(empty()));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes(), hasItem(new Attribute("remarks", "updated")));
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "updated")));
     }
 
     @Test
@@ -5358,9 +5329,7 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
                 new RpslAttribute(AttributeType.AUTH, "SSO in@valid.net")).get();
 
         try {
-            RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/test/mntner/OWNER-MNT", "valid-token", MediaType.APPLICATION_XML)
                     .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
@@ -5369,14 +5338,13 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void update_person_with_invalid_crowd_token_fails() {
+    public void update_person_with_invalid_token_fails() {
         databaseHelper.addObject(PAULETH_PALTHEN);
         final RpslObject updatedObject = new RpslObjectBuilder(PAULETH_PALTHEN).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
         try {
-            RestTest.target(getPort(), "whois/test/person/PP1-TEST")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "invalid-token")
+            getWebTarget("whois/test/person/PP1-TEST",
+                    "invalid-token", MediaType.APPLICATION_XML)
                     .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
@@ -5484,10 +5452,8 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
 
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_PERSON_2).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST")
-                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "db_e2e_1")
+        final WhoisResources whoisResources = getWebTarget("whois/test/person/TP2-TEST?override=db_e2e_1,zoh,reason%20%7Bnotify%3Dfalse%7D",
+                "db_e2e_1", MediaType.APPLICATION_XML)
                 .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
         RestTest.assertInfoCount(whoisResources, 1);
@@ -6918,6 +6884,12 @@ public class WhoisRestServiceTestIntegration extends AbstractIntegrationTest {
             throw new IllegalArgumentException(e);
 
         }
+    }
+
+    Invocation.Builder getWebTarget(final String path, final String authValue, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType)
+                .cookie("crowd.token_key", authValue);
     }
 
 }

@@ -2,7 +2,7 @@ package net.ripe.db.whois.update.log;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
-import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.oauth.DefaultOauthSession;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.update.domain.Action;
@@ -64,7 +64,7 @@ public class UpdateLogTest {
     public void logUpdateResult_create_oauth_credential_success() {
         final RpslObject maintainer = RpslObject.parse("mntner: TST-MNT");
         final UpdateResult updateResult = new UpdateResult(maintainer, maintainer, Action.CREATE, UpdateStatus.SUCCESS, new ObjectMessages(), 0, false);
-        when(update.getCredentials()).thenReturn(new Credentials(Sets.newHashSet(OAuthCredential.createOfferedCredential(new OAuthSession.Builder().build()))));
+        when(update.getCredentials()).thenReturn(new Credentials(Sets.newHashSet(OAuthCredential.createOfferedCredential(new DefaultOauthSession.Builder().build()))));
         when(updateContext.createUpdateResult(update)).thenReturn(updateResult);
 
         subject.logUpdateResult(updateRequest, updateContext, update, stopwatch);

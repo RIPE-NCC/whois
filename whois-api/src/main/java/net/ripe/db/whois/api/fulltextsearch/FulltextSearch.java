@@ -3,6 +3,7 @@ package net.ripe.db.whois.api.fulltextsearch;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.oauth.OidcSession;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +20,7 @@ public abstract class FulltextSearch {
 
     }
 
-    abstract SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException;
+    abstract SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final OidcSession oidcSession, final String remoteAddr) throws IOException;
 
 
     protected SearchResponse.Lst getResponseHeader(final SearchRequest searchRequest, final long elapsedTime) {

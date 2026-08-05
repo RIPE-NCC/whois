@@ -103,8 +103,9 @@
         <shedlock.version>6.10.0</shedlock.version>
         <slf4j.version>2.0.18</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
-        <spring.version>7.0.8</spring.version>
         <spock.version>2.4-groovy-5.0</spock.version>
+        <spring.version>7.0.8</spring.version>
+        <spring.security.version>7.0.5</spring.security.version>
         <stax-utils.version>20070216</stax-utils.version>
 
         <testcontainers.elasticsearch.version>1.21.4</testcontainers.elasticsearch.version>
@@ -112,7 +113,6 @@
 
         <validation.api.version>3.1.1</validation.api.version>
         <velocity.version>2.4.1</velocity.version>
-
         <!-- https://docs.sonarsource.com/sonarqube-server/analyzing-source-code/test-coverage/java-test-coverage#multi-module-maven-project
         Configuration for jacoco multi-module report
         -->
@@ -157,6 +157,7 @@
 
     <dependencyManagement>
         <dependencies>
+
             <!-- whois modules' artifacts -->
             <dependency>
                 <groupId>net.ripe.db</groupId>
@@ -423,12 +424,6 @@
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>${nimbus-jose-jwt.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>${oauth2.oidc.version}</version>
             </dependency>
 
             <dependency>
@@ -810,6 +805,43 @@
                 <groupId>com.ibm.icu</groupId>
                 <artifactId>icu4j</artifactId>
                 <version>${ibm.idna.version}</version>
+            </dependency>
+
+            <!-- Spring Security -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-core</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-jose</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-client</artifactId>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-resource-server</artifactId>
+                <version>${spring.security.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

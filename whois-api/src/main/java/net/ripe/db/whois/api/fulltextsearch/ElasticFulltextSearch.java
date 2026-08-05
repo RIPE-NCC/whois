@@ -18,6 +18,8 @@ import com.google.common.collect.Lists;
 import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchAccountingCallback;
 import net.ripe.db.whois.common.ApplicationVersion;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
+import net.ripe.db.whois.common.oauth.OidcSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectTemplate;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -44,8 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static net.ripe.db.whois.api.elasticsearch.ElasticIndexService.LOOKUP_KEY_FIELD_NAME;
@@ -104,12 +104,14 @@ public class ElasticFulltextSearch extends FulltextSearch {
     }
 
     @Override
-    public SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final String remoteAddr) throws IOException {
+    public SearchResponse performSearch(final SearchRequest searchRequest, final String ssoToken, final OidcSession oidcSession, final String remoteAddr) throws IOException {
         final Stopwatch stopwatch = Stopwatch.createStarted();
 
         validateFulltextQuery(searchRequest);
 
-        final UserSession userSession = ssoTokenTranslator.translateSsoTokenOrNull(ssoToken);
+        final UserSession userSession = oidcSession == null ?
+                ssoTokenTranslator.translateSsoTokenOrNull(ssoToken):
+                OAuthUtils.translateOidcToUserSession(oidcSession);
 
         return new ElasticSearchAccountingCallback<SearchResponse>(accessControlListManager, remoteAddr, userSession, source) {
 

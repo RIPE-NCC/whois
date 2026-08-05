@@ -286,6 +286,7 @@ sonar:
                 RSNG_STATS_API_KEY
                 SENTRY_DSN
                 KEYCLOAK_CLIENT_KEY
+                OIDC_CLIENT_KEY
                 )
       for variable in "${variables[@]}"; do
         sed -i "s|\${$variable}|${!variable}|g" "$properties_file"

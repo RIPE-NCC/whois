@@ -332,7 +332,14 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
         assertThat(response.getStatus(), is(HttpStatus.METHOD_NOT_ALLOWED_405));
     }
 
+    @Test
+    public void healthcheck() {
+        final Response response = RestTest.target(getPort(), "whois/healthcheck")
+                .request()
+                .get(Response.class);
 
+        assertThat(response.getStatus(), is(HttpStatus.OK_200));
+    }
     // helper methods
 
     private String getHost(final String url) {

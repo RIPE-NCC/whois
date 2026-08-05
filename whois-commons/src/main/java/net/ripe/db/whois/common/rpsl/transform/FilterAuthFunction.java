@@ -8,7 +8,7 @@ import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
 import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -48,7 +48,7 @@ public class FilterAuthFunction implements FilterFunction {
     private List<String> passwords = null;
     private OverrideCredential overrideCredential;
     private boolean isTrusted;
-    private OAuthSession oAuthSession;
+    private AbstractOAuthSession abstractOAuthSession;
     private UserSession  userSession;
     private User overrideUser;
     private RpslObjectDao rpslObjectDao = null;
@@ -60,7 +60,7 @@ public class FilterAuthFunction implements FilterFunction {
 
     public FilterAuthFunction(final List<String> passwords,
                               final User overrideUser,
-                              final OAuthSession oAuthSession,
+                              final AbstractOAuthSession abstractOAuthSession,
                               final UserSession userSession,
                               final AuthServiceClient authServiceClient,
                               final RpslObjectDao rpslObjectDao,
@@ -75,7 +75,7 @@ public class FilterAuthFunction implements FilterFunction {
         this.rpslObjectDao = rpslObjectDao;
         this.certificates = certificates;
         this.clientAuthCertificateValidator = clientAuthCertificateValidator;
-        this.oAuthSession = oAuthSession;
+        this.abstractOAuthSession = abstractOAuthSession;
         this.isTrusted = isTrusted;
         this.overrideCredentialValidator = overrideCredentialValidator;
     }
@@ -130,7 +130,7 @@ public class FilterAuthFunction implements FilterFunction {
     }
 
     private boolean isMntnerAuthenticated(final RpslObject rpslObject) {
-        if (CollectionUtils.isEmpty(passwords) && userSession == null && (certificates == null || certificates.isEmpty()) && (oAuthSession == null || oAuthSession.getUuid() == null)) {
+        if (CollectionUtils.isEmpty(passwords) && userSession == null && (certificates == null || certificates.isEmpty()) && (abstractOAuthSession == null || abstractOAuthSession.getUuid() == null)) {
             return false;
         }
 
@@ -204,6 +204,6 @@ public class FilterAuthFunction implements FilterFunction {
             maintainers.add(rpslObject);
         }
 
-        return hasValidOauthSession(oAuthSession, maintainers, authAttributes);
+        return hasValidOauthSession(abstractOAuthSession, maintainers, authAttributes);
     }
 }

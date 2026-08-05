@@ -48,6 +48,7 @@ import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.RpslObjectInfo;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateDao;
 import net.ripe.db.whois.common.dao.jdbc.JdbcReferenceReadOnlyDao;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
 import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.AttributeTemplate;
 import net.ripe.db.whois.common.rpsl.AttributeType;
@@ -196,7 +197,7 @@ public class ReferencesService {
 
             validateObjectNotFound(whoisResources, mntner);
 
-            final WhoisResources updatedResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, apiKeyId, null, SsoAuthForm.ACCOUNT, null);
+            final WhoisResources updatedResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, AuthenticationUtils.getOauthSession(), null, SsoAuthForm.ACCOUNT, null);
             return createResponse(request, filterWhoisObjects(updatedResources), Response.Status.OK);
 
         } catch (WebApplicationException e) {
@@ -244,14 +245,14 @@ public class ReferencesService {
             final List<ActionRequest> actionRequests,
             final List<String> passwords,
             final String crowdTokenKey,
-            final String apiKeyId,
+            final AbstractOAuthSession oAuthSession,
             final String override,
             final SsoAuthForm ssoAuthForm,
             final String reason) {
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, oAuthSession, request);
             updateContext.setBatchUpdate();
             auditlogRequest(request);
 
@@ -406,7 +407,6 @@ public class ReferencesService {
             @PathParam("key") final String keyParam,
             @QueryParam("reason") @DefaultValue("--") final String reason,
             @QueryParam("password") final List<String> passwords,
-            @QueryParam(OAuthUtils.APIKEY_KEY_ID_QUERY_PARAM) final String apiKeyId,
             @QueryParam("override") final String override,
             @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
@@ -420,7 +420,7 @@ public class ReferencesService {
 
             if (references.isEmpty()) {
                 // delete the primary object directly
-                performUpdate(request, primaryObject, reason, passwords, apiKeyId, crowdTokenKey);
+                performUpdate(request, primaryObject, reason, passwords, crowdTokenKey);
                 return createResponse(request, primaryObject, Response.Status.OK);
             }
 
@@ -450,7 +450,7 @@ public class ReferencesService {
             actionRequests.add(new ActionRequest(tmpMntnerWithReplacements.rpslObject, Action.DELETE));
 
             // batch update
-            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, apiKeyId, override, SsoAuthForm.UUID, reason);
+            final WhoisResources whoisResources = performUpdates(request, actionRequests, passwords, crowdTokenKey, AuthenticationUtils.getOauthSession(), override, SsoAuthForm.UUID, reason);
 
             removeDuplicatesAndRestoreReplacedReferences(whoisResources, tmpMntnerWithReplacements);
 
@@ -498,16 +498,15 @@ public class ReferencesService {
     /**
      * Update a single object in the database
      */
-    private Response performUpdate(
+    private void performUpdate(
                 final HttpServletRequest request,
                 final RpslObject rpslObject,
                 final String deleteReason,
                 final List<String> passwords,
-                final String apiKeyId,
                 final String crowdTokenKey) {
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, apiKeyId, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, AuthenticationUtils.getOauthSession(), request);
 
             auditlogRequest(request);
 
@@ -538,8 +537,6 @@ public class ReferencesService {
 
                 throw new WebApplicationException(response);
             }
-
-            return response;
 
         } catch (WebApplicationException e) {
             throw e;

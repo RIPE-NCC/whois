@@ -3,7 +3,7 @@ package net.ripe.db.whois;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.ws.rs.core.MultivaluedMap;
-import net.ripe.db.whois.api.ApiKeyAuthServerDummy;
+import net.ripe.db.whois.api.ApiKeysAuthServerDummy;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.httpserver.CertificatePrivateKeyPair;
 import net.ripe.db.whois.api.httpserver.JettyBootstrap;
@@ -93,7 +93,7 @@ public class WhoisFixture {
 
     protected DummyRpkiDataProvider rpkiDataProvider;
     protected TestWhoisLog testWhoisLog;
-    protected ApiKeyAuthServerDummy apikeyDummy;
+    protected ApiKeysAuthServerDummy apikeyDummy;
 
     static {
         Slf4JLogConfiguration.init();
@@ -142,7 +142,7 @@ public class WhoisFixture {
         whoisRestService = applicationContext.getBean(WhoisRestService.class);
         testWhoisLog = applicationContext.getBean(TestWhoisLog.class);
         rpkiDataProvider = applicationContext.getBean(DummyRpkiDataProvider.class);
-        apikeyDummy = applicationContext.getBean(ApiKeyAuthServerDummy.class);
+        apikeyDummy = applicationContext.getBean(ApiKeysAuthServerDummy.class);
 
         databaseHelper.setup();
         whoisServer.start();
@@ -266,7 +266,7 @@ public class WhoisFixture {
         return rpkiDataProvider;
     }
 
-    public ApiKeyAuthServerDummy getApikeyDummy(){
+    public ApiKeysAuthServerDummy getApikeyDummy(){
         return apikeyDummy;
     }
 

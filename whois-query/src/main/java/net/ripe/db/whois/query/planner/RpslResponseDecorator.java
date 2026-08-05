@@ -6,7 +6,7 @@ import net.ripe.db.whois.common.collect.IterableTransformer;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.User;
-import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
 import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
@@ -166,14 +166,14 @@ public class RpslResponseDecorator {
     private Iterable<? extends ResponseObject> filterAuth(Query query, final Iterable<? extends ResponseObject> objects) {
         final List<String> passwords = this.isPasswordSupported ? query.getPasswords() : Collections.emptyList();
         final UserSession userSession = query.getUserSession();
-        final OAuthSession oAuthSession = query.getoAuthSession();
+        final AbstractOAuthSession abstractOAuthSession = query.getoAuthSession();
         final List<X509CertificateWrapper> certificates = query.getCertificates();
         final User overrideUser = query.getOverrideUser();
 
         final FilterAuthFunction filterAuthFunction =
-                (CollectionUtils.isEmpty(passwords) && overrideUser == null && userSession == null && hasNotCertificates(certificates) && oAuthSession == null)?
+                (CollectionUtils.isEmpty(passwords) && overrideUser == null && userSession == null && hasNotCertificates(certificates) && abstractOAuthSession == null)?
                         FILTER_AUTH_FUNCTION :
-                        new FilterAuthFunction(passwords, overrideUser, oAuthSession, userSession, authServiceClient,
+                        new FilterAuthFunction(passwords, overrideUser, abstractOAuthSession, userSession, authServiceClient,
                                 rpslObjectDao, certificates, clientAuthCertificateValidator,
                                 overrideCredentialValidator, query.isTrusted());
 

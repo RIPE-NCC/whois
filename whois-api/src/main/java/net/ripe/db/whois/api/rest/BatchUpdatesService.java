@@ -65,13 +65,13 @@ public class BatchUpdatesService {
                        @QueryParam("delete-reason") final String reason,
                        @CookieParam(AuthServiceClient.TOKEN_KEY)  final String crowdTokenKey) {
 
-        if (whoisResources == null || whoisResources.getWhoisObjects().size() == 0) {
+        if (whoisResources == null || whoisResources.getWhoisObjects().isEmpty()) {
             return Response.status(BAD_REQUEST).entity("WhoisResources is mandatory").build();
         }
 
         try {
             final Origin origin = updatePerformer.createOrigin(request);
-            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, null, request);
+            final UpdateContext updateContext = updatePerformer.initContext(origin, crowdTokenKey, AuthenticationUtils.getOidcSession(), request);
             updateContext.setBatchUpdate();
 
             if(isQueryParamSet(dryRun)) {

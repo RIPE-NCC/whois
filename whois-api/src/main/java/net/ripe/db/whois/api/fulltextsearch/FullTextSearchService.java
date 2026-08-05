@@ -10,7 +10,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import net.ripe.db.whois.api.rest.AuthenticationUtils;
 import net.ripe.db.whois.api.rest.RestServiceHelper;
+import net.ripe.db.whois.common.oauth.OidcSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.query.domain.QueryException;
@@ -31,8 +33,6 @@ import static net.ripe.db.whois.api.fulltextsearch.ElasticFulltextSearch.countOc
 @Path("/fulltextsearch")
 public class FullTextSearchService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FullTextSearchService.class);
-
-    private static final String LUCENE_SPECIALS = "+-!(){}[]^\"~*?/\\";
 
     private final FulltextSearch fulltextSearch;
 
@@ -66,7 +66,7 @@ public class FullTextSearchService {
                             .setHighlightPost(highlightPost)
                             .setFormat(writerType)
                             .setFacet(isFacetSafe(facet, escapeColon(query)))
-                            .build(), crowdTokenKey, request));
+                            .build(), crowdTokenKey, AuthenticationUtils.getOidcSession(), request));
         } catch (IllegalArgumentException e) {
             return badRequest(e.getMessage());
         } catch (QueryException qe) {
@@ -109,9 +109,9 @@ public class FullTextSearchService {
     //
     // TODO: only search in possibly value fields, according to query string
     //
-    public SearchResponse search(final SearchRequest searchRequest, final String ssoToken, final HttpServletRequest request) {
+    public SearchResponse search(final SearchRequest searchRequest, final String ssoToken, final OidcSession oidcSession, final HttpServletRequest request) {
         try {
-            return fulltextSearch.performSearch(searchRequest, ssoToken, request.getRemoteAddr());
+            return fulltextSearch.performSearch(searchRequest, ssoToken, oidcSession, request.getRemoteAddr());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

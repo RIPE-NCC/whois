@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.oauth;
 
 import com.google.common.base.MoreObjects;
 
-public class APIKeySession extends OAuthSession {
+public class APIKeySession extends AbstractOAuthSession {
 
     final private String keyId;
 
@@ -27,5 +27,18 @@ public class APIKeySession extends OAuthSession {
                 .add("jti", getJti())
                 .add("errorStatus", getErrorStatus())
                 .toString();
+    }
+
+    public static class Builder extends AbstractOAuthSession.Builder<Builder, APIKeySession>{
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        public APIKeySession build() {
+            return new APIKeySession(this);
+        }
     }
 }

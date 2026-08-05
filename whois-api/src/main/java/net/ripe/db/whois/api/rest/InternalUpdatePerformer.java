@@ -2,8 +2,11 @@ package net.ripe.db.whois.api.rest;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import net.ripe.db.whois.api.UpdateCreator;
-import net.ripe.db.whois.api.oauth.BearerTokenManager;
 import net.ripe.db.whois.api.rest.domain.ErrorMessage;
 import net.ripe.db.whois.api.rest.domain.Link;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -14,40 +17,37 @@ import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
 import net.ripe.db.whois.common.conversion.PasswordFilter;
+import net.ripe.db.whois.common.credentials.ClientCertificateCredential;
+import net.ripe.db.whois.common.credentials.Credential;
+import net.ripe.db.whois.common.credentials.OAuthCredential;
+import net.ripe.db.whois.common.credentials.OverrideCredential;
+import net.ripe.db.whois.common.credentials.PasswordCredential;
+import net.ripe.db.whois.common.credentials.SsoCredential;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
-import net.ripe.db.whois.common.credentials.OAuthCredential;
+import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.domain.Action;
-import net.ripe.db.whois.common.credentials.ClientCertificateCredential;
-import net.ripe.db.whois.common.credentials.Credential;
 import net.ripe.db.whois.update.domain.Credentials;
 import net.ripe.db.whois.update.domain.Keyword;
 import net.ripe.db.whois.update.domain.Operation;
 import net.ripe.db.whois.update.domain.Origin;
-import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.update.domain.Paragraph;
-import net.ripe.db.whois.common.credentials.PasswordCredential;
 import net.ripe.db.whois.update.domain.PreparedUpdate;
-import net.ripe.db.whois.common.credentials.SsoCredential;
 import net.ripe.db.whois.update.domain.Update;
 import net.ripe.db.whois.update.domain.UpdateContext;
 import net.ripe.db.whois.update.domain.UpdateMessages;
 import net.ripe.db.whois.update.domain.UpdateRequest;
 import net.ripe.db.whois.update.domain.UpdateStatus;
 import net.ripe.db.whois.update.handler.UpdateRequestHandler;
-import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 import net.ripe.db.whois.update.log.LogCallback;
 import net.ripe.db.whois.update.log.LoggerContext;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -64,29 +64,26 @@ public class InternalUpdatePerformer {
     private final WhoisObjectMapper whoisObjectMapper;
     private final LoggerContext loggerContext;
     private final SsoTokenTranslator ssoTokenTranslator;
-    private final BearerTokenManager bearerTokenManager;
 
     @Autowired
     public InternalUpdatePerformer(final UpdateRequestHandler updateRequestHandler,
                                    final DateTimeProvider dateTimeProvider,
                                    final WhoisObjectMapper whoisObjectMapper,
                                    final LoggerContext loggerContext,
-                                   final BearerTokenManager bearerTokenManager,
                                    final SsoTokenTranslator ssoTokenTranslator) {
         this.updateRequestHandler = updateRequestHandler;
         this.dateTimeProvider = dateTimeProvider;
         this.whoisObjectMapper = whoisObjectMapper;
         this.loggerContext = loggerContext;
         this.ssoTokenTranslator = ssoTokenTranslator;
-        this.bearerTokenManager = bearerTokenManager;
     }
 
-    public UpdateContext initContext(final Origin origin, final String ssoToken, final String apiKeyId, final HttpServletRequest request) {
+    public UpdateContext initContext(final Origin origin, final String ssoToken, final AbstractOAuthSession abstractOAuthSession, final HttpServletRequest request) {
         loggerContext.init(getRequestId(origin.getFrom()));
         final UpdateContext updateContext = new UpdateContext(loggerContext);
         setSsoSessionToContext(updateContext, ssoToken);
         setClientCertificates(updateContext, request);
-        setOAuthSession(updateContext, apiKeyId, request);
+        setOAuthSession(updateContext, abstractOAuthSession);
         return updateContext;
     }
 
@@ -243,8 +240,8 @@ public class InternalUpdatePerformer {
         }
     }
 
-    private void setOAuthSession(final UpdateContext updateContext, final String apiKeyId, final HttpServletRequest request) {
-        updateContext.setOAuthSession(bearerTokenManager.validateBearerTokenAndBuildOauthSession(request, apiKeyId));
+    private void setOAuthSession(final UpdateContext updateContext, final AbstractOAuthSession abstractOAuthSession) {
+        updateContext.setOAuthSession(abstractOAuthSession);
     }
 
     public void setClientCertificates(final UpdateContext updateContext, final HttpServletRequest request) {

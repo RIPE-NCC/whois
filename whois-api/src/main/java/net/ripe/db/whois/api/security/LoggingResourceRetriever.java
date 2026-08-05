@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.oauth;
+package net.ripe.db.whois.api.security;
 
 import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jose.util.Resource;

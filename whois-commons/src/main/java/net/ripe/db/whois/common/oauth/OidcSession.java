@@ -2,7 +2,7 @@ package net.ripe.db.whois.common.oauth;
 
 import com.google.common.base.MoreObjects;
 
-public class OidcSession extends OAuthSession{
+public class OidcSession extends AbstractOAuthSession {
 
     OidcSession(Builder builder) {
         super(builder);
@@ -19,4 +19,18 @@ public class OidcSession extends OAuthSession{
                 .add("errorStatus", getErrorStatus())
                 .toString();
     }
+
+    public static class Builder extends AbstractOAuthSession.Builder<OidcSession.Builder, OidcSession>{
+
+        @Override
+        protected Builder self() {
+            return this;
+        }
+
+        @Override
+        public OidcSession build() {
+            return new OidcSession(this);
+        }
+    }
+
 }

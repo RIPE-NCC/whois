@@ -6,7 +6,7 @@ import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.Message;
 import net.ripe.db.whois.common.Messages;
-import net.ripe.db.whois.common.oauth.OAuthSession;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
 import net.ripe.db.whois.common.dao.RpslObjectUpdateInfo;
 import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
@@ -39,7 +39,7 @@ public class UpdateContext {
     private final Map<String, String> ssoTranslation = Maps.newHashMap();
     private final LoggerContext loggerContext;
     private UserSession userSession;
-    private OAuthSession oAuthSession;
+    private AbstractOAuthSession abstractOAuthSession;
     private List<X509CertificateWrapper> clientCertificates;
     private int nrSinceRestart;
     private boolean dryRun;
@@ -326,16 +326,16 @@ public class UpdateContext {
         this.userSession = userSession;
     }
 
-    public void setOAuthSession(final OAuthSession oAuthSession) {
-        this.oAuthSession = oAuthSession;
+    public void setOAuthSession(final AbstractOAuthSession abstractOAuthSession) {
+        this.abstractOAuthSession = abstractOAuthSession;
     }
 
     public UserSession getUserSession() {
         return userSession;
     }
 
-    public OAuthSession getOAuthSession() {
-        return oAuthSession;
+    public AbstractOAuthSession getOAuthSession() {
+        return abstractOAuthSession;
     }
 
     public void setClientCertificates(final List<X509CertificateWrapper> certificates) {

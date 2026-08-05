@@ -1,4 +1,4 @@
-package net.ripe.db.whois.api.oauth;
+package net.ripe.db.whois.api.security;
 
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
@@ -55,7 +55,6 @@ public class OidcConfigurationProvider {
 
     private final String openIdMetadataUrl;
 
-
     private final AtomicReference<OidcConfigurationRecord> oidcConfigurationRecordRef = new AtomicReference<>();
 
     @Autowired
@@ -63,11 +62,6 @@ public class OidcConfigurationProvider {
         this.openIdMetadataUrl = openIdMetadataUrl;
 
         getOidcConfigurationOrInitialise();
-    }
-
-    @Nullable
-    public ConfigurableJWTProcessor<SecurityContext> getProcessorOrInitOidcConfiguration() {
-        return getOidcConfigurationOrInitialise() == null ? null : getOidcConfigurationOrInitialise().jwtProcessor;
     }
 
     @Nullable

@@ -1,10 +1,10 @@
 package net.ripe.db.whois.common.oauth;
 
 import com.google.common.base.MoreObjects;
-import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
-public class OAuthSession {
+public abstract class AbstractOAuthSession {
 
     private final List<String> aud;
 
@@ -20,7 +20,7 @@ public class OAuthSession {
 
     private final String jti;
 
-    OAuthSession(final Builder builder) {
+    AbstractOAuthSession(final Builder builder) {
         this.aud = builder.aud;
         this.email = builder.email;
         this.uuid = builder.uuid;
@@ -104,7 +104,7 @@ public class OAuthSession {
         }
     }
 
-    public static class Builder {
+    public abstract static class Builder<T extends Builder<T, P>, P extends AbstractOAuthSession> {
 
         protected List<String> aud;
 
@@ -122,48 +122,47 @@ public class OAuthSession {
 
         protected String keyId;
 
-        public Builder keyId(String keyId) {
+        public T keyId(String keyId) {
             this.keyId = keyId;
-            return this;
+            return self();
         }
 
-        public Builder aud(List<String> aud) {
+        public T aud(List<String> aud) {
             this.aud = aud;
-            return this;
+            return self();
         }
 
-        public Builder jti(String jti) {
+        public T jti(String jti) {
             this.jti = jti;
-            return this;
+            return self();
         }
 
-        public Builder email(String email) {
+        public T email(String email) {
             this.email = email;
-            return this;
+            return self();
         }
 
-        public Builder uuid(String uuid) {
+        public T uuid(String uuid) {
             this.uuid = uuid;
-            return this;
+            return self();
         }
 
-        public Builder scopes(List<String> scopes) {
+        public T scopes(List<String> scopes) {
             this.scopes = scopes;
-            return this;
+            return self();
         }
 
-        public Builder errorStatus(String errorStatus) {
+        public T errorStatus(String errorStatus) {
             this.errorStatus = errorStatus;
-            return this;
+            return self();
         }
 
-        public Builder azp(String azp) {
+        public T azp(String azp) {
             this.azp = azp;
-            return this;
+            return self();
         }
 
-        public OAuthSession build() {
-            return StringUtils.isEmpty(this.keyId) ? new OAuthSession(this) : new APIKeySession(this);
-        }
+        protected abstract T self();
+        public abstract P build();
     }
 }
