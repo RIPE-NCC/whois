@@ -189,7 +189,7 @@ public class RpslObjectStreamer {
                     throw new QueryException(QueryCompletionInfo.DISCONNECTED);
                 }
 
-                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, parameters);
+                final WhoisObject whoisObject = whoisObjectServerMapper.map(rpslObject, parameters.getUnformatted());
                 whoisObjectServerMapper.mapAbuseContact(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapManagedAttributes(whoisObject, parameters, rpslObject);
                 whoisObjectServerMapper.mapResourceHolder(whoisObject, parameters, rpslObject);

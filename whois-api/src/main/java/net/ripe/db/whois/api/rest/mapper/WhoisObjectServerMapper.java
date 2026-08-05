@@ -61,8 +61,8 @@ public class WhoisObjectServerMapper {
         return whoisVersions;
     }
 
-    public WhoisObject map(final RpslObject rpslObject, final Parameters parameters) {
-        final Class<? extends AttributeMapper> attributeMapper = getServerAttributeMapper(Boolean.TRUE.equals(parameters.getUnformatted()));
+    public WhoisObject map(final RpslObject rpslObject, final boolean isUnformatted) {
+        final Class<? extends AttributeMapper> attributeMapper = getServerAttributeMapper(isUnformatted);
         return whoisObjectMapper.map(rpslObject, attributeMapper);
     }
 

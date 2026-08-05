@@ -872,6 +872,73 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
+    public void version_returns_formatted() {
+        databaseHelper.addObject(
+                """
+                aut-num:        AS102
+                as-name:        End-User-2
+                descr:          description
+                e-mail:          test@test.nl
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         OWNER-MNT
+                notify:         notify@me.nl
+                source:         TEST
+                """);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1?unformatted=false")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+
+        final WhoisObject whoisObject = whoisResources.getWhoisObjects().getFirst();
+        final List<RpslAttribute> originalAttributes = RpslObject.parse(
+                """
+                aut-num:        AS102
+                as-name:        End-User-2
+                descr:          description
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                """)
+                .getAttributes();
+        final List<Attribute> attributes = whoisObject.getAttributes();
+
+        assertThat(attributes, hasSize(originalAttributes.size()));
+
+        for (int i = 0; i < originalAttributes.size(); i++) {
+            assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
+        }
+    }
+
+    @Test
+    public void version_returns_unformatted() {
+        databaseHelper.addObject(
+                """
+                aut-num:        AS102
+                as-name:        End-User-2
+                descr:          description1
+                                description2
+                mnt-by:         OWNER-MNT
+                source:         TEST
+                """);
+
+        final WhoisResources whoisResources = RestTest.target(getPort(),
+                        "whois/test/aut-num/AS102/versions/1?unformatted=true")
+                .request()
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        final List<Attribute> attributes = whoisResources.getWhoisObjects().getFirst().getAttributes();
+
+        assertThat(attributes.get(0).getValue(), is("        AS102"));
+        assertThat(attributes.get(1).getValue(), is("        End-User-2"));
+        assertThat(attributes.get(2).getValue(), is(
+                "          description1\n" +
+                        "                description2"));
+    }
+
+    @Test
     public void lookup_non_streaming_puts_xlink_into_root_element_and_nowhere_else() {
         databaseHelper.addObject(
                 """

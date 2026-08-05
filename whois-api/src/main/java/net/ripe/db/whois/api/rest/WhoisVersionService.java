@@ -9,8 +9,6 @@ import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.domain.Version;
-import net.ripe.db.whois.api.rest.mapper.FormattedServerAttributeMapper;
-import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectServerMapper;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.Message;
@@ -36,12 +34,15 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
+
+import static net.ripe.db.whois.api.rest.RestServiceHelper.isQueryParamSet;
 
 @Component
 @Path("/")
@@ -50,7 +51,6 @@ public class WhoisVersionService {
     private final AccessControlListManager accessControlListManager;
     private final QueryHandler queryHandler;
     private final SourceContext sourceContext;
-    private final WhoisObjectMapper whoisObjectMapper;
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final VersionQueryExecutor versionQueryExecutor;
     private final Version version;
@@ -60,14 +60,12 @@ public class WhoisVersionService {
             final AccessControlListManager accessControlListManager,
             final QueryHandler queryHandler,
             final SourceContext sourceContext,
-            final WhoisObjectMapper whoisObjectMapper,
             final WhoisObjectServerMapper whoisObjectServerMapper,
             final VersionQueryExecutor versionQueryExecutor,
             final ApplicationVersion applicationVersion) {
         this.accessControlListManager = accessControlListManager;
         this.queryHandler = queryHandler;
         this.sourceContext = sourceContext;
-        this.whoisObjectMapper = whoisObjectMapper;
         this.whoisObjectServerMapper = whoisObjectServerMapper;
         this.versionQueryExecutor = versionQueryExecutor;
         this.version = new Version(
@@ -136,7 +134,8 @@ public class WhoisVersionService {
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
-            @PathParam("version") final Integer objectVersion) {
+            @PathParam("version") final Integer objectVersion,
+            @QueryParam("unformatted") final String unformatted) {
 
         checkForMainSource(request, source);
 
@@ -166,7 +165,7 @@ public class WhoisVersionService {
 
         // TODO: [AH] this should use StreamingMarshal to properly handle newlines in errormessages
         final WhoisResources whoisResources = new WhoisResources();
-        final WhoisObject whoisObject = whoisObjectMapper.map(versionWithRpslResponseObject.getRpslObject(), FormattedServerAttributeMapper.class);
+        final WhoisObject whoisObject = whoisObjectServerMapper.map(versionWithRpslResponseObject.getRpslObject(), isQueryParamSet(unformatted));
         whoisObject.setVersion(versionWithRpslResponseObject.getVersion());
         whoisResources.setWhoisObjects(Collections.singletonList(whoisObject));
         whoisResources.setErrorMessages(RestServiceHelper.createErrorMessages(versionsResponseHandler.getErrors()));
