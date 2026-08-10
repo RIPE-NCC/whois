@@ -1,9 +1,11 @@
 package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.SecureRestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.support.TelnetWhoisClient;
@@ -13,6 +15,7 @@ import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +32,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTest {
+public class WhoisRestServiceIpAclTestIntegration extends AbstractHttpsIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
@@ -47,6 +50,18 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
 
     @Autowired
     QueryServer queryServer;
+
+    @BeforeAll
+    public static void setupApiProperties() {
+        System.setProperty("oidc.auth.enable","true");
+        System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
+    }
+
+    @AfterAll
+    public static void restApiProperties() {
+        System.clearProperty("oidc.auth.enable");
+        System.clearProperty("oidc.session.client.id");
+    }
 
     @BeforeAll
     public static void setProperties() {
@@ -237,7 +252,7 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
                 .cookie("crowd.token_key", VALID_TOKEN)
                 .get(WhoisResources.class);
 
-        assertThat(whoisResources.getWhoisObjects().get(0).getAttributes()
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes()
                         .stream()
                         .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
                 is(false));
@@ -249,6 +264,34 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
         assertThat(accountedBySSO, is(queriedBySSO));
     }
 
+    @Test
+    public void lookup_person_acl_counted_by_OIDC_disabled() throws Exception {
+        final InetAddress localhost = InetAddress.getByName(LOCALHOST);
+        databaseHelper.addObject(
+                "person:    Test Person\n" +
+                        "nic-hdl:   TP2-TEST\n" +
+                        "e-mail:   test@ripe.net\n" +
+                        "source:    TEST");
+
+        final int queriedByIP = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/person/TP2-TEST")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(VALID_TOKEN))
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getWhoisObjects().getFirst().getAttributes()
+                        .stream()
+                        .anyMatch( (attribute)-> attribute.getName().equals(AttributeType.E_MAIL)),
+                is(false));
+
+        final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
+        assertThat(accountedByIp, is(queriedByIP+1));
+
+        final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
+        assertThat(accountedBySSO, is(queriedBySSO));
+    }
 
     @Test
     public void lookup_unfiltered_organisation_acl_no_accounted() throws Exception {
@@ -275,4 +318,5 @@ public class WhoisRestServiceIpAclTestIntegration extends AbstractIntegrationTes
         final int accountedByIp = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
         assertThat(accountedByIp, is(0));
     }
+
 }

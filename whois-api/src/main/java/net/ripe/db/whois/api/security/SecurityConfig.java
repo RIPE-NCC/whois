@@ -112,7 +112,7 @@ public class SecurityConfig {
 
     @Bean
     public DefaultTokenValidator defaultTokenValidator(@Value("${apikey.max.scope:10}") final int maxScopes,
-                                                 @Value("${oauth.token.inspection:false}") final boolean shouldUseTokenInspector,
+                                                 @Value("${oauth.token.introspection:false}") final boolean shouldUseTokenInspector,
                                                  @Qualifier("keycloakIntrospector") final OpaqueTokenIntrospector tokenIntrospector,
                                                  final NimbusJwtDecoder jwtDecoder) {
         return new DefaultTokenValidator(
@@ -124,7 +124,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public OidcTokenValidator oidcTokenValidator(@Value("${oauth.token.inspection:false}") final boolean shouldUseTokenInspector,
+    public OidcTokenValidator oidcTokenValidator(@Value("${oauth.token.introspection:false}") final boolean shouldUseTokenInspector,
                                                  @Qualifier("oidcIntrospector") final OpaqueTokenIntrospector tokenIntrospector,
                                                  final NimbusJwtDecoder jwtDecoder) {
         return new OidcTokenValidator(

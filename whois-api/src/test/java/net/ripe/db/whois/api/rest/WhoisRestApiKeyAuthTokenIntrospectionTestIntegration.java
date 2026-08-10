@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_EXPIRED;
-import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_INACTIVE_TOKEN;
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_INVALID_ISS_API_KEY;
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_INVALID_SIGNATURE_API_KEY;
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_ISSUES_AT;
@@ -20,24 +19,45 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 @Tag("IntegrationTest")
-public class WhoisRestBearerAuthTokenInspectionTestIntegration extends WhoisRestBearerAuthTestIntegration {
+public class WhoisRestApiKeyAuthTokenIntrospectionTestIntegration extends WhoisRestApiKeyAuthTestIntegration {
 
     @BeforeAll
     public static void setupApiProperties() {
-        System.setProperty("oauth.token.inspection","true");
+        System.setProperty("oauth.token.introspection","true");
         System.setProperty("apikey.max.scope","2");
     }
 
     @AfterAll
     public static void restApiProperties() {
-        System.clearProperty("oauth.token.inspection");
-        System.clearProperty("apikey.public.key.url");
+        System.clearProperty("oauth.token.introspection");
         System.clearProperty("apikey.max.scope");
     }
 
     @Test
     @Override
-    public void create_mntner_only_data_parameter_with_bearer_token_fails_expired_session(){
+    public void create_mntner_only_data_parameter_with_apiKey_fails_wrong_audience() {
+        final String mntner =
+                "mntner:        SSO-MNT\n" +
+                        "descr:         description\n" +
+                        "admin-c:       TP1-TEST\n" +
+                        "upd-to:        noreply@ripe.net\n" +
+                        "auth:          SSO person@net.net\n" +
+                        "mnt-by:        SSO-MNT\n" +
+                        "source:        TEST";
+
+        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
+        assertThat(response, containsString("***Warning: Session associated with APIKEY is not active"));
+    }
+
+    @Test
+    @Override
+    public void create_mntner_only_data_parameter_with_apiKey_fails_expired_session(){
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -50,17 +70,17 @@ public class WhoisRestBearerAuthTokenInspectionTestIntegration extends WhoisRest
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_EXPIRED))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_EXPIRED))
                 .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Session associated with OAUTH is not active"));
+        assertThat(response, containsString("***Warning: Session associated with APIKEY is not active"));
     }
 
     @Test
     @Override
-    public void create_mntner_only_data_parameter_with_bearer_token_fails_invalid_signed_session(){
+    public void create_mntner_only_data_parameter_with_apiKey_fails_invalid_signed_session(){
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -73,17 +93,17 @@ public class WhoisRestBearerAuthTokenInspectionTestIntegration extends WhoisRest
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_INVALID_SIGNATURE_API_KEY))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_SIGNATURE_API_KEY))
                 .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Session associated with OAUTH is not active"));
+        assertThat(response, containsString("***Warning: Session associated with APIKEY is not active"));
     }
 
     @Test
     @Override
-    public void create_mntner_only_data_parameter_with_bearer_token_fails_invalid_iss_claim(){
+    public void create_mntner_only_data_parameter_with_apiKey_fails_invalid_iss_claim(){
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -96,17 +116,17 @@ public class WhoisRestBearerAuthTokenInspectionTestIntegration extends WhoisRest
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_INVALID_ISS_API_KEY))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_INVALID_ISS_API_KEY))
                 .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Session associated with OAUTH is not active"));
+        assertThat(response, containsString("***Warning: Session associated with APIKEY is not active"));
     }
 
     @Test
     @Override
-    public void create_mntner_only_data_parameter_with_bearer_token_fails_invalid_issued_at_claim(){
+    public void create_mntner_only_data_parameter_with_apiKey_fails_invalid_issued_at_claim(){
         final String mntner =
                 "mntner:        SSO-MNT\n" +
                         "descr:         description\n" +
@@ -119,55 +139,11 @@ public class WhoisRestBearerAuthTokenInspectionTestIntegration extends WhoisRest
 
         final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_ISSUES_AT))
+                .header(HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_ISSUES_AT))
                 .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
         assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Session associated with OAUTH is not active"));
-    }
-
-    @Test
-    @Override
-    public void create_mntner_only_data_parameter_with_bearer_token_fails_wrong_audience() {
-        final String mntner =
-                "mntner:        SSO-MNT\n" +
-                        "descr:         description\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        noreply@ripe.net\n" +
-                        "auth:          SSO person@net.net\n" +
-                        "mnt-by:        SSO-MNT\n" +
-                        "source:        TEST";
-
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_PERSON_OWNER_MNT_WRONG_AUDIENCE))
-                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
-                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
-
-        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Session associated with OAUTH is not active"));
-    }
-
-    @Test
-    @Override
-    public void create_mntner_only_data_parameter_with_bearer_token_fails_inactive_session() {
-        final String mntner =
-                "mntner:        SSO-MNT\n" +
-                        "descr:         description\n" +
-                        "admin-c:       TP1-TEST\n" +
-                        "upd-to:        noreply@ripe.net\n" +
-                        "auth:          SSO person@net.net\n" +
-                        "mnt-by:        SSO-MNT\n" +
-                        "source:        TEST";
-
-        final String response = SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
-                .request()
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_INACTIVE_TOKEN))
-                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(mntner),
-                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
-
-        assertThat(response, containsString("Create FAILED: [mntner] SSO-MNT"));
-        assertThat(response, containsString("***Warning: Session associated with OAUTH is not active"));
+        assertThat(response, containsString("***Warning: Session associated with APIKEY is not active"));
     }
 }

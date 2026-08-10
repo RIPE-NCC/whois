@@ -5,9 +5,10 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
 import net.ripe.db.whois.api.rest.mapper.WhoisObjectMapper;
@@ -25,7 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest {
+public class DomainObjectServiceTestIntegration extends AbstractHttpsIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
@@ -96,9 +97,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
             domains.add(domain);
         }
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources response = getWebTarget("whois/domain-objects/TEST", "valid-token", "")
                 .post(Entity.entity(mapRpslObjects(domains.toArray(new RpslObject[0])), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         RestTest.assertErrorCount(response, 0);
@@ -125,9 +124,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                     "source:        TEST");
 
         try {
-            RestTest.target(getPort(), "whois/domain-objects/TEST")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/domain-objects/TEST", "valid-token", "")
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
@@ -157,9 +154,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
         try {
-            RestTest.target(getPort(), "whois/domain-objects/TEST")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/domain-objects/TEST", "valid-token", "")
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
@@ -195,9 +190,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
         try {
             dnsGatewayStub.setProduceTimeouts(true);
 
-            RestTest.target(getPort(), "whois/domain-objects/TEST")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/domain-objects/TEST", "valid-token", "")
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (InternalServerErrorException e) {
@@ -219,9 +212,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
         try {
-            RestTest.target(getPort(), "whois/domain-objects/TEST")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/domain-objects/TEST", "valid-token","")
                     .post(Entity.entity("{ \"objects\": { \"object\": [ bad syntacs right here! ]}}", MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
@@ -252,9 +243,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources response = getWebTarget("whois/domain-objects/TEST", "valid-token", "")
                 .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         RestTest.assertErrorCount(response, 0);
@@ -280,10 +269,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
-                    .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+        final WhoisResources response = getWebTarget("whois/domain-objects/TEST", "valid-token", "")
+                .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         RestTest.assertErrorCount(response, 0);
         assertThat(response.getWhoisObjects(), hasSize(1));
@@ -309,9 +296,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
         try {
-            RestTest.target(getPort(), "whois/domain-objects/TEST")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/domain-objects/TEST", "valid-token", "")
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
@@ -340,9 +325,8 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/domain-objects/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+
+        final WhoisResources response = getWebTarget("whois/domain-objects/TEST", "valid-token", "")
                 .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         RestTest.assertErrorCount(response, 0);
@@ -366,9 +350,7 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
                 "source:        TEST");
 
         try {
-            RestTest.target(getPort(), "whois/domain-objects/TEST")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/domain-objects/TEST", "valid-token", "")
                     .post(Entity.entity(mapRpslObjects(domain), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
@@ -380,5 +362,11 @@ public class DomainObjectServiceTestIntegration extends AbstractIntegrationTest 
     }
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
+    }
+
+    Invocation.Builder getWebTarget(final String path, final String authValue, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType)
+                .cookie("crowd.token_key", authValue);
     }
 }

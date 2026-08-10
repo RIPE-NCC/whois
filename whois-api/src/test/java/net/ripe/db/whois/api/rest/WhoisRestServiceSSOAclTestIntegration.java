@@ -1,9 +1,10 @@
 package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.sso.UserSession;
@@ -27,7 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTest {
+public class WhoisRestServiceSSOAclTestIntegration extends AbstractHttpsIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
@@ -71,10 +72,8 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
         ssoResourceConfiguration.reload();
 
         try {
-            RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                        .request()
-                        .cookie("crowd.token_key", VALID_TOKEN)
-                        .get(String.class);
+            getWebTarget("whois/test/person/TP1-TEST", VALID_TOKEN, "")
+                    .get(String.class);
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
@@ -88,10 +87,8 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
         ipResourceConfiguration.reload();
 
         try {
-            RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                        .request()
-                        .cookie("crowd.token_key", VALID_TOKEN)
-                        .get(String.class);
+            getWebTarget("whois/test/person/TP1-TEST", VALID_TOKEN, "")
+                    .get(String.class);
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
@@ -107,10 +104,8 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
         accessControlListManager.accountPersonalObjects(accountingIdentifier, accessControlListManager.getPersonalObjects(accountingIdentifier) + 1);
 
         try {
-            RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                        .request()
-                        .cookie("crowd.token_key", VALID_TOKEN)
-                        .get(String.class);
+            getWebTarget("whois/test/person/TP2-TEST", VALID_TOKEN, "")
+                    .get(String.class);
             fail();
         } catch (ClientErrorException e) {
             assertThat(e.getResponse().getStatus(), is(429));       // Too Many Requests
@@ -129,10 +124,8 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
         final int queriedByIP = testPersonalObjectAccounting.getQueriedPersonalObjects(localhost);
         final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
 
-        final WhoisResources whoisResources =  RestTest.target(getPort(), "whois/test/person/TP2-TEST")
-                    .request()
-                    .cookie("crowd.token_key", VALID_TOKEN)
-                    .get(WhoisResources.class);
+        final WhoisResources whoisResources = getWebTarget("whois/test/person/TP2-TEST", VALID_TOKEN, "")
+                .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects().get(0).getAttributes()
                             .stream()
@@ -162,9 +155,8 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         final int limit = accessControlListManager.getPersonalObjects(accountingIdentifier);
 
-        final Response response =  RestTest.target(getPort(), "whois/test/person/TP2-TEST")
-                .request()
-                .cookie("crowd.token_key", VALID_TOKEN)
+
+        final Response response = getWebTarget("whois/test/person/TP2-TEST", VALID_TOKEN, "")
                 .get(Response.class);
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
@@ -192,9 +184,7 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
 
-        RestTest.target(getPort(), "whois/test/person/TP2-TEST")
-                .request()
-                .cookie("crowd.token_key", VALID_TOKEN)
+        getWebTarget("whois/test/person/TP2-TEST", VALID_TOKEN, "")
                 .get(WhoisResources.class);
 
         final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
@@ -220,12 +210,16 @@ public class WhoisRestServiceSSOAclTestIntegration extends AbstractIntegrationTe
 
         final int queriedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
 
-        RestTest.target(getPort(), "whois/test/person/TP2-TEST")
-                .request()
-                .cookie("crowd.token_key", VALID_TOKEN)
+        getWebTarget("whois/test/person/TP2-TEST", VALID_TOKEN, "")
                 .get(WhoisResources.class);
 
         final int accountedBySSO = testPersonalObjectAccounting.getQueriedPersonalObjects(VALID_TOKEN_USER_NAME);
         assertThat(accountedBySSO, is(queriedBySSO +1 ));
+    }
+
+    Invocation.Builder getWebTarget(final String path, final String authValue, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType)
+                .cookie("crowd.token_key", authValue);
     }
 }

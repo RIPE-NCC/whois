@@ -6,9 +6,10 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.ActionRequest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -52,7 +53,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
+public class ReferencesServiceTestIntegration extends AbstractHttpsIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
@@ -128,9 +129,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                         "mnt-by:    SSO-MNT\n" +
                         "source:    TEST"));
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/references/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+
+        final WhoisResources response = getWebTarget("whois/references/TEST", "valid-token", MediaType.APPLICATION_JSON_TYPE.getType())
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(2));
@@ -146,9 +146,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     @Test
     public void create_missing_whois_resources_body() {
         try {
-            RestTest.target(getPort(), "whois/references/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/references/TEST", "valid-token", "")
                 .post(null, WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
@@ -181,9 +179,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                             "source:    TEST"));
 
         try {
-            RestTest.target(getPort(), "whois/references/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/references/TEST", "valid-token", "")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (NotAuthorizedException e) {
@@ -217,10 +213,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                             "source:    TEST"));
 
         try {
-            RestTest.target(getPort(), "whois/references/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
-                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            getWebTarget("whois/references/TEST", "valid-token", "")
+                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
@@ -262,10 +256,8 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                             "source:    TEST"));
 
         try {
-            RestTest.target(getPort(), "whois/references/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
-                .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
+            getWebTarget("whois/references/TEST", "valid-token", "")
+                    .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail();
         } catch (BadRequestException e) {
             final WhoisResources response = e.getResponse().readEntity(WhoisResources.class);
@@ -486,9 +478,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
 
         //databaseHelper.addObject does not translate account to UUID, so we do it via classic REST @POST
-        RestTest.target(getPort(), "whois/test/mntner")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        getWebTarget("whois/test/mntner", "valid-token", "")
                 .post(Entity.entity(mapRpslObjects(ssomnt), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         final WhoisResources input = mapRpslObjects(
@@ -521,9 +511,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST");
 
         //databaseHelper.addObject does not translate account to UUID, so we do it via classic REST @POST
-        RestTest.target(getPort(), "whois/test/mntner")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        getWebTarget("whois/test/mntner", "valid-token", "")
                 .post(Entity.entity(mapRpslObjects(ssomnt), MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         final WhoisResources response = RestTest.target(getPort(), "whois/references/test")
@@ -888,9 +876,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_pair_using_sso_succeeds() {
         create_person_mntner_pair_success_using_sso();
 
-        RestTest.target(getPort(), "whois/references/TEST/mntner/SSO-MNT")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        getWebTarget("whois/references/TEST/mntner/SSO-MNT", "valid-token", "")
                 .delete(WhoisResources.class);
 
         assertThat(objectExists(ObjectType.MNTNER, "SSO-MNT"), is(false));
@@ -901,9 +887,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
     public void delete_pair_using_sso_returns_original_state_of_objects_in_response() {
         create_person_mntner_pair_success_using_sso();
 
-        final WhoisResources responseDeletePair = RestTest.target(getPort(), "whois/references/TEST/mntner/SSO-MNT")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources responseDeletePair = getWebTarget("whois/references/TEST/mntner/SSO-MNT", "valid-token", "")
                 .delete(WhoisResources.class);
 
         assertThat(objectExists(ObjectType.MNTNER, "SSO-MNT"), is(false));
@@ -1394,7 +1378,7 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
         return mapWhoisObjects(response.getWhoisObjects()).get(0);
     }
 
-    private boolean objectExists(final ObjectType objectType, final String primaryKey) {
+    boolean objectExists(final ObjectType objectType, final String primaryKey) {
         try {
             lookup(objectType, primaryKey);
             return true;
@@ -1440,5 +1424,11 @@ public class ReferencesServiceTestIntegration extends AbstractIntegrationTest {
             .stream()
             .map(whoisObject -> whoisObject.getPrimaryKey().get(0).getValue())
             .collect(Collectors.toSet());
+    }
+
+    Invocation.Builder getWebTarget(final String path, final String authValue, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType)
+                .cookie("crowd.token_key", authValue);
     }
 }

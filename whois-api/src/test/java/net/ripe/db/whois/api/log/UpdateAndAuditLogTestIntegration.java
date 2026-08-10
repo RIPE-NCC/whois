@@ -7,9 +7,10 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.MailUpdatesTestSupport;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.SecureRestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.client.RestClient;
 import net.ripe.db.whois.api.rest.client.RestClientException;
 import net.ripe.db.whois.api.rest.domain.Action;
@@ -33,7 +34,9 @@ import net.ripe.db.whois.update.mail.MailSenderStub;
 import net.ripe.db.whois.update.support.TestUpdateLog;
 import org.apache.commons.io.FileUtils;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -60,7 +63,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
+public class UpdateAndAuditLogTestIntegration extends AbstractHttpsIntegrationTest {
     private static final String PASSWORD = "team-red4321";
     private static final String OVERRIDE_PASSWORD = "team-red1234";
 
@@ -93,6 +96,18 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
 
     @Autowired
     private RestClient restClient;
+
+    @BeforeAll
+    public static void setupApiProperties() {
+        System.setProperty("oidc.auth.enable","true");
+        System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
+    }
+
+    @AfterAll
+    public static void restApiProperties() {
+        System.clearProperty("oidc.auth.enable");
+        System.clearProperty("oidc.session.client.id");
+    }
 
     @BeforeEach
     public void setup() throws Exception {
@@ -355,6 +370,26 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
+    public void rest_create_with_oidc_auth_gets_logged() {
+        restClient.request()
+                .addParam("password", "team-red4321")
+                .update(new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
+        updateLog.reset();
+
+        final RpslObject person = buildGenericObject(TEST_PERSON, "nic-hdl: ZYZ-TEST");
+
+        SecureRestTest.target(getSecurePort(), "whois/TEST/person").request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .header(HttpHeaders.AUTHORIZATION, getBearerTokenForOidc("valid-token"))
+                .post(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, person), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        System.err.println(updateLog.getMessage(0));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+ZYZ-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH OAUTH - WhoisRestApi(127.0.0.1)"));
+    }
+
+    @Test
     public void syncupdates_create_gets_logged() throws Exception {
         final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
         RestTest.target(getPort(), "whois/syncupdates/test")
@@ -414,6 +449,27 @@ public class UpdateAndAuditLogTestIntegration extends AbstractIntegrationTest {
         assertThat(updateLog.getMessages(), hasSize(1));
         assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+ZYZ-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
         assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH SSO - SyncUpdate(10.20.30.40)"));
+    }
+
+    @Test
+    public void syncupdates_create_with_OIDC_auth_gets_logged() {
+        restClient.request()
+                .addParam("password", "team-red4321")
+                .update(new RpslObjectBuilder(OWNER_MNT).append(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get());
+        updateLog.reset();
+
+        final RpslObject person = buildGenericObject(TEST_PERSON, "nic-hdl: ZYZ-TEST");
+
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                .header(HttpHeaders.AUTHORIZATION, getBearerTokenForOidc("valid-token"))
+                .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(person.toString()) + "&NEW=yes",
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        assertThat(updateLog.getMessages(), hasSize(1));
+        assertThat(updateLog.getMessage(0), stringMatchesRegexp(".*UPD CREATE person\\s+ZYZ-TEST\\s+\\(1\\) SUCCESS\\s+:.*"));
+        assertThat(updateLog.getMessage(0), containsString("<E0,W0,I0> AUTH OAUTH - SyncUpdate(127.0.0.1)"));
     }
 
     @Test

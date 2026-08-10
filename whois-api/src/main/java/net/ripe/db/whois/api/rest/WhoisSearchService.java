@@ -171,7 +171,9 @@ public class WhoisSearchService {
         }
 
 
-        final Query query = Query.parse(queryBuilder.build(searchKey), ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), overrideCredentialValidator.getValidOverrideUser(override), Query.Origin.REST,
+        final Query query = Query.parse(queryBuilder.build(searchKey),
+                ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey), AuthenticationUtils.getOidcSession(),
+                overrideCredentialValidator.getValidOverrideUser(override), Query.Origin.REST,
                 isTrusted(request));
 
         final Parameters parameters = new Parameters.Builder()

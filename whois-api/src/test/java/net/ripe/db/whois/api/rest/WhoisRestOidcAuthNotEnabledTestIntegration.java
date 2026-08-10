@@ -4,7 +4,6 @@ import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.OAuthTokenIntrospectDummy;
 import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -14,7 +13,6 @@ import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,17 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
-import static net.ripe.db.whois.api.OAuthTokenIntrospectDummy.convertToOidcJwt;
-import static net.ripe.db.whois.api.rest.WhoisRestOidcAuthTokenInspectionTestIntegration.APP_CLIENT_ID;
+import static net.ripe.db.whois.api.rest.WhoisRestOidcAuthTokenIntrospectionTestIntegration.APP_CLIENT_ID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThrows;
 
 public class WhoisRestOidcAuthNotEnabledTestIntegration extends AbstractHttpsIntegrationTest {
-
-    @Autowired
-    private OAuthTokenIntrospectDummy oAuthTokenIntrospectDummy;
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
@@ -106,12 +100,6 @@ public class WhoisRestOidcAuthNotEnabledTestIntegration extends AbstractHttpsInt
         assertThat(whoisResources.getErrorMessages(), hasSize(2));
         assertThat(whoisResources.getErrorMessages().getFirst().toString(), containsString("Authorisation for [person] PP1-TEST failed"));
         assertThat(whoisResources.getErrorMessages().get(1).toString(), containsString("Wrong whois scope."));
-    }
-
-
-    public String getBearerTokenForOidc(final String userKey) {
-        return StringUtils.joinWith(" ","Bearer", convertToOidcJwt(userKey, oAuthTokenIntrospectDummy.getJwk(),
-                oAuthTokenIntrospectDummy.getPort(), APP_CLIENT_ID));
     }
 
     WhoisResources map(final RpslObject... rpslObjects) {

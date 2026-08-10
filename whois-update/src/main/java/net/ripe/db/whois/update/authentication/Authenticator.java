@@ -10,9 +10,11 @@ import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.Maintainers;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.override.OverrideCredentialValidator;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationFailedException;
 import net.ripe.db.whois.update.authentication.strategy.AuthenticationStrategy;
 import net.ripe.db.whois.update.domain.Origin;
@@ -110,7 +112,7 @@ public class Authenticator {
             OverrideCredential.OverrideValues overrideValues = overrideCredential.getOverrideValues().get();
             final String username = overrideValues.getUsername();
 
-            if (!overrideCredentialValidator.isAllowedToUseOverride(origin.getFrom(), updateContext.getUserSession(), username)) {
+            if (!overrideCredentialValidator.isAllowedToUseOverride(origin.getFrom(), getUserSession(updateContext), username)) {
                 authenticationMessages.add(UpdateMessages.overrideOnlyAllowedByDbAdmins());
                 handleFailure(update, updateContext, authenticationMessages);
                 return Subject.EMPTY;
@@ -129,6 +131,13 @@ public class Authenticator {
         authenticationMessages.add(UpdateMessages.overrideAuthenticationFailed());
         handleFailure(update, updateContext, authenticationMessages);
         return Subject.EMPTY;
+    }
+
+    private UserSession getUserSession(final UpdateContext updateContext) {
+        return updateContext.getOAuthSession() == null ?
+                updateContext.getUserSession() :
+                OAuthUtils.translateOidcToUserSession(updateContext.getOAuthSession());
+
     }
 
     private Subject performAuthentication(final Origin origin, final PreparedUpdate update, final UpdateContext updateContext) {

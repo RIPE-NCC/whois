@@ -241,7 +241,7 @@ public class RestClientTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        SSO-XX-MNT\n" +
                 "source:        TEST");
 
-        final RpslObject returnedObject = restClient.request()
+        restClient.request()
                 .addCookie(new Cookie("crowd.token_key", "valid-token"))
                 .create(object);
 

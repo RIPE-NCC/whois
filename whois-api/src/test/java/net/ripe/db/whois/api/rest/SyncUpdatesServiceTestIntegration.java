@@ -6,11 +6,12 @@ import jakarta.mail.internet.MimeMessage;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.syncupdate.SyncUpdateUtils;
 import net.ripe.db.whois.common.dao.EmailStatusDao;
 import net.ripe.db.whois.common.domain.CIString;
@@ -49,7 +50,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
+public class SyncUpdatesServiceTestIntegration extends AbstractHttpsIntegrationTest {
 
     @Autowired
     private DnsGatewayStub dnsGatewayStub;
@@ -274,9 +275,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:    SSO-MNT\n" +
                 "source:    TEST";
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(person),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -304,9 +303,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:    SSO-MNT\n" +
                 "source:    TEST";
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(person),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -334,9 +331,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:    SSO-MNT\n" +
                 "source:    TEST";
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "invalid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "invalid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(person),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -361,9 +356,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        mntner-mnt\n" +
                 "source:        TEST";
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(mntner + "\npassword: emptypassword"),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -394,9 +387,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        mntner-mnt\n" +
                 "source:        TEST\n";
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(
                                 firstPerson +
                                         "password: emptypassword\n\n\n" +
@@ -420,9 +411,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        SSO-MNT\n" +
                 "source:        TEST";
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(mntner) + "&NEW=yes",
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -612,9 +601,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "source:        TEST";
         databaseHelper.addObject(mntner);
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(mntner + "\nremarks: updated"),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -1161,9 +1148,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 "mnt-by:        mntner-mnt\n" +
                 "source:        TEST";
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(mntner + "\npassword: emptypassword"),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -1199,9 +1184,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
                 .get()
                 .toString();
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" + SyncUpdateUtils.encode(updatedPerson + "override: user,password\n"),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -1244,9 +1227,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
         dnsGatewayStub.addResponse(CIString.ciString("e.0.0.0.a.1.ip6.arpa"), UpdateMessages.dnsCheckMessageParsingError());
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity( "DATA=" + SyncUpdateUtils.encode(updatedPerson + "\npassword: emptypassword\n\n\n" + domain1),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -1277,9 +1258,8 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         emailStatusDao.createEmailStatus("test@ripe.net", EmailStatusType.UNSUBSCRIBE);
         emailStatusDao.createEmailStatus("test1@ripe.net", EmailStatusType.UNDELIVERABLE);
 
-        final String response = RestTest.target(getPort(), "whois/syncupdates/test")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+
+        final String response = getWebTarget("whois/syncupdates/test", "valid-token", "")
                 .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(person + "\npassword: emptypassword"),
                         MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
 
@@ -1304,7 +1284,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
 
     // helper methods
 
-    private MimeMessage getMessage(final String to) throws MessagingException {
+    MimeMessage getMessage(final String to) throws MessagingException {
         return mailSender.getMessage(to);
     }
 
@@ -1312,7 +1292,7 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         return mailSender.anyMoreMessages();
     }
 
-    private Set<String> getAddressesAsString(final Address[] addresses) {
+    Set<String> getAddressesAsString(final Address[] addresses) {
         return Arrays.stream(addresses)
             .map(Address::toString)
             .collect(Collectors.toSet());
@@ -1330,5 +1310,11 @@ public class SyncUpdatesServiceTestIntegration extends AbstractIntegrationTest {
         connection.disconnect();
 
         return response;
+    }
+
+    Invocation.Builder getWebTarget(final String path, final String authValue, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType)
+                .cookie("crowd.token_key", authValue);
     }
 }

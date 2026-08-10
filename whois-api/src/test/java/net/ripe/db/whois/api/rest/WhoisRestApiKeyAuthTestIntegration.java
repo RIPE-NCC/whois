@@ -61,8 +61,8 @@ import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_TEST_NO_MN
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_TEST_TEST_MNT;
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_NON_EXISTING_API_KEY;
 import static net.ripe.db.whois.api.rest.WhoisRestBasicAuthTestIntegration.getBasicAuthenticationHeader;
-import static net.ripe.db.whois.api.rest.WhoisRestBearerAuthTokenInspectionTestIntegration.assertSSOAttribute;
-import static net.ripe.db.whois.api.rest.WhoisRestBearerAuthTokenInspectionTestIntegration.getOAuthSession;
+import static net.ripe.db.whois.api.rest.WhoisRestBearerAuthTokenIntrospectionTestIntegration.assertSSOAttribute;
+import static net.ripe.db.whois.api.rest.WhoisRestBearerAuthTokenIntrospectionTestIntegration.getOAuthSession;
 import static net.ripe.db.whois.common.rpsl.ObjectType.ROLE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -149,13 +149,11 @@ public class WhoisRestApiKeyAuthTestIntegration extends AbstractHttpsIntegration
 
     @BeforeAll
     public static void setupApiProperties() {
-        System.setProperty("oauth.token.inspection","false");
         System.setProperty("apikey.max.scope","2");
     }
 
     @AfterAll
     public static void restApiProperties() {
-        System.clearProperty("oauth.token.inspection");
         System.clearProperty("apikey.max.scope");
     }
 

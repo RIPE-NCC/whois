@@ -3,9 +3,10 @@ package net.ripe.db.whois.api.rest;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.Action;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.mapper.FormattedClientAttributeMapper;
@@ -33,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest {
+public class BatchUpdatesServiceTestIntegration extends AbstractHttpsIntegrationTest {
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
@@ -198,10 +199,8 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                         "source:       TEST")
                 );
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
-                .queryParam("override", "personadmin,secret")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+
+        final WhoisResources response = getWebTarget("whois/batch/TEST?override=personadmin,secret", "valid-token", "")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(1));
@@ -241,10 +240,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                 );
 
         try {
-            RestTest.target(getPort(), "whois/batch/TEST")
-                    .queryParam("override", "personadmin,secret")
-                    .request()
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/batch/TEST?override=personadmin,secret", "valid-token", "")
                     .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
             fail("should have returned 400");
         } catch (BadRequestException e) {
@@ -291,10 +287,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                         "source:      TEST")
                 );
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
-                .queryParam("override", "personadmin,secret")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources response = getWebTarget("whois/batch/TEST?override=personadmin,secret", "valid-token", "")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(2));
@@ -334,11 +327,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                                 "source:      TEST")
                 );
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
-                .queryParam("override", "personadmin,secret")
-                .queryParam("dry-run", "true")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources response = getWebTarget("whois/batch/TEST?override=personadmin,secret&dry-run=true", "valid-token", "")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(2));
@@ -384,12 +373,9 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                                 "mnt-lower:    LIR-mnt\n" +
                                 "source:       TEST")
         );
-        whoisResources.getWhoisObjects().get(0).setAction(Action.DELETE);
+        whoisResources.getWhoisObjects().getFirst().setAction(Action.DELETE);
 
-        final WhoisResources response = RestTest.target(getPort(), "whois/batch/TEST")
-                .queryParam("override", "personadmin,secret")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        final WhoisResources response = getWebTarget("whois/batch/TEST?override=personadmin,secret", "valid-token", "")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(response.getWhoisObjects(), hasSize(2));
@@ -443,9 +429,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
                                 "source:       TEST")
                 );
 
-        RestTest.target(getPort(), "whois/batch/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        getWebTarget("whois/batch/TEST", "valid-token", "")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.INETNUM, "19.0.0.0 - 19.1.255.255"), not(nullValue()));
@@ -462,9 +446,7 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
             "mnt-by:    SSO-MNT\n" +
             "source:    TEST"));
 
-        RestTest.target(getPort(), "whois/batch/TEST")
-                .request()
-                .cookie("crowd.token_key", "valid-token")
+        getWebTarget("whois/batch/TEST", "valid-token", "")
                 .post(Entity.entity(whoisResources, MediaType.APPLICATION_JSON_TYPE), WhoisResources.class);
 
         assertThat(databaseHelper.lookupObject(ObjectType.MNTNER, "SSO-MNT"), not(nullValue()));
@@ -472,6 +454,12 @@ public class BatchUpdatesServiceTestIntegration extends AbstractIntegrationTest 
 
     private WhoisResources mapRpslObjects(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
+    }
+
+    Invocation.Builder getWebTarget(final String path, final String authValue, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType)
+                .cookie("crowd.token_key", authValue);
     }
 
 }

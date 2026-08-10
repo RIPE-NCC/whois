@@ -148,13 +148,11 @@ class WhoisRestBearerAuthTestIntegration extends AbstractHttpsIntegrationTest {
 
     @BeforeAll
     public static void setupApiProperties() {
-        System.setProperty("oauth.token.inspection","false");
         System.setProperty("apikey.max.scope","2");
     }
 
     @AfterAll
     public static void restApiProperties() {
-        System.clearProperty("oauth.token.inspection");
         System.clearProperty("apikey.max.scope");
     }
 

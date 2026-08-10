@@ -12,7 +12,6 @@ import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.api.OAuthTokenIntrospectDummy;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.SecureRestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
@@ -34,7 +33,6 @@ import net.ripe.db.whois.query.acl.AccountingIdentifier;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.acl.SSOResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -84,13 +82,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Tag("IntegrationTest")
 public class WhoisRestOidcAuthTestIntegration extends WhoisRestServiceTestIntegration {
 
-
     private static final String LOCALHOST = "127.0.0.1";
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
-
-    public static final String APP_CLIENT_ID = "test-app";
-    public static final String CLIENT_ID = "test";
-
 
     @Autowired
     private WhoisObjectMapper whoisObjectMapper;
@@ -102,8 +95,7 @@ public class WhoisRestOidcAuthTestIntegration extends WhoisRestServiceTestIntegr
     private SSOResourceConfiguration ssoResourceConfiguration;
     @Autowired
     private TestPersonalObjectAccounting testPersonalObjectAccounting;
-    @Autowired
-    private OAuthTokenIntrospectDummy oAuthTokenIntrospectDummy;
+
 
     public static final String TEST_2ROLE_STRING = "" +
             "role:          Test Role\n" +
@@ -121,17 +113,12 @@ public class WhoisRestOidcAuthTestIntegration extends WhoisRestServiceTestIntegr
     public static void setupApiProperties() {
         System.setProperty("oidc.auth.enable","true");
         System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
-
-        System.setProperty("oauth.token.inspection","false");
-        System.setProperty("apikey.max.scope","2");
     }
 
     @AfterAll
     public static void restApiProperties() {
         System.clearProperty("oidc.auth.enable");
         System.clearProperty("oidc.session.client.id");
-        System.clearProperty("oauth.token.inspection");
-        System.clearProperty("apikey.max.scope");
     }
 
     @BeforeEach
@@ -1225,11 +1212,6 @@ public class WhoisRestOidcAuthTestIntegration extends WhoisRestServiceTestIntegr
 
     WhoisResources map(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
-    }
-
-    public String getBearerTokenForOidc(final String userKey) {
-        return StringUtils.joinWith(" ","Bearer", convertToOidcJwt(userKey, oAuthTokenIntrospectDummy.getJwk(),
-                oAuthTokenIntrospectDummy.getPort(), APP_CLIENT_ID));
     }
 
     private static void assertPersonObject(WhoisResources whoisResources, WhoisObject object) {

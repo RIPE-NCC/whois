@@ -4,10 +4,11 @@ import com.google.common.base.Strings;
 import com.google.common.net.InetAddresses;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.Flag;
 import net.ripe.db.whois.api.rest.domain.Flags;
@@ -62,7 +63,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
+public class WhoisSearchServiceTestIntegration extends AbstractHttpsIntegrationTest {
 
     private static final String LOCALHOST = "127.0.0.1";
     public static final String VALID_TOKEN = "valid-token";
@@ -2945,12 +2946,7 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
     public void search_with_override_non_trusted_ip_with_sso_succeeds() {
         databaseHelper.insertUser(User.createWithPlainTextPassword("db_e2e_1", "zoh", ObjectType.MNTNER));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/search?flags=rB&type-filter=mntner&query-string=OWNER-MNT")
-                .queryParam("unfiltered", "")
-                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
-                .queryParam("clientIp", "2001:fff:001::")
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "db_e2e_1")
+        final WhoisResources whoisResources = getWebTarget()
                 .get(WhoisResources.class);
 
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
@@ -3004,5 +3000,14 @@ public class WhoisSearchServiceTestIntegration extends AbstractIntegrationTest {
                         .stream()
                         .anyMatch(attr -> AttributeType.SOURCE.equals(AttributeType.getByName(attr.getName()))
                                 && attr.getValue().equalsIgnoreCase(source)));
+    }
+
+    Invocation.Builder getWebTarget() {
+        return RestTest.target(getPort(), "whois/search?flags=rB&type-filter=mntner&query-string=OWNER-MNT")
+                .queryParam("unfiltered", "")
+                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
+                .queryParam("clientIp", "2001:fff:001::")
+                .request(MediaType.APPLICATION_XML)
+                .cookie("crowd.token_key", "db_e2e_1");
     }
 }

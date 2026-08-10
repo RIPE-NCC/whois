@@ -111,11 +111,14 @@ public class Query {
         }
     }
 
-    public static Query parse(final String args, final UserSession userSession, final User overrideUser, final Origin origin, final boolean trusted) {
+    public static Query parse(final String args, final UserSession userSession,
+                              final AbstractOAuthSession abstractOAuthSession, final User overrideUser,
+                              final Origin origin, final boolean trusted) {
         try {
             final Query query = new Query(args.trim(), origin, trusted);
             query.userSession = userSession;
             query.overrideUser = overrideUser;
+            query.abstractOAuthSession = abstractOAuthSession;
 
             validateQuery(query);
 

@@ -123,7 +123,7 @@ public class FilterAuthFunction implements FilterFunction {
     private boolean isOverrideAuthenticated(final ObjectType objectType){
         try {
             return overrideCredentialValidator != null && overrideCredentialValidator.isAllowedAndValid(isTrusted,
-                    userSession, overrideUser, objectType);
+                    userSession, abstractOAuthSession, overrideUser, objectType);
         } catch (Exception e){
             return false;
         }
@@ -139,7 +139,7 @@ public class FilterAuthFunction implements FilterFunction {
         final List<RpslAttribute> extendedAuthAttributes = Lists.newArrayList(rpslObject.findAttributes(AttributeType.AUTH));
         extendedAuthAttributes.addAll(getMntByAuthAttributes(maintainers));
 
-        return passwordAuthentication(extendedAuthAttributes) || apiKeyAuthenticated(rpslObject, maintainers, extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes) || clientCertAuthentication(extendedAuthAttributes);
+        return passwordAuthentication(extendedAuthAttributes) || oauthSessionAuthenticated(rpslObject, maintainers, extendedAuthAttributes) || ssoAuthentication(extendedAuthAttributes) || clientCertAuthentication(extendedAuthAttributes);
     }
 
     private Set<RpslAttribute> getMntByAuthAttributes(final List<RpslObject> maintainers) {
@@ -199,7 +199,7 @@ public class FilterAuthFunction implements FilterFunction {
         return false;
     }
 
-    private boolean apiKeyAuthenticated(final RpslObject rpslObject, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
+    private boolean oauthSessionAuthenticated(final RpslObject rpslObject, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {
         if(rpslObject.getType().equals(ObjectType.MNTNER)) {
             maintainers.add(rpslObject);
         }

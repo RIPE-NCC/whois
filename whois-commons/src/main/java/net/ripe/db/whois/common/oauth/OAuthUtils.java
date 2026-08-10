@@ -8,6 +8,7 @@ import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -52,8 +53,12 @@ public class OAuthUtils {
         return scopes.stream().filter(scope -> scope.startsWith("whois.mntner")).collect(Collectors.toList());
     }
 
-    public static UserSession translateOidcToUserSession(final OidcSession oidcSession){
-        return new UserSession(oidcSession.getUuid(), oidcSession.getEmail(), null, true, null);
+    @Nullable
+    public static UserSession translateOidcToUserSession(final AbstractOAuthSession oauthSession) {
+        if (!(oauthSession instanceof OidcSession)){
+            return null;
+        }
+        return new UserSession(oauthSession.getUuid(), oauthSession.getEmail(), null, true, null);
     }
 
     public static boolean hasValidOauthSession(final AbstractOAuthSession abstractOAuthSession, final List<RpslObject> maintainers, final List<RpslAttribute> authAttributes) {

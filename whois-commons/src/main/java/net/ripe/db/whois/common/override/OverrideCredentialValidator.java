@@ -5,6 +5,8 @@ import net.ripe.db.whois.common.dao.UserDao;
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.domain.User;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.oauth.AbstractOAuthSession;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,11 +28,16 @@ public class OverrideCredentialValidator {
         this.userDao = userDao;
     }
 
-    public boolean isAllowedAndValid(final boolean isTrusted, final UserSession userSession,
+    public boolean isAllowedAndValid(final boolean isTrusted,
+                                     UserSession userSession,
+                                     final AbstractOAuthSession abstractOAuthSession,
                                      final User overrideUser,
                                      final ObjectType objectType){
         if (overrideUser == null || overrideUser.getUsername() == null) {
             return false;
+        }
+        if (userSession == null){
+            userSession = OAuthUtils.translateOidcToUserSession(abstractOAuthSession);
         }
         return isAllowedToUseOverride(isTrusted, userSession, overrideUser.getUsername().toString()) && overrideUser.getObjectTypes().contains(objectType);
     }

@@ -18,20 +18,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 @Tag("IntegrationTest")
-public class WhoisRestOidcAuthTokenInspectionTestIntegration extends WhoisRestOidcAuthTestIntegration {
+public class WhoisRestOidcAuthTokenIntrospectionTestIntegration extends WhoisRestOidcAuthTestIntegration {
 
     @BeforeAll
     public static void setupApiProperties() {
         System.setProperty("oidc.auth.enable","true");
         System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
 
-        System.setProperty("oauth.token.inspection","true");
-        System.setProperty("apikey.max.scope","2");
+        System.setProperty("oauth.token.introspection","true");
     }
 
     @AfterAll
     public static void restApiProperties() {
-        System.clearProperty("oauth.token.inspection");
+        System.clearProperty("oauth.token.introspection");
         System.clearProperty("apikey.public.key.url");
         System.clearProperty("apikey.max.scope");
     }

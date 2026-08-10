@@ -2,9 +2,10 @@ package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MediaType;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
@@ -34,9 +35,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
-public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegrationTest {
+public class OverrideWithNonTrustedIpTestIntegration extends AbstractHttpsIntegrationTest {
 
-    private static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
+    static final RpslObject PAULETH_PALTHEN = RpslObject.parse("" +
             "person:    Pauleth Palthen\n" +
             "address:   Singel 258\n" +
             "phone:     +31-1234567890\n" +
@@ -56,7 +57,7 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
             "mnt-by:      OWNER-MNT\n" +
             "source:      TEST");
 
-    private static final RpslObject TEST_PERSON = RpslObject.parse("" +
+    static final RpslObject TEST_PERSON = RpslObject.parse("" +
             "person:    Test Person\n" +
             "address:   Singel 258\n" +
             "e-mail:    noreply@ripe.net\n" +
@@ -111,10 +112,7 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
     @Test
     public void create_person_with_override_with_sso_wrong_user_fails() {
         try {
-            RestTest.target(getPort(), "whois/test/person")
-                    .queryParam("override", "person,zoh,reason")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "db_e2e_1")
+            getWebTarget("whois/test/person?override=person,zoh,reason", MediaType.APPLICATION_XML)
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
             fail();
@@ -129,10 +127,7 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
     @Test
     public void create_person_with_override_with_sso_wrong_domain_fails() {
         try {
-            RestTest.target(getPort(), "whois/test/person")
-                    .queryParam("override", "person,zoh,reason")
-                    .request(MediaType.APPLICATION_XML)
-                    .cookie("crowd.token_key", "valid-token")
+            getWebTarget("whois/test/person?override=person,zoh,reason", MediaType.APPLICATION_XML)
                     .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
             fail();
@@ -146,10 +141,8 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
 
     @Test
     public void create_person_with_override_with_sso_succeeds() {
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person")
-                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
-                .request()
-                .cookie("crowd.token_key", "db_e2e_1")
+        final WhoisResources whoisResources = getWebTarget("whois/test/person?override=" + encode("db_e2e_1,zoh," +
+                "reason {notify=false}"), "")
                 .post(Entity.entity(map(PAULETH_PALTHEN), MediaType.APPLICATION_XML), WhoisResources.class);
 
         final WhoisObject object = whoisResources.getWhoisObjects().get(0);
@@ -168,10 +161,8 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
                 "mnt-by:    OWNER-MNT\n" +
                 "source:    TEST\n"));
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP2-TEST")
-                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
-                .request()
-                .cookie("crowd.token_key", "db_e2e_1")
+        final WhoisResources whoisResources = getWebTarget("whois/test/person/TP2-TEST?override=" + encode("db_e2e_1," +
+                "zoh,reason {notify=false}"), "")
                 .delete(WhoisResources.class);
 
         assertThat(whoisResources.getErrorMessages().get(0).getText(), is("Authorisation override used"));
@@ -188,23 +179,25 @@ public class OverrideWithNonTrustedIpTestIntegration extends AbstractIntegration
     public void update_succeeds() {
         final RpslObject updatedObject = new RpslObjectBuilder(TEST_PERSON).append(new RpslAttribute(AttributeType.REMARKS, "updated")).sort().get();
 
-        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person/TP1-TEST")
-                .queryParam("override", encode("db_e2e_1,zoh,reason {notify=false}"))
-                .request(MediaType.APPLICATION_XML)
-                .cookie("crowd.token_key", "db_e2e_1")
+        final WhoisResources whoisResources = getWebTarget("whois/test/person/TP1-TEST?override=" + encode("db_e2e_1,zoh,reason {notify=false}"), MediaType.APPLICATION_XML)
                 .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
 
 
-        assertThat(whoisResources.getErrorMessages().get(0).getText(), is("Authorisation override used"));
+        assertThat(whoisResources.getErrorMessages().getFirst().getText(), is("Authorisation override used"));
         assertThat(whoisResources.getWhoisObjects(), hasSize(1));
-        final WhoisObject object = whoisResources.getWhoisObjects().get(0);
+        final WhoisObject object = whoisResources.getWhoisObjects().getFirst();
         assertThat(object.getPrimaryKey(), contains(new Attribute("nic-hdl", "TP1-TEST")));
 
         assertThat(whoisResources.getTermsAndConditions().getHref(), is(WhoisResources.TERMS_AND_CONDITIONS));
     }
 
-    private WhoisResources map(final RpslObject ... rpslObjects) {
+    WhoisResources map(final RpslObject... rpslObjects) {
         return whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, rpslObjects);
     }
 
+    Invocation.Builder getWebTarget(final String path, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType)
+                .cookie("crowd.token_key", "db_e2e_1");
+    }
 }

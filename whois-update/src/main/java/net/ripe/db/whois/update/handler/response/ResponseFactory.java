@@ -5,6 +5,8 @@ import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.DateTimeProvider;
 import net.ripe.db.whois.common.FormatHelper;
 import net.ripe.db.whois.common.domain.Hosts;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
+import net.ripe.db.whois.common.sso.UserSession;
 import net.ripe.db.whois.update.domain.Ack;
 import net.ripe.db.whois.update.domain.Notification;
 import net.ripe.db.whois.update.domain.Origin;
@@ -93,8 +95,13 @@ public class ResponseFactory {
     }
 
     private static String getSsoUserEmail(final UpdateContext updateContext, final Notification notification) {
-        return updateContext.getUserSession() != null && !notification.isOverrideUsed() ?
-                updateContext.getUserSession().getUsername() : "";
+
+        final UserSession userSession = updateContext.getOAuthSession() == null ?
+                updateContext.getUserSession() :
+                OAuthUtils.translateOidcToUserSession(updateContext.getOAuthSession());
+
+        return userSession != null && !notification.isOverrideUsed() ?
+                userSession.getUsername() : "";
     }
 
     private String createResponse(final String templateName, final UpdateContext updateContext, final VelocityContext velocityContext, final Origin origin) {
