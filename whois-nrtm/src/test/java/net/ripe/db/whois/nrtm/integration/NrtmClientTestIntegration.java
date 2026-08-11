@@ -2,12 +2,12 @@ package net.ripe.db.whois.nrtm.integration;
 
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.common.source.Source;
 import net.ripe.db.whois.common.source.SourceContext;
-import net.ripe.db.whois.nrtm.NrtmServer;
 import net.ripe.db.whois.nrtm.client.NrtmImporter;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
@@ -138,6 +138,25 @@ public class NrtmClientTestIntegration extends AbstractNrtmIntegrationBase {
         RpslObject updateAppended = appendDummificationRemarks(update);
         objectMatches(updateAppended);
     }
+
+    @Test
+    public void broken_rpsl_object_is_skipped() {
+        final RpslObject mntner1 = RpslObject.parse("" +
+                "mntner: TEST1-MNT\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST");
+        final List<RpslAttribute> attributes = Lists.newArrayList(mntner1.getAttributes());
+        attributes.add(new RpslAttribute(AttributeType.REMARKS, "b\n\n\n"));
+        databaseHelper.addObject(new RpslObject(attributes));   // broken
+        databaseHelper.addObject(RpslObject.parse("" +    // not broken
+                "mntner: TEST2-MNT\n" +
+                "mnt-by: OWNER-MNT\n" +
+                "source: TEST"));
+
+        objectExists(ObjectType.MNTNER, "TEST2-MNT", true);
+        objectExists(ObjectType.MNTNER, "TEST1-MNT", false);
+    }
+
 
     @Test
     public void network_error() throws InterruptedException {

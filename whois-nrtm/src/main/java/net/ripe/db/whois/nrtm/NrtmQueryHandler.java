@@ -30,6 +30,7 @@ import org.springframework.core.task.TaskRejectedException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.scheduling.TaskScheduler;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -232,9 +233,17 @@ public class NrtmQueryHandler extends ChannelInboundHandlerAdapter {
         return serial;
     }
 
+    @Nullable
     @RetryFor(attempts = 10, value = CannotGetJdbcConnectionException.class)
     private SerialEntry readSerial(final int serial) {
-        return serialDao.getByIdForNrtm(serial);
+        try {
+            return serialDao.getByIdForNrtm(serial);
+        } catch (CannotGetJdbcConnectionException e) {
+            throw e; // Let @RetryFor handle the retry
+        }  catch (Exception e) {
+            LOGGER.error("Failed to read serial {}, object was skipped", serial, e);
+            return null; // All other exceptions are ignored
+        }
     }
 
     private boolean isRequestedSerialInRange(final Query query, final SerialRange range) {
