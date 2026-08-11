@@ -26,7 +26,7 @@ public class UnicodeControlCharacterSanitiser {
         CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000A, '\n'); //LF
         CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000B, ' '); // vertical tab
         CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000C, ' '); // form feed
-        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000D, '\n'); //CR
+        CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000D, '\r'); //CR
         CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000E, '?');
         CODEPOINTS_SUBSTITUTIONS_MAP.put(0x000F, '?');
 

@@ -5,7 +5,6 @@ import com.ibm.icu.text.IDNA;
 import com.ibm.icu.text.IDNA.Info;
 import com.ibm.icu.text.Normalizer2;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.List;
 
@@ -13,7 +12,6 @@ import static com.ibm.icu.text.IDNA.Error.DISALLOWED;
 import static com.ibm.icu.text.IDNA.Error.INVALID_ACE_LABEL;
 
 /***
- * Decode escape sequences into corresponding characters
  * ASCII substitutions
  * UTF-8 substitutions
  */
@@ -29,7 +27,7 @@ public class Utf8Conversion {
     public static RpslAttribute createUtf8Attribute(final RpslAttribute attribute){
         final StringBuilder result = new StringBuilder();
 
-        NORMALIZER_INSTANCE.normalize(StringEscapeUtils.unescapeJava(attribute.getValue()))
+        NORMALIZER_INSTANCE.normalize(attribute.getValue())
                 .codePoints()
                 .forEach(cp -> {
                     char sanitiseCharacter = UnicodeControlCharacterSanitiser.sanitiseCodePoints(cp);

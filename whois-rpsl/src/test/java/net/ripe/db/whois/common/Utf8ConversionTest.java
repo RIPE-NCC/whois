@@ -38,7 +38,7 @@ public class Utf8ConversionTest {
     public void invisible_characters_already_handled(){
         // Variation Selectors: U+FE00 – U+FE0F
        for (int cp = 0xFE00; cp <= 0xFE0F; cp++) {
-            final String escapedEncoding = String.format("\\u%04X", cp);
+            final String escapedEncoding = String.format("%c", cp);
             assertThat(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", escapedEncoding + "test")), is(Utf8Conversion.createUtf8Attribute(new RpslAttribute("address", "?test"))));
         }
 

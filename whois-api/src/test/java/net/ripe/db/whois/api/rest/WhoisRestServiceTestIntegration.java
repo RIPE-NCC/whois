@@ -6841,6 +6841,121 @@ public class WhoisRestServiceTestIntegration extends AbstractHttpsIntegrationTes
         assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
     }
 
+    @Test
+    public void create_mnt_with_newline_carriage_return_should_not_fail() {
+        final RpslObject createMntner = RpslObject.parse("""
+                mntner:        OWNER1-MNT
+                descr:         aaaaaaa
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                remarks:       aaaaaAvenue
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                remarks:       \r\n is this a valid remark?
+                """);
+
+        RestTest.target(getPort(), "whois/test/mntner?password=test")
+                .request()
+                .post(Entity.entity(map(createMntner), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final String whoisResourceString = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT.txt?password=test")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResourceString, containsString("""
+                mntner:         OWNER1-MNT
+                descr:          aaaaaaa
+                admin-c:        TP1-TEST
+                auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test
+                remarks:        aaaaaAvenue
+                mnt-by:         OWNER1-MNT
+                created:        2001-02-04T17:00:00Z
+                last-modified:  2001-02-04T17:00:00Z
+                source:         TEST # Filtered
+                remarks:        is this a valid remark?
+                """));
+    }
+
+    @Test
+    public void create_mnt_with_newline_newline_return_should_fail() {
+        final RpslObject createMntner = RpslObject.parse("""
+                mntner:        OWNER1-MNT
+                descr:         aaaaaaa
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                remarks:       aaaaaAvenue
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                """);
+
+        final RpslObjectBuilder rpslObjectBuilder = new RpslObjectBuilder(createMntner)
+                .addAttributeAfter(new RpslAttribute(AttributeType.REMARKS, "\n\nis this a valid remark?"), AttributeType.SOURCE);
+
+        RestTest.target(getPort(), "whois/test/mntner?password=test")
+                .request()
+                .post(Entity.entity(map(rpslObjectBuilder.get()), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final String whoisResourceString = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT.txt?password=test")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResourceString, containsString("""
+                mntner:         OWNER1-MNT
+                descr:          aaaaaaa
+                admin-c:        TP1-TEST
+                auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test
+                remarks:        aaaaaAvenue
+                mnt-by:         OWNER1-MNT
+                created:        2001-02-04T17:00:00Z
+                last-modified:  2001-02-04T17:00:00Z
+                source:         TEST # Filtered
+                remarks:        is this a valid remark?
+                
+                """));
+    }
+
+    @Test
+    public void create_mnt_with_escaping_newline_newline_return_should_not_fail() {
+        final RpslObject createMntner = RpslObject.parse("""
+                mntner:        OWNER1-MNT
+                descr:         aaaaaaa
+                admin-c:       TP1-TEST
+                upd-to:        upd-to@ripe.net
+                notify:        notify@ripe.net
+                auth:          MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ #test
+                remarks:       aaaaaAvenue
+                mnt-by:        OWNER1-MNT
+                source:        TEST
+                remarks:       \\n\\n is this a valid remark?
+                """);
+
+        RestTest.target(getPort(), "whois/test/mntner?password=test")
+                .request()
+                .post(Entity.entity(map(createMntner), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        final String whoisResourceString = RestTest.target(getPort(), "whois/test/mntner/OWNER1-MNT.txt?password=test")
+                .request()
+                .get(String.class);
+
+        assertThat(whoisResourceString, containsString("""
+                mntner:         OWNER1-MNT
+                descr:          aaaaaaa
+                admin-c:        TP1-TEST
+                auth:           MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/ # test
+                remarks:        aaaaaAvenue
+                mnt-by:         OWNER1-MNT
+                created:        2001-02-04T17:00:00Z
+                last-modified:  2001-02-04T17:00:00Z
+                source:         TEST # Filtered
+                remarks:        \\n\\n is this a valid remark?
+                
+                """));
+    }
+
     // helper methods
 
     private static void assertAsSetMember(final Attribute member, final String attributeExpectedType) {
