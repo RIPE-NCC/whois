@@ -653,13 +653,13 @@ public class WhoisRestServiceEndToEndTestIntegration extends AbstractHttpsIntegr
 
         try {
             getWebTarget("whois/test/person/TP2-TEST?password=lir", "db_e2e_1", mediaType)
-                    .header(HttpHeaders.X_FORWARDED_FOR, "10.20.30.40")
+                    .header(HttpHeaders.X_FORWARDED_FOR, "127.0.0.1")
                     .put(Entity.entity(whoisObjectMapper.mapRpslObjects(FormattedClientAttributeMapper.class, updatedPerson), mediaType), String.class);
         } catch (ClientErrorException e) {
             reportAndThrowUnknownError(e);
         }
 
-        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_10.20.30.40_100/000.audit.xml.gz"));
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010206/170000.rest_127.0.0.1_100/000.audit.xml.gz"));
 
         final List<String> linesContainingPassword = audit.lines().filter( input -> input.toLowerCase().contains("password")).map( input -> input.trim()).collect(Collectors.toList());
         assertThat(linesContainingPassword, contains(
