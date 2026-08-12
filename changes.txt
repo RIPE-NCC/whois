@@ -1,5 +1,15 @@
 # next
 
+# 1.124
+
+[all] Added support for OIDC 2.0 authentication
+[nrtm] NRTMv3 server should skip invalid objects
+[update] Do not unescape characters in UTF-8 substitution
+[api] Added Content Security Policy (CSP) header
+[api] Added HTTP Strict-Transport-Security (HSTS) header 
+[api] Added text/plain responses to Versions API
+[api] Added unformatted responses to Versions API
+
 # 1.123
 
 [query] Fix version query encoding and support charset flag with version flags
