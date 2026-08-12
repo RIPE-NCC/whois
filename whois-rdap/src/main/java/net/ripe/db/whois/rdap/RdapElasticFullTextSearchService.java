@@ -1,5 +1,6 @@
 package net.ripe.db.whois.rdap;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
@@ -114,7 +115,7 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                     for (String field : fields) {
                         shouldQueries.add(Query.of(q -> q.term(t -> t
                                 .field(field + ".lowercase")
-                                .value(lower)
+                                .value(FieldValue.of(lower))
                         )));
                     }
 

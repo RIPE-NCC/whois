@@ -67,7 +67,7 @@ public class ElasticSearchConfigurations {
                         )
                         .tokenizer("colon_tokeniser", t -> t
                                 .definition(p -> p
-                                        .pattern(PatternTokenizer.of(pt -> pt.pattern(":"))))
+                                        .pattern(PatternTokenizer.of(pt -> pt.pattern(":").flags("").group(-1))))
                         )
                         // Analyzers
                         .analyzer("fulltext_analyzer", az -> az

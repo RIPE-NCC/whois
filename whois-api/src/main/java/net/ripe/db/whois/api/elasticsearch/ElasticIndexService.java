@@ -44,6 +44,7 @@ public class ElasticIndexService {
     private final ElasticsearchClient client;
     private final String whoisAliasIndex;
     private final String metadataIndex;
+    private final ElasticRestHighlevelClient elasticRestHighlevelClient;
 
     @Autowired
     public ElasticIndexService(final ElasticRestHighlevelClient elasticRestHighlevelClient,
@@ -52,12 +53,13 @@ public class ElasticIndexService {
         this.whoisAliasIndex = whoisAliasName;
         this.metadataIndex = whoisMetadataIndexName;
         this.client = elasticRestHighlevelClient.getClient();
+        this.elasticRestHighlevelClient = elasticRestHighlevelClient;
     }
 
     @PreDestroy
     public void preDestroy() throws IOException {
         if (isElasticRunning()) {
-            client.close();
+            elasticRestHighlevelClient.close();
         }
     }
 

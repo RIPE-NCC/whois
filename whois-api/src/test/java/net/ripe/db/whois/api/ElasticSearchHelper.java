@@ -6,6 +6,7 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 import net.ripe.db.whois.api.elasticsearch.ElasticSearchConfigurations;
 import net.ripe.db.whois.common.dao.jdbc.DatabaseHelper;
 import org.apache.http.HttpHost;
+import org.eclipse.jetty.io.Transport;
 import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,8 @@ public class ElasticSearchHelper {
     }
 
     public void setupElasticIndexes(final String indexName, final String metadataIndex) throws Exception {
-        try (final ElasticsearchClient esClient = getEsClient()) {
+        final ElasticsearchClient esClient = getEsClient();
+        try {
 
             if (!isElasticRunning(esClient)) {
                 return;
@@ -44,11 +46,14 @@ public class ElasticSearchHelper {
                             .index(metadataIndex)
                     // optionally add settings/mappings if needed
             );
+        } catch (Exception e) {
+            LOGGER.error("Failed to setup the ES indexes {}", e.getMessage());
         }
     }
 
     public void resetElasticIndexes(final String indexName, final String metadataIndex) throws Exception {
-        try (final ElasticsearchClient esClient = getEsClient()) {
+        final ElasticsearchClient esClient = getEsClient();
+
 
             if (!isElasticRunning(esClient)) {
                 return;
@@ -65,7 +70,7 @@ public class ElasticSearchHelper {
                 esClient.indices().delete(d -> d.index(metadataIndex));
             } catch (Exception ignored) {
             }
-        }
+
     }
 
     @Nonnull

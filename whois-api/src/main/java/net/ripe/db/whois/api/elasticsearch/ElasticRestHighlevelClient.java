@@ -5,4 +5,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 public interface ElasticRestHighlevelClient {
 
     ElasticsearchClient getClient();
+
+    void close();
 }

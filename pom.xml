@@ -49,7 +49,7 @@
 
         <diffutils.version>4.17</diffutils.version>
 
-        <elasticsearch.version>7.17.29</elasticsearch.version>
+        <elasticsearch.version>8.12.2</elasticsearch.version>
         <ezvcard.version>0.12.2</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
