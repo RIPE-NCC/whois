@@ -194,7 +194,6 @@ public class ElasticFulltextSearch extends FulltextSearch {
 
     private Highlight getHighlight(SearchRequest searchRequest) {
         if (!isHighlightSafe(searchRequest)) {
-            LOGGER.warn("Highlighting disabled for query: {}", searchRequest.getQuery());
             return null; // ES will simply not execute highlighting
         }
 
@@ -399,12 +398,12 @@ public class ElasticFulltextSearch extends FulltextSearch {
         }
 
         if (query.length() > 500) {
-            LOGGER.warn("Highlight disabled: query too long");
+            LOGGER.info("Highlight disabled: query too long");
             return false;
         }
 
         if (request.getRows() > 5000) {
-            LOGGER.warn("Highlight disabled: too many rows requested");
+            LOGGER.info("Highlight disabled: too many rows requested");
             return false;
         }
 
