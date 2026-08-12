@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.httpserver;
 
 import io.netty.handler.ssl.util.TrustManagerFactoryWrapper;
 import jakarta.servlet.DispatcherType;
+import net.ripe.db.whois.api.CspHeaderFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisQueryDoSFilter;
 import net.ripe.db.whois.api.httpserver.dos.WhoisUpdateDoSFilter;
@@ -91,6 +92,7 @@ public class JettyBootstrap implements ApplicationService {
     };
 
     private final RemoteAddressFilter remoteAddressFilter;
+    private final CspHeaderFilter cspHeaderFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
     private final List<ServletDeployer> servletDeployers;
     private final RewriteEngine rewriteEngine;
@@ -126,6 +128,7 @@ public class JettyBootstrap implements ApplicationService {
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
+                          final CspHeaderFilter cspHeaderFilter,
                           final IpRanges ipRanges,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
                           final List<ServletDeployer> servletDeployers,
@@ -149,6 +152,7 @@ public class JettyBootstrap implements ApplicationService {
                           final BlockPathListFilter blockPathListFilter
                         ) {
         this.remoteAddressFilter = remoteAddressFilter;
+        this.cspHeaderFilter = cspHeaderFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
         this.rewriteEngine = rewriteEngine;
@@ -226,6 +230,7 @@ public class JettyBootstrap implements ApplicationService {
         context.setInitParameter(DefaultServlet.CONTEXT_INIT + "dirAllowed", "false");
 
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(cspHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(blockPathListFilter), "/*", EnumSet.allOf(DispatcherType.class));
