@@ -92,6 +92,7 @@ public class JettyBootstrap implements ApplicationService {
     };
 
     private final RemoteAddressFilter remoteAddressFilter;
+    private final HstsHeaderFilter hstsHeaderFilter;
     private final CspHeaderFilter cspHeaderFilter;
     private final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter;
     private final List<ServletDeployer> servletDeployers;
@@ -128,6 +129,7 @@ public class JettyBootstrap implements ApplicationService {
 
     @Autowired
     public JettyBootstrap(final RemoteAddressFilter remoteAddressFilter,
+                          final HstsHeaderFilter hstsHeaderFilter,
                           final CspHeaderFilter cspHeaderFilter,
                           final IpRanges ipRanges,
                           final ExtensionOverridesAcceptHeaderFilter extensionOverridesAcceptHeaderFilter,
@@ -152,6 +154,7 @@ public class JettyBootstrap implements ApplicationService {
                           final BlockPathListFilter blockPathListFilter
                         ) {
         this.remoteAddressFilter = remoteAddressFilter;
+        this.hstsHeaderFilter = hstsHeaderFilter;
         this.cspHeaderFilter = cspHeaderFilter;
         this.extensionOverridesAcceptHeaderFilter = extensionOverridesAcceptHeaderFilter;
         this.servletDeployers = servletDeployers;
@@ -230,6 +233,7 @@ public class JettyBootstrap implements ApplicationService {
         context.setInitParameter(DefaultServlet.CONTEXT_INIT + "dirAllowed", "false");
 
         context.addFilter(new FilterHolder(remoteAddressFilter), "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(new FilterHolder(hstsHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(cspHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(extensionOverridesAcceptHeaderFilter), "/*", EnumSet.allOf(DispatcherType.class));
         context.addFilter(new FilterHolder(ipBlockListFilter), "/*", EnumSet.allOf(DispatcherType.class));
