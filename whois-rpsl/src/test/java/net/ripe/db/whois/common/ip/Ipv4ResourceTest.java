@@ -321,6 +321,13 @@ public class Ipv4ResourceTest {
     }
 
     @Test
+    public void reverse_reverseDomain_invalid_octet() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            Ipv4Resource.parseReverseDomain("9-99999999999999999999999999999999999999a.1.2.3.in-addr.arpa");
+        });
+    }
+
+    @Test
     public void reverse_null() {
         assertThrows(IllegalArgumentException.class, () -> {
             Ipv4Resource.parseReverseDomain(null);
