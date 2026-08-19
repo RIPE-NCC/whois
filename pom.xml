@@ -32,7 +32,9 @@
         <aspectj.version>1.9.25.1</aspectj.version>
         <awaitility.version>4.3.0</awaitility.version>
 
-        <bouncycastle.version>1.84</bouncycastle.version>
+        <bouncycastle.version>1.85</bouncycastle.version>
+        <!-- [ES] different version to the rest of bouncycastle -->
+        <bouncycastle.bcprov.version>1.85.2</bouncycastle.bcprov.version>
 
         <cache.api.version>1.1.1</cache.api.version>
         <c3po.version>0.14.1</c3po.version>
@@ -471,7 +473,7 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
-                <version>${bouncycastle.version}</version>
+                <version>${bouncycastle.bcprov.version}</version>
             </dependency>
 
             <!-- apache commons -->
