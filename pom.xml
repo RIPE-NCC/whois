@@ -57,7 +57,7 @@
         <findbugs.version>3.0.2</findbugs.version>
 
         <groovy.version>5.0.8</groovy.version>
-        <guava.version>33.6.0-jre</guava.version>
+        <guava.version>33.7.1-jre</guava.version>
 
         <hamcrest.version>3.0</hamcrest.version>
         <hamcrest-json.version>0.3</hamcrest-json.version>
