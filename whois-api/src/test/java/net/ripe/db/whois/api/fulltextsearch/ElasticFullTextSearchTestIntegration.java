@@ -3270,7 +3270,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         final QueryResponse queryResponse = query("q=AS8308:AS-Peerings&facet=true&hl=true");
 
-        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("<b>AS8308<\\/b>:<b>AS-Peerings<\\/b>:AS8374"));
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("<b>AS8308:AS-Peerings<\\/b>:AS8374"));
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults(), hasSize(1));
     }
@@ -3294,7 +3294,7 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
 
         final QueryResponse queryResponse = query("q=AS-Peerings:AS8374&facet=true&hl=true");
 
-        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("AS8308:<b>AS-Peerings<\\/b>:<b>AS8374<\\/b>"));
+        assertThat(getHighlightValues(queryResponse), containsInAnyOrder("AS8308:<b>AS-Peerings:AS8374<\\/b>"));
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults(), hasSize(1));
     }
