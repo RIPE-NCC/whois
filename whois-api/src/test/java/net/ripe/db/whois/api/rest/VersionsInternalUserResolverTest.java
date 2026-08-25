@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 public class VersionsInternalUserResolverTest {
     private static final InetAddress ADDRESS = InetAddresses.forString("10.0.0.1");
     private static final String TOKEN = "token";
+    private static final String ALLOWED_EMAIL = "alice@ripe.net";
+    private static final String OTHER_EMAIL = "mallory@ripe.net";
 
     @Mock private SsoTokenTranslator ssoTokenTranslator;
     @Mock private IpRanges ipRanges;
@@ -32,37 +34,38 @@ public class VersionsInternalUserResolverTest {
 
     @BeforeEach
     public void setup() {
-        subject = new VersionsInternalUserResolver(ssoTokenTranslator, ipRanges);
+        subject = new VersionsInternalUserResolver(ssoTokenTranslator, ipRanges, ALLOWED_EMAIL);
     }
 
     private void trusted(final boolean trusted) {
         when(ipRanges.isTrusted(any(Ipv4Resource.class))).thenReturn(trusted);
     }
 
-    private void activeSsoUser() {
+    private void ssoUser(final String username) {
         when(ssoTokenTranslator.translateSsoTokenOrNull(TOKEN))
-                .thenReturn(new UserSession("uuid", "person@ripe.net", "Test User", true, null));
+                .thenReturn(new UserSession("uuid", username, "Test User", true, null));
     }
 
     @Test
-    public void trusted_address_and_active_sso_session_then_internal() {
+    public void trusted_address_and_allowed_email_then_internal() {
         trusted(true);
-        activeSsoUser();
+        ssoUser(ALLOWED_EMAIL);
 
         assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(true));
     }
 
     @Test
-    public void trusted_address_and_no_sso_session_then_not_internal() {
+    public void trusted_address_and_email_not_in_allow_list_then_not_internal() {
         trusted(true);
+        ssoUser(OTHER_EMAIL);
 
-        assertThat(subject.isInternalUser(null, ADDRESS), is(false));
+        assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(false));
     }
 
     @Test
-    public void untrusted_address_and_active_sso_session_then_not_internal() {
+    public void untrusted_address_and_allowed_email_then_not_internal() {
         trusted(false);
-        activeSsoUser();
+        ssoUser(ALLOWED_EMAIL);
 
         assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(false));
     }
@@ -84,9 +87,10 @@ public class VersionsInternalUserResolverTest {
     }
 
     @Test
-    public void trusted_address_and_empty_token_then_not_internal() {
+    public void trusted_address_and_missing_token_then_not_internal() {
         trusted(true);
 
+        assertThat(subject.isInternalUser(null, ADDRESS), is(false));
         assertThat(subject.isInternalUser("", ADDRESS), is(false));
     }
 
@@ -102,7 +106,50 @@ public class VersionsInternalUserResolverTest {
     public void trusted_address_and_inactive_session_then_not_internal() {
         trusted(true);
         when(ssoTokenTranslator.translateSsoTokenOrNull(TOKEN))
-                .thenReturn(new UserSession("uuid", "person@ripe.net", "Test User", false, null));
+                .thenReturn(new UserSession("uuid", ALLOWED_EMAIL, "Test User", false, null));
+
+        assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(false));
+    }
+
+    @Test
+    public void trusted_address_and_session_without_username_then_not_internal() {
+        trusted(true);
+        ssoUser(null);
+
+        assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(false));
+    }
+
+    @Test
+    public void email_comparison_is_case_insensitive() {
+        trusted(true);
+        ssoUser("Alice@RIPE.NET");
+
+        assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(true));
+    }
+
+    @Test
+    public void allow_list_entries_are_trimmed_and_lowercased() {
+        subject = new VersionsInternalUserResolver(ssoTokenTranslator, ipRanges, "  Alice@RIPE.NET  ");
+        trusted(true);
+        ssoUser(ALLOWED_EMAIL);
+
+        assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(true));
+    }
+
+    @Test
+    public void blank_allow_list_entries_are_ignored() {
+        subject = new VersionsInternalUserResolver(ssoTokenTranslator, ipRanges, " ", "", ALLOWED_EMAIL);
+        trusted(true);
+        ssoUser(ALLOWED_EMAIL);
+
+        assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(true));
+    }
+
+    @Test
+    public void empty_allow_list_then_nobody_is_internal() {
+        subject = new VersionsInternalUserResolver(ssoTokenTranslator, ipRanges);
+        trusted(true);
+        ssoUser(ALLOWED_EMAIL);
 
         assertThat(subject.isInternalUser(TOKEN, ADDRESS), is(false));
     }
