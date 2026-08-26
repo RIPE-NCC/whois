@@ -1,5 +1,6 @@
 package net.ripe.db.whois.api.security.auth.validate;
 
+import com.google.common.base.Stopwatch;
 import net.ripe.db.whois.api.security.auth.AccessTokenValidationException;
 import net.ripe.db.whois.update.domain.Update;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ public abstract class AccessTokenValidator {
     }
 
     private Jwt validateOffLine(final String accessToken, final Update.EffectiveCredentialType effectiveCredentialType){
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             return jwtDecoder.decode(accessToken);
         } catch (JwtValidationException e){
@@ -51,12 +53,13 @@ public abstract class AccessTokenValidator {
             }
             throw new AccessTokenValidationException("[" + effectiveCredentialType + "] " + e.getMessage());
         } catch (Exception e){
-            LOGGER.error("Failed to offline validation {} due to {}", effectiveCredentialType, e.getMessage());
+            LOGGER.error("Failed to offline validation {} after {} due to {}", effectiveCredentialType, stopwatch, e.getMessage());
             throw new AccessTokenValidationException("Invalid " + effectiveCredentialType);
         }
     }
 
     private Jwt validateOnLine(final String accessToken, final Update.EffectiveCredentialType effectiveCredentialType) {
+        final Stopwatch stopwatch = Stopwatch.createStarted();
         try {
             final OAuth2AuthenticatedPrincipal principal = opaqueTokenIntrospector.introspect(accessToken);
 
@@ -76,7 +79,7 @@ public abstract class AccessTokenValidator {
             LOGGER.error("Failed to validate the {} through token inspection {}", effectiveCredentialType, e.getMessage());
             throw new AccessTokenValidationException(String.format("Failed to validate %s token", effectiveCredentialType));
         } catch (Exception e) {
-            LOGGER.error("Failed to validate the {} due to {}", effectiveCredentialType, e.getMessage());
+            LOGGER.error("Failed to validate the {} after {} due to {}", effectiveCredentialType, stopwatch, e.getMessage());
             throw new AccessTokenValidationException("Invalid authentication");
         }
     }
