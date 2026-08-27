@@ -287,6 +287,7 @@ sonar:
                 SENTRY_DSN
                 KEYCLOAK_CLIENT_KEY
                 OIDC_CLIENT_KEY
+                GRS_IMPORT_PASSPHRASE
                 )
       for variable in "${variables[@]}"; do
         sed -i "s|\${$variable}|${!variable}|g" "$properties_file"

@@ -3,7 +3,6 @@ package net.ripe.db.whois.scheduler.task.grs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,10 +18,11 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class GrsImporterJmxTest {
     @Mock GrsImporter grsImporter;
-    @InjectMocks GrsImporterJmx subject;
+    GrsImporterJmx subject;
 
     @BeforeEach
     public void setUp() throws Exception {
+        subject = new GrsImporterJmx(grsImporter, "validPhrase");
         subject.setGrsDefaultSources("ARIN-GRS,APNIC-GRS");
     }
 
@@ -51,7 +51,7 @@ public class GrsImporterJmxTest {
 
     @Test
     public void grsRebuild() {
-        final String result = subject.grsRebuild("ARIN-GRS,APNIC-GRS", "grsrebuildnow", "comment");
+        final String result = subject.grsRebuild("ARIN-GRS,APNIC-GRS", "validPhrase", "comment");
 
         verify(grsImporter).grsImport("ARIN-GRS,APNIC-GRS", true);
         assertThat(result, is("GRS rebuild started"));
@@ -61,13 +61,13 @@ public class GrsImporterJmxTest {
     public void grsRebuild_invalid_passphrase() {
         final String result = subject.grsRebuild("ARIN-GRS,APNIC-GRS", "??", "comment");
 
-        assertThat(result, containsString("passphrase: grsrebuildnow"));
+        assertThat(result, containsString("the passphrase is specified in the properties"));
     }
 
     @Test
     public void grsRebuild_throws_exception() {
         doThrow(new RuntimeException("Oops")).when(grsImporter).grsImport(anyString(), anyBoolean());
-        final String result = subject.grsRebuild("ARIN-GRS,APNIC-GRS", "grsrebuildnow", "comment");
+        final String result = subject.grsRebuild("ARIN-GRS,APNIC-GRS", "validPhrase", "comment");
 
         verify(grsImporter).grsImport("ARIN-GRS,APNIC-GRS", true);
         assertThat(result, is(nullValue()));

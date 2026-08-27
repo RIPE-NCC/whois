@@ -22,16 +22,19 @@ public class GrsImporterJmx extends JmxBase {
     private final GrsImporter grsImporter;
 
     private String grsDefaultSources;
+    
+    private final String grsPassphrase;
+
+    @Autowired
+    public GrsImporterJmx(final GrsImporter grsImporter, @Value("${grs.import.passphrase:}") final String validPassphrase) {
+        super(LOGGER);
+        this.grsImporter = grsImporter;
+        this.grsPassphrase = validPassphrase;
+    }
 
     @Value("${grs.import.sources:}")
     void setGrsDefaultSources(final String grsDefaultSources) {
         this.grsDefaultSources = grsDefaultSources;
-    }
-
-    @Autowired
-    public GrsImporterJmx(final GrsImporter grsImporter) {
-        super(LOGGER);
-        this.grsImporter = grsImporter;
     }
 
     @ManagedAttribute(description = "Comma separated list of default GRS sources")
@@ -64,15 +67,14 @@ public class GrsImporterJmx extends JmxBase {
         return invokeOperation("GRS rebuild sources", comment, new Callable<String>() {
             @Override
             public String call() {
-                final String validPassphrase = "grsrebuildnow";
-                if (!passphrase.equals(validPassphrase)) {
-                    return String.format("" +
-                            "Warning:\n\n" +
-                            "Rebuild will delete all content in the specified\n" +
-                            "sources, when unsure use the grsImport() operation,\n" +
-                            "which will update the sources using diff.\n\n" +
-                            "When you are absolutely sure, specify the\n" +
-                            "passphrase: %s", validPassphrase);
+                if (!passphrase.equals(grsPassphrase)) {
+                    return """
+                            Warning
+                            Rebuild will delete all content in the specified
+                            sources, when unsure use the grsImport() operation,
+                            which will update the sources using diff.
+                            When you are absolutely sure, the passphrase is specified in the properties
+                            """;
                 }
 
                 grsImporter.grsImport("all".equals(sources) ? grsDefaultSources : sources, true);
