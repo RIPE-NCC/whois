@@ -294,8 +294,10 @@ sonar:
       done
     - >
       if [ "$CI_COMMIT_TAG" ]; then
-       mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.1:copy -Dartifact=$GROUP_ID:$ARTIFACT_NAME:$CI_COMMIT_SHORT_SHA:jar -DoutputDirectory=target/
-       find target -name $ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar -exec cp {} db-operational/deployment/$ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar \;
+       jar=db-operational/deployment/$ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar
+       url=https://artefacts.ripe.net/repository/maven-releases-ncc/$(echo $GROUP_ID | tr . /)/$ARTIFACT_NAME/$CI_COMMIT_SHORT_SHA/$ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar
+       curl -fsSL -o $jar $url
+       echo "$(curl -fsSL $url.sha1)  $jar" | sha1sum -c -
       else
        find $ARTIFACT_DIR/target -name $ARTIFACT_NAME-*-SNAPSHOT.jar -exec cp {} db-operational/deployment/$ARTIFACT_NAME-$CI_COMMIT_SHORT_SHA.jar \;
       fi
