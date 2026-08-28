@@ -138,7 +138,6 @@ public class RewriteEngine {
             "/whois/$1/$2"
         )));
 
-        //
         // Batch
         virtualHost.addRule(new HttpTransportRule(HttpScheme.HTTPS,
                 new HttpMethodRule(HttpMethod.POST, new CaseInsensitiveRewriteRegexRule(
@@ -150,6 +149,12 @@ public class RewriteEngine {
         virtualHost.addRule(new RedirectRegexRule(
                 "^/$",
                 "https://docs.db.ripe.net/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"
+        ));
+
+        // Well-known security.txt
+        virtualHost.addRule(new RedirectRegexRule(
+                "^/(security.txt|.well-known/security.txt)$",
+                "https://www.ripe.net/.well-known/security.txt"
         ));
 
         // catch-all fallthrough; return 400

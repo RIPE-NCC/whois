@@ -340,6 +340,40 @@ public class RewriteEngineTestIntegration extends AbstractIntegrationTest {
 
         assertThat(response.getStatus(), is(HttpStatus.OK_200));
     }
+
+    @Test
+    public void redirect_root() {
+        final Response response = RestTest.target(getPort(), "")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.FOUND_302));
+        assertThat(response.getHeaderString(HttpHeader.LOCATION.asString()), containsString("https://docs.db.ripe.net/RIPE-Database-Structure/REST-API-Data-model/#whoisresources"));
+    }
+
+    @Test
+    public void redirect_security_txt() {
+        final Response response = RestTest.target(getPort(), "security.txt")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.FOUND_302));
+        assertThat(response.getHeaderString(HttpHeader.LOCATION.asString()), containsString("https://www.ripe.net/.well-known/security.txt"));
+    }
+
+    @Test
+    public void redirect_well_known_security_txt() {
+        final Response response = RestTest.target(getPort(), ".well-known/security.txt")
+                .request()
+                .header(HttpHeaders.HOST, getHost(restApiBaseUrl))
+                .get(Response.class);
+
+        assertThat(response.getStatus(), is(HttpStatus.FOUND_302));
+        assertThat(response.getHeaderString(HttpHeader.LOCATION.asString()), containsString("https://www.ripe.net/.well-known/security.txt"));
+    }
+
     // helper methods
 
     private String getHost(final String url) {
