@@ -1,5 +1,9 @@
 # next
 
+# 1.124.1
+
+[update] Only use the signing certificate in Client Certificate authentication
+
 # 1.124
 
 [all] Added support for OIDC 2.0 authentication
