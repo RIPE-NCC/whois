@@ -98,7 +98,8 @@ public class VersionQueryExecutor implements QueryExecutor {
     private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
         final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, responseObject -> {
                 if (responseObject instanceof RpslObject) {
-                    ResponseObject filtered = filter((RpslObject) responseObject);
+                    ResponseObject filtered = isUnfilteredAllowed(query) ? responseObject
+                            : filter((RpslObject) responseObject);
                     if (query.isObjectVersion()) {
                         filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
                     }
@@ -111,6 +112,10 @@ public class VersionQueryExecutor implements QueryExecutor {
             return Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName())));
         }
         return objects;
+    }
+
+    private static boolean isUnfilteredAllowed(final Query query) {
+        return query.isTrusted() && !query.isFiltered();
     }
 
     // TODO: [AH] make this streaming, too; objects could have thousands of versions

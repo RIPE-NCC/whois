@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import jakarta.ws.rs.core.HttpHeaders;
 import net.ripe.db.whois.api.QueryBuilder;
+import jakarta.ws.rs.CookieParam;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
@@ -54,6 +56,7 @@ public class WhoisVersionService {
     private final WhoisObjectServerMapper whoisObjectServerMapper;
     private final VersionQueryExecutor versionQueryExecutor;
     private final Version version;
+    private final VersionsInternalUserResolver versionsInternalUserResolver;
 
     @Autowired
     public WhoisVersionService(
@@ -62,7 +65,9 @@ public class WhoisVersionService {
             final SourceContext sourceContext,
             final WhoisObjectServerMapper whoisObjectServerMapper,
             final VersionQueryExecutor versionQueryExecutor,
-            final ApplicationVersion applicationVersion) {
+            final ApplicationVersion applicationVersion,
+            final VersionsInternalUserResolver versionsInternalUserResolver) {
+        this.versionsInternalUserResolver = versionsInternalUserResolver;
         this.accessControlListManager = accessControlListManager;
         this.queryHandler = queryHandler;
         this.sourceContext = sourceContext;
@@ -81,13 +86,18 @@ public class WhoisVersionService {
             @Context final HttpServletRequest request,
             @PathParam("source") final String source,
             @PathParam("objectType") final String objectType,
-            @PathParam("key") final String key) {
+            @PathParam("key") final String key,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         checkForMainSource(request, source);
 
         final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
+
+        if (isInternalUser(request, crowdTokenKey)) {
+            queryBuilder.addFlag(QueryFlag.NO_FILTERING);
+        }
 
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
@@ -135,13 +145,18 @@ public class WhoisVersionService {
             @PathParam("objectType") final String objectType,
             @PathParam("key") final String key,
             @PathParam("version") final Integer objectVersion,
-            @QueryParam("unformatted") final String unformatted) {
+            @QueryParam("unformatted") final String unformatted,
+            @CookieParam(AuthServiceClient.TOKEN_KEY) final String crowdTokenKey) {
 
         checkForMainSource(request, source);
 
         final QueryBuilder queryBuilder = new QueryBuilder()
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(objectVersion));
+
+        if (isInternalUser(request, crowdTokenKey)) {
+            queryBuilder.addFlag(QueryFlag.NO_FILTERING);
+        }
 
         final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
 
@@ -177,6 +192,10 @@ public class WhoisVersionService {
 
     private boolean isTrusted(final HttpServletRequest request) {
         return accessControlListManager.isTrusted(InetAddresses.forString(request.getRemoteAddr()));
+    }
+
+    private boolean isInternalUser(final HttpServletRequest request, final String crowdTokenKey) {
+        return versionsInternalUserResolver.isInternalUser(crowdTokenKey, InetAddresses.forString(request.getRemoteAddr()));
     }
 
     private void checkForMainSource(final HttpServletRequest request, final String source) {

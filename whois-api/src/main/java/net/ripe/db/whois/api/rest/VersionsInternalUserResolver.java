@@ -2,6 +2,7 @@ package net.ripe.db.whois.api.rest;
 
 import net.ripe.db.whois.common.domain.IpRanges;
 import net.ripe.db.whois.common.ip.IpInterval;
+import net.ripe.db.whois.common.oauth.OAuthUtils;
 import net.ripe.db.whois.common.sso.SsoTokenTranslator;
 import net.ripe.db.whois.common.sso.UserSession;
 import org.apache.commons.lang3.StringUtils;
@@ -64,11 +65,9 @@ public class VersionsInternalUserResolver {
 
     @Nullable
     private UserSession getActiveUserSession(@Nullable final String crowdTokenKey) {
-        if (StringUtils.isEmpty(crowdTokenKey)) {
-            return null;
-        }
-
-        final UserSession userSession = ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey);
+        final UserSession userSession = StringUtils.isEmpty(crowdTokenKey) ?
+                OAuthUtils.translateOidcToUserSession(AuthenticationUtils.getOidcSession()) :
+                ssoTokenTranslator.translateSsoTokenOrNull(crowdTokenKey);
 
         return (userSession != null && userSession.isActive()) ? userSession : null;
     }

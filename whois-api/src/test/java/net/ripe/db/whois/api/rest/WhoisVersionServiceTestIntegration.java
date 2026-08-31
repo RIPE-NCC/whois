@@ -1,7 +1,7 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.Response;
-import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
@@ -11,14 +11,23 @@ import net.ripe.db.whois.api.rest.domain.WhoisVersions;
 import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.common.ApplicationVersion;
 
+import jakarta.ws.rs.core.HttpHeaders;
+import net.ripe.db.whois.api.SecureRestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_EXPIRED;
+import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_PERSON_ANY_MNT;
+import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
+
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import net.ripe.db.whois.common.MaintenanceMode;
 import net.ripe.db.whois.common.rpsl.RpslAttribute;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.ws.rs.NotFoundException;
@@ -32,14 +41,19 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @Tag("IntegrationTest")
-public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest {
+public class WhoisVersionServiceTestIntegration extends AbstractHttpsIntegrationTest {
     @Autowired
     private ApplicationVersion applicationVersion;
+
+    private static final String MNTNER_VERSION_PATH = "whois/test/mntner/OWNER-MNT/versions/1";
+    private static final String AUTNUM_VERSION_PATH = "whois/test/aut-num/AS102/versions/1";
+    private static final String AUTH_HASH = "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/";
 
     private static final RpslObject OWNER_MNT = RpslObject.parse(
     """
@@ -74,6 +88,20 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
 
     @Autowired
     private MaintenanceMode maintenanceMode;
+
+    @BeforeAll
+    public static void beforeClass() {
+        System.setProperty("versions.internal.emails", "person@net.net");
+        System.setProperty("oidc.auth.enable", "true");
+        System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
+    }
+
+    @AfterAll
+    public static void afterClass() {
+        System.clearProperty("versions.internal.emails");
+        System.clearProperty("oidc.auth.enable");
+        System.clearProperty("oidc.session.client.id");
+    }
 
     @BeforeEach
     public void setup() {
@@ -514,11 +542,9 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void versions_text_no_versions_found_returns_not_found() {
-        assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
-                    .request(MediaType.TEXT_PLAIN)
-                    .get(String.class);
-        });
+        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class));
     }
 
     @Test
@@ -547,11 +573,9 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
 
     @Test
     public void versions_no_versions_found() {
-        assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(String.class);
-        });
+        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.APPLICATION_XML)
+                .get(String.class));
     }
 
     @Test
@@ -679,11 +703,9 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
                 source:         TEST
                 """);
 
-        assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
-                    .request(MediaType.TEXT_PLAIN)
-                    .get(String.class);
-        });
+        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class));
     }
 
     @Test
@@ -699,11 +721,9 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
                 source:         TEST
                 """);
 
-        assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
-                    .request(MediaType.TEXT_PLAIN)
-                    .get(String.class);
-        });
+        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class));
     }
 
     @Test
@@ -721,11 +741,9 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject(autnum);
         databaseHelper.deleteObject(autnum);
 
-        assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
-                    .request(MediaType.TEXT_PLAIN)
-                    .get(String.class);
-        });
+        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class));
     }
 
     @Test
@@ -741,11 +759,9 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
                 source:         TEST
                 """);
 
-        assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-        });
+        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/2")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class));
     }
 
     @Test
@@ -761,11 +777,9 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
                 source:         TEST
                 """);
 
-        assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-        });
+        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/test/inetnum/AS102/versions/1")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class));
     }
 
     @Test
@@ -864,11 +878,9 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
         databaseHelper.addObject(autnum);
         databaseHelper.deleteObject(autnum);
 
-        assertThrows(NotFoundException.class, () -> {
-            RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
-                    .request(MediaType.APPLICATION_XML)
-                    .get(WhoisResources.class);
-        });
+        assertThrows(NotFoundException.class, () -> RestTest.target(getPort(), "whois/test/aut-num/AS102/versions/1")
+                .request(MediaType.APPLICATION_XML)
+                .get(WhoisResources.class));
     }
 
     @Test
@@ -997,5 +1009,256 @@ public class WhoisVersionServiceTestIntegration extends AbstractIntegrationTest 
 
         final String rpslObject = response.readEntity(String.class);
         assertThat(rpslObject, containsString("version 第三"));
+    }
+
+    @Test
+    public void external_user_gets_filtered_mntner_version() {
+        final WhoisObject whoisObject = getVersion(external(MNTNER_VERSION_PATH, MediaType.APPLICATION_XML));
+
+        assertThat(whoisObject.getAttributes(), hasItem(new Attribute("auth", "MD5-PW", "Filtered", null, null, null)));
+        assertThat(values(whoisObject, "upd-to"), hasSize(0));
+        assertThat(values(whoisObject, "notify"), hasSize(0));
+        assertThat(values(whoisObject, "admin-c"), hasSize(0));
+        assertThat(attribute(whoisObject).getComment(), is("Filtered"));
+    }
+
+    @Test
+    public void internal_user_gets_unfiltered_mntner_version_json() {
+        final WhoisObject whoisObject = getVersion(internal(MNTNER_VERSION_PATH, MediaType.APPLICATION_JSON));
+
+        assertThat(whoisObject.getAttributes(), hasItem(new Attribute("auth", AUTH_HASH, "test", null, null, null)));
+        assertThat(whoisObject.getAttributes(), hasItem(new Attribute("upd-to", "noreply@ripe.net")));
+        assertThat(values(whoisObject, "admin-c"), hasItem("TP1-TEST"));
+    }
+
+    @Test
+    public void internal_user_gets_unfiltered_mntner_version_text_plain() {
+        final String response = internal(MNTNER_VERSION_PATH, MediaType.TEXT_PLAIN).get(String.class);
+
+        assertThat(response, containsString(AUTH_HASH));
+        assertThat(response, containsString("auth:           SSO 906635c2-0405-429a-800b-0602bd716124"));
+        assertThat(response, containsString("upd-to:"));
+        assertThat(response, containsString("admin-c:"));
+        assertThat(response, not(containsString("# Filtered")));
+    }
+
+    @Test
+    public void external_user_gets_filtered_mntner_version_text_plain() {
+        final String response = external(MNTNER_VERSION_PATH, MediaType.TEXT_PLAIN).get(String.class);
+
+        assertThat(response, not(containsString(AUTH_HASH)));
+        assertThat(response, containsString("MD5-PW # Filtered"));
+        assertThat(response, not(containsString("upd-to:")));
+        assertThat(response, not(containsString("admin-c:")));
+    }
+
+    @Test
+    public void internal_user_gets_unfiltered_autnum_version_text_plain() {
+        databaseHelper.addObject(
+                """
+                aut-num:        AS102
+                as-name:        End-User-2
+                descr:          description
+                e-mail:         test@test.nl
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         OWNER-MNT
+                notify:         notify@me.nl
+                source:         TEST
+                """);
+
+        final String response = internal(AUTNUM_VERSION_PATH, MediaType.TEXT_PLAIN).get(String.class);
+
+        assertThat(response, containsString("e-mail:         test@test.nl"));
+        assertThat(response, containsString("notify:         notify@me.nl"));
+        assertThat(response, containsString("admin-c:        TP1-TEST"));
+        assertThat(response, containsString("tech-c:         TP1-TEST"));
+    }
+
+    @Test
+    public void external_user_gets_filtered_autnum_version_text_plain() {
+        databaseHelper.addObject(
+                """
+                aut-num:        AS102
+                as-name:        End-User-2
+                descr:          description
+                e-mail:         test@test.nl
+                admin-c:        TP1-TEST
+                tech-c:         TP1-TEST
+                mnt-by:         OWNER-MNT
+                notify:         notify@me.nl
+                source:         TEST
+                """);
+
+        final String response = external(AUTNUM_VERSION_PATH, MediaType.TEXT_PLAIN).get(String.class);
+
+        assertThat(response, is(
+                """
+                aut-num:        AS102
+                as-name:        End-User-2
+                descr:          description
+                mnt-by:         OWNER-MNT
+                source:         TEST # Filtered
+                """));
+    }
+
+    @Test
+    public void sso_session_without_allow_list_entry_gets_filtered_version() {
+        final String response = RestTest.target(getPort(), MNTNER_VERSION_PATH)
+                .request(MediaType.TEXT_PLAIN)
+                .cookie("crowd.token_key", "db_e2e_1")
+                .get(String.class);
+
+        assertThat(response, containsString("MD5-PW # Filtered"));
+    }
+
+    @Test
+    public void allowed_sso_session_from_untrusted_address_gets_filtered_version() {
+        final String response = RestTest.target(getPort(), MNTNER_VERSION_PATH + "?clientIp=2001:fff:001::")
+                .request(MediaType.TEXT_PLAIN)
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("MD5-PW # Filtered"));
+    }
+
+    @Test
+    public void invalid_sso_token_gets_filtered_version() {
+        final String response = RestTest.target(getPort(), MNTNER_VERSION_PATH)
+                .request(MediaType.TEXT_PLAIN)
+                .cookie("crowd.token_key", "invalid-token")
+                .get(String.class);
+
+        assertThat(response, containsString("MD5-PW # Filtered"));
+    }
+
+    @Test
+    public void no_sso_session_gets_filtered_version() {
+        final String response = external(MNTNER_VERSION_PATH, MediaType.TEXT_PLAIN).get(String.class);
+
+        assertThat(response, containsString("MD5-PW # Filtered"));
+    }
+
+    @Test
+    public void version_list_works_for_external_user() {
+        final WhoisResources whoisResources = external("whois/test/mntner/OWNER-MNT/versions", MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getVersions().getVersions(), hasSize(1));
+    }
+
+    @Test
+    public void version_list_works_for_internal_user() {
+        final WhoisResources whoisResources = internal("whois/test/mntner/OWNER-MNT/versions", MediaType.APPLICATION_XML)
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getVersions().getVersions(), hasSize(1));
+    }
+
+    @Test
+    public void internal_user_gets_unfiltered_mntner_version() {
+        final WhoisObject whoisObject = getVersion(internal("whois/test/mntner/OWNER-MNT/versions/1", MediaType.APPLICATION_XML));
+
+        assertThat(whoisObject.getAttributes(), hasItem(new Attribute("auth", "MD5-PW $1$d9fKeTr2$Si7YudNf4rUGmR71n/cqk/", "test", null, null, null)));
+        assertThat(whoisObject.getAttributes(), hasItem(new Attribute("auth", "SSO 906635c2-0405-429a-800b-0602bd716124")));
+        assertThat(whoisObject.getAttributes(), hasItem(new Attribute("upd-to", "noreply@ripe.net")));
+        assertThat(values(whoisObject, "admin-c"), hasItem("TP1-TEST"));
+        assertThat(attribute(whoisObject).getComment(), is(not("Filtered")));
+    }
+
+    @Test
+    public void allow_listed_oidc_session_gets_unfiltered_version() {
+        final String response = SecureRestTest.target(getSecurePort(), MNTNER_VERSION_PATH)
+                .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(response, containsString(AUTH_HASH));
+        assertThat(response, containsString("upd-to:"));
+        assertThat(response, containsString("admin-c:"));
+        assertThat(response, not(containsString("# Filtered")));
+    }
+
+    @Test
+    public void oidc_session_not_on_allow_list_gets_filtered_version() {
+        final String response = SecureRestTest.target(getSecurePort(), MNTNER_VERSION_PATH)
+                .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(BASIC_AUTH_TEST_NO_MNT))
+                .get(String.class);
+
+        assertThat(response, containsString("MD5-PW # Filtered"));
+        assertThat(response, not(containsString(AUTH_HASH)));
+    }
+
+    @Test
+    public void expired_oidc_token_gets_filtered_version() {
+        final String response = SecureRestTest.target(getSecurePort(), MNTNER_VERSION_PATH)
+                .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(BASIC_AUTH_EXPIRED))
+                .get(String.class);
+
+        assertThat(response, containsString("MD5-PW # Filtered"));
+    }
+
+    @Test
+    public void no_credentials_gets_filtered_version() {
+        final String response = SecureRestTest.target(getSecurePort(), MNTNER_VERSION_PATH)
+                .request(MediaType.TEXT_PLAIN)
+                .get(String.class);
+
+        assertThat(response, containsString("MD5-PW # Filtered"));
+    }
+
+    @Test
+    public void crowd_cookie_takes_precedence_over_oidc_session() {
+        final String response = SecureRestTest.target(getSecurePort(), MNTNER_VERSION_PATH)
+                .request(MediaType.TEXT_PLAIN)
+                .cookie("crowd.token_key", "invalid-token")
+                .header(HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(String.class);
+
+        assertThat(response, containsString("MD5-PW # Filtered"));
+    }
+
+    @Test
+    public void allow_listed_crowd_cookie_still_works_over_https() {
+        final String response = SecureRestTest.target(getSecurePort(), MNTNER_VERSION_PATH)
+                .request(MediaType.TEXT_PLAIN)
+                .cookie("crowd.token_key", "valid-token")
+                .get(String.class);
+
+        assertThat(response, containsString(AUTH_HASH));
+        assertThat(response, not(containsString("# Filtered")));
+    }
+
+    private Invocation.Builder internal(final String path, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType)
+                .cookie("crowd.token_key", "valid-token");
+    }
+
+    private Invocation.Builder external(final String path, final String mediaType) {
+        return RestTest.target(getPort(), path)
+                .request(mediaType);
+    }
+
+    private WhoisObject getVersion(final Invocation.Builder request) {
+        final WhoisResources whoisResources = request.get(WhoisResources.class);
+        assertThat(whoisResources.getWhoisObjects(), hasSize(1));
+        return whoisResources.getWhoisObjects().getFirst();
+    }
+
+    private static Attribute attribute(final WhoisObject whoisObject) {
+        return whoisObject.getAttributes().stream()
+                .filter(attribute -> attribute.getName().equals("source"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("no attribute " + "source"));
+    }
+
+    private static List<String> values(final WhoisObject whoisObject, final String name) {
+        return whoisObject.getAttributes().stream()
+                .filter(attribute -> attribute.getName().equals(name))
+                .map(Attribute::getValue)
+                .toList();
     }
 }
