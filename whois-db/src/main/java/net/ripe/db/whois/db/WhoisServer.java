@@ -19,6 +19,7 @@ import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
+import org.springframework.util.PlaceholderResolutionException;
 
 import java.io.Closeable;
 import java.security.Security;
@@ -72,15 +73,7 @@ public class WhoisServer {
 
         whoisServer.start();
 
-        final MutablePropertySources sources = applicationContext.getEnvironment().getPropertySources();
-        StreamSupport.stream(sources.spliterator(), false)
-                .filter(ps -> ps instanceof EnumerablePropertySource)
-                .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
-                .flatMap(Arrays::stream)
-                .distinct()
-                .sorted()
-                .forEach(prop -> LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains("password")) ? "*****" :  applicationContext.getEnvironment().getProperty(prop)));
-
+        printApplicationProperties(applicationContext);
         printJvmSecurityProperties();
         LOGGER.info("Whois server started in {}", stopwatch.stop());
     }
@@ -152,5 +145,23 @@ public class WhoisServer {
         if(networkAddrNegativeCacheTtl == null || networkAddrNegativeCacheTtl.equals("-1")) {
             LOGGER.warn("networkaddress.cache.negative.ttl is not set properly");
         }
+    }
+
+    private static void printApplicationProperties(final AnnotationConfigApplicationContext applicationContext) {
+        final MutablePropertySources sources = applicationContext.getEnvironment().getPropertySources();
+        StreamSupport.stream(sources.spliterator(), false)
+                .filter(ps -> ps instanceof EnumerablePropertySource)
+                .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
+                .flatMap(Arrays::stream)
+                .distinct()
+                .sorted()
+                .forEach(prop -> {
+                    try {
+                        LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains("password")) ? "*****" :  applicationContext.getEnvironment().getProperty(prop));
+                    } catch (PlaceholderResolutionException e) {
+                        LOGGER.error("Could not resolve property {} due to {}: {}", prop, e.getClass().getName(), e.getMessage());
+                    }
+                });
+
     }
 }
