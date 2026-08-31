@@ -65,7 +65,8 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
-        assertThat(diff.getIdentical().getAll(), hasSize(0));
+        assertThat(diff.getIdentical().getAll(), hasSize(1));
+        assertThat(diff.getIdentical().find("x509"), hasSize(1));
 
         // removed
         assertThat(diff.getRemoved().getAll(), hasSize(2));
@@ -117,7 +118,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
         final DatabaseDiff diff = Database.diff(before, after);
 
         // identical
-        assertThat(diff.getIdentical().getAll(), hasSize(3));
+        assertThat(diff.getIdentical().getAll(), hasSize(4));
         assertThat(diff.getIdentical().find("history"), hasSize(1));
         assertThat(diff.getIdentical().find("serials"), hasSize(2));
 
@@ -192,7 +193,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
-        assertThat(diff.getIdentical().getAll(), hasSize(2));
+        assertThat(diff.getIdentical().getAll(), hasSize(3));
         diff.getIdentical().get("history",
                 with("object_id", created.getObjectId()),
                 with("sequence_id", created.getSequenceId()));
@@ -232,7 +233,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         // identical
-        assertThat(diff.getIdentical().getAll(), hasSize(6));
+        assertThat(diff.getIdentical().getAll(), hasSize(7));
         diff.getIdentical().get("last",
                 with("object_id", first.getObjectId()));
         diff.getIdentical().get("last",
@@ -509,7 +510,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // Objects not modified
         final Database identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(4));
+        assertThat("Identical", identical.getAll(), hasSize(5));
         assertThat(identical.getTable("last"), hasSize(1));
         assertThat(identical.getTable("mntner"), hasSize(2));
         assertThat(identical.getTable("serials"), hasSize(1));
@@ -567,7 +568,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // Objects not modified
         final Database identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(1));
+        assertThat("Identical", identical.getAll(), hasSize(2));
         assertThat(identical.getTable("mntner"), hasSize(1));
 
         // Modified
@@ -610,7 +611,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // Objects not modified
         final Database identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(4));
+        assertThat("Identical", identical.getAll(), hasSize(5));
         assertThat(identical.getTable("last"), hasSize(1));
         assertThat(identical.getTable("mntner"), hasSize(2));
         assertThat(identical.getTable("serials"), hasSize(1));
@@ -663,7 +664,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // Identical
         Database identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(17));
+        assertThat("Identical", identical.getAll(), hasSize(18));
         assertThat(identical.find("last"), hasSize(4));
         assertThat(identical.find("mntner"), hasSize(1));
         assertThat(identical.find("person_role"), hasSize(4));
@@ -713,7 +714,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // Identical
         identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(20));
+        assertThat("Identical", identical.getAll(), hasSize(21));
         assertThat(identical.find("last"), hasSize(4));
         assertThat(identical.find("mntner"), hasSize(1));
         assertThat(identical.find("person_role"), hasSize(4));
@@ -763,7 +764,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // Identical
         identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(21));
+        assertThat("Identical", identical.getAll(), hasSize(22));
         assertThat(identical.find("last"), hasSize(4));
         assertThat(identical.find("mntner"), hasSize(1));
         assertThat(identical.find("person_role"), hasSize(4));
@@ -809,7 +810,7 @@ public class JdbcRpslObjectUpdateDaoIntegrationTest extends AbstractDaoIntegrati
 
         // Identical
         identical = diff.getIdentical();
-        assertThat("Identical", identical.getAll(), hasSize(23));
+        assertThat("Identical", identical.getAll(), hasSize(24));
         assertThat(identical.find("last"), hasSize(4));
         assertThat(identical.find("mntner"), hasSize(1));
         assertThat(identical.find("person_role"), hasSize(4));

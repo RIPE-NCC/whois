@@ -2691,3 +2691,27 @@ auth:        PGPKEY-10B066BE
 mnt-by:      TEST-NOPASS-MNT
 source:      TEST
 
+key-cert:         X509-1
+method:           X509
+owner:            /C=NL/CN=ripe.net
+fingerpr:         69:72:42:9C:08:8C:C0:9F:D0:04:8E:B5:37:B3:A1:52
+certif:           -----BEGIN CERTIFICATE-----
+certif:           MIIBlzCCAT2gAwIBAgIUXAJaZhEFqWu90COw+dh/mTOi7MswCgYIKoZIzj0EAwIw
+certif:           IDELMAkGA1UEBhMCTkwxETAPBgNVBAMMCHJpcGUubmV0MCAXDTI2MDMyNzEwMjUz
+certif:           MFoYDzMwMjUwNzI4MTAyNTMwWjAgMQswCQYDVQQGEwJOTDERMA8GA1UEAwwIcmlw
+certif:           ZS5uZXQwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARwKUzGpXpIy54dhZDMUa/e
+certif:           ueqJLbyaIGVclotp6uc3rdWMh7ecM9X2D7xP6J3hV95PcQy2h683ur7WH/LiqQHp
+certif:           o1MwUTAdBgNVHQ4EFgQUrXI0wrYJa+GwFECCF/Arn3AOVfcwHwYDVR0jBBgwFoAU
+certif:           rXI0wrYJa+GwFECCF/Arn3AOVfcwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQD
+certif:           AgNIADBFAiEA4pFoh7ZqYEzq/16wbX4jTisN3HI2TeVFbCxcjimXUxgCIHT1rJdt
+certif:           1rIe7D9RgCwnUkDTrCJc7ogh6iRzdqE0ynqI
+certif:           -----END CERTIFICATE-----
+remarks:          -----BEGIN EC PRIVATE KEY-----
+remarks:          MHcCAQEEICZAzJNVGYmFM8NqbBKYA37KSxc3agoCm6RLWTyasDKhoAoGCCqGSM49
+remarks:          AwEHoUQDQgAEcClMxqV6SMueHYWQzFGv3rnqiS28miBlXJaLaernN63VjIe3nDPV
+remarks:          9g+8T+id4VfeT3EMtoevN7q+1h/y4qkB6Q==
+remarks:          -----END EC PRIVATE KEY-----
+mnt-by:           RIPE-DBM-STARTUP-MNT
+created:          2026-03-27T10:27:43Z
+last-modified:    2026-03-27T10:53:13Z
+source:           TEST

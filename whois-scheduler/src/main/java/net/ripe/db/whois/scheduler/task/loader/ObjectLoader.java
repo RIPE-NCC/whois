@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 
 @Component
 public class ObjectLoader {
-    private static final Pattern X509_PATTERN = Pattern.compile("(?i)^X509-([1-9][0-9]+)$");
+    private static final Pattern X509_PATTERN = Pattern.compile("(?i)^X509-([1-9][0-9]*)$");
     private static final Pattern ORGID_PATTERN = Pattern.compile("(?i)^ORG-([A-Z]{2,4})([0-9]+)-([A-Z0-9_-]+)$");
 
     private final RpslObjectDao rpslObjectDao;

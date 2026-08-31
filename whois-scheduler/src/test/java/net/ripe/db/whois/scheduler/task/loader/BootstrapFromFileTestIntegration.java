@@ -48,21 +48,23 @@ public class BootstrapFromFileTestIntegration extends AbstractSchedulerIntegrati
         bootstrap.setDumpFileLocation(applicationContext.getResource("TEST.db").getURI().getPath());
         final String result = bootstrap.bootstrap();
 
-        assertThat(result, containsString("FINISHED\n220 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
+        assertThat(result, containsString("FINISHED\n221 succeeded\n0 failed in pass 1\n0 failed in pass 2\n"));
 
         assertThat(result.toLowerCase(), not(containsString("error")));
 
         final DatabaseDiff diff = Database.diff(before, new Database(whoisTemplate));
 
         final Database added = diff.getAdded();
-        assertThat(added.getTable("serials"), hasSize(440));
-        assertThat(added.getTable("last"), hasSize(220));
-        assertThat(added.getTable("history"), hasSize(220));
+        assertThat(added.getTable("serials"), hasSize(442));
+        assertThat(added.getTable("last"), hasSize(221));
+        assertThat(added.getTable("history"), hasSize(221));
         assertThat(added.getTable("organisation_id"), hasSize(4));
         assertThat(added.getTable("nic_hdl").size(), greaterThan(5));
+        assertThat(added.getTable("x509").get(0).getInt("keycert_id"), is(1));
 
         final Database removed = diff.getRemoved();
-        assertThat(removed.getAll(), hasSize(0));
+        assertThat(removed.getAll(), hasSize(1));
+        assertThat(removed.getTable("x509").get(0).getInt("keycert_id"), is(0));
     }
 
     @Test

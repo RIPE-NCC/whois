@@ -46,8 +46,7 @@ public class Database {
 
                         // [EB]: We do *NOT* care for the lock table
                         if (tableName.equalsIgnoreCase("update_lock") ||
-                            tableName.equalsIgnoreCase("transfer_update_lock") ||
-                            tableName.equalsIgnoreCase("x509")) {
+                            tableName.equalsIgnoreCase("transfer_update_lock")) {
                             continue;
                         }
 
