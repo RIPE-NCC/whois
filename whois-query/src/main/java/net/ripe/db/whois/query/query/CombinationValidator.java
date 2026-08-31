@@ -40,8 +40,8 @@ class CombinationValidator implements QueryValidator {
         INVALID_COMBINATIONS.put(VALID_SYNTAX, Lists.newArrayList(NO_VALID_SYNTAX, LIST_VERSIONS, SHOW_VERSION, DIFF_VERSIONS));
 
         final Map<QueryFlag, List<QueryFlag>> limitedCombinations = Maps.newHashMap();
-        limitedCombinations.put(LIST_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT, CHARSET, NO_FILTERING));
-        limitedCombinations.put(SHOW_VERSION,  Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT, CHARSET, NO_FILTERING));
+        limitedCombinations.put(LIST_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT, CHARSET));
+        limitedCombinations.put(SHOW_VERSION,  Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT, CHARSET));
         limitedCombinations.put(DIFF_VERSIONS, Lists.newArrayList(SELECT_TYPES, PERSISTENT_CONNECTION, CLIENT, CHARSET));
 
         for (Map.Entry<QueryFlag, List<QueryFlag>> limitedCombinationEntry : limitedCombinations.entrySet()) {

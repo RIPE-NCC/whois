@@ -95,11 +95,8 @@ public class WhoisVersionService {
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addFlag(QueryFlag.LIST_VERSIONS);
 
-        if (isInternalUser(request, crowdTokenKey)) {
-            queryBuilder.addFlag(QueryFlag.NO_FILTERING);
-        }
-
-        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST,
+                isTrusted(request), isInternalUser(request, crowdTokenKey));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());
@@ -154,11 +151,8 @@ public class WhoisVersionService {
                 .addCommaList(QueryFlag.SELECT_TYPES, ObjectType.getByName(objectType).getName())
                 .addCommaList(QueryFlag.SHOW_VERSION, String.valueOf(objectVersion));
 
-        if (isInternalUser(request, crowdTokenKey)) {
-            queryBuilder.addFlag(QueryFlag.NO_FILTERING);
-        }
-
-        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST, isTrusted(request));
+        final Query query = Query.parse(queryBuilder.build(key), Query.Origin.REST,
+                isTrusted(request), isInternalUser(request, crowdTokenKey));
 
         final VersionsResponseHandler versionsResponseHandler = new VersionsResponseHandler();
         final int contextId = System.identityHashCode(Thread.currentThread());

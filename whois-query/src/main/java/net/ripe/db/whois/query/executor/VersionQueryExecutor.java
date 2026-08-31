@@ -115,7 +115,7 @@ public class VersionQueryExecutor implements QueryExecutor {
     }
 
     private static boolean isUnfilteredAllowed(final Query query) {
-        return query.isTrusted() && !query.isFiltered();
+        return query.isTrusted() && query.isInternalUser();
     }
 
     // TODO: [AH] make this streaming, too; objects could have thousands of versions
