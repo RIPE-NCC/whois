@@ -62,6 +62,14 @@ public class AbstractClientCertificateIntegrationTest extends AbstractHttpsInteg
         return CERTIFICATE_PRIVATE_KEY.getCertificate();
     }
 
+    public String getClientCertificateFilename() {
+        return CERTIFICATE_PRIVATE_KEY.getCertificateFilename();
+    }
+
+    public String getPrivateKeyFilename() {
+        return CERTIFICATE_PRIVATE_KEY.getPrivateKeyFilename();
+    }
+
     // helper methods
 
     // Use client certificate in SSL context

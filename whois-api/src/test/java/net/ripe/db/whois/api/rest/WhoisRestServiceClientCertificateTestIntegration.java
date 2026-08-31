@@ -219,6 +219,66 @@ public class WhoisRestServiceClientCertificateTestIntegration extends AbstractCl
     }
 
     @Test
+    public void update_person_with_second_client_cert_unsuccessful() {
+        // Owner maintainer
+
+        // generate client cert and add to mntner
+        final RpslObject keycertObject = createKeycertObject(getClientCertificate(), "OWNER-MNT");
+        databaseHelper.addObject(keycertObject);
+        final RpslObject updatedMntner = addAttribute(OWNER_MNT, AttributeType.AUTH, keycertObject.getKey());
+        databaseHelper.updateObject(updatedMntner);
+
+        // Another maintainer
+
+        databaseHelper.addObject("person: Another Person\nnic-hdl: AP1-TEST");
+        final RpslObject anotherMntner = RpslObject.parse(
+                "mntner:         ANOTHER-MNT\n" +
+                        "descr:          Another Maintainer\n" +
+                        "admin-c:        AP1-TEST\n" +
+                        "upd-to:         test@ripe.net\n" +
+                        "mnt-by:         ANOTHER-MNT\n" +
+                        "source:         TEST");
+        databaseHelper.addObject(anotherMntner);
+
+        // generate client cert and add to mntner
+        final CertificatePrivateKeyPair anotherCertificate = new CertificatePrivateKeyPair();
+        final RpslObject anotherLeycertObject = createKeycertObject(anotherCertificate.getCertificate(), "ANOTHER-MNT");
+        databaseHelper.addObject(anotherLeycertObject);
+        final RpslObject updatedAnotherMntner = addAttribute(anotherMntner, AttributeType.AUTH, anotherLeycertObject.getKey());
+        databaseHelper.updateObject(updatedAnotherMntner);
+
+        final RpslObject updatedAnotherPerson = RpslObject.parse(
+            "person: Another Person\n" +
+             "address: Amsterdam\n" +
+             "phone: +31 6 12345678\n" +
+             "e-mail:  noreply@ripe.net\n" +
+             "remarks: updated\n" +
+             "nic-hdl: AP1-TEST\n" +
+             "mnt-by: ANOTHER-MNT\n" +
+             "source: TEST");
+
+        final WhoisKeystore anotherKeystore = new WhoisKeystore(
+            new String[]{getPrivateKeyFilename()},
+            new String[]{getClientCertificateFilename(), anotherCertificate.getCertificateFilename()},
+            null);
+        final SSLContext anotherSSLContext = createSSLContext(anotherKeystore.getKeystore(), anotherKeystore.getPassword());
+
+        try {
+            // connect with OWNER-MNT mntner's client cert for authentication
+            final WhoisResources whoisResources = SecureRestTest.target(anotherSSLContext, getClientCertificatePort(), "whois/test/person/AP1-TEST")
+                    .request()
+                    .put(Entity.entity(map(updatedAnotherPerson), MediaType.APPLICATION_XML), WhoisResources.class);
+            fail();
+        } catch (NotAuthorizedException e) {
+            final WhoisResources whoisResources = e.getResponse().readEntity(WhoisResources.class);
+            RestTest.assertErrorCount(whoisResources, 1);
+            RestTest.assertErrorMessage(whoisResources, 0, "Error",
+                "Authorisation for [%s] %s failed\nusing \"%s:\"\n" +
+                 "not authenticated by: %s", "person", "AP1-TEST", "mnt-by", "ANOTHER-MNT");
+        }
+    }
+
+    @Test
     public void update_person_missing_private_key_unauthorised() throws Exception {
         // create certificate and don't use private key
         final CertificatePrivateKeyPair certificatePrivateKeyPair = new CertificatePrivateKeyPair();
