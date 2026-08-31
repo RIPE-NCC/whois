@@ -48,7 +48,6 @@ import java.util.regex.Pattern;
  *
  * Either use an existing keystore, or create a new one based on the private key and SSL certificate.
  */
-// TODO: [ES] remove duplicate WhoisKeystore class from whois-internal
 @Component
 public class WhoisKeystore {
 
@@ -331,7 +330,7 @@ public class WhoisKeystore {
         }
     }
 
-    private String writeKeyStoreNewFile(final KeyStore keyStore, final String filename) {
+    private String writeKeyStoreNewFile(final KeyStore keyStore, @Nullable final String filename) {
         return writeKeyStore(keyStore, StringUtils.isEmpty(filename) ? createTempFile() : createFile(filename));
     }
 
