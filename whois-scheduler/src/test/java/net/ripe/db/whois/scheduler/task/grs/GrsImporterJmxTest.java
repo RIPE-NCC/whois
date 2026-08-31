@@ -22,8 +22,7 @@ public class GrsImporterJmxTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        subject = new GrsImporterJmx(grsImporter, "validPhrase");
-        subject.setGrsDefaultSources("ARIN-GRS,APNIC-GRS");
+        subject = new GrsImporterJmx(grsImporter, "ARIN-GRS,APNIC-GRS", "validPhrase");
     }
 
     @Test

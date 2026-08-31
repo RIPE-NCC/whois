@@ -1,5 +1,6 @@
 package net.ripe.db.whois.scheduler.task.grs;
 
+import com.google.common.base.Strings;
 import net.ripe.db.whois.common.jmx.JmxBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,21 +21,18 @@ public class GrsImporterJmx extends JmxBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(GrsImporterJmx.class);
 
     private final GrsImporter grsImporter;
-
-    private String grsDefaultSources;
-    
+    private final String grsDefaultSources;
     private final String grsPassphrase;
 
     @Autowired
-    public GrsImporterJmx(final GrsImporter grsImporter, @Value("${grs.import.passphrase:}") final String validPassphrase) {
+    public GrsImporterJmx(
+            final GrsImporter grsImporter,
+            @Value("${grs.import.sources:}") final String grsDefaultSources,
+            @Value("${grs.import.passphrase:}") final String validPassphrase) {
         super(LOGGER);
         this.grsImporter = grsImporter;
-        this.grsPassphrase = validPassphrase;
-    }
-
-    @Value("${grs.import.sources:}")
-    void setGrsDefaultSources(final String grsDefaultSources) {
         this.grsDefaultSources = grsDefaultSources;
+        this.grsPassphrase = validPassphrase;
     }
 
     @ManagedAttribute(description = "Comma separated list of default GRS sources")
@@ -67,6 +65,9 @@ public class GrsImporterJmx extends JmxBase {
         return invokeOperation("GRS rebuild sources", comment, new Callable<String>() {
             @Override
             public String call() {
+                if (Strings.isNullOrEmpty(passphrase)) {
+                    throw new IllegalStateException("Rebuild not allowed without a passphrase");
+                }
                 if (!passphrase.equals(grsPassphrase)) {
                     return """
                             Warning
