@@ -52,6 +52,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_EXPIRED;
+import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
+import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_NON_EXISTING_API_KEY;
+import static net.ripe.db.whois.api.rest.WhoisRestApiKeyAuthTestIntegration.getBasicAuthHeader;
 import static net.ripe.db.whois.common.rpsl.RpslObjectFilter.buildGenericObject;
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -636,6 +640,138 @@ public class UpdateAndAuditLogTestIntegration extends AbstractHttpsIntegrationTe
         assertThat(updateLog.getMessage(0), not(containsString(OVERRIDE_PASSWORD)));
         assertThat(updateLog.getMessage(1), not(containsString(OVERRIDE_PASSWORD)));
     }
+
+    // Bearer
+    @Test
+    public void syncupdates_gets_logged_valid_bearer_session(){
+
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_TEST_NO_MNT))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(secondPerson.toString()),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
+        assertThat(audit, containsString("""
+            <credential>OAuthCredential{offeredUserSession=DefaultOauthSession{aud=[account, test], azp=Dummy Client, email=test@ripe.net, scopes=[whois.mntner:ANY.write], jti=null, errorStatus=null}}</credential>
+            """));
+    }
+
+    @Test
+    public void syncupdates_gets_logged_expired_bearer_session(){
+
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, getBearerToken(BASIC_AUTH_EXPIRED))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(secondPerson.toString()),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
+        assertThat(audit, containsString("""
+            <credential>OAuthCredential{offeredUserSession=DefaultOauthSession{aud=null, azp=null, email=null, scopes=null, jti=null, errorStatus=[OAUTH] Token has expired}}</credential>
+            """));
+    }
+
+    // OIDC
+    @Test
+    public void syncupdates_gets_logged_valid_oidc_session(){
+
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(BASIC_AUTH_TEST_NO_MNT))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(secondPerson.toString()),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
+        assertThat(audit, containsString("""
+            <credential>OAuthCredential{offeredUserSession=OidcSession{aud=[account, test], azp=test-app, email=test@ripe.net, scopes=[whois.mntner:ANY.write], jti=null, errorStatus=null}}</credential>
+            """));
+    }
+
+    @Test
+    public void syncupdates_gets_logged_expired_oidc_session(){
+
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(BASIC_AUTH_EXPIRED))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(secondPerson.toString()),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
+        assertThat(audit, containsString("""
+            <credential>OAuthCredential{offeredUserSession=OidcSession{aud=null, azp=null, email=null, scopes=null, jti=null, errorStatus=[OIDC] Token has expired}}</credential>
+            """));
+    }
+
+    @Test
+    public void syncupdates_gets_logged_unknown_session(){
+        // We do not know if it is an OAUTH2 call, or it is an OIDC. So the session is unknown.
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(BASIC_NON_EXISTING_API_KEY))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(secondPerson.toString()),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
+        assertThat(audit, containsString("""
+            <credential>OAuthCredential{offeredUserSession=UnknownSession{errorStatus=Invalid Bearer Token}}</credential>
+            """));
+    }
+
+    // APIKEYs
+    @Test
+    public void syncupdates_gets_logged_valid_apikeys(){
+
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_TEST_NO_MNT))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(secondPerson.toString()),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
+        assertThat(audit, containsString("""
+            <credential>OAuthCredential{offeredUserSession=APIKeySession{aud=[account, test], keyId=xTtroeeJVaifIcPGPYQndJhg, email=test@ripe.net, uuid=8ffe29be-89ef-41c8-ba7f-0e1553a623e5, scopes=[whois.mntner:ANY.write], azp=Dummy Client, jti=null, errorStatus=null}}</credential>
+            """));
+    }
+
+    @Test
+    public void syncupdates_gets_logged_expired_apikeys(){
+
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_AUTH_EXPIRED))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(secondPerson.toString()),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
+        assertThat(audit, containsString("""
+            <credential>OAuthCredential{offeredUserSession=APIKeySession{aud=null, keyId=YZIQIUM8NQZ7IJVIMGJFSCOG, email=null, uuid=null, scopes=null, azp=null, jti=null, errorStatus=[APIKEY] Token has expired}}</credential>
+            """));
+    }
+
+    @Test
+    public void syncupdates_gets_logged_invalid_apikeys(){
+
+        final RpslObject secondPerson = buildGenericObject(TEST_PERSON, "nic-hdl: TP2-TEST");
+        SecureRestTest.target(getSecurePort(), "whois/syncupdates/test")
+                .request()
+                .header(jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION, getBasicAuthHeader(BASIC_NON_EXISTING_API_KEY))
+                .post(Entity.entity("DATA=" +  SyncUpdateUtils.encode(secondPerson.toString()),
+                        MediaType.valueOf("application/x-www-form-urlencoded")), String.class);
+
+        final String audit = FileHelper.fetchGzip(new File(auditLog + "/20010204/130000.syncupdate_127.0.0.1_100/000.audit.xml.gz"));
+        assertThat(audit, containsString("""
+            <credential>OAuthCredential{offeredUserSession=APIKeySession{aud=null, keyId=h6lRZgvOFIphjiGwtCGuLwqw, email=null, uuid=null, scopes=null, azp=null, jti=null, errorStatus=Invalid APIKEY}}</credential>
+            """));
+    }
+
 
     // helper methods
 

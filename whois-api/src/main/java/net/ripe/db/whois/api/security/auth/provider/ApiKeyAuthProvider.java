@@ -35,15 +35,15 @@ public class ApiKeyAuthProvider implements AuthenticationProvider {
         final APIKeySession.Builder apiKeySessionBuilder = new APIKeySession.Builder();
 
         final String accessToken = getAccessTokenFromApiKey(authentication);
-        if (StringUtils.isEmpty(accessToken)) {
-            throw new AccessTokenValidationException("Invalid APIKEY");
-        }
 
         try {
+            apiKeySessionBuilder.keyId(authentication.getName());
+            if (StringUtils.isEmpty(accessToken)) {
+                throw new AccessTokenValidationException("Invalid APIKEY");
+            }
             final Jwt jwt = defaultTokenValidator.validate(accessToken, Update.EffectiveCredentialType.APIKEY);
 
             buildSession(apiKeySessionBuilder, jwt);
-            apiKeySessionBuilder.keyId(authentication.getName());
             final APIKeySession apiKeySession = apiKeySessionBuilder.build();
 
             return new ApiKeyAuthenticationToken(apiKeySession);

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.convertToOauthJwt;
 import static net.ripe.db.whois.api.OAuthTokenIntrospectDummy.convertToOidcJwt;
 
 public abstract class AbstractHttpsIntegrationTest extends AbstractIntegrationTest {
@@ -41,5 +42,9 @@ public abstract class AbstractHttpsIntegrationTest extends AbstractIntegrationTe
     protected String getBearerTokenForOidc(final String userKey) {
         return StringUtils.joinWith(" ","Bearer", convertToOidcJwt(userKey, oAuthTokenIntrospectDummy.getJwk(),
                 oAuthTokenIntrospectDummy.getPort(), APP_CLIENT_ID));
+    }
+
+    protected String getBearerToken(final String userKey) {
+        return StringUtils.joinWith(" ","Bearer", convertToOauthJwt(userKey, oAuthTokenIntrospectDummy.getJwk(), oAuthTokenIntrospectDummy.getPort()));
     }
 }
