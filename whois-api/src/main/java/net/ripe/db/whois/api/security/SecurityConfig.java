@@ -54,8 +54,15 @@ import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_UUID_PARAM;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final int CLIENT_CONNECT_TIMEOUT = 10_000;
-    private static final int CLIENT_READ_TIMEOUT = 60_000;
+    private final int connectTimeOutMs;
+
+    private final int readTimeOutMs;
+
+    SecurityConfig(@Value("${idp.connection.timeout.ms:10000}") final int connectTimeOutMs,
+                   @Value("${idp.read.timeout.ms:60000}") final int readTimeOutMs){
+        this.connectTimeOutMs = connectTimeOutMs;
+        this.readTimeOutMs = readTimeOutMs;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity,
@@ -97,7 +104,9 @@ public class SecurityConfig {
         final String jwksUri = metadata.getJWKSetURI().toString();
 
         // --- Base decoder (signature + exp + nbf + alg handling via JWKS) ---
-        final NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksUri).build();
+        final NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksUri)
+                .restOperations(createRestTemplate())
+                .build();
 
         // --- Combine all validators ---
         final OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(
@@ -195,7 +204,7 @@ public class SecurityConfig {
         return getTokenIntrospector(oidcProvider, whoisKeycloakId, keycloakPassword);
     }
 
-    private static OpaqueTokenIntrospector getTokenIntrospector(final OidcConfigurationProvider oidcProvider,
+    private OpaqueTokenIntrospector getTokenIntrospector(final OidcConfigurationProvider oidcProvider,
                                                                           final String clientId,
                                                                           final String clientPassword) {
         final OIDCProviderMetadata metadata = oidcProvider.getMetadataOrInitOidcConfiguration();
@@ -203,11 +212,7 @@ public class SecurityConfig {
             throw new IllegalStateException("OIDC metadata not initialized");
         }
 
-        final SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(CLIENT_CONNECT_TIMEOUT);
-        requestFactory.setReadTimeout(CLIENT_READ_TIMEOUT);
-
-        final RestTemplate restTemplate = new RestTemplate(requestFactory);
+        final RestTemplate restTemplate = createRestTemplate();
         restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(clientId, clientPassword));
 
         final String tokenInspectionEndpoint = metadata.getIntrospectionEndpointURI().toString();
@@ -267,5 +272,12 @@ public class SecurityConfig {
             );
             return OAuth2TokenValidatorResult.failure(error);
         };
+    }
+
+    private RestTemplate createRestTemplate() {
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(this.connectTimeOutMs);
+        requestFactory.setReadTimeout(this.readTimeOutMs);
+        return new RestTemplate(requestFactory);
     }
 }
