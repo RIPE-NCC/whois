@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.credentials;
 
+import com.google.common.base.MoreObjects;
 import net.ripe.db.whois.common.x509.X509CertificateWrapper;
 
 import java.security.cert.X509Certificate;
@@ -35,7 +36,9 @@ public class ClientCertificateCredential implements Credential {
 
     @Override
     public String toString() {
-        return "ClientCertificateCredential";
+        return MoreObjects.toStringHelper(this)
+                .add("Fingerprint", x509CertificateWrapper.getFingerprint())
+                .toString();
     }
 
     public String getFingerprint() {
