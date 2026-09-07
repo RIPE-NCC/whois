@@ -10,14 +10,14 @@ import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.common.rpsl.ObjectType;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
+import net.ripe.db.whois.common.rpsl.*;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterPersonalDataFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
+import net.ripe.db.whois.common.sso.AuthServiceClient;
+import net.ripe.db.whois.common.sso.AuthServiceClientException;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -26,15 +26,14 @@ import net.ripe.db.whois.query.domain.VersionDiffResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Matcher;
 
 @Component
 public class VersionQueryExecutor implements QueryExecutor {
@@ -43,6 +42,8 @@ public class VersionQueryExecutor implements QueryExecutor {
     private final static String VERSION_HEADER = "rev#";
     private final static String DATE_HEADER = "Date";
     private final static String OPERATION_HEADER = "Op.";
+    private final AuthServiceClient authServiceClient;
+    private final static Logger LOGGER = LoggerFactory.getLogger(VersionQueryExecutor.class);
 
     private static final FilterEmailFunction FILTER_EMAIL_FUNCTION = new FilterEmailFunction();
     private static final FilterAuthFunction FILTER_AUTH_FUNCTION = new FilterAuthFunction();
@@ -53,8 +54,9 @@ public class VersionQueryExecutor implements QueryExecutor {
     protected final BasicSourceContext sourceContext;
 
     @Autowired
-    public VersionQueryExecutor(final BasicSourceContext sourceContext, @Qualifier("jdbcVersionDao") final VersionDao versionDao) {
+    public VersionQueryExecutor(final BasicSourceContext sourceContext, AuthServiceClient authServiceClient, @Qualifier("jdbcVersionDao") final VersionDao versionDao) {
         this.sourceContext = sourceContext;
+        this.authServiceClient = authServiceClient;
         this.versionDao = versionDao;
     }
 
@@ -98,7 +100,10 @@ public class VersionQueryExecutor implements QueryExecutor {
     private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
         final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, responseObject -> {
                 if (responseObject instanceof RpslObject) {
-                    ResponseObject filtered = filter((RpslObject) responseObject);
+                    ResponseObject filtered = isUnfilteredAllowed(query)
+                            ? translateSsoAuth((RpslObject) responseObject)
+                            : filter((RpslObject) responseObject);
+
                     if (query.isObjectVersion()) {
                         filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
                     }
@@ -111,6 +116,29 @@ public class VersionQueryExecutor implements QueryExecutor {
             return Collections.singletonList(new MessageObject(QueryMessages.noResults(sourceContext.getCurrentSource().getName())));
         }
         return objects;
+    }
+
+    private RpslObject translateSsoAuth(final RpslObject rpslObject) {
+        final Map<RpslAttribute, RpslAttribute> replace = new HashMap<>();
+
+        for (final RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
+            final Matcher matcher = FilterAuthFunction.SSO_PATTERN.matcher(auth.getCleanValue().toString());
+
+            if (matcher.matches()) {
+                try {
+                    replace.put(auth, new RpslAttribute(auth.getKey(),
+                            "SSO " + authServiceClient.getUsername(matcher.group(1))));
+                } catch (AuthServiceClientException e) {
+                    LOGGER.debug("Could not translate SSO uuid {}: {}", matcher.group(1), e.getMessage());
+                }
+            }
+        }
+
+        return replace.isEmpty() ? rpslObject : new RpslObjectBuilder(rpslObject).replaceAttributes(replace).get();
+    }
+
+    private static boolean isUnfilteredAllowed(final Query query) {
+        return query.isTrusted() && query.isInternalUser();
     }
 
     // TODO: [AH] make this streaming, too; objects could have thousands of versions

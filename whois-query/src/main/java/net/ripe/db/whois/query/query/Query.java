@@ -69,6 +69,7 @@ public class Query {
     private List<String> passwords;
     private UserSession userSession;
     private AbstractOAuthSession abstractOAuthSession;
+    private boolean internalUser;
     private final Origin origin;
     private final boolean trusted;
     // TODO: [AH] we should use -x flag for direct match for all object types instead of this hack
@@ -93,6 +94,17 @@ public class Query {
         matchOperation = parseMatchOperations();
         this.origin = origin;
         this.trusted = trusted;
+    }
+
+    public static Query parse(final String args, final Origin origin, final boolean trusted, final boolean internalUser) {
+        final Query query = parse(args, origin, trusted);
+        query.internalUser = internalUser;
+
+        return query;
+    }
+
+    public boolean isInternalUser() {
+        return internalUser;
     }
 
     public static Query parse(final String args) {
