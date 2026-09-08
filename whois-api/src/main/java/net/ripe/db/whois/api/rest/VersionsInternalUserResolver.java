@@ -50,7 +50,7 @@ public class VersionsInternalUserResolver {
             return false;
         }
 
-        LOGGER.debug("Internal user {} granted full version history access from {}",
+        LOGGER.info("Internal user {} granted full version history access from {}",
                 userSession.getUsername(), remoteAddress.getHostAddress());
 
         return true;
