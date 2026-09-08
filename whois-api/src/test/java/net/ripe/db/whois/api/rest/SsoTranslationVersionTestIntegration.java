@@ -7,7 +7,11 @@ import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -117,6 +121,33 @@ public class SsoTranslationVersionTestIntegration extends AbstractIntegrationTes
 
         assertThat(response, containsString("SSO " + unknownUuid));
         assertThat(response, not(containsString("# Filtered")));
+    }
+
+    @Test
+    public void warning_when_sso_email_changed_since_last_modified() {
+        databaseHelper.addObject(
+                """
+                mntner:      RENAMED-SSO-MNT
+                descr:       sso email changed after last update
+                admin-c:     TP1-TEST
+                upd-to:      noreply@ripe.net
+                auth:        SSO new.name@net.net
+                mnt-by:      OWNER-MNT
+                last-modified: 2005-01-01T00:00:00Z
+                source:      TEST
+                """);
+
+        final String response = internal("whois/test/mntner/RENAMED-SSO-MNT/versions/1", MediaType.TEXT_PLAIN).get(String.class);
+
+        assertThat(response, containsString("SSO new.name@net.net # WARNING: SSO email was old.name@net.net"));
+    }
+
+    @Test
+    public void no_warning_and_no_error_when_version_has_no_last_modified() {
+        final String response = internal(MNTNER_VERSION_PATH, MediaType.TEXT_PLAIN).get(String.class);
+
+        assertThat(response, containsString("SSO person@net.net"));
+        assertThat(response, not(containsString("WARNING")));
     }
 
     private Invocation.Builder internal(final String path, final String mediaType) {

@@ -50,7 +50,8 @@ public class AuthServiceServerDummy implements Stub {
         {
             usermap = Maps.newHashMap();
             usermap.put("db-test@ripe.net", new SSOUser("db-test@ripe.net","Db","User","ed7cd420-6402-11e3-949a-0800200c9a66", true));
-            usermap.put("random@ripe.net", new SSOUser("random@ripe.net", "Random","User", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", true));
+            usermap.put("new.name@net.net", new SSOUser("new.name@net.net", "Renamed", "User", "aaaa1111-aaaa-1111-aaaa-1111aaaa1111", true));
+            usermap.put("aaaa1111-aaaa-1111-aaaa-1111aaaa1111", new SSOUser("new.name@net.net", "Renamed", "User", "aaaa1111-aaaa-1111-aaaa-1111aaaa1111", true));            usermap.put("random@ripe.net", new SSOUser("random@ripe.net", "Random","User", "017f750e-6eb8-4ab1-b5ec-8ad64ce9a503", true));
             usermap.put("test@ripe.net", new SSOUser("test@ripe.net", "Ripe","User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", true));
             usermap.put("person@net.net", new SSOUser("person@net.net", "Test","User", "906635c2-0405-429a-800b-0602bd716124", true));
             usermap.put("noreply@ripe.net", new SSOUser("noreply@ripe.net", "Test","User", "306635c2-0405-429a-800b-0602bd716124", true));
@@ -171,29 +172,33 @@ public class AuthServiceServerDummy implements Stub {
         }
 
         private String serializeHistoricalDetails(final SSOUser user){
+            final String oldEmail = "aaaa1111-aaaa-1111-aaaa-1111aaaa1111".equals(user.getUuid())
+                    ? "old.name@net.net"
+                    : user.getEmail();
+
             return String.format("""
-                    {
-                      "response": {
-                        "results": [
-                     \
-                        {
-                          "eventDateTime": "2015-05-08T12:32:01.275379Z",
-                          "action": "EMAIL_CHANGE",
-                          "uuid": "%s",
-                          "actor": "%s",
-                          "actingService": "crowd_email_migration",
-                          "staff": false,
-                          "attributeChanges": [
-                          {
-                             "name": "email",
-                             "oldValue": "%s",
-                             "newValue": "%s"
-                          }
-                          ]
-                        }
-                        ]
-                      }
-                    }""",  user.getUuid(), user.getEmail(), user.getEmail(), user.getEmail());
+            {
+              "response": {
+                "results": [
+             \
+                {
+                  "eventDateTime": "2015-05-08T12:32:01.275379Z",
+                  "action": "EMAIL_CHANGE",
+                  "uuid": "%s",
+                  "actor": "%s",
+                  "actingService": "crowd_email_migration",
+                  "staff": false,
+                  "attributeChanges": [
+                  {
+                     "name": "email",
+                     "oldValue": "%s",
+                     "newValue": "%s"
+                  }
+                  ]
+                }
+                ]
+              }
+            }""", user.getUuid(), user.getEmail(), oldEmail, user.getEmail());
         }
     }
 
