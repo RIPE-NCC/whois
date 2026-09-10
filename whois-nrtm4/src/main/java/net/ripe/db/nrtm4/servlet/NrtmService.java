@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.nrtm4.dao.DeltaFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.NrtmKeyConfigDao;
-import net.ripe.db.nrtm4.dao.NrtmSourceDao;
+import net.ripe.db.nrtm4.dao.NrtmSourceSlaveDao;
 import net.ripe.db.nrtm4.dao.SnapshotFileSourceAwareDao;
 import net.ripe.db.nrtm4.dao.UpdateNotificationFileSourceAwareDao;
 import net.ripe.db.nrtm4.domain.NrtmDocumentType;
@@ -34,13 +34,13 @@ public class NrtmService {
     private final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao;
     private final DeltaFileSourceAwareDao deltaFileSourceAwareDao;
     private final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao;
-    private final NrtmSourceDao nrtmSourceDao;
+    private final NrtmSourceSlaveDao nrtmSourceDao;
     private final NrtmKeyConfigDao nrtmKeyConfigDao;
     final String nrtmUrl;
 
     @Autowired
     public NrtmService(@Value("${nrtm.baseUrl:}") final String nrtmUrl,
-                             final NrtmSourceDao nrtmSourceDao,
+                             final NrtmSourceSlaveDao nrtmSourceDao,
                              final UpdateNotificationFileSourceAwareDao updateNotificationFileSourceAwareDao,
                              final SnapshotFileSourceAwareDao snapshotFileSourceAwareDao,
                              final NrtmKeyConfigDao nrtmKeyConfigDao,
@@ -107,7 +107,10 @@ public class NrtmService {
     }
 
     private NrtmSource getSource(final String source) {
-        return nrtmSourceDao.getSources().stream().filter(sourceModel -> sourceModel.getName().equals(source)).findFirst().orElseThrow(() -> new BadRequestException("Invalid source"));
+        return nrtmSourceDao.getSources().stream()
+            .filter(sourceModel -> sourceModel.getName().equals(source))
+            .findFirst()
+            .orElseThrow(() -> new BadRequestException("Invalid source"));
     }
 
     private String filenameWithExt(final String filename) {

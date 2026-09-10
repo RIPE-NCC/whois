@@ -4,6 +4,7 @@ import net.ripe.db.nrtm4.domain.NrtmSource;
 import net.ripe.db.whois.common.domain.CIString;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
-
+@Primary
 @Repository
 public class NrtmSourceDao {
 
