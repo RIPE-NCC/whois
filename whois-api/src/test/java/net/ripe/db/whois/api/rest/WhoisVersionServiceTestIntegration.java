@@ -22,6 +22,7 @@ import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_EXPIRED;
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_PERSON_ANY_MNT;
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
 
+import static net.ripe.db.whois.api.rest.WhoisVersionFullHistoryTestIntegration.AUTNUM_V2;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import net.ripe.db.whois.common.MaintenanceMode;
@@ -820,6 +821,20 @@ public class WhoisVersionServiceTestIntegration extends AbstractHttpsIntegration
         for (int i = 0; i < originalAttributes.size(); i++) {
             assertThat(originalAttributes.get(i).getCleanValue().toString(), is(attributes.get(i).getValue()));
         }
+    }
+
+    @Test
+    public void oidc_internal_user_sees_full_history_across_deletions() {
+        databaseHelper.addObject(AUTNUM_V2);
+        databaseHelper.deleteObject(AUTNUM_V2);
+        databaseHelper.addObject(AUTNUM_V2);
+
+        final WhoisResources whoisResources = SecureRestTest.target(getSecurePort(), "whois/test/aut-num/AS102/versions")
+                .request(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, getBearerTokenForOidc(BASIC_AUTH_PERSON_ANY_MNT))
+                .get(WhoisResources.class);
+
+        assertThat(whoisResources.getVersions().getVersions(), hasSize(3));
     }
 
     @Test

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
-import static net.ripe.db.whois.api.rest.WhoisRestOidcAuthTokenIntrospectionTestIntegration.APP_CLIENT_ID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;

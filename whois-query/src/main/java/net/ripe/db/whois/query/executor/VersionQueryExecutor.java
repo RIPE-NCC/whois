@@ -10,7 +10,12 @@ import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.serials.Operation;
-import net.ripe.db.whois.common.rpsl.*;
+import net.ripe.db.whois.common.rpsl.ObjectType;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import net.ripe.db.whois.common.rpsl.AttributeType;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObjectBuilder;
+import net.ripe.db.whois.common.rpsl.RpslObjectFilter;
 import net.ripe.db.whois.common.rpsl.transform.FilterAuthFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterChangedFunction;
 import net.ripe.db.whois.common.rpsl.transform.FilterEmailFunction;
@@ -34,6 +39,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.IntStream;
 
 @Component
 public class VersionQueryExecutor implements QueryExecutor {
@@ -160,8 +166,11 @@ public class VersionQueryExecutor implements QueryExecutor {
                 continue;
             }
 
-            final List<VersionInfo> versionInfos = versionLookupResult.getMostRecentlyCreatedVersions();
+            final boolean isFullHistoryAllowed = isFullHistoryAllowed(query);
+            final List<VersionInfo> versionInfos = isFullHistoryAllowed ? versionLookupResult.getAllVersions() : versionLookupResult.getMostRecentlyCreatedVersions();
             final VersionDateTime lastDeletionTimestamp = versionLookupResult.getLastDeletionTimestamp();
+            // An empty list here can only be the external view: the full history always contains
+            // the deletion entries themselves, so for internal callers this branch is unreachable
             if (versionInfos.isEmpty() && lastDeletionTimestamp != null) {
                 results.add(new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)));
                 results.add(new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, searchKey));
@@ -178,34 +187,40 @@ public class VersionQueryExecutor implements QueryExecutor {
 
             // all good, dispatch
             if (query.isVersionList()) {
-                Iterables.addAll(results, getAllVersions(versionLookupResult, searchKey));
+                Iterables.addAll(results, getAllVersions(versionLookupResult, versionInfos, isFullHistoryAllowed, searchKey));
             } else if (query.isVersionDiff()) {
-                Iterables.addAll(results, getVersionDiffs(versionLookupResult, versions));
+                Iterables.addAll(results, getVersionDiffs(versionInfos, versions));
             } else {
-                Iterables.addAll(results, getVersion(versionLookupResult, version));
+                Iterables.addAll(results, getVersion(versionInfos, version));
             }
         }
         return results;
     }
 
-    private Iterable<? extends ResponseObject> getAllVersions(final VersionLookupResult res, final String searchKey) {
+    private static boolean isFullHistoryAllowed(final Query query) {
+        return query.isTrusted() && query.isInternalUser();
+    }
+
+    private Iterable<? extends ResponseObject> getAllVersions(final VersionLookupResult res,
+                                                              final List<VersionInfo> versionInfos,
+                                                              final boolean fullHistory,
+                                                              final String searchKey) {
         final ObjectType objectType = res.getObjectType();
         final List<ResponseObject> messages = Lists.newArrayList();
         messages.add(new MessageObject(QueryMessages.versionListStart(objectType.getName().toUpperCase(), searchKey)));
 
-        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
         final String pkey = res.getPkey();
-        if (lastDeletionTimestamp != null) {
+
+        final VersionDateTime lastDeletionTimestamp = res.getLastDeletionTimestamp();
+        if (!fullHistory && lastDeletionTimestamp != null) {
             messages.add(new DeletedVersionResponseObject(lastDeletionTimestamp, objectType, pkey));
         }
 
-        final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
         int versionPadding = getPadding(versionInfos.size());
 
         messages.add(new MessageObject(String.format("%-" + versionPadding + "s  %-16s  %-7s\n", VERSION_HEADER, DATE_HEADER, OPERATION_HEADER)));
 
         if (versionInfos.isEmpty()) {
-            // if there is no version history present, do not add trailing EOL
             return messages;
         }
 
@@ -219,10 +234,9 @@ public class VersionQueryExecutor implements QueryExecutor {
         return messages;
     }
 
-    private Iterable<? extends ResponseObject> getVersion(final VersionLookupResult res, final int version) {
-        final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
+    private Iterable<? extends ResponseObject> getVersion(final List<VersionInfo> versionInfos, final int version) {
         final VersionInfo info = versionInfos.get(version - 1);
-        final RpslObject rpslObject = versionDao.getRpslObject(info);
+        final RpslObject rpslObject = getRpslObject(versionInfos, version - 1);
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionInformation(version,
@@ -234,10 +248,32 @@ public class VersionQueryExecutor implements QueryExecutor {
         );
     }
 
-    private Iterable<? extends ResponseObject> getVersionDiffs(final VersionLookupResult res, final int[] versions) {
-        final List<VersionInfo> versionInfos = res.getMostRecentlyCreatedVersions();
-        final RpslObject firstObject = filter(versionDao.getRpslObject(versionInfos.get(versions[0] - 1)));
-        final RpslObject secondObject = filter(versionDao.getRpslObject(versionInfos.get(versions[1] - 1)));
+    private RpslObject getRpslObject(final List<VersionInfo> versionInfos, final int index) {
+        final VersionInfo info = versionInfos.get(index);
+
+        if (info.getOperation() != Operation.DELETE) {
+            return versionDao.getRpslObject(info);
+        }
+
+        return findFirstNonDeletedObjectVersion(index, versionInfos, info);
+    }
+
+    private RpslObject findFirstNonDeletedObjectVersion(final int index, final List<VersionInfo> versionInfos, final VersionInfo info) {
+        return IntStream.rangeClosed(0, index - 1)
+                .boxed()
+                .sorted(Comparator.reverseOrder())
+                .map(versionInfos::get)
+                .filter(previous -> previous.getObjectId() == info.getObjectId()
+                        && previous.getOperation() != Operation.DELETE)
+                .findFirst()
+                .map(versionDao::getRpslObject)
+                .orElseThrow(() -> new IllegalStateException(
+                        "No object content found before deletion at version " + (index + 1)));
+    }
+
+    private Iterable<? extends ResponseObject> getVersionDiffs(final List<VersionInfo> versionInfos, final int[] versions) {
+        final RpslObject firstObject = filter(getRpslObject(versionInfos, versions[0] - 1));
+        final RpslObject secondObject = filter(getRpslObject(versionInfos, versions[1] - 1));
 
         return Lists.newArrayList(
                 new MessageObject(QueryMessages.versionDifferenceHeader(versions[0], versions[1], firstObject.getKey())),
@@ -284,5 +320,4 @@ public class VersionQueryExecutor implements QueryExecutor {
                     FILTER_AUTH_FUNCTION.apply(
                         FILTER_EMAIL_FUNCTION.apply(rpslObject))));
     }
-
 }
