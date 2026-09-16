@@ -52,5 +52,10 @@ public class SelfReferencePreventionValidator implements BusinessRuleValidator {
     public ImmutableList<ObjectType> getTypes() {
         return TYPES;
     }
+
+    @Override
+    public boolean isSkipForOverride() {
+        return true;
+    }
 }
 

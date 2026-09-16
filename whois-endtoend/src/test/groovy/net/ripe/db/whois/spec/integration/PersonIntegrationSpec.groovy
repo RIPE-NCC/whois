@@ -211,6 +211,19 @@ class PersonIntegrationSpec extends BaseWhoisSourceSpec {
         response =~ /Error:   Self reference is not allowed for attribute type "tech-c"/
     }
 
+    def "update self referencing role with override"() {
+      given:
+        def role = new SyncUpdate(data: ("" +
+                fixtures["SELF-REF"].stripIndent(true) +
+                "override: denis,override1\n" =~ /admin-c: RL2-RIPE/).replaceFirst("admin-c:RL-TEST"))
+
+      when:
+        def response = syncUpdate role
+
+      then:
+        response =~ /SUCCESS/
+    }
+
     def "create person"() {
       given:
         def person = new SyncUpdate(data: """\
