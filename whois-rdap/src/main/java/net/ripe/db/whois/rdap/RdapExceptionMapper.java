@@ -1,5 +1,7 @@
 package net.ripe.db.whois.rdap;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.ErrorCause;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import jakarta.servlet.http.HttpServletResponse;
@@ -63,6 +65,11 @@ public class RdapExceptionMapper implements ExceptionMapper<Exception> {
         }
         if (exception instanceof NotAllowedException) {
             return createErrorResponse(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Not Allowed");
+        }
+
+        if (exception instanceof ElasticsearchException esException) {
+            final ErrorCause error = esException.error();
+            LOGGER.error("ES search failed: type={}, reason={}, rootCause={}", error.type(), error.reason(), error.rootCause());
         }
 
         LOGGER.error("Unexpected", exception);
