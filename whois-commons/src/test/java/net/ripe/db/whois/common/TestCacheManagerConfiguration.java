@@ -14,10 +14,17 @@ import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.API_KEY_OAUTH;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_HISTORICAL_USER_DETAILS;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_USER_DETAILS;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_UUID;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_VALIDATE_TOKEN;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.USER_BY_EMAIL;
+
 @Profile({WhoisProfile.TEST})
 @EnableCaching(mode = AdviceMode.ASPECTJ)
 @Configuration
-public class TestCacheManagerProvider {
+public class TestCacheManagerConfiguration {
 
     private CacheManager cacheManager = null;
 
@@ -26,12 +33,12 @@ public class TestCacheManagerProvider {
         if (this.cacheManager == null) {
             final SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
             final List<Cache> caches = Lists.newArrayList();
-            caches.add(new ConcurrentMapCache("ssoUuid"));
-            caches.add(new ConcurrentMapCache("ssoUserDetails"));
-            caches.add(new ConcurrentMapCache("ssoValidateToken"));
-            caches.add(new ConcurrentMapCache("ssoHistoricalUserDetails"));
-            caches.add(new ConcurrentMapCache("userByEmail"));
-            caches.add(new ConcurrentMapCache("apiKeyOAuth"));
+            caches.add(new ConcurrentMapCache(SSO_UUID));
+            caches.add(new ConcurrentMapCache(SSO_USER_DETAILS));
+            caches.add(new ConcurrentMapCache(SSO_VALIDATE_TOKEN));
+            caches.add(new ConcurrentMapCache(SSO_HISTORICAL_USER_DETAILS));
+            caches.add(new ConcurrentMapCache(USER_BY_EMAIL));
+            caches.add(new ConcurrentMapCache(API_KEY_OAUTH));
             simpleCacheManager.setCaches(caches);
             this.cacheManager = simpleCacheManager;
         }

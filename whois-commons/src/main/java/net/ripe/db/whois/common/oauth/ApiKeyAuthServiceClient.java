@@ -29,6 +29,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.API_KEY_OAUTH;
+
 @Component
 public class ApiKeyAuthServiceClient {
 
@@ -66,7 +68,7 @@ public class ApiKeyAuthServiceClient {
                 .build();
     }
 
-    @Cacheable(cacheNames="apiKeyOAuth", unless = "#result == null")
+    @Cacheable(cacheNames=API_KEY_OAUTH, unless = "#result == null")
     @Nullable
     public String validateApiKey(final String basicHeader,  final String apiKeyId) {
         final Stopwatch stopwatch = Stopwatch.createStarted();

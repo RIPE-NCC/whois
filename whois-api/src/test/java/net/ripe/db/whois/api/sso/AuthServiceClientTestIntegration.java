@@ -16,6 +16,11 @@ import org.springframework.cache.CacheManager;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_HISTORICAL_USER_DETAILS;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_USER_DETAILS;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_UUID;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_VALIDATE_TOKEN;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.USER_BY_EMAIL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -38,51 +43,52 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
     @BeforeEach
     public void clearCache() {
-        cacheManager.getCache("ssoValidateToken").clear();
-        cacheManager.getCache("ssoUuid").clear();
-        cacheManager.getCache("ssoUserDetails").clear();
-        cacheManager.getCache("ssoHistoricalUserDetails").clear();
+        cacheManager.getCache(SSO_VALIDATE_TOKEN).clear();
+        cacheManager.getCache(SSO_UUID).clear();
+        cacheManager.getCache(SSO_USER_DETAILS).clear();
+        cacheManager.getCache(SSO_HISTORICAL_USER_DETAILS).clear();
+        cacheManager.getCache(USER_BY_EMAIL).clear();
     }
 
     @Test
     public void get_validate_token_response_is_cached() {
-        assertThat(cacheManager.getCache("ssoValidateToken").get(TOKEN), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_VALIDATE_TOKEN).get(TOKEN), is(nullValue()));
 
         final ValidateTokenResponse userDetails = authServiceClient.validateToken(TOKEN);
 
         assertThat(userDetails.response.content.email, is(USER_EMAIL));
-        assertThat(((ValidateTokenResponse)cacheManager.getCache("ssoValidateToken").get(TOKEN).get()).response.content.email, is(USER_EMAIL));
+        assertThat(((ValidateTokenResponse)cacheManager.getCache(SSO_VALIDATE_TOKEN).get(TOKEN).get()).response.content.email, is(USER_EMAIL));
     }
 
     @Test
     public void get_sso_uuid_response_is_cached() {
-        assertThat(cacheManager.getCache("ssoUuid").get(USER_EMAIL), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_UUID).get(USER_EMAIL), is(nullValue()));
 
         final String userUuid = authServiceClient.getUuid(USER_EMAIL);
 
         assertThat(userUuid, is(UUID));
-        assertThat(cacheManager.getCache("ssoUuid").get(USER_EMAIL).get().toString(), is(UUID));
+        assertThat(cacheManager.getCache(SSO_UUID).get(USER_EMAIL).get().toString(), is(UUID));
     }
 
     @Test
     public void get_user_details_response_is_cached() {
-        assertThat(cacheManager.getCache("ssoUserDetails").get(UUID), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_USER_DETAILS).get(UUID), is(nullValue()));
 
         final ValidateTokenResponse userDetails = authServiceClient.getUserDetails(UUID);
 
         assertThat(userDetails.response.content.email, is(USER_EMAIL));
-        assertThat(((ValidateTokenResponse)cacheManager.getCache("ssoUserDetails").get(UUID).get()).response.content.email
+        assertThat(((ValidateTokenResponse)cacheManager.getCache(SSO_USER_DETAILS).get(UUID).get()).response.content.email
                 , is(USER_EMAIL));
     }
 
     @Test
     public void get_historical_user_details_response_is_cached() {
-        assertThat(cacheManager.getCache("ssoHistoricalUserDetails").get(UUID), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_HISTORICAL_USER_DETAILS).get(UUID), is(nullValue()));
 
         final HistoricalUserResponse historicalUserDetails = authServiceClient.getHistoricalUserDetails(UUID);
 
         assertThat(historicalUserDetails.response.results.size(), is(1));
-        assertThat(((HistoricalUserResponse)cacheManager.getCache("ssoHistoricalUserDetails").get(UUID).get())
+        assertThat(((HistoricalUserResponse)cacheManager.getCache(SSO_HISTORICAL_USER_DETAILS).get(UUID).get())
                         .response.results.get(0).action,
                 is("EMAIL_CHANGE"));
     }
@@ -98,66 +104,66 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     // Errors
     @Test
     public void get_validate_token_response_null_input_then_error() {
-        assertThat(cacheManager.getCache("ssoValidateToken").get(TOKEN), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_VALIDATE_TOKEN).get(TOKEN), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
             authServiceClient.validateToken(null);
         });
 
         assertThat(authServiceClientException.getMessage(), is("No Token."));
-        assertThat(cacheManager.getCache("ssoValidateToken").get(TOKEN), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_VALIDATE_TOKEN).get(TOKEN), is(nullValue()));
     }
 
     @Test
     public void get_sso_uuid_response_null_input_then_error() {
-        assertThat(cacheManager.getCache("ssoUuid").get(USER_EMAIL), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_UUID).get(USER_EMAIL), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
             authServiceClient.getUuid(null);
         });
 
         assertThat(authServiceClientException.getMessage(), is("No username."));
-        assertThat(cacheManager.getCache("ssoUuid").get(USER_EMAIL), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_UUID).get(USER_EMAIL), is(nullValue()));
     }
 
     @Test
     public void get_user_details_response_null_input_then_error() {
-        assertThat(cacheManager.getCache("ssoUserDetails").get(UUID), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_USER_DETAILS).get(UUID), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
             authServiceClient.getUserDetails(null);
         });
 
         assertThat(authServiceClientException.getMessage(), is("No UUID."));
-        assertThat(cacheManager.getCache("ssoUserDetails").get(UUID), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_USER_DETAILS).get(UUID), is(nullValue()));
     }
 
     @Test
     public void get_historical_user_details_response_null_input_then_error() {
-        assertThat(cacheManager.getCache("ssoHistoricalUserDetails").get(UUID), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_HISTORICAL_USER_DETAILS).get(UUID), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
             authServiceClient.getHistoricalUserDetails(null);
         });
 
         assertThat(authServiceClientException.getMessage(), is("No UUID."));
-        assertThat(cacheManager.getCache("ssoHistoricalUserDetails").get(UUID), is(nullValue()));
+        assertThat(cacheManager.getCache(SSO_HISTORICAL_USER_DETAILS).get(UUID), is(nullValue()));
     }
 
     @Test
     public void get_user_details_response(){
-        assertThat(Objects.requireNonNull(cacheManager.getCache("userByEmail")).get(USER_EMAIL), is(nullValue()));
+        assertThat(Objects.requireNonNull(cacheManager.getCache(USER_BY_EMAIL)).get(USER_EMAIL), is(nullValue()));
 
         final UserDetailsResponse validateTokenResponse = authServiceClient.getUserInfoByEmail(USER_EMAIL);
         assertThat(validateTokenResponse.content.firstName, is(not(nullValue())));
         assertThat(validateTokenResponse.content.login, is(USER_EMAIL));
 
-        assertThat(cacheManager.getCache("userByEmail").get(USER_EMAIL), is(not(nullValue())));
+        assertThat(cacheManager.getCache(USER_BY_EMAIL).get(USER_EMAIL), is(not(nullValue())));
     }
 
     @Test
     public void get_user_details_response_with_not_known_email_401(){
-        assertThat(Objects.requireNonNull(cacheManager.getCache("userByEmail")).get(USER_EMAIL), is(nullValue()));
+        assertThat(Objects.requireNonNull(cacheManager.getCache(USER_BY_EMAIL)).get(USER_EMAIL), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
             authServiceClient.getUserInfoByEmail("random_email");
@@ -165,12 +171,12 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(authServiceClientException.getCode(), is(HttpStatus.UNAUTHORIZED_401));
 
-        assertThat(cacheManager.getCache("userByEmail").get(USER_EMAIL), is(nullValue()));
+        assertThat(cacheManager.getCache(USER_BY_EMAIL).get(USER_EMAIL), is(nullValue()));
     }
 
     @Test
     public void get_user_details_response_with_null_email_400(){
-        assertThat(Objects.requireNonNull(cacheManager.getCache("userByEmail")).get(USER_EMAIL), is(nullValue()));
+        assertThat(Objects.requireNonNull(cacheManager.getCache(USER_BY_EMAIL)).get(USER_EMAIL), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
             authServiceClient.getUserInfoByEmail(null);
@@ -178,7 +184,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
         assertThat(authServiceClientException.getCode(), is(HttpStatus.BAD_REQUEST_400));
 
-        assertThat(cacheManager.getCache("userByEmail").get(USER_EMAIL), is(nullValue()));
+        assertThat(cacheManager.getCache(USER_BY_EMAIL).get(USER_EMAIL), is(nullValue()));
     }
 
 

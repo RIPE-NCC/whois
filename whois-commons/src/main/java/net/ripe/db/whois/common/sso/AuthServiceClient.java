@@ -47,6 +47,11 @@ import java.util.stream.Collectors;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_HISTORICAL_USER_DETAILS;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_USER_DETAILS;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_UUID;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.SSO_VALIDATE_TOKEN;
+import static net.ripe.db.whois.common.hazelcast.HazelcastCacheManagerConfiguration.USER_BY_EMAIL;
 
 @Component
 public class AuthServiceClient {
@@ -102,7 +107,7 @@ public class AuthServiceClient {
     }
 
     @Stopwatch(thresholdMs = 100L)
-    @Cacheable(cacheNames="ssoValidateToken")
+    @Cacheable(SSO_VALIDATE_TOKEN)
     public ValidateTokenResponse validateToken(final String authToken) {
         if (StringUtils.isEmpty(authToken)) {
             LOGGER.debug("No crowdToken was supplied");
@@ -136,7 +141,7 @@ public class AuthServiceClient {
 
 
     @Stopwatch(thresholdMs = 100L)
-    @Cacheable(cacheNames="userByEmail")
+    @Cacheable(USER_BY_EMAIL)
     public UserDetailsResponse getUserInfoByEmail(final String email) {
         if (StringUtils.isEmpty(email)) {
             LOGGER.debug("No email was supplied");
@@ -178,7 +183,7 @@ public class AuthServiceClient {
     }
 
     @Stopwatch(thresholdMs = 100L)
-    @Cacheable(cacheNames="ssoUuid")
+    @Cacheable(SSO_UUID)
     public String getUuid(final String username) {
         if (StringUtils.isEmpty(username)) {
             LOGGER.debug("No username was supplied");
@@ -212,7 +217,7 @@ public class AuthServiceClient {
     }
 
     @Stopwatch(thresholdMs = 100L)
-    @Cacheable(cacheNames="ssoUserDetails")
+    @Cacheable(SSO_USER_DETAILS)
     public ValidateTokenResponse getUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
@@ -243,7 +248,7 @@ public class AuthServiceClient {
     }
 
     @Stopwatch(thresholdMs = 100L)
-    @Cacheable(cacheNames="ssoHistoricalUserDetails")
+    @Cacheable(SSO_HISTORICAL_USER_DETAILS)
     public HistoricalUserResponse getHistoricalUserDetails(final String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             LOGGER.debug("No uuid was supplied");
@@ -349,7 +354,7 @@ public class AuthServiceClient {
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(MemberContactsResponse.class);
-            
+
         } catch (NotFoundException e) {
             LOGGER.debug("Not found getting Lir accounts response from {} due to {}:{}\n\tResponse: {}", membershipIds, e.getClass().getName(), e.getMessage(), e.getResponse().readEntity(String.class));
             throw new AuthServiceClientException(UNAUTHORIZED.getStatusCode(), "Invalid membership Id.");

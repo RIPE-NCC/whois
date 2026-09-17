@@ -26,18 +26,27 @@ import java.util.Arrays;
 @Configuration
 @EnableCaching(mode = AdviceMode.ASPECTJ)
 @DeployedProfile
-public class HazelcastInstanceManager {
+public class HazelcastCacheManagerConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastInstanceManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheManagerConfiguration.class);
 
-    final String interfaces;
-    final int port;
+    public static final String SSO_USER_DETAILS = "ssoUserDetails";
+    public static final String SSO_VALIDATE_TOKEN = "ssoValidateToken";
+    public static final String USER_BY_EMAIL = "userByEmail";
+    public static final String SSO_UUID = "ssoUuid";
+    public static final String SSO_HISTORICAL_USER_DETAILS = "ssoHistoricalUserDetails";
+    public static final String API_KEY_OAUTH = "apiKeyOAuth";
+
+    private final String interfaces;
+    private final int port;
 
     private HazelcastInstance hazelcastInstance = null;
     private CacheManager cacheManager = null;
 
     @Autowired
-    public HazelcastInstanceManager(@Value("${hazelcast.config.interfaces:localhost}") final String interfaces, @Value("${hazelcast.port:5701}") final int port) {
+    public HazelcastCacheManagerConfiguration(
+            @Value("${hazelcast.config.interfaces:localhost}") final String interfaces,
+            @Value("${hazelcast.port:5701}") final int port) {
         this.interfaces = interfaces;
         this.port = port;
     }
@@ -46,7 +55,7 @@ public class HazelcastInstanceManager {
     @Profile(WhoisProfile.DEPLOYED)
     public HazelcastInstance hazelcastInstance() {
         if (this.hazelcastInstance == null) {
-            LOGGER.info("Creating hazelcast instance with Ripe deployed profile");
+            LOGGER.info("Creating hazelcast instance with RIPE deployed profile");
 
             final Config config = getGenericConfig();
             //We define ipv6 addresses
@@ -63,48 +72,41 @@ public class HazelcastInstanceManager {
 
             // Configure Hazelcast maps: https://docs.hazelcast.com/imdg/4.2/data-structures/map
 
-            // @Cacheable(cacheNames="ssoValidateToken", key="#authToken")
             config.addMapConfig(new MapConfig()
-                    .setName("ssoValidateToken")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(60));
-
-
-            // @Cacheable(cacheNames="userByEmail", key="#authToken")
-            config.addMapConfig(new MapConfig()
-                    .setName("userByEmail")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(60));
-
-            // @Cacheable(cacheNames="ssoUuid", key="#username")
-            config.addMapConfig(new MapConfig()
-                    .setName("ssoUuid")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(60));
-
-            // @Cacheable(cacheNames="ssoUserDetails", key="#uuid")
-            config.addMapConfig(new MapConfig()
-                    .setName("ssoUserDetails")
-                    .setStatisticsEnabled(true)
-                    .setEvictionConfig(evictionConfig)
-                    .setTimeToLiveSeconds(60));
-
-            // @Cacheable(cacheNames="ssoHistoricalUserDetails", key="#uuid")
-            config.addMapConfig(new MapConfig()
-                    .setName("ssoHistoricalUserDetails")
+                    .setName(SSO_VALIDATE_TOKEN)
                     .setStatisticsEnabled(true)
                     .setEvictionConfig(evictionConfig)
                     .setTimeToLiveSeconds(60));
 
             config.addMapConfig(new MapConfig()
-                    .setName("apiKeyOAuth")
+                    .setName(USER_BY_EMAIL)
                     .setStatisticsEnabled(true)
                     .setEvictionConfig(evictionConfig)
                     .setTimeToLiveSeconds(60));
 
+            config.addMapConfig(new MapConfig()
+                    .setName(SSO_UUID)
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
+
+            config.addMapConfig(new MapConfig()
+                    .setName(SSO_USER_DETAILS)
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
+
+            config.addMapConfig(new MapConfig()
+                    .setName(SSO_HISTORICAL_USER_DETAILS)
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
+
+            config.addMapConfig(new MapConfig()
+                    .setName(API_KEY_OAUTH)
+                    .setStatisticsEnabled(true)
+                    .setEvictionConfig(evictionConfig)
+                    .setTimeToLiveSeconds(60));
 
             this.hazelcastInstance = getHazelcastInstance(config);
 
