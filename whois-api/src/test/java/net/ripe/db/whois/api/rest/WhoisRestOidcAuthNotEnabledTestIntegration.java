@@ -63,7 +63,6 @@ public class WhoisRestOidcAuthNotEnabledTestIntegration extends AbstractHttpsInt
     @BeforeAll
     public static void setupApiProperties() {
         System.setProperty("oidc.auth.enable","false");
-        System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
 
         System.setProperty("apikey.max.scope","2");
     }
@@ -71,7 +70,6 @@ public class WhoisRestOidcAuthNotEnabledTestIntegration extends AbstractHttpsInt
     @AfterAll
     public static void restApiProperties() {
         System.clearProperty("oidc.auth.enable");
-        System.clearProperty("oidc.session.client.id");
         System.clearProperty("apikey.max.scope");
     }
 

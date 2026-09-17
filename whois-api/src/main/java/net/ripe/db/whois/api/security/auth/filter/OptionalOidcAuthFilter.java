@@ -19,7 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Objects;
+import java.util.Arrays;
 
 import static net.ripe.db.whois.api.security.auth.filter.OptionalOAuthFilter.getBearerToken;
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_AZP_PARAM;
@@ -32,14 +32,14 @@ public class OptionalOidcAuthFilter extends OncePerRequestFilter {
 
     private final boolean isOidcEnabled;
 
-    private final String oidcClientId;
+    private final String[] oidcClientIds;
 
     public OptionalOidcAuthFilter(final AuthenticationManager authenticationManager,
                                   final boolean isOidcEnabled,
-                                  final String oidcClientId) {
+                                  final String[] oidcClientIds) {
         this.authenticationManager = authenticationManager;
         this.isOidcEnabled = isOidcEnabled;
-        this.oidcClientId = oidcClientId;
+        this.oidcClientIds = oidcClientIds;
     }
 
     @Override
@@ -75,10 +75,10 @@ public class OptionalOidcAuthFilter extends OncePerRequestFilter {
 
     private boolean canProceed(final String bearerToken) throws ParseException {
         final JWTClaimsSet jwt = JWTParser.parse(bearerToken).getJWTClaimsSet();
-        return isWebClientAzp(jwt.getClaimAsString(OAUTH_CUSTOM_AZP_PARAM));
+        return isAllowedClient(jwt.getClaimAsString(OAUTH_CUSTOM_AZP_PARAM));
     }
 
-    private boolean isWebClientAzp(final String azpValue) {
-        return Objects.equals(azpValue, oidcClientId);
+    private boolean isAllowedClient(final String azpValue) {
+        return Arrays.stream(oidcClientIds).anyMatch(oidcClientId -> oidcClientId.equalsIgnoreCase(azpValue));
     }
 }

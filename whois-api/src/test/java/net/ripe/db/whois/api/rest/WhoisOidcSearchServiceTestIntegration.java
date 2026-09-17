@@ -14,13 +14,11 @@ public class WhoisOidcSearchServiceTestIntegration extends WhoisSearchServiceTes
     @BeforeAll
     public static void setupApiProperties() {
         System.setProperty("oidc.auth.enable","true");
-        System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
     }
 
     @AfterAll
     public static void restApiProperties() {
         System.clearProperty("oidc.auth.enable");
-        System.clearProperty("oidc.session.client.id");
     }
 
     @Override

@@ -21,8 +21,8 @@ public class DefaultTokenValidator extends AccessTokenValidator {
     public DefaultTokenValidator(final int maxScopes,
                                  final boolean shouldUseTokenInspector,
                                  final JwtDecoder jwtDecoder,
-                                 final OpaqueTokenIntrospector keycloakIntrospector) {
-        super(shouldUseTokenInspector, jwtDecoder, keycloakIntrospector);
+                                 final OpaqueTokenIntrospector tokenIntrospector) {
+        super(shouldUseTokenInspector, jwtDecoder, tokenIntrospector);
         this.maxScopes = maxScopes;
     }
 

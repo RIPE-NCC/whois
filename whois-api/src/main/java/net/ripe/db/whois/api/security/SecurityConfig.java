@@ -13,7 +13,6 @@ import net.ripe.db.whois.api.security.auth.validate.DefaultTokenValidator;
 import net.ripe.db.whois.api.security.auth.validate.OidcTokenValidator;
 import net.ripe.db.whois.common.oauth.ApiKeyAuthServiceClient;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,7 +52,7 @@ import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_UUID_PARAM;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
+    
     private final int connectTimeOutMs;
 
     private final int readTimeOutMs;
@@ -68,7 +67,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity,
                                                    final AuthenticationManager authenticationManager,
                                                    @Value("${oidc.auth.enable:false}") final boolean isOidcEnabled,
-                                                   @Value("${oidc.session.client.id:}") final String oidcClientId) {
+                                                   @Value("${supported.oidc.session.client.ids:}") final String[] oidcClientIds) {
 
         return httpSecurity
                 .anonymous(AbstractHttpConfigurer::disable) //Avoid AnonymousAuthenticationToken default behavior in case no filter match
@@ -80,7 +79,7 @@ public class SecurityConfig {
                         new OptionalApiKeyAuthFilter(authenticationManager),
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(
-                        new OptionalOidcAuthFilter(authenticationManager, isOidcEnabled, oidcClientId),
+                        new OptionalOidcAuthFilter(authenticationManager, isOidcEnabled, oidcClientIds),
                         OptionalApiKeyAuthFilter.class)
                 .addFilterAfter(
                         new OptionalOAuthFilter(authenticationManager),
@@ -122,7 +121,7 @@ public class SecurityConfig {
     @Bean
     public DefaultTokenValidator defaultTokenValidator(@Value("${apikey.max.scope:10}") final int maxScopes,
                                                  @Value("${oauth.token.introspection:false}") final boolean shouldUseTokenInspector,
-                                                 @Qualifier("keycloakIntrospector") final OpaqueTokenIntrospector tokenIntrospector,
+                                                 final OpaqueTokenIntrospector tokenIntrospector,
                                                  final NimbusJwtDecoder jwtDecoder) {
         return new DefaultTokenValidator(
                 maxScopes,
@@ -134,7 +133,7 @@ public class SecurityConfig {
 
     @Bean
     public OidcTokenValidator oidcTokenValidator(@Value("${oauth.token.introspection:false}") final boolean shouldUseTokenInspector,
-                                                 @Qualifier("oidcIntrospector") final OpaqueTokenIntrospector tokenIntrospector,
+                                                 final OpaqueTokenIntrospector tokenIntrospector,
                                                  final NimbusJwtDecoder jwtDecoder) {
         return new OidcTokenValidator(
                 shouldUseTokenInspector,
@@ -191,16 +190,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public OpaqueTokenIntrospector oidcIntrospector(final OidcConfigurationProvider oidcProvider,
-                                                              @Value("${oidc.session.client.id:}") final String oidcClientId,
-                                                              @Value("${oidc.session.client.password:}") final String oidcClientPassword) {
-        return getTokenIntrospector(oidcProvider, oidcClientId, oidcClientPassword);
-    }
-
-    @Bean
-    public OpaqueTokenIntrospector keycloakIntrospector(final OidcConfigurationProvider oidcProvider,
-                                                        @Value("${keycloak.idp.client:}") final String whoisKeycloakId,
-                                                        @Value("${keycloak.idp.password:}")  final String keycloakPassword) {
+    public OpaqueTokenIntrospector tokenIntrospector(final OidcConfigurationProvider oidcProvider,
+                                                     @Value("${keycloak.idp.client:}") final String whoisKeycloakId,
+                                                     @Value("${keycloak.idp.password:}")  final String keycloakPassword) {
         return getTokenIntrospector(oidcProvider, whoisKeycloakId, keycloakPassword);
     }
 

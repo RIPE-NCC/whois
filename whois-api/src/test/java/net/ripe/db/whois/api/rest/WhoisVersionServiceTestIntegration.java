@@ -1,49 +1,46 @@
 package net.ripe.db.whois.api.rest;
 
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
+import net.ripe.db.whois.api.SecureRestTest;
+import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
 import net.ripe.db.whois.api.rest.domain.Attribute;
+import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.api.rest.domain.WhoisObject;
 import net.ripe.db.whois.api.rest.domain.WhoisResources;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
 import net.ripe.db.whois.api.rest.domain.WhoisVersions;
-import net.ripe.db.whois.api.rest.domain.Version;
 import net.ripe.db.whois.common.ApplicationVersion;
-
-import jakarta.ws.rs.core.HttpHeaders;
-import net.ripe.db.whois.api.SecureRestTest;
-import net.ripe.db.whois.api.httpserver.AbstractHttpsIntegrationTest;
+import net.ripe.db.whois.common.MaintenanceMode;
+import net.ripe.db.whois.common.rpsl.RpslAttribute;
+import net.ripe.db.whois.common.rpsl.RpslObject;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_EXPIRED;
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_PERSON_ANY_MNT;
 import static net.ripe.db.whois.api.ApiKeysAuthServerDummy.BASIC_AUTH_TEST_NO_MNT;
-
 import static net.ripe.db.whois.api.rest.WhoisVersionFullHistoryTestIntegration.AUTNUM_V2;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import net.ripe.db.whois.common.MaintenanceMode;
-import net.ripe.db.whois.common.rpsl.RpslAttribute;
-import net.ripe.db.whois.common.rpsl.RpslObject;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.AfterAll;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.core.MediaType;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import static net.ripe.db.whois.common.support.StringMatchesRegexp.stringMatchesRegexp;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -95,14 +92,12 @@ public class WhoisVersionServiceTestIntegration extends AbstractHttpsIntegration
     public static void beforeClass() {
         System.setProperty("versions.internal.emails", "person@net.net");
         System.setProperty("oidc.auth.enable", "true");
-        System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
     }
 
     @AfterAll
     public static void afterClass() {
         System.clearProperty("versions.internal.emails");
         System.clearProperty("oidc.auth.enable");
-        System.clearProperty("oidc.session.client.id");
     }
 
     @BeforeEach

@@ -23,7 +23,6 @@ public class WhoisRestOidcAuthTokenIntrospectionTestIntegration extends WhoisRes
     @BeforeAll
     public static void setupApiProperties() {
         System.setProperty("oidc.auth.enable","true");
-        System.setProperty("oidc.session.client.id", APP_CLIENT_ID);
 
         System.setProperty("oauth.token.introspection","true");
     }

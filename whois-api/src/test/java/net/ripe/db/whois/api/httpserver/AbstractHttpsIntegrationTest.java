@@ -25,6 +25,7 @@ public abstract class AbstractHttpsIntegrationTest extends AbstractIntegrationTe
         System.setProperty("whois.certificates", certificatePrivateKeyPair.getCertificateFilename());
         System.setProperty("whois.private.keys", certificatePrivateKeyPair.getPrivateKeyFilename());
         System.setProperty("https.x_forwarded_for", "false");
+        System.setProperty("supported.oidc.session.client.ids", APP_CLIENT_ID);
     }
 
     @AfterAll
@@ -33,6 +34,7 @@ public abstract class AbstractHttpsIntegrationTest extends AbstractIntegrationTe
         System.clearProperty("whois.certificates");
         System.clearProperty("whois.private.keys");
         System.clearProperty("https.x_forwarded_for");
+        System.clearProperty("supported.oidc.session.client.ids");
     }
 
     public int getSecurePort() {
