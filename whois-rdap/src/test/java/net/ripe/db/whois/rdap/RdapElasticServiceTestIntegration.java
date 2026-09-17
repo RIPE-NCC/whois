@@ -56,6 +56,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -73,6 +74,16 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
     private static final String LOCALHOST = "127.0.0.1";
+
+    private static final String DECOY_ORG_NAME_1 =
+            "Paaaa Pbbbb Pcccc Pdddd Peeee Pffff Pgggg Phhhh Piiii Pjjjj " +
+                    "Pkkkk Pllll Pmmmm Pnnnn Poooo Ppppp Pqqqq Prrrr Pssss Ptttt " +
+                    "Puuuu Pvvvv Pwwww Pxxxx Pyyyy Pzzzz Paabb Pbbcc";
+
+    private static final String DECOY_ORG_NAME_2 =
+            "Pccdd Pddee Peeff Pffgg Pgghh Phhii Piijj Pjjkk Pkkll Pllmm " +
+                    "Pmmnn Pnnoo Pooqq Pqqrr Prrss Pssti Ptttw Puuxx Pvvyy Pwwzz " +
+                    "Pxxab Pyybc Pzzcd Paade Pbbef Pccfg Pddgh Peehi";
 
     @Autowired
     private AccessControlListManager ipAccessControlListManager;
@@ -477,6 +488,93 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
         assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP3-TEST"));
+    }
+
+    @Test
+    public void search_entity_org_name_test() {
+        databaseHelper.addObject("" +
+                "organisation:  ORG-TEST123-TEST\n" +
+                "org-name:      Meta Platforms Ireland Limited\n" +
+                "org-type:      OTHER\n" +
+                "descr:         Drugs and gambling\n" +
+                "remarks:       Nice to deal with generally\n" +
+                "address:       1 Fake St. Fauxville\n" +
+                "phone:         +01-000-000-000\n" +
+                "fax-no:        +01-000-000-000\n" +
+                "admin-c:       PP1-TEST\n" +
+                "e-mail:        org@test.com\n" +
+                "mnt-by:        OWNER-MNT\n" +
+                "mnt-ref:       OWNER-MNT\n" +
+                "notify:        notify@ripe.net\n" +
+                "created:         2022-08-14T11:48:28Z\n" +
+                "last-modified:   2022-10-25T12:22:39Z\n" +
+                "source:        TEST");
+
+        rebuildIndex();
+
+        final SearchResult response = createResource("entities?fn=Meta%20P*")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP3-TEST"));
+    }
+
+    @Test
+    public void search_entity_org_name_fails_when_expansion_cap_exceeded() {
+        databaseHelper.addObject(
+                "organisation:  ORG-DECOY1-TEST\n" +
+                        "org-name:      " + DECOY_ORG_NAME_1 + "\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       1 Fake St. Fauxville\n" +
+                        "phone:         +01-000-000-000\n" +
+                        "fax-no:        +01-000-000-000\n" +
+                        "admin-c:       PP1-TEST\n" +
+                        "e-mail:        decoy1@test.com\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "mnt-ref:       OWNER-MNT\n" +
+                        "notify:        notify@ripe.net\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
+                        "source:        TEST");
+
+        databaseHelper.addObject(
+                "organisation:  ORG-DECOY2-TEST\n" +
+                        "org-name:      " + DECOY_ORG_NAME_2 + "\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       1 Fake St. Fauxville\n" +
+                        "phone:         +01-000-000-000\n" +
+                        "fax-no:        +01-000-000-000\n" +
+                        "admin-c:       PP1-TEST\n" +
+                        "e-mail:        decoy2@test.com\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "mnt-ref:       OWNER-MNT\n" +
+                        "notify:        notify@ripe.net\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
+                        "source:        TEST");
+
+        databaseHelper.addObject(
+                "organisation:  ORG-TEST123-TEST\n" +
+                        "org-name:      Meta Platforms Ireland Limited\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       1 Fake St. Fauxville\n" +
+                        "phone:         +01-000-000-000\n" +
+                        "fax-no:        +01-000-000-000\n" +
+                        "admin-c:       PP1-TEST\n" +
+                        "e-mail:        org@test.com\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "mnt-ref:       OWNER-MNT\n" +
+                        "notify:        notify@ripe.net\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
+                        "source:        TEST");
+
+        rebuildIndex();
+
+        final SearchResult response = createResource("entities?fn=Meta%20P*")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(SearchResult.class);
+
+        assertThat(response.getEntitySearchResults(), is(empty()));
     }
 
     @Test
