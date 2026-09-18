@@ -1,5 +1,7 @@
 package net.ripe.db.whois.rdap;
 
+import co.elastic.clients.elasticsearch.indices.AnalyzeResponse;
+import co.elastic.clients.elasticsearch.indices.GetMappingResponse;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Uninterruptibles;
 import jakarta.ws.rs.BadRequestException;
@@ -12,6 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.elasticsearch.AbstractElasticSearchIntegrationTest;
+import net.ripe.db.whois.api.elasticsearch.ElasticIndexService;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.AccessControlListManager;
@@ -75,15 +78,8 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     private static final String LOCALHOST_WITH_PREFIX = "127.0.0.1/32";
     private static final String LOCALHOST = "127.0.0.1";
 
-    private static final String DECOY_ORG_NAME_1 =
-            "Paaaa Pbbbb Pcccc Pdddd Peeee Pffff Pgggg Phhhh Piiii Pjjjj " +
-                    "Pkkkk Pllll Pmmmm Pnnnn Poooo Ppppp Pqqqq Prrrr Pssss Ptttt " +
-                    "Puuuu Pvvvv Pwwww Pxxxx Pyyyy Pzzzz Paabb Pbbcc";
-
-    private static final String DECOY_ORG_NAME_2 =
-            "Pccdd Pddee Peeff Pffgg Pgghh Phhii Piijj Pjjkk Pkkll Pllmm " +
-                    "Pmmnn Pnnoo Pooqq Pqqrr Prrss Pssti Ptttw Puuxx Pvvyy Pwwzz " +
-                    "Pxxab Pyybc Pzzcd Paade Pbbef Pccfg Pddgh Peehi";
+    @Autowired
+    ElasticIndexService elasticIndexService;
 
     @Autowired
     private AccessControlListManager ipAccessControlListManager;
@@ -520,6 +516,22 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
     @Test
     public void search_entity_org_name_fails_when_expansion_cap_exceeded() {
+
+        final String DECOY_ORG_NAME_1 =
+                "Paaaa Paaab Paaac Paaad Paaae Paaaf Paaag Paaah Paaai Paaaj " +
+                        "Paaak Paaal Paaam Paaan Paaao Paaap Paaaq Paaar Paaas Paaat " +
+                        "Paaau Paaav Paaaw Paaax Paaay Paaaz Paaba Paabb";
+
+        final String DECOY_ORG_NAME_2 =
+                "Paabc Paabd Paabe Paabf Paabg Paabh Paabi Paabj Paabk Paabl " +
+                        "Paabm Paabn Paabo Paabp Paabq Paabr Paabs Paabt Paabu Paabv " +
+                        "Paabw Paabx Paaby Paabz Paaca Paacb Paacc Paacd";
+
+        final String DECOY_ORG_NAME_3 =
+                "Paace Paacf Paacg Paach Paaci Paacj Paack Paacl Paacm Paacn " +
+                        "Paaco Paacp Paacq Paacr Paacs Paact Paacu Paacv Paacw Paacx " +
+                        "Paacy Paacz Paada Paadb Paadc Paadd Paade Paadf";
+
         databaseHelper.addObject(
                 "organisation:  ORG-DECOY1-TEST\n" +
                         "org-name:      " + DECOY_ORG_NAME_1 + "\n" +
@@ -553,6 +565,22 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                         "source:        TEST");
 
         databaseHelper.addObject(
+                "organisation:  ORG-DECOY3-TEST\n" +
+                        "org-name:      " + DECOY_ORG_NAME_3 + "\n" +
+                        "org-type:      OTHER\n" +
+                        "address:       1 Fake St. Fauxville\n" +
+                        "phone:         +01-000-000-000\n" +
+                        "fax-no:        +01-000-000-000\n" +
+                        "admin-c:       PP1-TEST\n" +
+                        "e-mail:        decoy2@test.com\n" +
+                        "mnt-by:        OWNER-MNT\n" +
+                        "mnt-ref:       OWNER-MNT\n" +
+                        "notify:        notify@ripe.net\n" +
+                        "created:         2022-08-14T11:48:28Z\n" +
+                        "last-modified:   2022-10-25T12:22:39Z\n" +
+                        "source:        TEST");
+
+        databaseHelper.addObject(
                 "organisation:  ORG-TEST123-TEST\n" +
                         "org-name:      Meta Platforms Ireland Limited\n" +
                         "org-type:      OTHER\n" +
@@ -570,11 +598,11 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
 
         rebuildIndex();
 
-        final SearchResult response = createResource("entities?fn=Meta%20P*")
+        final SearchResult response = createResource("entities?fn=Meta%20P")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
 
-        assertThat(response.getEntitySearchResults(), is(empty()));
+        assertThat(response.getEntitySearchResults().getFirst().getHandle(), is("ORG-TEST123-TEST"));
     }
 
     @Test

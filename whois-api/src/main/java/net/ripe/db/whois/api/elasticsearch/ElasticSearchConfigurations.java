@@ -72,7 +72,7 @@ public class ElasticSearchConfigurations {
                         .filter("edge_ngram_filter", f -> f
                                 .definition(d -> d
                                         .edgeNgram(eng -> eng
-                                                .minGram(2)
+                                                .minGram(1)
                                                 .maxGram(20)
                                         )
                                 )
