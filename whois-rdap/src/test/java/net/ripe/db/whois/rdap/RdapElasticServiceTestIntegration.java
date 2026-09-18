@@ -487,7 +487,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
     }
 
     @Test
-    public void search_entity_org_name_test() {
+    public void search_entity_org_name_wildcard() {
         databaseHelper.addObject("" +
                 "organisation:  ORG-TEST123-TEST\n" +
                 "org-name:      Meta Platforms Ireland Limited\n" +
@@ -511,7 +511,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         final SearchResult response = createResource("entities?fn=Meta%20P*")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(SearchResult.class);
-        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("TP3-TEST"));
+        assertThat(response.getEntitySearchResults().get(0).getHandle(), equalTo("ORG-TEST123-TEST"));
     }
 
     @Test
