@@ -16,7 +16,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -72,9 +71,13 @@ public class MessageService {
                 emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE, messageInfo.message());
             } catch (DuplicateKeyException ex) {
                 LOGGER.debug("Email already exist in EmailStatus table {}", StringUtils.join(messageInfo.emailAddresses(), ", "), ex);
-            } catch (MessagingException | IOException e) {
-                LOGGER.error("Unable to transform the bounced message of {} into byte[]", email);
-                emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE);
+            } catch (Exception e) {
+                LOGGER.warn("Unable to set {} to undeliverable (with message) due to {}: {}", email, e.getClass().getName(), e.getMessage());
+                try {
+                    emailStatusDao.createEmailStatus(email, EmailStatusType.UNDELIVERABLE);
+                } catch (Exception e1) {
+                    LOGGER.warn("Unable to set {} to undeliverable (without message) due to {}: {}", email, e.getClass().getName(), e.getMessage());
+                }
             }
         }
     }
@@ -94,8 +97,13 @@ public class MessageService {
         }
 
         LOGGER.debug("Unsubscribe message-id {} email {}", message.messageId(), unsubscribeRequestEmail);
-        emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE);
-
+        try {
+            emailStatusDao.createEmailStatus(unsubscribeRequestEmail, EmailStatusType.UNSUBSCRIBE, message.message());
+        } catch (DuplicateKeyException ex) {
+            LOGGER.debug("Email {} already exists in EmailStatus table", unsubscribeRequestEmail);
+        } catch (Exception e) {
+            LOGGER.warn("Unable to set {} to unsubscribed due to {}: {}", unsubscribeRequestEmail, e.getClass().getName(), e.getMessage());
+        }
     }
 
     private boolean isValidMessage(final EmailMessageInfo message, final List<String> outgoingEmail) {

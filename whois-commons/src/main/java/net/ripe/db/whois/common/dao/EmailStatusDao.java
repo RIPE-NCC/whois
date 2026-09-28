@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,17 +42,15 @@ public class EmailStatusDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
     }
 
-    public void createEmailStatus(final String email, final EmailStatusType emailStatus, final MimeMessage message) throws MessagingException, IOException {
+    public void createEmailStatus(final String email, final EmailStatusType emailStatus, @Nullable final MimeMessage message) {
         jdbcTemplate.update("INSERT INTO email_status (email, status, message, last_update) VALUES (?, ?, ?, ?)", email,
                 emailStatus.name(),
-                getMimeMessageBytes(message),
+                (message != null) ? getMimeMessageBytes(message) : null,
                 LocalDateTime.now());
     }
 
     public void createEmailStatus(final String email, final EmailStatusType emailStatus) {
-        jdbcTemplate.update("INSERT INTO email_status (email, status, last_update) VALUES (?, ?, ?)", email,
-                emailStatus.name(),
-                LocalDateTime.now());
+        createEmailStatus(email, emailStatus, null);
     }
 
     public Map<String, EmailStatusType> getEmailStatusMap(final Set<String> emailAddresses) {
@@ -98,9 +97,13 @@ public class EmailStatusDao {
                 Map.of("emails", emailAddresses));
     }
 
-    private static byte[] getMimeMessageBytes(final MimeMessage message) throws MessagingException, IOException {
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        message.writeTo(byteArrayOutputStream);
-        return byteArrayOutputStream.toByteArray();
+    private static byte[] getMimeMessageBytes(final MimeMessage message) {
+        try {
+            final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            message.writeTo(byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        } catch (MessagingException | IOException e) {
+            throw new IllegalArgumentException("Unable to parse MIME message", e);
+        }
     }
 }
