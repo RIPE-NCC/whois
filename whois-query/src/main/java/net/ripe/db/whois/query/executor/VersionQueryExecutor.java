@@ -3,11 +3,14 @@ package net.ripe.db.whois.query.executor;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jakarta.annotation.Nullable;
 import net.ripe.db.whois.api.rest.domain.WhoisVersion;
+import net.ripe.db.whois.common.DateUtil;
 import net.ripe.db.whois.common.dao.VersionDao;
 import net.ripe.db.whois.common.dao.VersionDateTime;
 import net.ripe.db.whois.common.dao.VersionInfo;
 import net.ripe.db.whois.common.dao.VersionLookupResult;
+import net.ripe.db.whois.common.domain.CIString;
 import net.ripe.db.whois.common.domain.ResponseObject;
 import net.ripe.db.whois.common.domain.serials.Operation;
 import net.ripe.db.whois.common.rpsl.ObjectType;
@@ -23,6 +26,7 @@ import net.ripe.db.whois.common.rpsl.transform.FilterPersonalDataFunction;
 import net.ripe.db.whois.common.source.BasicSourceContext;
 import net.ripe.db.whois.common.sso.AuthServiceClient;
 import net.ripe.db.whois.common.sso.AuthServiceClientException;
+import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
 import net.ripe.db.whois.query.QueryMessages;
 import net.ripe.db.whois.query.domain.DeletedVersionResponseObject;
 import net.ripe.db.whois.query.domain.MessageObject;
@@ -31,6 +35,7 @@ import net.ripe.db.whois.query.domain.VersionDiffResponseObject;
 import net.ripe.db.whois.query.domain.VersionResponseObject;
 import net.ripe.db.whois.query.domain.VersionWithRpslResponseObject;
 import net.ripe.db.whois.query.query.Query;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +45,8 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.IntStream;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class VersionQueryExecutor implements QueryExecutor {
@@ -105,10 +112,10 @@ public class VersionQueryExecutor implements QueryExecutor {
 
     private Iterable<? extends ResponseObject> decorate(final Query query, Iterable<? extends ResponseObject> responseObjects) {
         final Iterable<ResponseObject> objects = Iterables.transform(responseObjects, responseObject -> {
-                if (responseObject instanceof RpslObject) {
+            if (responseObject instanceof RpslObject rpslObject) {
                     ResponseObject filtered = isUnfilteredAllowed(query)
-                            ? translateSsoAuth((RpslObject) responseObject)
-                            : filter((RpslObject) responseObject);
+                            ? translateSsoAuth(rpslObject, rpslObject.getValueOrNullForAttribute(AttributeType.LAST_MODIFIED))
+                            : filter(rpslObject);
 
                     if (query.isObjectVersion()) {
                         filtered = new VersionWithRpslResponseObject((RpslObject) filtered, query.getObjectVersion());
@@ -124,19 +131,29 @@ public class VersionQueryExecutor implements QueryExecutor {
         return objects;
     }
 
-    private RpslObject translateSsoAuth(final RpslObject rpslObject) {
+    private RpslObject translateSsoAuth(final RpslObject rpslObject, final CIString lastUpdateDate) {
         final Map<RpslAttribute, RpslAttribute> replace = new HashMap<>();
 
         for (final RpslAttribute auth : rpslObject.findAttributes(AttributeType.AUTH)) {
             final Matcher matcher = FilterAuthFunction.SSO_PATTERN.matcher(auth.getCleanValue().toString());
 
             if (matcher.matches()) {
+                final String uuid = matcher.group(1);
+                final String currentEmail;
+
                 try {
-                    replace.put(auth, new RpslAttribute(auth.getKey(),
-                            "SSO " + authServiceClient.getUsername(matcher.group(1))));
+                    currentEmail = authServiceClient.getUsername(uuid);
                 } catch (AuthServiceClientException e) {
-                    LOGGER.debug("Could not translate SSO uuid {}: {}", matcher.group(1), e.getMessage());
+                    LOGGER.debug("Could not translate SSO uuid {}: {}", uuid, e.getMessage());
+                    continue;
                 }
+
+                final Set<String> previousEmails = emailsSince(uuid, lastUpdateDate, currentEmail);
+                final String value = previousEmails.isEmpty()
+                        ? String.format("SSO %s", currentEmail)
+                        : String.format("SSO %s # WARNING: SSO email was %s", currentEmail, StringUtils.join(previousEmails, ", "));
+
+                replace.put(auth, new RpslAttribute(auth.getKey(), value));
             }
         }
 
@@ -145,6 +162,39 @@ public class VersionQueryExecutor implements QueryExecutor {
 
     private static boolean isUnfilteredAllowed(final Query query) {
         return query.isTrusted() && query.isInternalUser();
+    }
+
+    private Set<String> emailsSince(String uuid, @Nullable final CIString lastUpdateDate, final String currentEmail) {
+        if (lastUpdateDate == null) {
+            return Collections.emptySet();
+        }
+
+        try {
+            final HistoricalUserResponse history = authServiceClient.getHistoricalUserDetails(uuid);
+
+            if (history == null || history.response == null || history.response.results == null) {
+                return Collections.emptySet();
+            }
+
+            final List<HistoricalUserResponse.Results> sortedEmailChanges = history.response.results.stream()
+                    .filter(result -> result.action.equals("EMAIL_CHANGE"))
+                    .sorted(Comparator.comparing(o -> o.eventDateTime))
+                    .toList();
+            final List<HistoricalUserResponse.Results> sortedEmailsAfterUpdate = sortedEmailChanges.stream()
+                    .filter(change -> change.eventDateTime.isAfter(DateUtil.fromString(lastUpdateDate)))
+                    .toList();
+
+            return sortedEmailsAfterUpdate.stream()
+                    .flatMap(result -> result.attributeChanges == null ? Stream.empty()
+                            : result.attributeChanges.stream().map(change -> change.oldValue))
+                    .filter(oldValue -> !currentEmail.equalsIgnoreCase(oldValue))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        } catch (AuthServiceClientException e) {
+            LOGGER.debug("Could not fetch SSO history for uuid {}: {}", uuid, e.getMessage());
+
+            return Collections.emptySet();
+        }
     }
 
     // TODO: [AH] make this streaming, too; objects could have thousands of versions
