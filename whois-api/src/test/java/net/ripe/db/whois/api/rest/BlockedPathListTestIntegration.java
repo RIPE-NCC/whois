@@ -35,14 +35,18 @@ public class BlockedPathListTestIntegration extends AbstractIntegrationTest {
 
     @BeforeAll
     public static void beforeClass() {
-        System.setProperty("whois.api.blocked.paths", "/rdap/ips/rirSearch1/rdap-bottom/2001:db8::/32, /rdap/ips/rirSearch1/rdap-up/192.0.2.0/24");
+        System.setProperty("whois.api.blocked.paths",
+                        "/rdap/ips/rirSearch1/rdap-bottom/2001:db8::/32, " +
+                        "/rdap/ips/rirSearch1/rdap-up/192.0.2.0/24," +
+                        "/rdap/ips/rirSearch1/rdap-down," +
+                        "/whois/fulltextsearch/select?q=john%20mcdonald&rows=100");
     }
 
     @AfterAll
     public static void clear(){ System.clearProperty("whois.api.blocked.paths"); }
 
     @Test
-    public void blocked_path_return_forbidden() throws Exception {
+    public void blocked_full_path_return_forbidden() throws Exception {
         final Response response = RestTest.target(getPort(), "rdap/ips/rirSearch1/rdap-bottom/2001:db8::/32")
                 .request()
                 .get();
@@ -57,20 +61,64 @@ public class BlockedPathListTestIntegration extends AbstractIntegrationTest {
 
         assertThat(HttpStatus.FORBIDDEN_403, is(response2.getStatus()));
         assertThat(response2.readEntity(String.class), containsString("Request not allowed for policy reasons"));
+
     }
 
     @Test
-    public void not_blocked_path_ok() throws Exception {
+    public void blocked_partial_path_return_forbidden() throws Exception {
+        final Response response = RestTest.target(getPort(), "rdap/ips/rirSearch1/rdap-down/192.0.2.0/25")
+                .request()
+                .get();
+
+        assertThat(HttpStatus.FORBIDDEN_403, is(response.getStatus()));
+    }
+
+    @Test
+    public void not_blocked_path_ok()  {
         final Response response = RestTest.target(getPort(), "rdap/ips/rirSearch1/rdap-bottom/2001:db8::/35")
                 .request()
                 .get();
 
-        assertThat(HttpStatus.FORBIDDEN_403, not((response.getStatus())));
+        assertThat(HttpStatus.FORBIDDEN_403, not(response.getStatus()));
 
         final Response response2 = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=8.8.8.8")
                 .request()
                 .get();
 
-        assertThat(HttpStatus.FORBIDDEN_403, not((response.getStatus())));
+        assertThat(HttpStatus.FORBIDDEN_403, not(response2.getStatus()));
     }
+
+    @Test
+    public void block_path_with_query_param()  {
+
+        final Response response = RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald&rows=100")
+                .request()
+                .get();
+
+        assertThat(HttpStatus.FORBIDDEN_403, is(response.getStatus()));
+
+        final Response response2 = RestTest.target(getPort(), "whois/fulltextsearch/select?q=john%20mcdonald&rows=100&somextra=test")
+                .request()
+                .get();
+
+        assertThat(HttpStatus.FORBIDDEN_403, is(response2.getStatus()));
+    }
+
+    @Test
+    public void not_block_path_with_query_param_ok()  {
+
+        final Response response = RestTest.target(getPort(), "whois/fulltextsearch/select?q=test%20mcdonald")
+                .request()
+                .get();
+
+        assertThat(HttpStatus.FORBIDDEN_403, not(response.getStatus()));
+
+        //path different, query param same ,
+        final Response response2 = RestTest.target(getPort(), "whois/fulltextsearch/test/select?q=john%20mcdonald&rows=100")
+                .request()
+                .get();
+
+        assertThat(HttpStatus.FORBIDDEN_403, not(response2.getStatus()));
+    }
+
 }
