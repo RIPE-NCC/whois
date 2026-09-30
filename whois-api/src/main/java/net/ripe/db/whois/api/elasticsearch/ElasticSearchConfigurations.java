@@ -23,6 +23,10 @@ public class ElasticSearchConfigurations {
             AttributeSyntax.RTR_SET_SYNTAX
             );
 
+    public static final List<String> PREFIX_SEARCH_FIELDS = List.of(
+            "person", "role", "org-name"
+    );
+
     public static IndexSettings getSettings(final int nodes) {
 
         final IndexSettings settings = IndexSettings.of(s -> s
@@ -65,6 +69,14 @@ public class ElasticSearchConfigurations {
                                         )
                                 )
                         )
+                        .filter("edge_ngram_filter", f -> f
+                                .definition(d -> d
+                                        .edgeNgram(eng -> eng
+                                                .minGram(1)
+                                                .maxGram(20)
+                                        )
+                                )
+                        )
                         .tokenizer("colon_tokeniser", t -> t
                                 .definition(p -> p
                                         .pattern(PatternTokenizer.of(pt -> pt.pattern(":").flags("").group(-1))))
@@ -86,6 +98,12 @@ public class ElasticSearchConfigurations {
                                 .custom(c -> c
                                     .tokenizer("colon_tokeniser")
                                     .filter("colon_sets_combinations")
+                                )
+                        )
+                        .analyzer("edge_ngram_analyzer", az -> az
+                                .custom(c -> c
+                                        .tokenizer("whitespace")
+                                        .filter("my_word_delimiter_graph", "lowercase", "edge_ngram_filter")
                                 )
                         )
                         // Normalizers
@@ -114,6 +132,19 @@ public class ElasticSearchConfigurations {
                 )
         );
 
+        final Property prefixSearchFieldProperty = Property.of(p -> p
+                .text(t -> t
+                        .analyzer("fulltext_analyzer")
+                        .searchAnalyzer("fulltext_analyzer")
+                        .fields("ngram", f -> f.text(ft -> ft
+                                .analyzer("edge_ngram_analyzer")
+                                .searchAnalyzer("fulltext_analyzer")
+                        ))
+                        .fields("raw", f -> f.keyword(k -> k.ignoreAbove(10922)))
+                        .fields("lowercase", f -> f.keyword(k -> k.normalizer("my_lowercase_normalizer").ignoreAbove(10922)))
+                )
+        );
+
         final Property setsFieldProperty = Property.of(p -> p
                 .text(t -> t
                         .analyzer("fulltext_analyzer")
@@ -130,6 +161,10 @@ public class ElasticSearchConfigurations {
             }
             if (SET_TYPES.contains(type.getSyntax())) {
                 propertiesMap.put(type.getName(), setsFieldProperty);
+            }
+
+            if (PREFIX_SEARCH_FIELDS.contains(type.getName()) && !propertiesMap.containsKey(type.getName())) {
+                propertiesMap.put(type.getName(), prefixSearchFieldProperty);
             }
         }
 

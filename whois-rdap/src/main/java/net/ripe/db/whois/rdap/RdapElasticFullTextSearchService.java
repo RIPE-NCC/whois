@@ -25,9 +25,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.ripe.db.whois.api.elasticsearch.ElasticSearchConfigurations.PREFIX_SEARCH_FIELDS;
 import static net.ripe.db.whois.api.fulltextsearch.ElasticFulltextSearch.SORT_BUILDERS;
 
 @Component
@@ -92,12 +95,29 @@ public class RdapElasticFullTextSearchService implements RdapFullTextSearch {
                         return createExactMatchQuery(fields, term);
                     }
 
-                    return Query.of(q -> q.multiMatch(m -> m
-                            .query(term)
-                            .fields(Arrays.asList(fields))
-                            .type(TextQueryType.PhrasePrefix)
-                            .operator(Operator.And)
-                    ));
+                    return createSearchQuery(Arrays.asList(fields), term);
+                }
+
+                private Query createSearchQuery(final List<String> fields, final String term) {
+                    final List<String> ngramFields = fields.stream()
+                            .filter(PREFIX_SEARCH_FIELDS::contains)
+                            .map(field -> field + ".ngram")
+                            .toList();
+
+                    final List<String> otherFields = new ArrayList<>(fields);
+                    otherFields.removeAll(PREFIX_SEARCH_FIELDS);
+
+                    final List<Query> shouldQueries = new ArrayList<>();
+                    if (!ngramFields.isEmpty()) {
+                        shouldQueries.add(Query.of(q -> q.multiMatch(m -> m
+                                .query(term).fields(ngramFields).operator(Operator.And))));
+                    }
+                    if (!otherFields.isEmpty()) {
+                        shouldQueries.add(Query.of(q -> q.multiMatch(m -> m
+                                .query(term).fields(otherFields).type(TextQueryType.PhrasePrefix).operator(Operator.And))));
+                    }
+
+                    return Query.of(q -> q.bool(b -> b.should(shouldQueries)));
                 }
 
                 private boolean isExactMatchSearch(String[] fields) {
