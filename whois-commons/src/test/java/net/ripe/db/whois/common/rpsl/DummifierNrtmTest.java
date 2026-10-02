@@ -168,6 +168,7 @@ public class DummifierNrtmTest {
                         "mnt-ref:        FOO\n" +
                         "org-name:       FOO\n" +
                         "org-type:       FOO\n" +
+                        "reg-nr:         FOO\n" +
                         "source:         FOO\n"));
     }
 

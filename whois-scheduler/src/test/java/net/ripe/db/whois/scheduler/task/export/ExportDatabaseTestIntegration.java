@@ -52,7 +52,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
     public void setupServer() {
 
         for (int i = 0; i < 100; i++) {
-            final RpslObject rpslObject = RpslObject.parse("" +
+            final RpslObject rpslObject = RpslObject.parse(
                     "mntner:         DEV-MNT" + i + "\n" +
                     "auth:           MD5-PW $1$xNv6umMG$cBd9DXqWEpsqeBq2AUjGy/\n" +
                     "source:         TEST");
@@ -61,14 +61,14 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
         }
 
         for (int i = 0; i < 10; i++) {
-            final RpslObject personObject = RpslObject.parse("" +
+            final RpslObject personObject = RpslObject.parse(
                     "person: Test person " + i + "\n" +
                     "nic-hdl: PN" + i + "-TEST\n" +
                     "source: TEST");
 
             databaseHelper.addObject(personObject);
 
-            final RpslObject roleObject = RpslObject.parse("" +
+            final RpslObject roleObject = RpslObject.parse(
                     "role: Test role " + i + "\n" +
                     "nic-hdl: ROLE" + i + "-TEST\n" +
                     "source: TEST");
@@ -86,6 +86,13 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 auth:       SSO mherran@ripe.net
                 mnt-by:     UTF8-MNT
                 source:     TEST
+                """);
+
+        databaseHelper.addObject("""
+                organisation: ORG-TO1-TEST
+                org-name:     Test Organisation
+                reg-nr:       1234567890
+                source:       TEST
                 """);
 
         queryServer.start();
@@ -112,7 +119,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
             checkFile("internal/split/test.db." + objectType.getName() + ".utf8.gz", StandardCharsets.UTF_8);
         }
 
-        checkFile("public/TEST.CURRENTSERIAL", StandardCharsets.ISO_8859_1, "121");
+        checkFile("public/TEST.CURRENTSERIAL", StandardCharsets.ISO_8859_1, "122");
 
         checkFile("public/test.db.gz", StandardCharsets.ISO_8859_1,
                 "person:         Placeholder Person Object\n",
@@ -124,17 +131,32 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "mntner:         DEV-MNT5\n",
                 "mntner:         DEV-MNT6\n",
                 "mntner:         DEV-MNT7\n",
-                "" +
-                        "mntner:         DEV-MNT99\n" +
-                        "auth:           SSO noreply@ripe.net   # Real value hidden for security\n" +
-                        "source:         TEST\n" +
-                        "remarks:        ****************************\n" +
-                        "remarks:        * THIS OBJECT IS MODIFIED\n" +
-                        "remarks:        * Please note that all data that is generally regarded as personal\n" +
-                        "remarks:        * data has been removed from this object.\n" +
-                        "remarks:        * To view the original object, please query the RIPE Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        ****************************\n");
+                """
+                mntner:         DEV-MNT99
+                auth:           SSO noreply@ripe.net   # Real value hidden for security
+                source:         TEST
+                remarks:        ****************************
+                remarks:        * THIS OBJECT IS MODIFIED
+                remarks:        * Please note that all data that is generally regarded as personal
+                remarks:        * data has been removed from this object.
+                remarks:        * To view the original object, please query the RIPE Database at:
+                remarks:        * http://www.ripe.net/whois
+                remarks:        ****************************
+                """,
+                """
+                organisation:   ORG-TO1-TEST
+                org-name:       Test Organisation
+                reg-nr:         1234567890
+                source:         TEST
+                remarks:        ****************************
+                remarks:        * THIS OBJECT IS MODIFIED
+                remarks:        * Please note that all data that is generally regarded as personal
+                remarks:        * data has been removed from this object.
+                remarks:        * To view the original object, please query the RIPE Database at:
+                remarks:        * http://www.ripe.net/whois
+                remarks:        ****************************
+                """
+                );
 
         checkFile("public/test.db.utf8.gz", StandardCharsets.UTF_8,
                 "person:         Placeholder Person Object\n",
@@ -161,20 +183,34 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 remarks:        * http://www.ripe.net/whois
                 remarks:        ****************************
                 """,
-                "" +
-                        "mntner:         DEV-MNT99\n" +
-                        "auth:           SSO noreply@ripe.net   # Real value hidden for security\n" +
-                        "source:         TEST\n" +
-                        "remarks:        ****************************\n" +
-                        "remarks:        * THIS OBJECT IS MODIFIED\n" +
-                        "remarks:        * Please note that all data that is generally regarded as personal\n" +
-                        "remarks:        * data has been removed from this object.\n" +
-                        "remarks:        * To view the original object, please query the RIPE Database at:\n" +
-                        "remarks:        * http://www.ripe.net/whois\n" +
-                        "remarks:        ****************************\n");
+                """
+                mntner:         DEV-MNT99
+                auth:           SSO noreply@ripe.net   # Real value hidden for security
+                source:         TEST
+                remarks:        ****************************
+                remarks:        * THIS OBJECT IS MODIFIED
+                remarks:        * Please note that all data that is generally regarded as personal
+                remarks:        * data has been removed from this object.
+                remarks:        * To view the original object, please query the RIPE Database at:
+                remarks:        * http://www.ripe.net/whois
+                remarks:        ****************************
+                """,
+                """
+                organisation:   ORG-TO1-TEST
+                org-name:       Test Organisation
+                reg-nr:         1234567890
+                source:         TEST
+                remarks:        ****************************
+                remarks:        * THIS OBJECT IS MODIFIED
+                remarks:        * Please note that all data that is generally regarded as personal
+                remarks:        * data has been removed from this object.
+                remarks:        * To view the original object, please query the RIPE Database at:
+                remarks:        * http://www.ripe.net/whois
+                remarks:        ****************************
+                """);
 
-
-        checkFile("public/split/test.db.person.gz", StandardCharsets.ISO_8859_1, "person:         Placeholder Person Object");
+        checkFile("public/split/test.db.person.gz", StandardCharsets.ISO_8859_1,
+        "person:         Placeholder Person Object");
 
         checkFile("public/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1,
                 "mntner:         DEV-MNT0\n",
@@ -185,17 +221,18 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "mntner:         DEV-MNT5\n",
                 "mntner:         DEV-MNT6\n",
                 "mntner:         DEV-MNT7\n",
-                "" +
-                "mntner:         DEV-MNT99\n" +
-                "auth:           SSO noreply@ripe.net   # Real value hidden for security\n" +
-                "source:         TEST\n" +
-                "remarks:        ****************************\n" +
-                "remarks:        * THIS OBJECT IS MODIFIED\n" +
-                "remarks:        * Please note that all data that is generally regarded as personal\n" +
-                "remarks:        * data has been removed from this object.\n" +
-                "remarks:        * To view the original object, please query the RIPE Database at:\n" +
-                "remarks:        * http://www.ripe.net/whois\n" +
-                "remarks:        ****************************\n");
+                """
+                mntner:         DEV-MNT99
+                auth:           SSO noreply@ripe.net   # Real value hidden for security
+                source:         TEST
+                remarks:        ****************************
+                remarks:        * THIS OBJECT IS MODIFIED
+                remarks:        * Please note that all data that is generally regarded as personal
+                remarks:        * data has been removed from this object.
+                remarks:        * To view the original object, please query the RIPE Database at:
+                remarks:        * http://www.ripe.net/whois
+                remarks:        ****************************
+                """);
 
         // Contains dummy UTF mntner
         checkFile("public/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1, """
@@ -214,16 +251,22 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 remarks:        ****************************
                 """);
 
+        checkFile("public/split/test.db.organisation.gz", StandardCharsets.ISO_8859_1, """
+                organisation:   ORG-TO1-TEST
+                org-name:       Test Organisation
+                reg-nr:         1234567890
+                source:         TEST""");
+
         checkFile("internal/split/test.db.person.gz", StandardCharsets.ISO_8859_1,
                 "person:         Test person 0",
                 "person:         Test person 1",
                 "person:         Test person 2",
                 "person:         Test person 3",
                 "person:         Test person 4",
-                "" +
-                "person:         Test person 9\n" +
-                "nic-hdl:        PN9-TEST\n" +
-                "source:         TEST");
+                """
+                person:         Test person 9
+                nic-hdl:        PN9-TEST
+                source:         TEST""");
 
         checkFile("internal/split/test.db.role.gz", StandardCharsets.ISO_8859_1,
                 "role:           Test role 0",
@@ -231,13 +274,12 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                 "role:           Test role 2",
                 "role:           Test role 3",
                 "role:           Test role 4",
-                "" +
-                "role:           Test role 9\n" +
-                "nic-hdl:        ROLE9-TEST\n" +
-                "source:         TEST");
+                """
+                role:           Test role 9
+                nic-hdl:        ROLE9-TEST
+                source:         TEST""");
 
         checkFile("internal/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1,
-                "" +
                         "mntner:         DEV-MNT0\n" +
                         "auth:           MD5-PW $1$xNv6umMG$cBd9DXqWEpsqeBq2AUjGy/\n" +
                         "source:         TEST\n" +
@@ -282,8 +324,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         "auth:           MD5-PW $1$xNv6umMG$cBd9DXqWEpsqeBq2AUjGy/\n" +
                         "source:         TEST");
 
-        checkFile("internal/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1,
-                """
+        checkFile("internal/split/test.db.mntner.gz", StandardCharsets.ISO_8859_1, """
                         mntner:         UTF8-MNT
                         descr:          ü
                         descr:          ??? Avenue
@@ -295,8 +336,7 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         source:         TEST
                         """);
 
-        checkFile("internal/split/test.db.mntner.utf8.gz", StandardCharsets.UTF_8,
-                """
+        checkFile("internal/split/test.db.mntner.utf8.gz", StandardCharsets.UTF_8, """
                         mntner:         UTF8-MNT
                         descr:          ü
                         descr:          你好ا Avenue
@@ -307,20 +347,26 @@ public class ExportDatabaseTestIntegration extends AbstractSchedulerIntegrationT
                         mnt-by:         UTF8-MNT
                         source:         TEST
                         """);
+
+        checkFile("internal/split/test.db.organisation.gz", StandardCharsets.ISO_8859_1, """
+                        organisation:   ORG-TO1-TEST
+                        org-name:       Test Organisation
+                        reg-nr:         1234567890
+                        source:         TEST""");
     }
 
     @Test
     public void export_role_with_abuse_mailbox() throws IOException {
-        databaseHelper.addObject(RpslObject.parse("" +
-                "role:           Abuse role\n" +
-                "nic-hdl:        AR1-TEST\n" +
-                "abuse-mailbox:  abuse@mailbox.com\n" +
-                "source:         TEST"));
+        databaseHelper.addObject(RpslObject.parse("""
+                role:           Abuse role
+                nic-hdl:        AR1-TEST
+                abuse-mailbox:  abuse@mailbox.com
+                source:         TEST"""));
 
-        databaseHelper.addObject(RpslObject.parse("" +
-                "organisation:   ORG1\n" +
-                "abuse-c:        AR1-TEST\n" +
-                "source:         TEST"));
+        databaseHelper.addObject(RpslObject.parse("""
+                organisation:   ORG1
+                abuse-c:        AR1-TEST
+                source:         TEST"""));
 
         sourceContext.removeCurrentSource();
 
