@@ -38,6 +38,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -151,7 +153,7 @@ public class AuthServiceClient {
         try {
             final WebTarget webTarget = client.target(restUrl)
                     .path(USER_PATH)
-                    .path(email)
+                    .path(decode(email))
                     .queryParam("permission", VALIDATE_TOKEN_PERMISSION);
 
             validateTarget(webTarget.getUri().normalize(), USER_PATH);
@@ -194,9 +196,9 @@ public class AuthServiceClient {
             final WebTarget webTarget = client.target(restUrl)
                     .path(USER_ACCOUNTS_PATH)
                     .path(EMAIL_PATH)
-                    .path(username);
+                    .path(decode(username));
 
-            validateTarget(webTarget.getUri().normalize(), USER_ACCOUNTS_PATH);
+            validateTarget(webTarget.getUri().normalize(), USER_ACCOUNTS_PATH + EMAIL_PATH);
 
             final ValidateTokenResponse response = webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -226,7 +228,7 @@ public class AuthServiceClient {
 
         final WebTarget webTarget = client.target(restUrl)
                 .path(USER_ACCOUNTS_PATH)
-                .path(uuid);
+                .path(decode(uuid));
 
         validateTarget(webTarget.getUri().normalize(), USER_ACCOUNTS_PATH);
 
@@ -255,10 +257,15 @@ public class AuthServiceClient {
             throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
         }
 
+
+        final WebTarget webTarget = client.target(restUrl)
+                .path(HISTORICAL_USER_SEARCH_PATH)
+                .path(decode(uuid));
+
+        validateTarget(webTarget.getUri().normalize(), HISTORICAL_USER_SEARCH_PATH);
+
         try {
-            return client.target(restUrl)
-                    .path(HISTORICAL_USER_SEARCH_PATH)
-                    .path(uuid)
+            return webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(HistoricalUserResponse.class);
@@ -340,6 +347,7 @@ public class AuthServiceClient {
 
         final String membershipIds = lirs.stream()
                 .map(String::valueOf)
+                .map(this::decode)
                 .collect(Collectors.joining(","));
 
         try {
@@ -348,7 +356,7 @@ public class AuthServiceClient {
                     .path(SEARCH_ACCOUNTS_PATH)
                     .queryParam("by_membershipId", membershipIds);
 
-            validateTarget(webTarget.getUri().normalize(), ORGANISATION_MEMBERS_PATH);
+            validateTarget(webTarget.getUri().normalize(), ORGANISATION_MEMBERS_PATH + SEARCH_ACCOUNTS_PATH);
 
             return webTarget
                     .request(MediaType.APPLICATION_JSON_TYPE)
@@ -377,5 +385,9 @@ public class AuthServiceClient {
             // Ignored throw below
         }
         throw new IllegalArgumentException("Unexpected path");
+    }
+
+    private String decode(final String value) {
+        return URLDecoder.decode(value, StandardCharsets.UTF_8);
     }
 }
