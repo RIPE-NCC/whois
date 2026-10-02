@@ -49,19 +49,19 @@
         <commons-io.version>2.22.0</commons-io.version>
         <!-- equivalent to https://github.com/jgonian/commons-ip-math/ release 1.23 -->
         <commons-ip-math.version>1.23</commons-ip-math.version>
-        <commons-lang3.version>3.20.0</commons-lang3.version>
+        <commons-lang3.version>3.21.0</commons-lang3.version>
         <commons-net.version>3.13.0</commons-net.version>
         <commons-validator.version>1.11.0</commons-validator.version>
 
         <diffutils.version>4.17</diffutils.version>
 
-        <elasticsearch.version>8.12.2</elasticsearch.version>
+        <elasticsearch.version>8.19.22</elasticsearch.version>
         <ezvcard.version>0.12.2</ezvcard.version>
 
         <findbugs.version>3.0.2</findbugs.version>
 
-        <groovy.version>5.1.2</groovy.version>
-        <guava.version>33.7.1-jre</guava.version>
+        <groovy.version>5.1.3</groovy.version>
+        <guava.version>33.7.2-jre</guava.version>
 
         <hamcrest.version>3.0</hamcrest.version>
         <hamcrest-json.version>0.3</hamcrest-json.version>
@@ -69,7 +69,7 @@
 
         <ibm.idna.version>78.3</ibm.idna.version>
 
-        <jackson.version>2.22.2</jackson.version>
+        <jackson.version>2.22.3</jackson.version>
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <!-- Jakarta XML Binding (JAXB) API for EE11 https://jakarta.ee/specifications/xml-binding/4.0/ -->
         <jaxb.api.version>4.0.5</jaxb.api.version>
@@ -94,7 +94,7 @@
         <mockito.version>5.23.0</mockito.version>
 
         <netty.version>4.2.18.Final</netty.version>
-        <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.10</nimbus-jose-jwt.version>
 
         <oauth2.oidc.version>11.37.2</oauth2.oidc.version>
         <org.json.version>20260814</org.json.version>
@@ -103,11 +103,11 @@
         <persistence.api.version>3.2.0</persistence.api.version>
         <proprot.version>1.0</proprot.version>
 
-        <sentry.version>8.56.0</sentry.version>
+        <sentry.version>8.59.0</sentry.version>
         <!-- Servlet API 6.1 for EE11 : https://jakarta.ee/specifications/servlet/6.1/ -->
         <servlet.version>6.1.0</servlet.version>
         <shedlock.version>6.10.0</shedlock.version>
-        <slf4j.version>2.0.19</slf4j.version>
+        <slf4j.version>2.0.20</slf4j.version>
         <solrj.version>1.4.1</solrj.version>
         <spock.version>2.4-groovy-5.0</spock.version>
         <spring.version>7.0.9</spring.version>
@@ -1061,12 +1061,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.1.4</version>
+                <version>3.2.0</version>
             </plugin>
             <plugin>
                 <!-- RUN UNIT TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <!-- TODO: [ES] do not update to surefire 3.6.0 as no tests found
+                     Due to https://github.com/apache/maven-surefire/issues/3465 -->
                 <version>3.5.6</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
@@ -1078,6 +1080,7 @@
                         <exclude>${test.files.integration}</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
+                    <!-- TODO: [ES] switch to parallel "both" -->
                     <parallel>true</parallel>
                     <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
@@ -1095,6 +1098,8 @@
                 <!-- RUN INTEGRATION TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <!-- TODO: [ES] do not update to failsafe 3.6.0 as no tests found
+                     Due to https://github.com/apache/maven-surefire/issues/3465 -->
                 <version>3.5.6</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
@@ -1107,6 +1112,7 @@
                     </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
                     <!-- Ref. https://maven.apache.org/surefire/maven-failsafe-plugin/examples/fork-options-and-parallel-execution.html -->
+                    <!-- TODO: [ES] switch to parallel "both" -->
                     <parallel>true</parallel>
                     <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
@@ -1201,7 +1207,7 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>12.2.2</version>
+                <version>13.0.0</version>
                 <executions>
                     <execution>
                         <id>not-by-default</id>

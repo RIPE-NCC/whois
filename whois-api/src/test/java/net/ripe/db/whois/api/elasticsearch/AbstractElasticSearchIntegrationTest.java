@@ -40,7 +40,7 @@ public abstract class AbstractElasticSearchIntegrationTest extends AbstractInteg
     public static void setUpElasticCluster() {
         if (StringUtils.isBlank(System.getProperty(ENV_DISABLE_TEST_CONTAINERS))) {
             if (elasticsearchContainer == null) {
-                elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:8.12.2")
+                elasticsearchContainer = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:8.19.22")
                         .withEnv("xpack.security.enabled", "false");
                 elasticsearchContainer.start();
             }

@@ -5,6 +5,7 @@ import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.util.NamedValue;
 import net.ripe.db.whois.common.rpsl.AttributeSyntax;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 
@@ -169,8 +170,9 @@ public class ElasticSearchConfigurations {
         }
 
       final TypeMapping mapping = TypeMapping.of(m -> m
-                .dynamicTemplates(Collections.singletonList(
-                        Map.of("default_mapping", DynamicTemplate.of(dt -> dt
+                .dynamicTemplates(
+                    Collections.singletonList(
+                        NamedValue.of("default_mapping", DynamicTemplate.of(dt -> dt
                                 .matchMappingType("string")
                                 .mapping(p -> p
                                         .text(t -> t

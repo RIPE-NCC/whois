@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.not;
 @Tag("ManualTest")
 @Disabled("Replace username and password before running manually")
 @DirtiesContext
-public class GrsImporterLacnicManualIntegrationTest extends AbstractSchedulerIntegrationTest {
+public class ManualLacnicGrsImporter extends AbstractSchedulerIntegrationTest {
 
     @Autowired GrsImporter grsImporter;
     @Autowired GrsSourceImporter grsSourceImporter;
