@@ -3,7 +3,9 @@ package net.ripe.db.whois.rdap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.net.InetAddresses;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.common.dao.RpslObjectDao;
 import net.ripe.db.whois.common.dao.jdbc.BulkRpslReadOnlyLoader;
 import net.ripe.db.whois.common.domain.CIString;
@@ -24,6 +26,10 @@ import net.ripe.db.whois.common.rpsl.attrs.Domain;
 import net.ripe.db.whois.common.rpsl.attrs.Inet6numStatus;
 import net.ripe.db.whois.common.rpsl.attrs.InetnumStatus;
 import net.ripe.db.whois.query.QueryFlag;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
+import net.ripe.db.whois.query.acl.AccountingIdentifier;
+import net.ripe.db.whois.query.dao.IpAccessControlListDao;
+import net.ripe.db.whois.query.domain.QueryException;
 import net.ripe.db.whois.query.query.Query;
 import net.ripe.db.whois.rdap.domain.RdapRequestType;
 import net.ripe.db.whois.rdap.domain.RelationType;
@@ -36,6 +42,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -65,6 +72,8 @@ public class RdapRelationService {
     private final RdapLookupService rdapLookupService;
     private final BulkRpslReadOnlyLoader bulkRpslReadOnlyLoader;
     private final int resultSizeLimit;
+    private final AccessControlListManager accessControlListManager;
+
 
     @Autowired
     public RdapRelationService(final Ipv4Tree ip4Tree,
@@ -76,6 +85,7 @@ public class RdapRelationService {
                                final RdapQueryHandler rdapQueryHandler,
                                final RdapObjectMapper rdapObjectMapper,
                                final BulkRpslReadOnlyLoader bulkRpslReadOnlyLoader,
+                               final AccessControlListManager accessControlListManager,
                                final RdapLookupService rdapLookupService) {
         this.ip4Tree = ip4Tree;
         this.ip6Tree = ip6Tree;
@@ -87,6 +97,7 @@ public class RdapRelationService {
         this.rdapLookupService = rdapLookupService;
         this.bulkRpslReadOnlyLoader = bulkRpslReadOnlyLoader;
         this.resultSizeLimit = resultSizeLimit;
+        this.accessControlListManager = accessControlListManager;
     }
 
     protected Object handleRelationQuery(final HttpServletRequest request,
@@ -94,6 +105,9 @@ public class RdapRelationService {
                                          final RelationType relationType, final String key,
                                          final String requestUrl,
                                          final int maxResultSize) {
+
+        checkAclBlocked(request);
+
         final List<RpslObject> rpslObjects;
 
         final boolean shouldReturnLookup = relationType.equals(RelationType.UP) || relationType.equals(RelationType.TOP);
@@ -134,6 +148,16 @@ public class RdapRelationService {
                 requestType,
                 rpslObjects,
                 maxResultSize);
+    }
+
+    private void checkAclBlocked(final HttpServletRequest request) {
+        final InetAddress remoteAddress = InetAddresses.forString(request.getRemoteAddr());
+        final AccountingIdentifier accountingIdentifier = accessControlListManager.getAccountingIdentifier( remoteAddress, null);
+        try {
+            accessControlListManager.checkBlocked(accountingIdentifier);
+        } catch (QueryException e) {
+            throw new RdapException("Too Many Requests", e.getMessage(), Response.Status.TOO_MANY_REQUESTS.getStatusCode());
+        }
     }
 
     private void validateResultSize(final int resultSize) {
