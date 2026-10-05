@@ -8,6 +8,7 @@ import net.ripe.db.whois.rdap.domain.Ip;
 import net.ripe.db.whois.common.rpsl.RpslObject;
 import net.ripe.db.whois.query.acl.IpResourceConfiguration;
 import net.ripe.db.whois.query.support.TestPersonalObjectAccounting;
+import net.ripe.db.whois.rdap.domain.SearchResult;
 import org.eclipse.jetty.http.HttpStatus;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
@@ -149,6 +150,30 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
                 createResource("entity/PP1-TEST")
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(Entity.class);
+                fail();
+            } catch (ClientErrorException e) {
+                assertErrorStatus(e, HttpStatus.TOO_MANY_REQUESTS_429);
+                assertErrorTitleContains(e, "Too Many Requests");
+                assertErrorDescriptionContains(e, "%ERROR:201: access denied for 127.0.0.1");
+            }
+        } finally {
+            databaseHelper.unbanIp(LOCALHOST_WITH_PREFIX);
+            ipResourceConfiguration.reload();
+            testPersonalObjectAccounting.resetAccounting();
+        }
+    }
+
+    @Test
+    public void lookup_rdap_relation_acl_denied() {
+        try {
+            databaseHelper.insertAclIpDenied(LOCALHOST_WITH_PREFIX);
+            ipResourceConfiguration.reload();
+
+            try {
+                createResource("ips/rirSearch1/rdap-down/192.0.2.0/24")
+                        .request(MediaType.APPLICATION_JSON_TYPE)
+                        .get(String.class);
+
                 fail();
             } catch (ClientErrorException e) {
                 assertErrorStatus(e, HttpStatus.TOO_MANY_REQUESTS_429);
