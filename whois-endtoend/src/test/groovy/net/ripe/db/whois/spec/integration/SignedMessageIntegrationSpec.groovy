@@ -413,7 +413,332 @@ class SignedMessageIntegrationSpec extends BaseWhoisSourceSpec {
       ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
   }
 
-  def "inline pgp signed syncupdate with invalid existing key"() {
+    def"inline pgp signed mailupdate with two subkey signing verify success"() {
+        given:
+        setTime(LocalDateTime.parse("2026-10-10T12:18:43")) // current time must be within 1 hour of signing time
+        when:
+        syncUpdate new SyncUpdate(data: """
+            key-cert:       PGPKEY-B7CC95AA
+            method:         PGP
+            certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+            certif:
+            certif:         mI0EasoCIwEEALnIzDXjntDuPqF7FHshi4QAlqCSpjevlgkiCqppr7sgcw0FbHWK
+            certif:         favesOwtOlfZNbZjxW2prmhSf3qVZicjsDJJ0XBQqMKWkV//4QmwUB8qJHig/hTq
+            certif:         kXfI7eu3sTJgFQtWEwjI0T0jOaocZxYDo3EoyOKCqFU5T1MxZJlUVxq3ABEBAAG0
+            certif:         N1Rlc3QgdHdvIFN1YmtleXMgKFRlc3QgcmV2b2tlIHN1YmtleSkgPHJldm9rZUBy
+            certif:         aXBlLm5ldD6I7QQTAQgAVxYhBBXPK5Oh/3llTsLbLeyqu9+3zJWqBQJqygIjGxSA
+            certif:         AAAAAAQADm1hbnUyLDIuNSsxLjEyLDAsMwIbAwULCQgHAgIiAgYVCgkICwIEFgID
+            certif:         AQIeBwIXgAAKCRDsqrvft8yVqr7RBACV8pkeQl+fdF/lG4vFi2cMAu3aZmL96JQD
+            certif:         4NpAUBWXK0Umg2Y48/nGNwfFGvY3RoL0WQs5UkaJwQ/m6Zg40gtaQZwgVAoihzF9
+            certif:         pkHUmQ6t/+i9X9LPzR8qhugSsBTG6tLnQeFFWIxNVJdtSLOibX/cgJP+fsfVS+H8
+            certif:         EQ1xrwTTP7iNBGrKAiMBBAC7CNiCQwSQlSSJYc+TXIa7pC1q4AZsAFdDl1qfgmiH
+            certif:         mD3rB8pqTfawnecRFjydNMh2mHGZt6OtmlJ+n1yz5cxH0D3EmonwRNmQxbIF4Viv
+            certif:         NDEVXb4cGFPA5K5Y8LCLR+3DKWb2Kf98H/cJ8dve68lfzU+rHoKU74OBftQMBxaP
+            certif:         EwARAQABiNIEGAEIADwWIQQVzyuTof95ZU7C2y3sqrvft8yVqgUCasoCIxsUgAAA
+            certif:         AAAEAA5tYW51MiwyLjUrMS4xMiwwLDMCGwwACgkQ7Kq737fMlaqHJwP8CZwPEL31
+            certif:         aKn1BQhKn0z62YC/N/6mWiM5SPNF90K8WaYM3yE8q9gJOZ4m9AuXq6cZuzQVZ2XT
+            certif:         7rcnwyJd9CG2aPcqFEAMylgQkYBO3GGhLy41Q7fEHDVnu+niofZis2EYAtFtADjD
+            certif:         gNLVeh6ycYaOBxCpDm5ARszo0OdfVE5r9924jQRqygPmAQQA2A7+XpJ3nMR5GHHa
+            certif:         2Os4AknhSXBW0HletqFUJaszpmMDxALljBQGQbZcTZYSdbrLrOAshRm6c+yL+Ay7
+            certif:         MHM34jI3DJRZ1eg0eBDP6jm4QfImOpOaFi5BI3JmqM13cl9tlTCFLiAdCxZvYkAA
+            certif:         2KakjVpy0OA2e1hvjNXQlg4L/qEAEQEAAYkBhwQYAQgAPBYhBBXPK5Oh/3llTsLb
+            certif:         Leyqu9+3zJWqBQJqygPmGxSAAAAAAAQADm1hbnUyLDIuNSsxLjEyLDAsMwIbAgC/
+            certif:         CRDsqrvft8yVqrQgBBkBCAAdFiEEGylPKa7XGexcDQDsblJxn+3adc4FAmrKA+YA
+            certif:         CgkQblJxn+3adc4HpwP9GpHsFuOpTungBhH7oSqefbj0Xh6pBBUS7+kkZwEcdyQ/
+            certif:         wn4fvCqBcVhPFBH4i1r2Kgx9WYq5iphr+/BC5HwuJDQmDI+upFJiG5XrbN1vJV8K
+            certif:         lhnLVpyYay19vwR52Jy1i8bpXBTPydifPwX8Xk60ew3W7RjsQ8tHJa9pemN0608k
+            certif:         4wP/cNcB0WTlKeVg1aH8uU+mEptFWOht52MjRlpIO2pcnNulrmViYsn4tKeUy1O9
+            certif:         iE3XOYNwTVgYwgW7lTzEOoE16unCu5JpOS3F1ZImlAf2eFiV9tsANllo+pL+/C9R
+            certif:         2p4TkMMoOFYM6sbCQnT2gCxwTY7pVULhN3z65yeD262hGim4jQRqygSSAQQAt/1X
+            certif:         1qrmTmXkuOR/l6bDDvcS1KOXjFOokZIGOaJ7TEMLP0M/w4O6A05XI9yxXqpdyEGH
+            certif:         1Zqqcd6KNxJFxVEjHhVujHu6xWHvTYCK+xZ2uZW6Z2PrJX2j0MMlHrcvq+f+H2tc
+            certif:         bO9GIWmi13bB5a/nzp+u4jx7Iv4jLlItZSOO6h8AEQEAAYkBhwQYAQgAPBYhBBXP
+            certif:         K5Oh/3llTsLbLeyqu9+3zJWqBQJqygSSGxSAAAAAAAQADm1hbnUyLDIuNSsxLjEy
+            certif:         LDAsMwIbAgC/CRDsqrvft8yVqrQgBBkBCAAdFiEEKrobEWyN3yvIIS4nIo8w9KOL
+            certif:         0osFAmrKBJIACgkQIo8w9KOL0ovu2AP/bAyhUdyyWZPc7BVFdD48XmmwzaysvgON
+            certif:         8J8T3H9kNd1b4bsBlD+BPULj3PlJJ/mO1H6+bFblv+fkq9Z3cO8T6h+5dx3B/VAP
+            certif:         ap0l+WqqTt8Oy4D9826Gqcp3GH4hjK9j7Bu3kwa1wcDOc6iNkUw/FkNs8Y9D5XbH
+            certif:         ZnB3BGeoC92/nQP+OkbVFBKEor63WZOK94tOO8Xkp0a1VNImqKhGpdhjKU5FBOBf
+            certif:         nyvovkqqB9xYqz8SGMgIDrnjTn8iI/xC2dl6YLGZH9l7iNr34Wc4XsOMhUgqpG+h
+            certif:         HnmC0jht9BFVAIdZ9T1q3lanAGClmRXmEKDnDOFfQ11yPrzu7PN8ojDBVBw=
+            certif:         =oDrn
+            certif:         -----END PGP PUBLIC KEY BLOCK-----
+            mnt-by:         OWNER-MNT
+            source:         TEST
+            password:       owner
+             """.stripIndent(true))
+        then:
+        syncUpdate new SyncUpdate(data:
+                getFixtures().get("OWNER-MNT").stripIndent(true).
+                        replaceAll("source:\\s*TEST", "auth: PGPKEY-B7CC95AA\nsource: TEST")
+                        + "password: owner")
+        then:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA256
+                
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                
+                iM8EAQEIADkWIQQbKU8prtcZ7FwNAOxuUnGf7dp1zgUCasoVShsUgAAAAAAEAA5t
+                YW51MiwyLjUrMS4xMiwwLDMACgkQblJxn+3adc4lPAP/VQftWQocpMmbE0mEvYAF
+                lS6C9JURg8tAFRlb62hdSBxff9CtF3UrGqBlPUC8HbK/mLnSy9Cy7iY2nAPE9krl
+                s9IlJeIpDM1htKukc5U7KM8VmzhN1niZGKZ5X+1N84fORTqeX6YNmDvLW6q/UFEf
+                BxhBIyfY5W3XlGsKQF1PV48=
+                =Hu0a
+                -----END PGP SIGNATURE-----
+                """.stripIndent(true))
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+
+        then:
+        def message2 = send new Message(
+                subject: "",
+                body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA256
+                
+                person:  Second Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
+                nic-hdl: FP2-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                
+                iM8EAQEIADkWIQQquhsRbI3fK8ghLicijzD0o4vSiwUCasoWwRsUgAAAAAAEAA5t
+                YW51MiwyLjUrMS4xMiwwLDMACgkQIo8w9KOL0ovONQP6Ay2kmaTsf18IBl9R2tib
+                Mm3erBGNzL7xf8X13SuARZiGKVHYJgFekAdhrFrhP+eR5qJoEQOH/q/o+cSDzhr6
+                VkkwoaV1GQrCazUA9Eb+amGn8abDvKR5kEVt/gLy9626uZTGWV3MYvoliVlsLZHc
+                vow3UvE+pkrV1ZMOBvzTga8=
+                =v3tx
+                -----END PGP SIGNATURE-----
+                """.stripIndent(true))
+        then:
+        def ack2 = ackFor message2
+
+        ack2.success
+        ack2.summary.nrFound == 1
+        ack2.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack2.summary.assertErrors(0, 0, 0, 0)
+
+        ack2.successes.any { it.operation == "Create" && it.key == "[person] FP2-TEST   Second Person" }
+    }
+
+    def"inline pgp signed mailupdate with two subkey signing revoke subkey2 verify fails"() {
+        given:
+        setTime(LocalDateTime.parse("2026-10-10T12:18:43")) // current time must be within 1 hour of signing time
+
+        when: "create key-cert with both signing subkeys"
+        syncUpdate new SyncUpdate(data: """
+            key-cert:       PGPKEY-B7CC95AA
+            method:         PGP
+            certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+            certif:
+            certif:         mI0EasoCIwEEALnIzDXjntDuPqF7FHshi4QAlqCSpjevlgkiCqppr7sgcw0FbHWK
+            certif:         favesOwtOlfZNbZjxW2prmhSf3qVZicjsDJJ0XBQqMKWkV//4QmwUB8qJHig/hTq
+            certif:         kXfI7eu3sTJgFQtWEwjI0T0jOaocZxYDo3EoyOKCqFU5T1MxZJlUVxq3ABEBAAG0
+            certif:         N1Rlc3QgdHdvIFN1YmtleXMgKFRlc3QgcmV2b2tlIHN1YmtleSkgPHJldm9rZUBy
+            certif:         aXBlLm5ldD6I7QQTAQgAVxYhBBXPK5Oh/3llTsLbLeyqu9+3zJWqBQJqygIjGxSA
+            certif:         AAAAAAQADm1hbnUyLDIuNSsxLjEyLDAsMwIbAwULCQgHAgIiAgYVCgkICwIEFgID
+            certif:         AQIeBwIXgAAKCRDsqrvft8yVqr7RBACV8pkeQl+fdF/lG4vFi2cMAu3aZmL96JQD
+            certif:         4NpAUBWXK0Umg2Y48/nGNwfFGvY3RoL0WQs5UkaJwQ/m6Zg40gtaQZwgVAoihzF9
+            certif:         pkHUmQ6t/+i9X9LPzR8qhugSsBTG6tLnQeFFWIxNVJdtSLOibX/cgJP+fsfVS+H8
+            certif:         EQ1xrwTTP7iNBGrKAiMBBAC7CNiCQwSQlSSJYc+TXIa7pC1q4AZsAFdDl1qfgmiH
+            certif:         mD3rB8pqTfawnecRFjydNMh2mHGZt6OtmlJ+n1yz5cxH0D3EmonwRNmQxbIF4Viv
+            certif:         NDEVXb4cGFPA5K5Y8LCLR+3DKWb2Kf98H/cJ8dve68lfzU+rHoKU74OBftQMBxaP
+            certif:         EwARAQABiNIEGAEIADwWIQQVzyuTof95ZU7C2y3sqrvft8yVqgUCasoCIxsUgAAA
+            certif:         AAAEAA5tYW51MiwyLjUrMS4xMiwwLDMCGwwACgkQ7Kq737fMlaqHJwP8CZwPEL31
+            certif:         aKn1BQhKn0z62YC/N/6mWiM5SPNF90K8WaYM3yE8q9gJOZ4m9AuXq6cZuzQVZ2XT
+            certif:         7rcnwyJd9CG2aPcqFEAMylgQkYBO3GGhLy41Q7fEHDVnu+niofZis2EYAtFtADjD
+            certif:         gNLVeh6ycYaOBxCpDm5ARszo0OdfVE5r9924jQRqygPmAQQA2A7+XpJ3nMR5GHHa
+            certif:         2Os4AknhSXBW0HletqFUJaszpmMDxALljBQGQbZcTZYSdbrLrOAshRm6c+yL+Ay7
+            certif:         MHM34jI3DJRZ1eg0eBDP6jm4QfImOpOaFi5BI3JmqM13cl9tlTCFLiAdCxZvYkAA
+            certif:         2KakjVpy0OA2e1hvjNXQlg4L/qEAEQEAAYkBhwQYAQgAPBYhBBXPK5Oh/3llTsLb
+            certif:         Leyqu9+3zJWqBQJqygPmGxSAAAAAAAQADm1hbnUyLDIuNSsxLjEyLDAsMwIbAgC/
+            certif:         CRDsqrvft8yVqrQgBBkBCAAdFiEEGylPKa7XGexcDQDsblJxn+3adc4FAmrKA+YA
+            certif:         CgkQblJxn+3adc4HpwP9GpHsFuOpTungBhH7oSqefbj0Xh6pBBUS7+kkZwEcdyQ/
+            certif:         wn4fvCqBcVhPFBH4i1r2Kgx9WYq5iphr+/BC5HwuJDQmDI+upFJiG5XrbN1vJV8K
+            certif:         lhnLVpyYay19vwR52Jy1i8bpXBTPydifPwX8Xk60ew3W7RjsQ8tHJa9pemN0608k
+            certif:         4wP/cNcB0WTlKeVg1aH8uU+mEptFWOht52MjRlpIO2pcnNulrmViYsn4tKeUy1O9
+            certif:         iE3XOYNwTVgYwgW7lTzEOoE16unCu5JpOS3F1ZImlAf2eFiV9tsANllo+pL+/C9R
+            certif:         2p4TkMMoOFYM6sbCQnT2gCxwTY7pVULhN3z65yeD262hGim4jQRqygSSAQQAt/1X
+            certif:         1qrmTmXkuOR/l6bDDvcS1KOXjFOokZIGOaJ7TEMLP0M/w4O6A05XI9yxXqpdyEGH
+            certif:         1Zqqcd6KNxJFxVEjHhVujHu6xWHvTYCK+xZ2uZW6Z2PrJX2j0MMlHrcvq+f+H2tc
+            certif:         bO9GIWmi13bB5a/nzp+u4jx7Iv4jLlItZSOO6h8AEQEAAYkBhwQYAQgAPBYhBBXP
+            certif:         K5Oh/3llTsLbLeyqu9+3zJWqBQJqygSSGxSAAAAAAAQADm1hbnUyLDIuNSsxLjEy
+            certif:         LDAsMwIbAgC/CRDsqrvft8yVqrQgBBkBCAAdFiEEKrobEWyN3yvIIS4nIo8w9KOL
+            certif:         0osFAmrKBJIACgkQIo8w9KOL0ovu2AP/bAyhUdyyWZPc7BVFdD48XmmwzaysvgON
+            certif:         8J8T3H9kNd1b4bsBlD+BPULj3PlJJ/mO1H6+bFblv+fkq9Z3cO8T6h+5dx3B/VAP
+            certif:         ap0l+WqqTt8Oy4D9826Gqcp3GH4hjK9j7Bu3kwa1wcDOc6iNkUw/FkNs8Y9D5XbH
+            certif:         ZnB3BGeoC92/nQP+OkbVFBKEor63WZOK94tOO8Xkp0a1VNImqKhGpdhjKU5FBOBf
+            certif:         nyvovkqqB9xYqz8SGMgIDrnjTn8iI/xC2dl6YLGZH9l7iNr34Wc4XsOMhUgqpG+h
+            certif:         HnmC0jht9BFVAIdZ9T1q3lanAGClmRXmEKDnDOFfQ11yPrzu7PN8ojDBVBw=
+            certif:         =oDrn
+            certif:         -----END PGP PUBLIC KEY BLOCK-----
+            mnt-by:         OWNER-MNT
+            source:         TEST
+            password:       owner
+             """.stripIndent(true))
+        then:
+        syncUpdate new SyncUpdate(data:
+                getFixtures().get("OWNER-MNT").stripIndent(true).
+                        replaceAll("source:\\s*TEST", "auth: PGPKEY-B7CC95AA\nsource: TEST")
+                        + "password: owner")
+
+        when: "update key-cert with subkey2 revoked"
+        def keyCertUpdate = syncUpdate new SyncUpdate(data: """
+            key-cert:       PGPKEY-B7CC95AA
+            method:         PGP
+            certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+            certif:         
+            certif:         mI0EasoCIwEEALnIzDXjntDuPqF7FHshi4QAlqCSpjevlgkiCqppr7sgcw0FbHWK
+            certif:         favesOwtOlfZNbZjxW2prmhSf3qVZicjsDJJ0XBQqMKWkV//4QmwUB8qJHig/hTq
+            certif:         kXfI7eu3sTJgFQtWEwjI0T0jOaocZxYDo3EoyOKCqFU5T1MxZJlUVxq3ABEBAAG0
+            certif:         N1Rlc3QgdHdvIFN1YmtleXMgKFRlc3QgcmV2b2tlIHN1YmtleSkgPHJldm9rZUBy
+            certif:         aXBlLm5ldD6I7QQTAQgAVxYhBBXPK5Oh/3llTsLbLeyqu9+3zJWqBQJqygIjGxSA
+            certif:         AAAAAAQADm1hbnUyLDIuNSsxLjEyLDAsMwIbAwULCQgHAgIiAgYVCgkICwIEFgID
+            certif:         AQIeBwIXgAAKCRDsqrvft8yVqr7RBACV8pkeQl+fdF/lG4vFi2cMAu3aZmL96JQD
+            certif:         4NpAUBWXK0Umg2Y48/nGNwfFGvY3RoL0WQs5UkaJwQ/m6Zg40gtaQZwgVAoihzF9
+            certif:         pkHUmQ6t/+i9X9LPzR8qhugSsBTG6tLnQeFFWIxNVJdtSLOibX/cgJP+fsfVS+H8
+            certif:         EQ1xrwTTP7iNBGrKAiMBBAC7CNiCQwSQlSSJYc+TXIa7pC1q4AZsAFdDl1qfgmiH
+            certif:         mD3rB8pqTfawnecRFjydNMh2mHGZt6OtmlJ+n1yz5cxH0D3EmonwRNmQxbIF4Viv
+            certif:         NDEVXb4cGFPA5K5Y8LCLR+3DKWb2Kf98H/cJ8dve68lfzU+rHoKU74OBftQMBxaP
+            certif:         EwARAQABiNIEGAEIADwWIQQVzyuTof95ZU7C2y3sqrvft8yVqgUCasoCIxsUgAAA
+            certif:         AAAEAA5tYW51MiwyLjUrMS4xMiwwLDMCGwwACgkQ7Kq737fMlaqHJwP8CZwPEL31
+            certif:         aKn1BQhKn0z62YC/N/6mWiM5SPNF90K8WaYM3yE8q9gJOZ4m9AuXq6cZuzQVZ2XT
+            certif:         7rcnwyJd9CG2aPcqFEAMylgQkYBO3GGhLy41Q7fEHDVnu+niofZis2EYAtFtADjD
+            certif:         gNLVeh6ycYaOBxCpDm5ARszo0OdfVE5r9924jQRqygPmAQQA2A7+XpJ3nMR5GHHa
+            certif:         2Os4AknhSXBW0HletqFUJaszpmMDxALljBQGQbZcTZYSdbrLrOAshRm6c+yL+Ay7
+            certif:         MHM34jI3DJRZ1eg0eBDP6jm4QfImOpOaFi5BI3JmqM13cl9tlTCFLiAdCxZvYkAA
+            certif:         2KakjVpy0OA2e1hvjNXQlg4L/qEAEQEAAYkBhwQYAQgAPBYhBBXPK5Oh/3llTsLb
+            certif:         Leyqu9+3zJWqBQJqygPmGxSAAAAAAAQADm1hbnUyLDIuNSsxLjEyLDAsMwIbAgC/
+            certif:         CRDsqrvft8yVqrQgBBkBCAAdFiEEGylPKa7XGexcDQDsblJxn+3adc4FAmrKA+YA
+            certif:         CgkQblJxn+3adc4HpwP9GpHsFuOpTungBhH7oSqefbj0Xh6pBBUS7+kkZwEcdyQ/
+            certif:         wn4fvCqBcVhPFBH4i1r2Kgx9WYq5iphr+/BC5HwuJDQmDI+upFJiG5XrbN1vJV8K
+            certif:         lhnLVpyYay19vwR52Jy1i8bpXBTPydifPwX8Xk60ew3W7RjsQ8tHJa9pemN0608k
+            certif:         4wP/cNcB0WTlKeVg1aH8uU+mEptFWOht52MjRlpIO2pcnNulrmViYsn4tKeUy1O9
+            certif:         iE3XOYNwTVgYwgW7lTzEOoE16unCu5JpOS3F1ZImlAf2eFiV9tsANllo+pL+/C9R
+            certif:         2p4TkMMoOFYM6sbCQnT2gCxwTY7pVULhN3z65yeD262hGim4jQRqygSSAQQAt/1X
+            certif:         1qrmTmXkuOR/l6bDDvcS1KOXjFOokZIGOaJ7TEMLP0M/w4O6A05XI9yxXqpdyEGH
+            certif:         1Zqqcd6KNxJFxVEjHhVujHu6xWHvTYCK+xZ2uZW6Z2PrJX2j0MMlHrcvq+f+H2tc
+            certif:         bO9GIWmi13bB5a/nzp+u4jx7Iv4jLlItZSOO6h8AEQEAAYi2BCgBCAAgFiEEFc8r
+            certif:         k6H/eWVOwtst7Kq737fMlaoFAmrKF+sCHQAACgkQ7Kq737fMlap4nQP/dHmOXxBF
+            certif:         evRVw39FGAm+B4UL5Nni7Vm8Tr2rVBAS+7i3p5Wd0J7aQDj+c1grxZwMgJweat2j
+            certif:         agrKEL/RW99gBvSVOqP7DPgLL/iInSUMoZMf8aAvwNq/ciALOYsD7ICKKPHzBX8s
+            certif:         q0vVrfCoBPI2uBuJ5/8epcIbWE8fJE9J2smJAYcEGAEIADwWIQQVzyuTof95ZU7C
+            certif:         2y3sqrvft8yVqgUCasoEkhsUgAAAAAAEAA5tYW51MiwyLjUrMS4xMiwwLDMCGwIA
+            certif:         vwkQ7Kq737fMlaq0IAQZAQgAHRYhBCq6GxFsjd8ryCEuJyKPMPSji9KLBQJqygSS
+            certif:         AAoJECKPMPSji9KL7tgD/2wMoVHcslmT3OwVRXQ+PF5psM2srL4DjfCfE9x/ZDXd
+            certif:         W+G7AZQ/gT1C49z5SSf5jtR+vmxW5b/n5KvWd3DvE+ofuXcdwf1QD2qdJflqqk7f
+            certif:         DsuA/fNuhqnKdxh+IYyvY+wbt5MGtcHAznOojZFMPxZDbPGPQ+V2x2ZwdwRnqAvd
+            certif:         v50D/jpG1RQShKK+t1mTiveLTjvF5KdGtVTSJqioRqXYYylORQTgX58r6L5Kqgfc
+            certif:         WKs/EhjICA65405/IiP8QtnZemCxmR/Ze4ja9+FnOF7DjIVIKqRvoR55gtI4bfQR
+            certif:         VQCHWfU9at5WpwBgpZkV5hCg5wzhX0Ndcj687uzzfKIwwVQc
+            certif:         =mxgj
+            certif:         -----END PGP PUBLIC KEY BLOCK-----
+            mnt-by:         OWNER-MNT
+            source:         TEST
+            password:       owner
+            """.stripIndent(true))
+
+        then:
+        keyCertUpdate =~ /Modify SUCCEEDED: \[key-cert\] PGPKEY-B7CC95AA/
+
+        when: "subkey1 signed update"
+        def message = send new Message(
+                subject: "",
+                body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA256
+                
+                person:  First Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
+                nic-hdl: FP1-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                
+                iM8EAQEIADkWIQQbKU8prtcZ7FwNAOxuUnGf7dp1zgUCasoVShsUgAAAAAAEAA5t
+                YW51MiwyLjUrMS4xMiwwLDMACgkQblJxn+3adc4lPAP/VQftWQocpMmbE0mEvYAF
+                lS6C9JURg8tAFRlb62hdSBxff9CtF3UrGqBlPUC8HbK/mLnSy9Cy7iY2nAPE9krl
+                s9IlJeIpDM1htKukc5U7KM8VmzhN1niZGKZ5X+1N84fORTqeX6YNmDvLW6q/UFEf
+                BxhBIyfY5W3XlGsKQF1PV48=
+                =Hu0a
+                -----END PGP SIGNATURE-----
+                """.stripIndent(true))
+        then:
+        def ack = ackFor message
+
+        ack.success
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(1, 1, 0, 0, 0)
+        ack.summary.assertErrors(0, 0, 0, 0)
+
+        ack.successes.any { it.operation == "Create" && it.key == "[person] FP1-TEST   First Person" }
+
+        when: "revoked subkey2 signed update"
+        def message2 = send new Message(
+                subject: "",
+                body: """\
+                -----BEGIN PGP SIGNED MESSAGE-----
+                Hash: SHA256
+                
+                person:  Second Person
+                address: St James Street
+                address: Burnley
+                address: UK
+                phone:   +44 282 420469
+                e-mail:  noreply@ripe.net
+                nic-hdl: FP2-TEST
+                mnt-by:  OWNER-MNT
+                source:  TEST
+                -----BEGIN PGP SIGNATURE-----
+                
+                iM8EAQEIADkWIQQquhsRbI3fK8ghLicijzD0o4vSiwUCasoWwRsUgAAAAAAEAA5t
+                YW51MiwyLjUrMS4xMiwwLDMACgkQIo8w9KOL0ovONQP6Ay2kmaTsf18IBl9R2tib
+                Mm3erBGNzL7xf8X13SuARZiGKVHYJgFekAdhrFrhP+eR5qJoEQOH/q/o+cSDzhr6
+                VkkwoaV1GQrCazUA9Eb+amGn8abDvKR5kEVt/gLy9626uZTGWV3MYvoliVlsLZHc
+                vow3UvE+pkrV1ZMOBvzTga8=
+                =v3tx
+                -----END PGP SIGNATURE-----
+                """.stripIndent(true))
+        then:
+        def ack2 = ackFor message2
+
+        ack2.summary.nrFound == 1
+        ack2.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack2.summary.assertErrors(1, 1, 0, 0)
+
+        ack2.errors.any { it.operation == "Create" && it.key == "[person] FP2-TEST   Second Person" }
+        ack2.errorMessagesFor("Create", "[person] FP2-TEST")[0] =~ "Public Subkey in keycert A38BD28B is revoked"
+    }
+
+    def "inline pgp signed syncupdate with invalid existing key"() {
     when:
       syncUpdate new SyncUpdate(data:
               getFixtures().get("OWNER-MNT").stripIndent(true).replaceAll("source:\\s*TEST", "auth: PGPKEY-57639544\nsource: TEST") + "password: owner")

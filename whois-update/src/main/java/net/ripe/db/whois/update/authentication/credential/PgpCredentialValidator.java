@@ -65,7 +65,7 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential, PgpCr
             return false;
         }
 
-        if (verify(update, offeredCredential, pgpPublicKeyWrapper.getPublicKey()) || verify(update, offeredCredential, pgpPublicKeyWrapper.getSubKeys())) {
+        if (verify(update, offeredCredential, pgpPublicKeyWrapper.getPublicKey()) || verifySubKeys(update, updateContext, offeredCredential, pgpPublicKeyWrapper)) {
             log(update, String.format("Validated %s with keyId %s", update.getFormattedKey(), keyId));
 
             if (pgpPublicKeyWrapper.isExpired(dateTimeProvider)) {
@@ -102,12 +102,20 @@ class PgpCredentialValidator implements CredentialValidator<PgpCredential, PgpCr
         }
     }
 
-    private boolean verify(final PreparedUpdate update, final PgpCredential pgpCredential, final List<PGPPublicKey> pgpPublicKeys) {
+    private boolean verifySubKeys(final PreparedUpdate update, final UpdateContext updateContext, final PgpCredential pgpCredential, final PgpPublicKeyWrapper pgpPublicKeyWrapper) {
+
+        final List<PGPPublicKey> pgpPublicKeys = pgpPublicKeyWrapper.getSubKeys();
         for (PGPPublicKey next : pgpPublicKeys) {
             if (verify(update, pgpCredential, next)) {
+                if(pgpPublicKeyWrapper.isRevoked(next)) {
+                    updateContext.addMessage(update, UpdateMessages.publicSubKeyIsRevoked(pgpCredential.getKeyId()));
+                    return false;
+                }
+
                 return true;
             }
         }
+
         return false;
     }
 

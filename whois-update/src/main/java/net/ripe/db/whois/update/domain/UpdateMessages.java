@@ -546,6 +546,10 @@ public final class UpdateMessages {
         return new Message(Type.ERROR, "Public key in keycert %s is revoked", name);
     }
 
+    public static Message publicSubKeyIsRevoked(final CharSequence name) {
+        return new Message(Type.ERROR, "Public Subkey in keycert %s is revoked", name);
+    }
+
     public static Message publicKeyLengthIsWeak(final CharSequence algorithm, final int minimum, final int actual) {
         return new Message(Type.ERROR, "%s public key is %d bits which is less than the minimum %d", algorithm, actual, minimum);
     }

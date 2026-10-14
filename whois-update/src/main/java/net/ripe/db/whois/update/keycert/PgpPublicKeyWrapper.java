@@ -122,6 +122,32 @@ public class PgpPublicKeyWrapper implements KeyWrapper {
         }
     }
 
+    public boolean isRevoked(final PGPPublicKey subKey) {
+        if(!subKeys.contains(subKey)) {
+            return false;
+        }
+
+        final Iterator<PGPSignature> revocationIterator = subKey.getSignaturesOfType(PGPSignature.SUBKEY_REVOCATION);
+
+        final JcaPGPContentVerifierBuilderProvider provider = new JcaPGPContentVerifierBuilderProvider()
+                .setProvider(PROVIDER);
+
+        while (revocationIterator.hasNext()) {
+            final PGPSignature revocation = revocationIterator.next();
+
+            try {
+                revocation.init(provider, masterKey);
+                if (revocation.verifyCertification(masterKey, subKey)) {
+                    return true;
+                }
+            } catch (PGPException e) {
+                // Invalid/corrupted/unrelated revocation signatures are ignored.
+            }
+        }
+
+        return false;
+    }
+
     static boolean hasFlag(final PGPSignature signature, final int flag) {
         if (signature.hasSubpackets()) {
             PGPSignatureSubpacketVector subpacketVector = signature.getHashedSubPackets();
