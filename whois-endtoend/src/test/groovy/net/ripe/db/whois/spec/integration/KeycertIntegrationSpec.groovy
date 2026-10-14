@@ -533,7 +533,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
         def updateResponse = syncUpdate(new SyncUpdate(data: updateRequest.stripIndent(true)))
 
       then:
-        updateResponse =~ /SUCCES/
+        updateResponse =~ /SUCCESS/
     }
 
     def "delete existing PGP whitespace difference"() {
@@ -664,7 +664,7 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
                 delete: reason
             """.stripIndent(true)))
       then:
-        deleteResponse =~ /SUCCES/
+        deleteResponse =~ /SUCCESS/
     }
 
     def "create keycert with AUTO-1 and PGP KEY"() {
@@ -768,6 +768,92 @@ class KeycertIntegrationSpec extends BaseWhoisSourceSpec {
       then:
         response.contains("Create SUCCEEDED: [key-cert] X509-1")
         response.contains("Create SUCCEEDED: [irt] irt-test")
+    }
+
+    def "create revoked keycert is not allowed"() {
+      given:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                key-cert:       PGPKEY-378914ED
+                method:         PGP
+                owner:          Test <revoke_key@ripe.net>
+                fingerpr:       92C2 2116 D1CD F212 CAF2  A316 78A2 ADCB 3789 14ED
+                certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:
+                certif:         mDMEad9ZOBYJKwYBBAHaRw8BAQdAlpJc308p3jyZOxDOerl5Upk69Baocx4cX+MR
+                certif:         C6UzwlCIeAQgFgoAIBYhBJLCIRbRzfISyvKjFniircs3iRTtBQJp31lqAh0AAAoJ
+                certif:         EHiircs3iRTtm48BAJnCsjN5fxT/x3mZigk1/MLhh31F/PbtOVTwAcCHDA2nAP40
+                certif:         CLlqEHsNJcaeRvhQtZD7sDSTVFlhAXqYqvCdenWzCLQaVGVzdCA8cmV2b2tlX2tl
+                certif:         eUByaXBlLm5ldD6ImQQTFgoAQRYhBJLCIRbRzfISyvKjFniircs3iRTtBQJp31k4
+                certif:         AhsDBQkFo5qABQsJCAcCAiICBhUKCQgLAgQWAgMBAh4HAheAAAoJEHiircs3iRTt
+                certif:         pLAA/jMdIu/x4BpqQQblsvVLw7cWzP5KOWmBCMdU+3Rtb+ikAP9ycOmCORfAtZoX
+                certif:         rcXP2TUR2OEQgz6HbIKmP7A3NhWRBbg4BGnfWTgSCisGAQQBl1UBBQEBB0Bspgp7
+                certif:         WquKKFrKQLaSj00eheMYHUWJPg53wfGFFGfCIQMBCAeIeAQYFgoAIBYhBJLCIRbR
+                certif:         zfISyvKjFniircs3iRTtBQJp31k4AhsMAAoJEHiircs3iRTtywoBALY4XDqaBBVy
+                certif:         tOc9fs2DhH/Os16Pbl0e99rbxVkMDpfGAQCj5cl69o1SmK2DHMYbTeSH078m23FA
+                certif:         Z+3ojw0GuKOXBg==
+                certif:         =yuHE
+                certif:         -----END PGP PUBLIC KEY BLOCK-----
+                mnt-by:         UPD-MNT
+                source:         TEST
+                password: update
+            """.stripIndent(true)))
+      expect:
+        create.contains("Create FAILED: [key-cert] PGPKEY-378914ED")
+        create.contains("***Error:   Public key in keycert 378914ED is revoked")
+    }
+
+    def "update revoked keycert is allowed"() {
+      given:
+        def create = syncUpdate(new SyncUpdate(data: """\
+                key-cert:       PGPKEY-619FEF5A
+                method:         PGP
+                owner:          Test User <test@ripe.net>
+                fingerpr:       E635 B5FA 85B9 5BEC 6E64  098C BDE1 0921 619F EF5A
+                certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:         Comment: GPGTools - http://gpgtools.org
+                certif:         
+                certif:         mDMEas9QrRYJKwYBBAHaRw8BAQdAWF1Fk3X2LWa4e1QMCrat14PMwJYoAreLMFvi
+                certif:         ZQRcdpa0GVRlc3QgVXNlciA8dGVzdEByaXBlLm5ldD6IrwQTFgoAVxYhBOY1tfqF
+                certif:         uVvsbmQJjL3hCSFhn+9aBQJqz1CtGxSAAAAAAAQADm1hbnUyLDIuNSsxLjEyLDAs
+                certif:         MwIbAwULCQgHAgIiAgYVCgkICwIEFgIDAQIeBwIXgAAKCRC94QkhYZ/vWrQEAP9q
+                certif:         DBt3TsgbTqjf/w2oJ4KSM32nQDAkDWaUciGHclSaEgEA/jtgtu6Lg5nziu27sh3c
+                certif:         rvdiuwdcAiXRhfTdxwHncQg=
+                certif:         =nSXp
+                certif:         -----END PGP PUBLIC KEY BLOCK-----
+                remarks:        key is NOT revoked
+                mnt-by:         UPD-MNT
+                source:         TEST
+                password: update
+            """.stripIndent(true)))
+      expect:
+        create.contains("Create SUCCEEDED: [key-cert] PGPKEY-619FEF5A")
+      when:
+        def update = syncUpdate(new SyncUpdate(data: """\
+                key-cert:       PGPKEY-619FEF5A
+                method:         PGP
+                owner:          Test User <test@ripe.net>
+                fingerpr:       E635 B5FA 85B9 5BEC 6E64  098C BDE1 0921 619F EF5A
+                certif:         -----BEGIN PGP PUBLIC KEY BLOCK-----
+                certif:         Comment: GPGTools - http://gpgtools.org
+                certif:         
+                certif:         mDMEas9QrRYJKwYBBAHaRw8BAQdAWF1Fk3X2LWa4e1QMCrat14PMwJYoAreLMFvi
+                certif:         ZQRcdpaImgQgFgoAQhYhBOY1tfqFuVvsbmQJjL3hCSFhn+9aBQJqz1HdFiME5jW1
+                certif:         +oW5W+xuZAmMveEJIWGf71oNHQJDb21wcm9taXNlZAAKCRC94QkhYZ/vWk7mAP4r
+                certif:         GHVOKRqCqlQkF+SuYcgxT1poWau+M+VN6qALwXyV/wEA+erj7BVTkwIU7zT1InPP
+                certif:         KYr0S1PCk35NLd0tjraXrwS0GVRlc3QgVXNlciA8dGVzdEByaXBlLm5ldD6IrwQT
+                certif:         FgoAVxYhBOY1tfqFuVvsbmQJjL3hCSFhn+9aBQJqz1CtGxSAAAAAAAQADm1hbnUy
+                certif:         LDIuNSsxLjEyLDAsMwIbAwULCQgHAgIiAgYVCgkICwIEFgIDAQIeBwIXgAAKCRC9
+                certif:         4QkhYZ/vWrQEAP9qDBt3TsgbTqjf/w2oJ4KSM32nQDAkDWaUciGHclSaEgEA/jtg
+                certif:         tu6Lg5nziu27sh3crvdiuwdcAiXRhfTdxwHncQg=
+                certif:         =IWEg
+                certif:         -----END PGP PUBLIC KEY BLOCK-----
+                remarks:        Key IS revoked
+                mnt-by:         UPD-MNT
+                source:         TEST
+                password: update
+            """.stripIndent(true)))
+      then:
+        update.contains("Modify SUCCEEDED: [key-cert] PGPKEY-619FEF5A")
     }
 
     private String getAttributes(final String originalObject, final String attributeName) {
