@@ -19,7 +19,6 @@ import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.common.aspects.Stopwatch;
 import net.ripe.db.whois.common.sso.domain.HistoricalUserResponse;
@@ -36,10 +35,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -86,26 +81,13 @@ public class AuthServiceClient {
     public AuthServiceClient(
             @Value("${authorisation.service.api.url:}") final String restUrl,
             @Value("${authorisation.service.api.key:}") final String apiKey) {
+        this(createClient(), restUrl, apiKey);
+    }
+
+    protected AuthServiceClient(final Client client, final String restUrl, final String apiKey) {
         this.restUrl = restUrl;
         this.apiKey = apiKey;
-
-        final ObjectMapper objectMapper = JsonMapper.builder()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .build();
-        objectMapper.setAnnotationIntrospector(
-                new AnnotationIntrospectorPair(
-                        new JacksonAnnotationIntrospector(),
-                        new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
-        objectMapper.registerModule(new JavaTimeModule());
-        final JacksonJsonProvider jsonProvider = (new JacksonJsonProvider())
-                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
-                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        jsonProvider.setMapper(objectMapper);
-        this.client = (ClientBuilder.newBuilder()
-                .register(jsonProvider))
-                .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
-                .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
-                .build();
+        this.client = client;
     }
 
     @Stopwatch(thresholdMs = 100L)
@@ -117,14 +99,9 @@ public class AuthServiceClient {
         }
 
         try {
-
-            final WebTarget webTarget = client.target(restUrl)
+            return client.target(restUrl)
                     .path(VALIDATE_PATH)
-                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION);
-
-            validateTarget(webTarget.getUri().normalize(), VALIDATE_PATH);
-
-            return webTarget
+                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .header("Authorization", String.format("Bearer %s", authToken))
@@ -151,14 +128,11 @@ public class AuthServiceClient {
         }
 
         try {
-            final WebTarget webTarget = client.target(restUrl)
+            return client.target(restUrl)
                     .path(USER_PATH)
-                    .path(decode(email))
-                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION);
-
-            validateTarget(webTarget.getUri().normalize(), USER_PATH);
-
-            return webTarget
+                    .path("{email}")
+                    .resolveTemplate("email", email)
+                    .queryParam("permission", VALIDATE_TOKEN_PERMISSION)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(UserDetailsResponse.class);
@@ -193,14 +167,11 @@ public class AuthServiceClient {
         }
 
         try {
-            final WebTarget webTarget = client.target(restUrl)
+            final ValidateTokenResponse response = client.target(restUrl)
                     .path(USER_ACCOUNTS_PATH)
                     .path(EMAIL_PATH)
-                    .path(decode(username));
-
-            validateTarget(webTarget.getUri().normalize(), USER_ACCOUNTS_PATH + EMAIL_PATH);
-
-            final ValidateTokenResponse response = webTarget
+                    .path("{username}")
+                    .resolveTemplate("username", username)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
@@ -226,14 +197,11 @@ public class AuthServiceClient {
             throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
         }
 
-        final WebTarget webTarget = client.target(restUrl)
-                .path(USER_ACCOUNTS_PATH)
-                .path(decode(uuid));
-
-        validateTarget(webTarget.getUri().normalize(), USER_ACCOUNTS_PATH);
-
         try {
-            return webTarget
+            return client.target(restUrl)
+                    .path(USER_ACCOUNTS_PATH)
+                    .path("{uuid}")
+                    .resolveTemplate("uuid", uuid)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(ValidateTokenResponse.class);
@@ -257,15 +225,11 @@ public class AuthServiceClient {
             throw new AuthServiceClientException(BAD_REQUEST.getStatusCode(),"No UUID.");
         }
 
-
-        final WebTarget webTarget = client.target(restUrl)
-                .path(HISTORICAL_USER_SEARCH_PATH)
-                .path(decode(uuid));
-
-        validateTarget(webTarget.getUri().normalize(), HISTORICAL_USER_SEARCH_PATH);
-
         try {
-            return webTarget
+            return client.target(restUrl)
+                    .path(HISTORICAL_USER_SEARCH_PATH)
+                    .path("{uuid}")
+                    .resolveTemplate("uuid", uuid)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(HistoricalUserResponse.class);
@@ -331,7 +295,6 @@ public class AuthServiceClient {
                .filter(Objects::nonNull)
                .flatMap(response -> response.response.results.stream())
                .collect(Collectors.groupingBy(contactDetail -> Long.parseLong(contactDetail.getMembershipId())));
-
     }
 
 
@@ -347,18 +310,13 @@ public class AuthServiceClient {
 
         final String membershipIds = lirs.stream()
                 .map(String::valueOf)
-                .map(this::decode)
                 .collect(Collectors.joining(","));
 
         try {
-            final WebTarget webTarget = client.target(restUrl)
+            return client.target(restUrl)
                     .path(ORGANISATION_MEMBERS_PATH)
                     .path(SEARCH_ACCOUNTS_PATH)
-                    .queryParam("by_membershipId", membershipIds);
-
-            validateTarget(webTarget.getUri().normalize(), ORGANISATION_MEMBERS_PATH + SEARCH_ACCOUNTS_PATH);
-
-            return webTarget
+                    .queryParam("by_membershipId", membershipIds)
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .header(API_KEY, apiKey)
                     .get(MemberContactsResponse.class);
@@ -375,19 +333,23 @@ public class AuthServiceClient {
         }
     }
 
-    private void validateTarget(final URI normalisedPath, final String path){
-        try {
-            final URI uri = new URI(restUrl);
-            if (normalisedPath.getPath().startsWith(uri.getPath() + path)) {
-                return;
-            }
-        } catch (URISyntaxException ex) {
-            // Ignored throw below
-        }
-        throw new IllegalArgumentException("Unexpected path");
-    }
-
-    private String decode(final String value) {
-        return URLDecoder.decode(value, StandardCharsets.UTF_8);
+    private static Client createClient() {
+        final ObjectMapper objectMapper = JsonMapper.builder()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .build();
+        objectMapper.setAnnotationIntrospector(
+                new AnnotationIntrospectorPair(
+                        new JacksonAnnotationIntrospector(),
+                        new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
+        objectMapper.registerModule(new JavaTimeModule());
+        final JacksonJsonProvider jsonProvider = (new JacksonJsonProvider())
+                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        jsonProvider.setMapper(objectMapper);
+        return (ClientBuilder.newBuilder()
+                .register(jsonProvider))
+                .property(ClientProperties.CONNECT_TIMEOUT, CLIENT_CONNECT_TIMEOUT)
+                .property(ClientProperties.READ_TIMEOUT, CLIENT_READ_TIMEOUT)
+                .build();
     }
 }

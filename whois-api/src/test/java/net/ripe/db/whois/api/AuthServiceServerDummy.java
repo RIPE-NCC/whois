@@ -40,8 +40,8 @@ public class AuthServiceServerDummy implements Stub {
     private final AuthServiceClient authServiceClient;
 
     @Autowired
-    public AuthServiceServerDummy(AuthServiceClient crowdClient) {
-        this.authServiceClient = crowdClient;
+    public AuthServiceServerDummy(AuthServiceClient authServiceClient) {
+        this.authServiceClient = authServiceClient;
     }
 
     private class SSOTestHandler extends Handler.Abstract {

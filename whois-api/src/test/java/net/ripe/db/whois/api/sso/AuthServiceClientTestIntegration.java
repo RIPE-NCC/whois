@@ -191,46 +191,46 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
     @Test
     public void path_traversal_encoding_when_uuid_vulnerability_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUuid("%2e%2e%2f" + USER_EMAIL));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getUuid("%2e%2e%2f" + USER_EMAIL));
     }
 
     @Test
     public void path_traversal_when_uuid_vulnerability_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUuid("../" + USER_EMAIL));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getUuid("../" + USER_EMAIL));
     }
 
     @Test
     public void path_traversal_second_back_when_uuid_vulnerability_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUuid("../../" + USER_EMAIL));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getUuid("../../" + USER_EMAIL));
     }
 
     @Test
     public void path_traversal_encoding_when_user_info_vulnerability_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUserInfoByEmail("%2e%2e%2f" + USER_EMAIL));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getUserInfoByEmail("%2e%2e%2f" + USER_EMAIL));
     }
 
     @Test
     public void path_traversal_when_user_info_vulnerability_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUserInfoByEmail("../" + USER_EMAIL));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getUserInfoByEmail("../" + USER_EMAIL));
     }
 
     @Test
     public void path_traversal_second_back_when_user_info_vulnerability_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUserInfoByEmail("../../" + USER_EMAIL));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getUserInfoByEmail("../../" + USER_EMAIL));
     }
 
     @Test
     public void path_traversal_encoding_when_historical_info_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getHistoricalUserDetails("%2e%2e%2f" + SSO_UUID));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getHistoricalUserDetails("%2e%2e%2f" + SSO_UUID));
     }
 
     @Test
     public void path_traversal_when_user_historical_info_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUserInfoByEmail("../" + SSO_UUID));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getUserInfoByEmail("../" + SSO_UUID));
     }
 
     @Test
     public void path_traversal_second_back_when_user_historical_info_then_400() {
-        assertThrows(IllegalArgumentException.class, () -> authServiceClient.getUserInfoByEmail("../../" + SSO_UUID));
+        assertThrows(AuthServiceClientException.class, () -> authServiceClient.getUserInfoByEmail("../../" + SSO_UUID));
     }
 }

@@ -123,7 +123,7 @@ public class DatabaseHelper implements EmbeddedValueResolverAware {
 
     // TODO: [AH] autowire these fields once whois-internals has proper wiring set up
     @Autowired
-    public void setCrowdClient(AuthServiceClient authServiceClient) {
+    public void setAuthServiceClient(AuthServiceClient authServiceClient) {
         this.authServiceClient = authServiceClient;
     }
 
