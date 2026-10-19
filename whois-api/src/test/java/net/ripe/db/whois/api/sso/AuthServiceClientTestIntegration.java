@@ -51,7 +51,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_validate_token_response_is_cached() {
+    public void validate_token_response_is_cached() {
         assertThat(cacheManager.getCache(SSO_VALIDATE_TOKEN).get(TOKEN), is(nullValue()));
 
         final ValidateTokenResponse userDetails = authServiceClient.validateToken(TOKEN);
@@ -61,7 +61,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_sso_uuid_response_is_cached() {
+    public void get_uuid_response_is_cached() {
         assertThat(cacheManager.getCache(SSO_UUID).get(USER_EMAIL), is(nullValue()));
 
         final String userUuid = authServiceClient.getUuid(USER_EMAIL);
@@ -94,7 +94,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_historical_event_date_time() {
+    public void get_historical_user_details_event_date_time() {
         final HistoricalUserResponse historicalUserDetails = authServiceClient.getHistoricalUserDetails(UUID);
 
         assertThat(historicalUserDetails.response.results.get(0).eventDateTime, is(LocalDateTime.of(2015, 5, 8, 12, 32, 1, 275_379_000)));
@@ -102,8 +102,9 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
 
 
     // Errors
+
     @Test
-    public void get_validate_token_response_null_input_then_error() {
+    public void validate_token_response_null_input_then_error() {
         assertThat(cacheManager.getCache(SSO_VALIDATE_TOKEN).get(TOKEN), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
@@ -115,7 +116,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_sso_uuid_response_null_input_then_error() {
+    public void get_uuid_response_null_input_then_error() {
         assertThat(cacheManager.getCache(SSO_UUID).get(USER_EMAIL), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
@@ -151,18 +152,18 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_user_details_response(){
+    public void get_user_info_response(){
         assertThat(Objects.requireNonNull(cacheManager.getCache(USER_BY_EMAIL)).get(USER_EMAIL), is(nullValue()));
 
         final UserDetailsResponse validateTokenResponse = authServiceClient.getUserInfoByEmail(USER_EMAIL);
+
         assertThat(validateTokenResponse.content.firstName, is(not(nullValue())));
         assertThat(validateTokenResponse.content.login, is(USER_EMAIL));
-
         assertThat(cacheManager.getCache(USER_BY_EMAIL).get(USER_EMAIL), is(not(nullValue())));
     }
 
     @Test
-    public void get_user_details_response_with_not_known_email_401(){
+    public void get_user_info_response_with_not_known_email_401(){
         assertThat(Objects.requireNonNull(cacheManager.getCache(USER_BY_EMAIL)).get(USER_EMAIL), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
@@ -175,7 +176,7 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
     }
 
     @Test
-    public void get_user_details_response_with_null_email_400(){
+    public void get_user_info_response_with_null_email_400(){
         assertThat(Objects.requireNonNull(cacheManager.getCache(USER_BY_EMAIL)).get(USER_EMAIL), is(nullValue()));
 
         final AuthServiceClientException authServiceClientException = assertThrows(AuthServiceClientException.class, () -> {
@@ -185,6 +186,20 @@ public class AuthServiceClientTestIntegration extends AbstractIntegrationTest {
         assertThat(authServiceClientException.getCode(), is(HttpStatus.BAD_REQUEST_400));
 
         assertThat(cacheManager.getCache(USER_BY_EMAIL).get(USER_EMAIL), is(nullValue()));
+    }
+
+    @Test
+    public void get_user_info_local_part_plus_character() {
+        final UserDetailsResponse userDetailsResponse = authServiceClient.getUserInfoByEmail("a+test@ripe.net");
+
+        assertThat(userDetailsResponse.content.uuid, is("7c7e7d60-264e-4bcf-a936-dd3153fa3df2"));
+    }
+
+    @Test
+    public void get_user_info_local_part_dot_character() {
+        final UserDetailsResponse userDetailsResponse = authServiceClient.getUserInfoByEmail("a.test@ripe.net");
+
+        assertThat(userDetailsResponse.content.uuid, is("1f678124-8b12-42cd-ad80-5e9e5e5f8726"));
     }
 
     // Path traversal

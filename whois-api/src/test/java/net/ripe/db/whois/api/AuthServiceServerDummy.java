@@ -55,6 +55,8 @@ public class AuthServiceServerDummy implements Stub {
             usermap.put("partial.record@net.net", new SSOUser("partial.record@net.net", "Partial", "Record", "bbbb2222-bbbb-2222-bbbb-2222bbbb2222", true));
             usermap.put("cool@net.net", new SSOUser("cool@net.net", "Cool", "User", "cccc3333-cccc-3333-cccc-3333cccc3333", true));
             usermap.put("test@ripe.net", new SSOUser("test@ripe.net", "Ripe","User", "8ffe29be-89ef-41c8-ba7f-0e1553a623e5", true));
+            usermap.put("a+test@ripe.net", new SSOUser("a+test@ripe.net", "APlusTest","User", "7c7e7d60-264e-4bcf-a936-dd3153fa3df2", true));
+            usermap.put("a.test@ripe.net", new SSOUser("a.test@ripe.net", "ADotTest","User", "1f678124-8b12-42cd-ad80-5e9e5e5f8726", true));
             usermap.put("person@net.net", new SSOUser("person@net.net", "Test","User", "906635c2-0405-429a-800b-0602bd716124", true));
             usermap.put("noreply@ripe.net", new SSOUser("noreply@ripe.net", "Test","User", "306635c2-0405-429a-800b-0602bd716124", true));
             usermap.put("expired@net.net", new SSOUser("expired@net.net", "Test","User", "806635c2-0405-429a-800b-0602bd716124", true));
