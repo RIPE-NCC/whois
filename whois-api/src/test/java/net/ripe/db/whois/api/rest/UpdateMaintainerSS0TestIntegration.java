@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("IntegrationTest")
@@ -146,13 +147,29 @@ public class UpdateMaintainerSS0TestIntegration extends AbstractHttpsIntegration
 
         final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).removeAttribute(new RpslAttribute(AttributeType.AUTH, "SSO person@net.net")).get();
 
-        try {
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             getWebTarget("whois/test/mntner/OWNER-MNT", "valid-token", MediaType.APPLICATION_XML)
                     .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
-            fail();
-        } catch (BadRequestException e) {
-            RestTest.assertOnlyErrorMessage(e, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
-        }
+        });
+
+        RestTest.assertOnlyErrorMessage(badRequestException, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
+    }
+
+    @Test
+    public void update_maintainer_update_lowercase_sso_with_sync_enabled_should_fail() {
+        enableSyncForOrg("ORG-TEST","OWNER-MNT", 2000);
+
+        final RpslObject updatedObject = new RpslObjectBuilder(OWNER_MNT).replaceAttribute(
+                        new RpslAttribute(AttributeType.AUTH, "SSO person@net.net"),
+                        new RpslAttribute(AttributeType.AUTH, "sso test@ripe.net")
+                ).get();
+
+        final BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
+            getWebTarget("whois/test/mntner/OWNER-MNT", "valid-token", MediaType.APPLICATION_XML)
+                    .put(Entity.entity(map(updatedObject), MediaType.APPLICATION_XML), WhoisResources.class);
+        });
+
+        RestTest.assertOnlyErrorMessage(badRequestException, "Error", "You cannot update SSO auth attribute(s), because the maintainer is synchronised from the LIR Portal");
     }
 
     @Test

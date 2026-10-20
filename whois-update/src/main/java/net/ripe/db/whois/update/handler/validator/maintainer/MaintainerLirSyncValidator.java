@@ -30,7 +30,7 @@ public class MaintainerLirSyncValidator implements BusinessRuleValidator {
     private static final ImmutableList<Action> ACTIONS = ImmutableList.of(Action.MODIFY);
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.MNTNER);
 
-    private static final Pattern SSO_AUTH_PATTERN = Pattern.compile("SSO\\s+(.*\\S)");
+    private static final Pattern SSO_AUTH_PATTERN = Pattern.compile("(?i)SSO\\s+(.*\\S)");
     private static final String REST_API_ORIGIN = "rest api";
 
     private final MaintainerSyncStatusDao maintainerSyncStatusDao;
