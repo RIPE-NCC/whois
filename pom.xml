@@ -1067,9 +1067,7 @@
                 <!-- RUN UNIT TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <!-- TODO: [ES] do not update to surefire 3.6.0 as no tests found
-                     Due to https://github.com/apache/maven-surefire/issues/3465 -->
-                <version>3.5.6</version>
+                <version>3.6.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx512m -DjvmId=${surefire.forkNumber} ${surefire.jacoco.args}</argLine>
@@ -1080,8 +1078,7 @@
                         <exclude>${test.files.integration}</exclude>
                     </excludes>
                     <runOrder>random</runOrder>
-                    <!-- TODO: [ES] switch to parallel "both" -->
-                    <parallel>true</parallel>
+                    <parallel>both</parallel>
                     <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
