@@ -1095,9 +1095,7 @@
                 <!-- RUN INTEGRATION TESTS -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <!-- TODO: [ES] do not update to failsafe 3.6.0 as no tests found
-                     Due to https://github.com/apache/maven-surefire/issues/3465 -->
-                <version>3.5.6</version>
+                <version>3.6.1</version>
                 <configuration>
                     <redirectTestOutputToFile>${test.redirectOutput}</redirectTestOutputToFile>
                     <argLine>-Xmx1024m -DjvmId=${surefire.forkNumber} --add-modules java.sql,java.xml ${failsafe.jacoco.args}</argLine>
@@ -1109,8 +1107,7 @@
                     </excludes>
                     <excludedGroups>ManualTest</excludedGroups>
                     <!-- Ref. https://maven.apache.org/surefire/maven-failsafe-plugin/examples/fork-options-and-parallel-execution.html -->
-                    <!-- TODO: [ES] switch to parallel "both" -->
-                    <parallel>true</parallel>
+                    <parallel>both</parallel>
                     <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
                     <threadCount>1</threadCount>
