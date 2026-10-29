@@ -3,6 +3,8 @@ package net.ripe.db.whois.update.handler.response;
 import com.google.common.collect.Lists;
 import net.ripe.db.whois.common.ApplicationVersion;
 import net.ripe.db.whois.common.DateTimeProvider;
+import net.ripe.db.whois.common.oauth.DefaultOauthSession;
+import net.ripe.db.whois.common.oauth.OidcSession;
 import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.common.rpsl.ObjectMessages;
 import net.ripe.db.whois.common.rpsl.RpslObject;
@@ -427,7 +429,6 @@ public class ResponseFactoryTest {
 
     @Test
     public void notification_success_with_effective_sso_credentials() {
-
         when(updateContext.getUserSession()).thenReturn(new UserSession("offereduuid","test@ripe.net", "Test User", true,"2033-01-30T16:38:27.369+11:00"));
 
         final RpslObject object1 = RpslObject.parse("mntner: DEV-ROOT1-MNT");
@@ -452,6 +453,35 @@ public class ResponseFactoryTest {
                 "Changed by SSO account: test@ripe.net\n"+
                 "\n" ));
 
+    }
+
+    @Test
+    public void notification_success_with_effective_oidc_credentials() {
+        final OidcSession.Builder oidcSessionBuilder = new OidcSession.Builder();
+        oidcSessionBuilder.email("test@ripe.net");
+        when(updateContext.getOAuthSession()).thenReturn(oidcSessionBuilder.build());
+
+        final RpslObject object = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+        final Update update = new Update(new Paragraph(object.toString()), Operation.UNSPECIFIED, Lists.<String>newArrayList(), object);
+        final PreparedUpdate create = new PreparedUpdate(update, null, object, Action.CREATE);
+        update.setEffectiveCredential("test@ripe.net", Update.EffectiveCredentialType.OIDC);
+
+
+        final Notification notification = new Notification("notify@me.com");
+        notification.add(Notification.Type.SUCCESS, create, updateContext);
+
+        final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+        assertNotification(responseMessage);
+
+        assertThat(responseMessage.getMessage(), containsString("" +
+                "---\n" +
+                "OBJECT BELOW CREATED:\n" +
+                "\n" +
+                "mntner:         DEV-ROOT1-MNT\n" +
+                "\n" +
+                "Changed by SSO account using OIDC: test@ripe.net\n"+
+                "\n" ));
     }
 
     @Test
@@ -666,6 +696,73 @@ public class ResponseFactoryTest {
                 "CREATE REQUESTED FOR:\n" +
                 "\n" +
                 "mntner:         DEV-ROOT2-MNT"));
+    }
+
+    @Test
+    public void each_effective_credential_type_should_be_notified() {
+        for (final Update.EffectiveCredentialType effectiveCredentialType : Update.EffectiveCredentialType.values()) {
+            final String credential = credentialFor(effectiveCredentialType, updateContext);
+            final RpslObject object = RpslObject.parse("mntner: DEV-ROOT1-MNT");
+            final Update update = new Update(new Paragraph(object.toString()), Operation.UNSPECIFIED, Lists.newArrayList(), object);
+            final PreparedUpdate create = new PreparedUpdate(update, null, object, Action.CREATE);
+            update.setEffectiveCredential(credential, effectiveCredentialType);
+
+            final Notification notification = new Notification("notify@me.com");
+            notification.add(Notification.Type.SUCCESS, create, updateContext);
+
+            final ResponseMessage responseMessage = subject.createNotification(updateContext, origin, notification);
+
+            assertThat(
+                    "Notification is missing the expected text for effective credential type " + effectiveCredentialType +
+                            " - did you add it to the notification .vm template?",
+                    responseMessage.getMessage(),
+                    containsString("""
+                        ---
+                        OBJECT BELOW CREATED:
+
+                        mntner:         DEV-ROOT1-MNT
+
+                        %s
+                        """.formatted(expectedChangedBy(effectiveCredentialType, credential))));
+        }
+    }
+
+
+
+    // helper
+
+    private static String credentialFor(final Update.EffectiveCredentialType type, final UpdateContext updateContext) {
+        return switch (type) {
+            case OAUTH -> {
+                final DefaultOauthSession.Builder defaultOauthSession = new DefaultOauthSession.Builder();
+                defaultOauthSession.email("test@ripe.net");
+                when(updateContext.getOAuthSession()).thenReturn(defaultOauthSession.build());
+                yield "test@ripe.net";
+            }
+            case OIDC -> {
+                final OidcSession.Builder oidcSessionBuilder = new OidcSession.Builder();
+                oidcSessionBuilder.email("test@ripe.net");
+                when(updateContext.getOAuthSession()).thenReturn(oidcSessionBuilder.build());
+                yield "test@ripe.net";
+            }
+            case SSO -> "test@ripe.net";
+            case APIKEY -> "test@ripe.net (f60ee0fc)";
+            case PGP -> "PGP-KEY-123";
+            case X509 -> "X509-1";
+            case PASSWORD -> "MD5-PW";
+        };
+    }
+
+    private static String expectedChangedBy(final Update.EffectiveCredentialType type, final String credential) {
+        return switch (type) {
+            case SSO -> "Changed by SSO account: " + credential + "\n";
+            case OIDC -> "Changed by SSO account using OIDC: " + credential + "\n";
+            case OAUTH -> "Changed by SSO account using OAUTH: " + credential + "\n";
+            case APIKEY -> "Changed by SSO account using API Key id: " + credential + "\n";
+            case PASSWORD -> "Changed by password.\n";
+            case PGP, X509 -> "Changed by " + credential + ". You can find contact details for this key here:\n" +
+                    "https://apps.db.ripe.net/db-web-ui/query?source=RIPE&searchtext=" + credential + "&types=key-cert\n";
+        };
     }
 
     private void assertNotification(final ResponseMessage responseMessage) {

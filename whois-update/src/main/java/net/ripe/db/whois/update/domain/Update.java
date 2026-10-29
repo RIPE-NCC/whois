@@ -1,9 +1,9 @@
 package net.ripe.db.whois.update.domain;
 
+import net.ripe.db.whois.common.Validate;
 import net.ripe.db.whois.common.credentials.OverrideCredential;
 import net.ripe.db.whois.common.rpsl.ObjectType;
 import net.ripe.db.whois.common.rpsl.RpslObject;
-import net.ripe.db.whois.common.Validate;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -110,6 +110,7 @@ public class Update implements UpdateContainer {
     }
 
     public enum EffectiveCredentialType {
+        //Please keep this list in sync with notification.vm template
         SSO, PGP, PASSWORD, X509, APIKEY, OAUTH, OIDC
     }
 
