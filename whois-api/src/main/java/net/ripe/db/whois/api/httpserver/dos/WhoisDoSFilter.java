@@ -2,18 +2,23 @@ package net.ripe.db.whois.api.httpserver.dos;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.net.InetAddresses;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import net.ripe.db.whois.common.ip.IpInterval;
 import net.ripe.db.whois.common.ip.Ipv4Resource;
 import net.ripe.db.whois.common.ip.Ipv6Resource;
+import net.ripe.db.whois.query.acl.AccessControlListManager;
 import org.eclipse.jetty.ee11.servlets.DoSFilter;
 import org.eclipse.jetty.util.annotation.Name;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -38,35 +43,52 @@ public abstract class WhoisDoSFilter extends DoSFilter {
 
     @Override
     public void doFilter(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain) throws IOException, ServletException {
-        if (canProceed(request)){
+        if (!canProceed(request)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        final InetAddress inetAddress = AccessControlListManager.mask(InetAddresses.forString(request.getRemoteAddr()), AccessControlListManager.IPV6_NETMASK);
+
+        if (inetAddress instanceof Inet4Address) {
+            // Still using DoSFilter for whiteListed because MAX_REQUEST_MS_INIT_PARAM timeouts logic.
             super.doFilter(request, response, chain);
             return;
         }
-        chain.doFilter(request, response);
+
+        final Ipv6Resource interval = Ipv6Resource.parse(inetAddress.getHostAddress() + "/" + AccessControlListManager.IPV6_NETMASK);
+        doFilterGroupingByMaskedAddress(request, response, chain, interval.toString());
     }
 
-    @Override
-    protected boolean checkWhitelist(final String candidate) {
-        final IpInterval<?> parsed = IpInterval.parse(candidate);
-        return switch (parsed) {
-            case Ipv4Resource ipv4Resource -> {
-                for (Ipv4Resource entry : ipv4whitelist) {
-                    if (entry.contains(ipv4Resource)) {
-                        yield true;
-                    }
-                }
-                yield false;
-            }
-            case Ipv6Resource ipv6Resource -> {
-                for (Ipv6Resource entry : ipv6whitelist) {
-                    if (entry.contains(ipv6Resource)) {
-                        yield true;
-                    }
-                }
-                yield false;
+    private void doFilterGroupingByMaskedAddress(final HttpServletRequest request, final HttpServletResponse response, final FilterChain chain, final String maskedAddress) throws IOException,
+            ServletException {
+        if (maskedAddress == null) {
+            super.doFilter(request, response, chain);
+            return;
+        }
+
+        final HttpServletRequest wrapped = new HttpServletRequestWrapper(request) {
+            @Override
+            public String getRemoteAddr() {
+                return maskedAddress;
             }
         };
 
+        super.doFilter(wrapped, response, (req, res) -> chain.doFilter(request, res));
+    }
+
+    /**
+     * Check a list of whitelisted IP addresses.
+     * Ipv6 whitelist is containing /64 or less specific, so it is consistent with ACL and DoSFilter
+     *
+     * @return true if the IP address is whitelisted, false otherwise
+     */
+    @Override
+    protected boolean checkWhitelist(final String candidate) {
+        return switch (IpInterval.parse(candidate)) {
+            case Ipv4Resource ipv4Resource -> ipv4whitelist.stream().anyMatch(entry -> entry.contains(ipv4Resource));
+            case Ipv6Resource ipv6Resource -> ipv6whitelist.stream().anyMatch(entry -> entry.contains(ipv6Resource));
+        };
     }
 
     @Override
@@ -116,6 +138,7 @@ public abstract class WhoisDoSFilter extends DoSFilter {
     /**
      * Adds the given IP address, either in the form of a dotted decimal notation A.B.C.D
      * or in the CIDR notation A.B.C.D/M, to the list of whitelisted IP addresses.
+     * IPv6 must be /64 or less specific.
      *
      * @param address the address to add
      * @return whether the address was added to the list
@@ -126,6 +149,11 @@ public abstract class WhoisDoSFilter extends DoSFilter {
         if (address.contains(".")) {
             return ipv4whitelist.add(Ipv4Resource.parse(address));
         } else {
+            final Ipv6Resource resource = Ipv6Resource.parse(address);
+            if (resource.getPrefixLength() > AccessControlListManager.IPV6_NETMASK) { //If more specific than /64, we need to mask it
+                final InetAddress inetAddress = AccessControlListManager.mask(InetAddresses.forString(address), AccessControlListManager.IPV6_NETMASK);
+                return ipv6whitelist.add(Ipv6Resource.parse(inetAddress.getHostAddress() + "/" + AccessControlListManager.IPV6_NETMASK));
+            }
             return ipv6whitelist.add(Ipv6Resource.parse(address));
         }
     }
@@ -144,6 +172,7 @@ public abstract class WhoisDoSFilter extends DoSFilter {
         logWhiteList();
         return isRemoved;
     }
+
 
     private void logWhiteList() {
         logger.info("DoSFilter IP whitelist: {}", getWhitelist());

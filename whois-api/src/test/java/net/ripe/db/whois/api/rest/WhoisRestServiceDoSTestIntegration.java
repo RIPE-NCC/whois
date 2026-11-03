@@ -2,7 +2,6 @@ package net.ripe.db.whois.api.rest;
 
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
-
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
@@ -19,6 +18,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.testcontainers.shaded.com.google.common.net.HttpHeaders;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.eclipse.jetty.http.HttpStatus.TOO_MANY_REQUESTS_429;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 
 @Tag("IntegrationTest")
@@ -140,6 +140,133 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
     }
 
     @Test
+    public void multiple_async_lookup_per_second_different_ipv6_same_64_then_429_too_many_requests() throws InterruptedException {
+        //2001:db8:1001:1234::/64
+        final Response creation = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=2001:db8:1001:1234:5678:9abc:def0:1")
+                .request()
+                .get();
+        assertThat(HttpStatus.OK_200, is(creation.getStatus()));
+        // Simulate a DoS attack by sending many GET requests in a short time asynchronously
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosQueryMaxSecs))
+                .parallel()
+                .mapToObj(lookupCount -> RestTest.target(
+                        getPort(), "whois/test/mntner/OWNER-MNT?clientIp=2001:db8:1001:1234:5678:9abc:def0:" + Integer.toHexString(lookupCount)).request()
+                        .get()
+                )
+                .map(Response::getStatus)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.collectingAndThen(
+                                Collectors.counting(),
+                                Long::intValue
+                        )));
+
+        assertThat(responsesCodesCount.size(), is(2)); //Two different status codes
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is(Integer.parseInt(dosQueryMaxSecs) - 1));
+        assertThat(responsesCodesCount.get(TOO_MANY_REQUESTS_429), is (1));
+
+        TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
+
+        //After a second, the user can perform more requests
+        final Response unLockedResponse = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=2001:db8:1001:1234:5678:9abc:def0:1")
+                .request()
+                .get();
+
+        assertThat(HttpStatus.OK_200, is(unLockedResponse.getStatus()));
+    }
+
+    @Test
+    public void multiple_async_lookup_per_second_no_client_ip_then_OK(){
+        //Localhost whitelisted
+        final Response creation = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .request()
+                .get();
+        assertThat(HttpStatus.OK_200, is(creation.getStatus()));
+        // Simulate a DoS attack by sending many GET requests in a short time asynchronously
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosQueryMaxSecs))
+                .parallel()
+                .mapToObj(lookupCount -> RestTest.target(
+                                getPort(), "whois/test/mntner/OWNER-MNT").request()
+                        .get()
+                )
+                .map(Response::getStatus)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.collectingAndThen(
+                                Collectors.counting(),
+                                Long::intValue
+                        )));
+
+        assertThat(responsesCodesCount.size(), is(1));
+    }
+
+    @Test
+    public void multiple_async_lookup_per_second_x_forwarded_for_ipv6_then_429_too_many_requests() throws InterruptedException {
+        //2001:db8:1001:1234::/64
+        final Response creation = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "2001:db8:1001:1234:5678:9abc:def0:1")
+                .get();
+        assertThat(HttpStatus.OK_200, is(creation.getStatus()));
+        // Simulate a DoS attack by sending many GET requests in a short time asynchronously
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosQueryMaxSecs))
+                .parallel()
+                .mapToObj(lookupCount -> RestTest.target(
+                                getPort(), "whois/test/mntner/OWNER-MNT").request()
+                        .header(HttpHeaders.X_FORWARDED_FOR, "2001:db8:1001:1234:5678:9abc:def0:" + Integer.toHexString(lookupCount))
+                        .get()
+                )
+                .map(Response::getStatus)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.collectingAndThen(
+                                Collectors.counting(),
+                                Long::intValue
+                        )));
+
+        assertThat(responsesCodesCount.size(), is(2)); //Two different status codes
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is(Integer.parseInt(dosQueryMaxSecs) - 1));
+        assertThat(responsesCodesCount.get(TOO_MANY_REQUESTS_429), is (1));
+
+        TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
+
+        //After a second, the user can perform more requests
+        final Response unLockedResponse = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "2001:db8:1001:1234:5678:9abc:def0:1")
+                .get();
+
+        assertThat(HttpStatus.OK_200, is(unLockedResponse.getStatus()));
+    }
+
+    @Test
+    public void multiple_async_lookup_per_second_different_ipv6_different_64_then_200() {
+        //2001:db8:1001:1234::/64
+        final Response creation = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=2001:db8:1001:1234:5678:9abc:def0:1")
+                .request()
+                .get();
+        assertThat(HttpStatus.OK_200, is(creation.getStatus()));
+        // Simulate a DoS attack by sending many GET requests in a short time asynchronously
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosQueryMaxSecs))
+                .parallel()
+                .mapToObj(lookupCount -> RestTest.target(
+                                getPort(),
+                                "whois/test/mntner/OWNER-MNT?clientIp=2001:db8:1001:" + Integer.toHexString(lookupCount) + ":1234:5678:9abc:def0:").request()
+                        .get()
+                )
+                .map(Response::getStatus)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.collectingAndThen(
+                                Collectors.counting(),
+                                Long::intValue
+                        )));
+
+        assertThat(responsesCodesCount.size(), is(1));
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is(Integer.parseInt(dosQueryMaxSecs) ));
+    }
+
+    @Test
     public void multiple_lookup_per_second_but_white_list_IP_then_200() {
         final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT")
                 .request()
@@ -163,6 +290,33 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
         assertThat(responsesCodesCount.size(), is(1));
         assertThat(responsesCodesCount.get(HttpStatus.OK_200), is (Integer.parseInt(dosQueryMaxSecs)));
     }
+
+
+    @Test
+    public void multiple_lookup_per_second_but_white_list_IPv6_then_200() {
+        final Response response = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=0:0:0:0:0:0:0:1")
+                .request()
+                .get();
+        assertThat(HttpStatus.OK_200, is(response.getStatus()));
+
+        final Invocation.Builder lookupRequest = RestTest.target(getPort(), "whois/test/mntner/OWNER-MNT?clientIp=0:0:0:0:0:0:0:1").request();
+
+        // Simulate a DoS attack by sending many GET requests in a short time
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosQueryMaxSecs))
+                .parallel()
+                .mapToObj(lookupCount -> lookupRequest.get())
+                .map(Response::getStatus)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.collectingAndThen(
+                                Collectors.counting(),
+                                Long::intValue
+                        )));
+
+        assertThat(responsesCodesCount.size(), is(1));
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is (Integer.parseInt(dosQueryMaxSecs)));
+    }
+
 
     // Updates
     @Test
@@ -249,6 +403,137 @@ public class WhoisRestServiceDoSTestIntegration extends AbstractIntegrationTest 
                 .put(Entity.entity(map(person), MediaType.APPLICATION_XML));
 
         assertThat(HttpStatus.OK_200, is(unLockedResponse.getStatus()));
+    }
+
+    @Test
+    public void multiple_async_updates_per_second_different_ipv6_same_64_then_429_too_many_requests() throws InterruptedException {
+        final RpslObject person = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        //2001:db8:1001:1234::/64
+        final Response creation = RestTest.target(getPort(), "whois/test/person?clientIp=2001:db8:1001:1234:5678:9abc:def0:1&password=test")
+                .request()
+                .post(Entity.entity(map(person), MediaType.APPLICATION_XML));
+        assertThat(HttpStatus.OK_200, is(creation.getStatus()));
+        // Simulate a DoS attack by sending many GET requests in a short time asynchronously
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosUpdatesMaxSecs))
+                .parallel()
+                .mapToObj(lookupCount -> RestTest.target(
+                                getPort(),
+                                "whois/test/person/PP1-TEST?clientIp=2001:db8:1001:1234:5678:9abc:def0:" + Integer.toHexString(lookupCount) + "&password=test").request()
+                        .put(Entity.entity(map(person), MediaType.APPLICATION_XML))
+                )
+                .map(Response::getStatus)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.collectingAndThen(
+                                Collectors.counting(),
+                                Long::intValue
+                        )));
+
+        assertThat(responsesCodesCount.size(), is(2)); //Two different status codes
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is (Integer.parseInt(dosUpdatesMaxSecs) - 1));
+        assertThat(responsesCodesCount.get(TOO_MANY_REQUESTS_429), is (1));
+
+        TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
+
+        //After a second, the user can perform more requests
+        final Response unLockedResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?clientIp=2001:db8:1001:1234:5678:9abc:def0:1&password=test")
+                .request()
+                .put(Entity.entity(map(person), MediaType.APPLICATION_XML));
+
+        assertThat(HttpStatus.OK_200, is(unLockedResponse.getStatus()));
+    }
+
+    @Test
+    public void multiple_async_updates_per_second_x_forwarded_for_ipv6_then_429_too_many_requests() throws InterruptedException {
+        final RpslObject person = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        //2001:db8:1001:1234::/64
+        final Response creation = RestTest.target(getPort(), "whois/test/person?password=test")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "2001:db8:1001:1234:5678:9abc:def0:1")
+                .post(Entity.entity(map(person), MediaType.APPLICATION_XML));
+        assertThat(HttpStatus.OK_200, is(creation.getStatus()));
+        // Simulate a DoS attack by sending many GET requests in a short time asynchronously
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosUpdatesMaxSecs))
+                .parallel()
+                .mapToObj(lookupCount -> RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test").request()
+                        .header(HttpHeaders.X_FORWARDED_FOR, "2001:db8:1001:1234:5678:9abc:def0:" + Integer.toHexString(lookupCount))
+                        .put(Entity.entity(map(person), MediaType.APPLICATION_XML))
+                )
+                .map(Response::getStatus)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.collectingAndThen(
+                                Collectors.counting(),
+                                Long::intValue
+                        )));
+
+        assertThat(responsesCodesCount.size(), is(2)); //Two different status codes
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is (Integer.parseInt(dosUpdatesMaxSecs) - 1));
+        assertThat(responsesCodesCount.get(TOO_MANY_REQUESTS_429), is (1));
+
+        TimeUnit.SECONDS.sleep(SECONDS_NEEDED_TO_FREE_IP); // Free the IP after one second
+
+        //After a second, the user can perform more requests
+        final Response unLockedResponse = RestTest.target(getPort(), "whois/test/person/PP1-TEST?password=test")
+                .request()
+                .header(HttpHeaders.X_FORWARDED_FOR, "2001:db8:1001:1234:5678:9abc:def0:1")
+                .put(Entity.entity(map(person), MediaType.APPLICATION_XML));
+
+        assertThat(HttpStatus.OK_200, is(unLockedResponse.getStatus()));
+    }
+
+    @Test
+    public void multiple_async_updates_per_second_different_ipv6_different_64_then_200() {
+        final RpslObject person = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   Singel 258\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   remark\n" +
+                "source:    TEST\n");
+
+        //2001:db8:1001:1234::/64
+        final Response creation = RestTest.target(getPort(), "whois/test/person?clientIp=2001:db8:1001:1234:5678:9abc:def0:1&password=test")
+                .request()
+                .post(Entity.entity(map(person), MediaType.APPLICATION_XML));
+        assertThat(HttpStatus.OK_200, is(creation.getStatus()));
+        // Simulate a DoS attack by sending many GET requests in a short time asynchronously
+        final Map<Integer, Integer> responsesCodesCount = IntStream.range(0, Integer.parseInt(dosUpdatesMaxSecs))
+                .parallel()
+                .mapToObj(lookupCount -> RestTest.target(
+                                getPort(), "whois/test/person/PP1-TEST?clientIp=2001:db8:1001:" + Integer.toHexString(lookupCount) + ":1234:5678:9abc:def0:1&password=test").request()
+                        .put(Entity.entity(map(person), MediaType.APPLICATION_XML))
+                )
+                .map(Response::getStatus)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.collectingAndThen(
+                                Collectors.counting(),
+                                Long::intValue
+                        )));
+
+        assertThat(responsesCodesCount.size(), is(1));
+        assertThat(responsesCodesCount.get(HttpStatus.OK_200), is(Integer.parseInt(dosUpdatesMaxSecs)));
     }
 
     @Test

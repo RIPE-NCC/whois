@@ -23,4 +23,12 @@ public class WhoisQueryDoSFilterTest {
         assertThat(subject.checkWhitelist("193.0.20.230"), is(true));
         assertThat(subject.checkWhitelist("2001:067c:02e8:0000:0000:0000:0000:0000"), is(true));
     }
+
+    @Test
+    public void checkWhitelistMoreSpecificWhiteListEntire64() {
+        subject.setWhitelist("127.0.0.1,::1,193.0.0.0 - 193.0.23.255,2001:db8:1001:1234:5678:9abc:def0:1,10.0.0.0 - 10.255.255.255");
+
+        assertThat(subject.checkWhitelist("193.0.20.230"), is(true));
+        assertThat(subject.checkWhitelist("2001:db8:1001:1234:5678:9abc:def0:3"), is(true));
+    }
 }
