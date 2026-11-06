@@ -53,8 +53,10 @@ public abstract class AccessTokenValidator {
             }
             throw new AccessTokenValidationException("[" + effectiveCredentialType + "] " + e.getMessage());
         } catch (Exception e){
-            LOGGER.error("Failed to offline validation {} after {} due to {}", effectiveCredentialType, stopwatch, e.getMessage());
+            LOGGER.error("Failed to offline validation {} due to {}", effectiveCredentialType, e.getMessage());
             throw new AccessTokenValidationException("Invalid " + effectiveCredentialType);
+        } finally {
+            LOGGER.debug("{} Offline validation took {}", effectiveCredentialType, stopwatch);
         }
     }
 
@@ -79,8 +81,10 @@ public abstract class AccessTokenValidator {
             LOGGER.error("Failed to validate the {} through token inspection {}", effectiveCredentialType, e.getMessage());
             throw new AccessTokenValidationException(String.format("Failed to validate %s token", effectiveCredentialType));
         } catch (Exception e) {
-            LOGGER.error("Failed to validate the {} after {} due to {}", effectiveCredentialType, stopwatch, e.getMessage());
+            LOGGER.error("Failed to validate the {} due to {}", effectiveCredentialType, e.getMessage());
             throw new AccessTokenValidationException("Invalid authentication");
+        } finally {
+            LOGGER.debug("{} Online validation took {}", effectiveCredentialType, stopwatch);
         }
     }
 
