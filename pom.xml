@@ -63,7 +63,7 @@
 
         <ibm.idna.version>78.3</ibm.idna.version>
 
-        <jackson.version>2.22.1</jackson.version>
+        <jackson.version>2.22.4</jackson.version>
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <!-- Jakarta XML Binding (JAXB) API for EE11 https://jakarta.ee/specifications/xml-binding/4.0/ -->
         <jaxb.api.version>4.0.5</jaxb.api.version>
