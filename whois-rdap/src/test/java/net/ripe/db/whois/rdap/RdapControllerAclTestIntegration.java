@@ -2,6 +2,7 @@ package net.ripe.db.whois.rdap;
 
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.core.MediaType;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.rdap.domain.Autnum;
 import net.ripe.db.whois.rdap.domain.Entity;
 import net.ripe.db.whois.rdap.domain.Ip;
@@ -19,6 +20,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -63,6 +65,9 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
             "address:   Singel 258\n" +
             "phone:     +31 6 12345678\n" +
             "e-mail:    test@ripe.net\n" +
+            "fax-no:    +01-000-000-000\n" +
+            "contact:   https://api.whatsapp.com/send?phone=+441231231231\n" +
+            "contact:   sip:testUser@192.168.1.42\n" +
             "nic-hdl:   TP1-TEST\n" +
             "mnt-by:    OWNER-MNT\n" +
             "created:        2001-02-04T17:00:00Z\n" +
@@ -215,7 +220,7 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
         MatcherAssert.assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
     @Test
-    public void lookup_inetnum_filtered_emails_acl_not_counted() throws Exception {
+    public void lookup_inetnum_filtered_personal_data_acl_not_counted() throws Exception {
         databaseHelper.addObject("" +
                 "inetnum:      192.0.2.0 - 192.0.2.255\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -257,16 +262,12 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getEntitySearchResults().get(2).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Role], " +
-                "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]]"));
+                "[kind, {}, text, group]]]"));
 
         assertThat(entity.getEntitySearchResults().get(3).getHandle(), is("TP1-TEST"));
         assertThat(entity.getEntitySearchResults().get(3).getVCardArray().toString(), is(""+
                 "[vcard, [[version, {}, text, 4.0], " +
-                "[fn, {}, text, Test Person], [kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]]"));
+                "[fn, {}, text, Test Person], [kind, {}, text, individual]]]"));
 
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ORG-TO1-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
@@ -277,7 +278,7 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
     }
 
     @Test
-    public void lookup_inet6num_filtered_emails_acl_not_counted() throws Exception {
+    public void lookup_inet6num_filtered_personal_data_acl_not_counted() throws Exception {
         databaseHelper.addObject("" +
                 "inet6num:       2001:2002:2003::/48\n" +
                 "netname:      TEST-NET-NAME\n" +
@@ -320,27 +321,31 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getEntitySearchResults().get(2).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Role], " +
-                "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]]"));
+                "[kind, {}, text, group]]]"));
 
         assertThat(entity.getEntitySearchResults().get(3).getHandle(), is("TP1-TEST"));
         assertThat(entity.getEntitySearchResults().get(3).getVCardArray().toString(), is(""+
                 "[vcard, [[version, {}, text, 4.0], " +
-                "[fn, {}, text, Test Person], [kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]]"));
+                "[fn, {}, text, Test Person], [kind, {}, text, individual]]]"));
 
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ORG-TO1-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
+
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
+        assertAttrRedactionForEntities(entity,"ROLE-TEST", AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(entity,"ROLE-TEST", AttributeType.PHONE);
+
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
+        assertAttrRedactionForEntities(entity,"TP1-TEST", AttributeType.CONTACT);
+        assertAttrRedactionForEntities(entity,"TP1-TEST", AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(entity,"TP1-TEST", AttributeType.FAX_NO);
+        assertAttrRedactionForEntities(entity,"TP1-TEST", AttributeType.PHONE);
 
         MatcherAssert.assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
 
     @Test
-    public void lookup_autnum_filtered_emails_acl_not_counted() throws Exception {
+    public void lookup_autnum_filtered_personal_data_acl_not_counted() throws Exception {
         databaseHelper.addObject("" +
                 "aut-num:       AS102\n" +
                 "as-name:      TEST-AS-NAME\n" +
@@ -354,7 +359,6 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
                 "created:         2022-08-14T11:48:28Z\n" +
                 "last-modified:   2022-10-25T12:22:39Z\n" +
                 "source:         TEST");
-
 
         final Autnum entity = createResource("autnum/102")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -382,21 +386,27 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getEntitySearchResults().get(2).getVCardArray().toString(), is("" +
                 "[vcard, [[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Role], " +
-                "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]]"));
+                "[kind, {}, text, group]]]"));
 
         assertThat(entity.getEntitySearchResults().get(3).getHandle(), is("TP1-TEST"));
         assertThat(entity.getEntitySearchResults().get(3).getVCardArray().toString(), is(""+
                 "[vcard, [[version, {}, text, 4.0], " +
-                "[fn, {}, text, Test Person], [kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]]"));
+                "[fn, {}, text, Test Person], [kind, {}, text, individual]]]"));
 
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ORG-TO1-TEST");
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
+
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "ROLE-TEST");
+        assertAttrRedactionForEntities(entity,"ROLE-TEST", AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(entity,"ROLE-TEST", AttributeType.PHONE);
+
+
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "TP1-TEST");
+        assertAttrRedactionForEntities(entity,"TP1-TEST", AttributeType.CONTACT);
+        assertAttrRedactionForEntities(entity,"TP1-TEST", AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(entity,"TP1-TEST", AttributeType.FAX_NO);
+        assertAttrRedactionForEntities(entity,"TP1-TEST", AttributeType.PHONE);
+
 
         MatcherAssert.assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(0));
     }
@@ -415,6 +425,35 @@ class RdapControllerAclTestIntegration extends AbstractRdapIntegrationTest {
                 "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
                 "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=email}, text, test@ripe.net]]"));
+
+        assertThat(entity.getEntitySearchResults().size(), is(1));
+
+        assertThat(entity.getEntitySearchResults().get(0).getHandle(), is("OWNER-MNT"));
+        assertThat(entity.getEntitySearchResults().get(0).getVCardArray().toString(), is("" +
+                "[vcard, [[version, {}, text, 4.0], " +
+                "[fn, {}, text, OWNER-MNT], " +
+                "[kind, {}, text, individual]]]"));
+
+        assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "OWNER-MNT");
+
+        MatcherAssert.assertThat(testPersonalObjectAccounting.getQueriedPersonalObjects(InetAddress.getByName(LOCALHOST)), is(1));
+    }
+
+    @Test
+    public void lookup_person_personal_data_acl_counted() throws Exception {
+        final Entity entity = createResource("entity/TP1-TEST")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get(Entity.class);
+
+        assertThat(entity.getHandle(), is("TP1-TEST"));
+        assertThat(entity.getVCardArray().get(1).toString(), is("" +
+                "[[version, {}, text, 4.0], [fn, {}, text, Test Person]," +
+                " [kind, {}, text, individual], " +
+                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
+                "[tel, {type=voice}, text, +31 6 12345678]," +
+                " [tel, {type=voice, text}, uri, https://api.whatsapp.com/send?phone=+441231231231], " +
+                "[tel, {type=voice, text}, uri, sip:testUser@192.168.1.42], [tel, {type=fax}, text, +01-000-000-000]," +
+                " [email, {type=email}, text, test@ripe.net]]"));
 
         assertThat(entity.getEntitySearchResults().size(), is(1));
 

@@ -51,8 +51,10 @@ public class RedactionObjectMapper {
             final String values = String.join(", ", value);
 
             switch (key) {
-                case E_MAIL -> redactions.add(Redaction.getRedactionByRemoval("Personal e-mail information",
-                        String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeName),
+                case E_MAIL, ADDRESS, PHONE, CONTACT, FAX_NO ->
+                        redactions.add(Redaction.getRedactionByRemoval(
+                                String.format("Personal %s information" , attributeName),
+                                String.format("%s.vcardArray[1][?(@[0]=='%s')]", prefix, attributeName),
                         "Personal data"));
                 case COUNTRY ->
                         redactions.add(Redaction.getRedactionByPartialValue(String.format("Multiple %s attributes found", attributeName),
