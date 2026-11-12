@@ -1,5 +1,12 @@
 # next
 
+# 1.124.2
+
+[rdap] Remove personal data from nested RDAP entities
+[rdap] Return 429 Too Many Reqests (exceeded limit) from RDAP if blocked by ACL
+[all] Updated Jackon dependency
+
+
 # 1.124.1
 
 [update] Only use the signing certificate in Client Certificate authentication
