@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.MediaType;
 import net.ripe.db.whois.api.AbstractIntegrationTest;
 import net.ripe.db.whois.api.RestTest;
 import net.ripe.db.whois.api.rest.client.RestClientUtils;
+import net.ripe.db.whois.common.rpsl.AttributeType;
 import net.ripe.db.whois.rdap.domain.Entity;
 import net.ripe.db.whois.rdap.domain.Link;
 import net.ripe.db.whois.rdap.domain.LinkRelationType;
@@ -75,7 +76,6 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
                 .post(jakarta.ws.rs.client.Entity.entity("DATA=" + RestClientUtils.encode(data),
                         MediaType.APPLICATION_FORM_URLENCODED),
                         String.class);
-
     }
 
     protected void assertErrorDescription(final WebApplicationException exception, final String description) {
@@ -139,5 +139,15 @@ public abstract class AbstractRdapIntegrationTest extends AbstractIntegrationTes
         assertThat(redaction.getMethod(), is("removal"));
     }
 
+    protected void assertAttrRedactionForEntities(final RdapObject entity, final String key, final AttributeType type) {
+        final String entityJson = getEntityJson(entity);
+
+        final Redaction redaction = entity.getRedacted().stream()
+                .filter(redact -> redact.getPrePath().contains("$") && redact.getPrePath().contains(key) && redact.getPrePath().contains(type.getName()))
+                .findAny().get();
+
+        final List<Object> vcards = JsonPath.read(entityJson, redaction.getPrePath());
+        assertThat(vcards.size(), is(0));
+    }
 
 }

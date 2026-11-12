@@ -858,8 +858,7 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
         final Entity secondEntityAdminC = result.getEntitySearchResults().getFirst().getEntitySearchResults().get(1);
         assertThat(secondEntityAdminC.getHandle(), is("TP1-TEST"));
         assertThat(secondEntityAdminC.getVCardArray().toString(), is("[vcard, [" +
-                "[version, {}, text, 4.0], [fn, {}, text, Test Person], [kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], [tel, {type=voice}, text, +31 6 12345678]]]"));
+                "[version, {}, text, 4.0], [fn, {}, text, Test Person], [kind, {}, text, individual]]]"));
         assertThat(secondEntityAdminC.getRoles(), hasSize(1));
         assertThat(secondEntityAdminC.getRoles().getFirst(), Matchers.is(Role.ADMINISTRATIVE));
     }
@@ -1308,7 +1307,11 @@ public class RdapElasticServiceTestIntegration extends AbstractElasticSearchInte
                 .map(RdapObject::getRedacted)
                 .flatMap(Collection::stream)
                 .map(Redaction::getPrePath)
-                .collect(Collectors.toList()), containsInAnyOrder("$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='e-mail')]"));
+                .collect(Collectors.toList()), containsInAnyOrder(
+                        "$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='e-mail')]",
+                        "$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='phone')]",
+                        "$.entities[?(@.handle=='PP1-TEST')].vcardArray[1][?(@[0]=='address')]"
+                ));
 
         assertThat(result.getRdapConformance(), containsInAnyOrder("cidr0", "rdap_level_0",
                 "nro_rdap_profile_0",

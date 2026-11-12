@@ -713,21 +713,45 @@ public class RdapObjectMapper {
             default -> {
             }
         }
-        builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
-                .addTel(rpslObject.getValuesForAttribute(PHONE))
-                .addContact(rpslObject.getValuesForAttribute(CONTACT))
-                .addFax(rpslObject.getValuesForAttribute(FAX_NO))
-                .addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
+
+        builder.addAbuseMailBox(rpslObject.getValueOrNullForAttribute(ABUSE_MAILBOX))
                 .addOrg(rpslObject.getValuesForAttribute(ORG))
                 .addGeo(rpslObject.getValuesForAttribute(GEOLOC));
 
-        if (!filtered){
-            builder.addEmail(rpslObject.getValuesForAttribute(E_MAIL));
-        } else {
-            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(E_MAIL));
-        }
+        populateOrFilterPersonalData(entity, rpslObject, filtered, builder);
 
         entity.setVCardArray(builder.build());
+    }
+
+    private static void populateOrFilterPersonalData(final Entity entity, final RpslObject rpslObject, final boolean filtered, final VCardBuilder builder) {
+
+        if(!filtered) {
+            addContactInformation(rpslObject, builder);
+            builder.addEmail(rpslObject.getValuesForAttribute(E_MAIL));
+
+            return;
+        }
+
+        if(rpslObject.getType() == ObjectType.PERSON || rpslObject.getType() == ObjectType.ROLE) {
+
+            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(ADDRESS));
+            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(PHONE));
+            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(CONTACT));
+            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(FAX_NO));
+            entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(E_MAIL));
+
+            return;
+        }
+
+        entity.getRedactedRpslAttrs().addAll(rpslObject.findAttributes(E_MAIL));
+        addContactInformation(rpslObject, builder);
+    }
+
+    private static void addContactInformation(final RpslObject rpslObject, final VCardBuilder builder) {
+        builder.addAdr(rpslObject.getValuesForAttribute(ADDRESS))
+                .addTel(rpslObject.getValuesForAttribute(PHONE))
+                .addContact(rpslObject.getValuesForAttribute(CONTACT))
+                .addFax(rpslObject.getValuesForAttribute(FAX_NO));
     }
 
     private static AsBlockRange getAsBlockRange(final String asBlock) {

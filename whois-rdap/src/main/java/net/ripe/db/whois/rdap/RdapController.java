@@ -50,6 +50,7 @@ import static net.ripe.db.whois.common.rpsl.ObjectType.INETNUM;
 @Controller
 @Path("/")
 public class RdapController {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RdapController.class);
     private static final String CONTENT_TYPE_RDAP_JSON = "application/rdap+json";
     private final RdapLookupService rdapService;

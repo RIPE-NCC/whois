@@ -503,7 +503,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entity.getHandle(), equalTo("ORG-AC1-TEST"));
         assertThat(entity.getLang(), is("DK"));
 
-        assertThat(entity.getRedacted().size(), is(0));
+        assertThat(entity.getRedacted().size(), is(2));
         // no notice for single language
         final List<Notice> notices = entity.getNotices();
         assertThat(notices, hasSize(4));
@@ -2213,12 +2213,13 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(3).getVCardArray(), hasSize(2));
         assertThat(entities.get(3).getVCardArray().get(0).toString(), is("vcard"));
         assertThat(entities.get(3).getVCardArray().get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, Abuse Contact], " +
-                "[kind, {}, text, group], " +
-                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
+                "[[version, {}, text, 4.0]," +
+                " [fn, {}, text, Abuse Contact]," +
+                " [kind, {}, text, group], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
+
+        assertAttrRedactionForEntities(autnum,"AB-TEST", AttributeType.PHONE);
+        assertAttrRedactionForEntities(autnum,"AB-TEST", AttributeType.ADDRESS);
     }
 
     @Test
@@ -2271,9 +2272,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(2).getVCardArray().get(1).toString(), is("" +
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Test Person], " +
-                "[kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]"));
+                "[kind, {}, text, individual]]"));
 
     }
 
@@ -2324,8 +2323,6 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 358}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
     }
 
@@ -2541,9 +2538,11 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 "[[version, {}, text, 4.0], " +
                 "[fn, {}, text, Abuse Contact], " +
                 "[kind, {}, text, group], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678], " +
                 "[email, {type=abuse}, text, abuse@test.net]]"));
+
+        assertAttrRedactionForEntities(ip,"AB-TEST" , AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(ip,"AB-TEST" , AttributeType.PHONE);
+
     }
 
 
@@ -2914,11 +2913,9 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertThat(entities.get(1).getRoles(), contains(Role.ADMINISTRATIVE));
         assertThat(entities.get(1).getVCardArray().get(0), is("vcard"));
         assertThat(entities.get(1).getVCardArray().get(1).toString(), is("" +
-                "[[version, {}, text, 4.0], " +
-                "[fn, {}, text, Test Person], " +
-                "[kind, {}, text, individual], " +
-                "[adr, {label=Singel 258}, text, [, , , , , , ]], " +
-                "[tel, {type=voice}, text, +31 6 12345678]]"));
+                "[[version, {}, text, 4.0]," +
+                " [fn, {}, text, Test Person], " +
+                "[kind, {}, text, individual]]"));
 
         assertThat(entity.getLinks(), hasSize(2));
         assertThat(entity.getLinks().get(0).getRel(), is("self"));
@@ -3260,7 +3257,7 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Entity.class);
 
-        assertThat(entity.getRedacted().size(), is(6));
+        assertThat(entity.getRedacted().size(), is(16));
 
 
         final Ip ip = entity.getNetworks().stream().filter(network -> network.getHandle().equals("109.111.192.0 - 109.111.223.255")).findFirst().get();
@@ -3273,6 +3270,14 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
         assertEmailRedactionForEntities(entity, autnum.getEntitySearchResults(), "$.autnums", "TP2-TEST");
 
         assertEmailRedactionForEntities(entity, entity.getEntitySearchResults(), "$", "PP1-TEST");
+
+        assertAttrRedactionForEntities(entity, "TP2-TEST", AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(entity, "TP2-TEST", AttributeType.PHONE);
+
+        assertAttrRedactionForEntities(entity, "TP3-TEST", AttributeType.ADDRESS);
+
+        assertAttrRedactionForEntities(entity, "TP1-TEST", AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(entity, "TP1-TEST", AttributeType.PHONE);
 
         assertCommon(entity);
     }
@@ -3403,10 +3408,17 @@ public class RdapControllerTestIntegration extends AbstractRdapIntegrationTest {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(Domain.class);
 
-        assertThat(domain.getRedacted().size(), is(2));
+        assertThat(domain.getRedacted().size(), is(8));
 
         assertEmailRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$", "ORG-TEST1-TEST");
+
         assertEmailRedactionForEntities(domain, domain.getNetwork().getEntitySearchResults(), "$", "TP2-TEST");
+        assertAttrRedactionForEntities(domain, "TP2-TEST", AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(domain, "TP2-TEST", AttributeType.PHONE);
+
+        assertAttrRedactionForEntities(domain, "TP1-TEST", AttributeType.ADDRESS);
+        assertAttrRedactionForEntities(domain, "TP1-TEST", AttributeType.PHONE);
+
     }
 
     // search - entities - organisation
