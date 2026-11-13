@@ -14,7 +14,7 @@ public class Inet6numAggregatedByLirStatusValidator extends AggregatedByLirStatu
 
     private static final ImmutableList<ObjectType> TYPES = ImmutableList.of(ObjectType.INET6NUM);
 
-    private static final int MAX_ASSIGNMENT_SIZE = 128;
+    private static final int MAX_ASSIGNMENT_SIZE = 64;
 
     @Autowired
     public Inet6numAggregatedByLirStatusValidator(final Ipv6Tree ipv6Tree, final RpslObjectDao rpslObjectDao) {

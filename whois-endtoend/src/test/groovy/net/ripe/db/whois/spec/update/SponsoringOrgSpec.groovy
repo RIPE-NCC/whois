@@ -1138,7 +1138,7 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
 
         def message = syncUpdate(sprintf("""\
-                inet6num:     2001:600::/64
+                inet6num:     2001:600::/48
                 netname:      EU-ZZ-2001-600
                 descr:        European Regional Registry
                 country:      EU
@@ -1163,18 +1163,18 @@ class SponsoringOrgSpec extends BaseQueryUpdateSpec {
 
         ack.countErrorWarnInfo(1, 2, 1)
 
-        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
-        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/48") ==
                 ["The \"sponsoring-org:\" attribute is not allowed with status value \"" + status + "\""]
-        ack.infoMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+        ack.infoMessagesFor("Create", "[inet6num] 2001:600::/48") ==
                 ["Authorisation override used"]
 
-        queryObjectNotFound("-r -BG -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+        queryObjectNotFound("-r -BG -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
         where:
         status | extra
         "ALLOCATED-BY-LIR"  | ""
-        "AGGREGATED-BY-LIR" | "\nassignment-size: 96"
+        "AGGREGATED-BY-LIR" | "\nassignment-size: 64"
         "ASSIGNED"          | ""
     }
 

@@ -432,14 +432,14 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
     def "modify, status AGGREGATED-BY-LIR cant change assignment-size"() {
       given:
         def insert = syncUpdate(new SyncUpdate(data: """\
-                                       inet6num: 2001::/64
+                                       inet6num: 2001::/48
                                        netname: RIPE-NCC
                                        descr: some descr
                                        country: DK
                                        admin-c: TEST-PN
                                        tech-c: TEST-PN
                                        status: AGGREGATED-BY-LIR
-                                       assignment-size: 68
+                                       assignment-size: 64
                                        mnt-by: TEST-MNT
                                        source: TEST
                                        password: update
@@ -450,13 +450,13 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
 
       when:
         def update = syncUpdate(new SyncUpdate(data: """\
-                                        inet6num:  2001::/64
+                                        inet6num:  2001::/48
                                         netname: RIPE-NCC
                                         descr: some descr
                                         country: DK
                                         admin-c: TEST-PN
                                         status: AGGREGATED-BY-LIR
-                                        assignment-size: 76
+                                        assignment-size: 60
                                         tech-c: TEST-PN
                                         mnt-by: TEST-MNT
                                         source: TEST
@@ -679,7 +679,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
                                         mnt-by: TEST-MNT
-                                        assignment-size: 64
+                                        assignment-size: 48
                                         source: TEST
                                         password: update
                                         password: emptypassword
@@ -694,7 +694,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         descr: some descr
                                         country: ES
                                         admin-c: TEST-PN
-                                        status: AGGREGATED-BY-RIR
+                                        status: AGGREGATED-BY-LIR
                                         tech-c: TEST-PN
                                         mnt-by: TEST-MNT
                                         source: TEST
@@ -707,7 +707,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
 
       then:
         def update = syncUpdate(new SyncUpdate(data: """\
-                                        inet6num: 2001::/64
+                                        inet6num: 2001::/48
                                         netname: RIPE-NCC
                                         descr: some descr
                                         country: ES
@@ -716,7 +716,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         tech-c: TEST-PN
                                         mnt-by: TEST-MNT
                                         source: TEST
-                                        assignment-size: 68
+                                        assignment-size: 64
                                         password: update
                                         password: emptypassword
                                     """.stripIndent(true)))
@@ -725,10 +725,28 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
     }
 
 
-    def "create, incorrect parent-child hierarchy "() {
+    def "create, incorrect parent-child hierarchy "() {     // TODO
       given:
         def grandparent = syncUpdate(new SyncUpdate(data: """\
                                         inet6num: 2001::/8
+                                        netname: RIPE-NCC
+                                        descr: some descr
+                                        country: ES
+                                        admin-c: TEST-PN
+                                        status: AGGREGATED-BY-LIR
+                                        tech-c: TEST-PN
+                                        mnt-by: TEST-MNT
+                                        assignment-size: 48
+                                        source: TEST
+                                        password: update
+                                        password: emptypassword
+                                    """.stripIndent(true)))
+      expect:
+        grandparent =~ /SUCCESS/
+
+      when:
+        def parent = syncUpdate(new SyncUpdate(data: """\
+                                        inet6num: 2001::/48
                                         netname: RIPE-NCC
                                         descr: some descr
                                         country: ES
@@ -741,24 +759,6 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         password: update
                                         password: emptypassword
                                     """.stripIndent(true)))
-      expect:
-        grandparent =~ /SUCCESS/
-
-      when:
-        def parent = syncUpdate(new SyncUpdate(data: """\
-                                        inet6num: 2001::/64
-                                        netname: RIPE-NCC
-                                        descr: some descr
-                                        country: ES
-                                        admin-c: TEST-PN
-                                        status: AGGREGATED-BY-LIR
-                                        tech-c: TEST-PN
-                                        mnt-by: TEST-MNT
-                                        assignment-size: 68
-                                        source: TEST
-                                        password: update
-                                        password: emptypassword
-                                    """.stripIndent(true)))
 
       then:
         parent =~ /SUCCESS/
@@ -766,7 +766,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
       when:
 
         def update = syncUpdate(new SyncUpdate(data: """\
-                                        inet6num: 2001::/68
+                                        inet6num: 2001::/56
                                         netname: RIPE-NCC
                                         descr: some descr
                                         country: ES
@@ -775,7 +775,7 @@ class Inet6numIntegrationSpec extends BaseWhoisSourceSpec {
                                         tech-c: TEST-PN
                                         mnt-by: TEST-MNT
                                         source: TEST
-                                        assignment-size: 72
+                                        assignment-size: 64
                                         password: update
                                         password: emptypassword
                                     """.stripIndent(true)))

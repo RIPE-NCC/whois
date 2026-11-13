@@ -1574,6 +1574,51 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         query_object_matches("-rGBT inet6num 2001:600::/30", "inet6num", "2001:600::/30", "ALLOCATED-BY-LIR")
     }
 
+    def "assignment-size too large"() {
+        given:
+        syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
+        queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
+        syncUpdate(getTransient("LIR-ALLOC-30") + "password: lir\npassword: hm\npassword: owner3")
+        queryObject("-r -T inet6num 2001:600::/30", "inet6num", "2001:600::/30")
+
+        expect:
+        queryObjectNotFound("-r -T inet6num 2001:600:1:1::/64", "inet6num", "2001:600:1:1::/64")
+
+        when:
+        def message = send new Message(
+                subject: "",
+                body: """\
+                inet6num:     2001:600::/32
+                netname:      EU-ZZ-2001-0600
+                descr:        European Regional Registry
+                country:      EU
+                admin-c:      TP1-TEST
+                tech-c:       TP1-TEST
+                mnt-by:       lir-MNT
+                status:       AGGREGATED-BY-LIR
+                assignment-size: 65
+                source:       TEST
+
+                password: lir
+                """.stripIndent(true)
+        )
+
+        then:
+        def ack = ackFor message
+
+        ack.summary.nrFound == 1
+        ack.summary.assertSuccess(0, 0, 0, 0, 0)
+        ack.summary.assertErrors(1, 1, 0, 0)
+
+        ack.countErrorWarnInfo(1, 1, 0)
+        ack.errors.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/32" }
+        ack.errorMessagesFor("Create", "[inet6num] 2001:600::/32") ==
+                [ "\"assignment-size:\" value must not be greater than the maximum prefix size 64" ]
+
+        queryObjectNotFound("-r -T inet6num 2001:600::/32", "inet6num", "2001:600::/32")
+    }
+
+
     def "modify change status with override"() {
         given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
@@ -2089,7 +2134,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         queryObjectNotFound("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
     }
 
-    def "create /64 assignment with all optional attrs supplied"() {
+    def "create /48 aggregation with all optional attrs supplied"() {
         given:
         syncUpdate(getTransient("RIR-ALLOC-25") + "password: hm\npassword: owner3")
         queryObject("-r -T inet6num 2001:600::/25", "inet6num", "2001:600::/25")
@@ -2099,13 +2144,13 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         queryObject("-r -T irt irt-test", "irt", "irt-test")
 
         expect:
-        queryObjectNotFound("-r -T inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+        queryObjectNotFound("-r -T inet6num 2001:600::/48", "inet6num", "2001:600::/48")
 
         when:
         def message = send new Message(
                 subject: "",
                 body: """\
-                inet6num:     2001:600::/64# primary key comment
+                inet6num:     2001:600::/48# primary key comment
                 netname:      EU-ZZ-2001-0600
                 descr:        European Regional Registry
                 country:      EU
@@ -2125,7 +2170,7 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
                 mnt-by:       lir-MNT
                 mnt-irt:      irt-test
                 status:       AGGREGATED-BY-LIR
-                assignment-size: 65
+                assignment-size: 64
                 mnt-lower:    owner2-mnt
                 mnt-domains:    owner-mnt
                 notify:       test-dbtest@ripe.net
@@ -2157,11 +2202,11 @@ class Inet6numSpec extends BaseQueryUpdateSpec {
         ack.summary.assertErrors(0, 0, 0, 0)
 
         ack.countErrorWarnInfo(0, 1, 1)
-        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/64" }
-        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/64") ==
+        ack.successes.any { it.operation == "Create" && it.key == "[inet6num] 2001:600::/48" }
+        ack.infoSuccessMessagesFor("Create", "[inet6num] 2001:600::/48") ==
                 ["Please use the \"remarks:\" attribute instead of end of line comment on primary key"]
 
-        queryObject("-rGBT inet6num 2001:600::/64", "inet6num", "2001:600::/64")
+        queryObject("-rGBT inet6num 2001:600::/48", "inet6num", "2001:600::/48")
     }
 
     def "modify PI assignment, LIR pw"() {

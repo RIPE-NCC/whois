@@ -146,8 +146,8 @@ public class Inet6numAggregatedByLirStatusValidatorTest {
         validate_assignment(RpslObject.parse("" +
                 "inet6num:        2001:0658:021A::/48\n" +
                 "status:          AGGREGATED-BY-LIR\n" +
-                "assignment-size: 129"),
-                UpdateMessages.assignmentSizeTooLarge(128));
+                "assignment-size: 65"),
+                UpdateMessages.assignmentSizeTooLarge(64));
     }
 
     private void validate_assignment(final RpslObject object, final Message expectedMessage) {
