@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
@@ -3204,6 +3203,27 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void search_asset_first_value_filtering_by_attribute(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final SearchResponse searchResponse = queryJson("facet=true&format=xml&hl=true&q=(as-set:(AS8308))%20AND%20(object-type:as-set)&start=0&wt=json");
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
+    }
+
+    @Test
     public void search_asset_second_value(){
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
@@ -3228,6 +3248,28 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
     }
 
     @Test
+    public void search_asset_second_value_filtering_by_attribute(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS25037:AS-Peerings
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final SearchResponse searchResponse = queryJson("facet=true&format=xml&hl=true&q=(as-set:(AS%5C-Peerings))%20AND%20(object-type:as-set)&start=0&wt=json");
+
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
+    }
+
+    @Test
     public void search_asset_third_value(){
         databaseHelper.addObject(RpslObject.parse(
                 "mntner: DEV1-MNT\n" +
@@ -3249,6 +3291,28 @@ public class ElasticFullTextSearchTestIntegration extends AbstractElasticSearchI
         assertThat(getHighlightValues(queryResponse), containsInAnyOrder("AS8308:AS-Peerings:<b>AS8374<\\/b>"));
         assertThat(queryResponse.getStatus(), is(0));
         assertThat(queryResponse.getResults(), hasSize(1));
+    }
+
+    @Test
+    public void search_asset_third_value_filtering_by_attribute(){
+        databaseHelper.addObject(RpslObject.parse(
+                "mntner: DEV1-MNT\n" +
+                        "remarks: Some remark\n" +
+                        "source: RIPE"));
+        databaseHelper.addObject(RpslObject.parse(
+                """
+                        as-set:         AS8308:AS-Peerings:AS-8374
+                        mnt-by:         DEV1-MNT
+                        created:        2004-06-22T13:09:34Z
+                        last-modified:  2005-07-26T12:48:41Z
+                        source:         RIPE # Filtered
+                        """));
+
+        rebuildIndex();
+
+        final SearchResponse searchResponse = queryJson("facet=true&format=xml&hl=true&q=(as-set:(AS%5C-8374))%20AND%20(object-type:as-set)&start=0&wt=json");
+
+        assertThat(searchResponse.getResult().getDocs(), hasSize(1));
     }
 
     @Test

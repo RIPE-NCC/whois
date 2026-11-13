@@ -62,19 +62,22 @@ public class ElasticSearchConfigurations {
                                                 .splitOnCaseChange(false)
                                         )
                                 )
-                        ).filter("colon_sets_combinations", f -> f
-                                .definition(d -> d
-                                        .patternCapture(pc -> pc
-                                                .preserveOriginal(true)
-                                                .patterns("^(.*)$")
-                                        )
-                                )
                         )
                         .filter("edge_ngram_filter", f -> f
                                 .definition(d -> d
                                         .edgeNgram(eng -> eng
                                                 .minGram(1)
                                                 .maxGram(20)
+                                        )
+                                )
+                        )
+                        .filter("set_shingles", f -> f
+                                .definition(d -> d
+                                        .shingle(sh -> sh
+                                                .minShingleSize(2)
+                                                .maxShingleSize(4) //matches the default max shingle value
+                                                .outputUnigrams(true)
+                                                .tokenSeparator(":")
                                         )
                                 )
                         )
@@ -95,16 +98,29 @@ public class ElasticSearchConfigurations {
                                         .filter("my_word_email_delimiter_graph", "lowercase")
                                 )
                         )
-                        .analyzer("set_analyzer", az -> az
-                                .custom(c -> c
-                                    .tokenizer("colon_tokeniser")
-                                    .filter("colon_sets_combinations")
-                                )
-                        )
                         .analyzer("edge_ngram_analyzer", az -> az
                                 .custom(c -> c
                                         .tokenizer("whitespace")
                                         .filter("my_word_delimiter_graph", "lowercase", "edge_ngram_filter")
+                                )
+                        )
+
+                        .analyzer("set_combinations_analyzer", az -> az
+                                .custom(c -> c
+                                        .tokenizer("colon_tokeniser")
+                                        .filter("lowercase", "set_shingles")
+                                )
+                        )
+                        .analyzer("set_exact_search_analyzer", az -> az
+                                .custom(c -> c
+                                        .tokenizer("whitespace")
+                                        .filter("lowercase")
+                                )
+                        )
+                        .analyzer("set_analyzer", az -> az
+                                .custom(c -> c
+                                        .tokenizer("colon_tokeniser")
+                                        .filter("my_word_delimiter_graph", "lowercase")
                                 )
                         )
                         // Normalizers
@@ -148,13 +164,16 @@ public class ElasticSearchConfigurations {
 
         final Property setsFieldProperty = Property.of(p -> p
                 .text(t -> t
-                        .analyzer("fulltext_analyzer")
-                        .searchAnalyzer("fulltext_analyzer")
-                        .fields("custom", f -> f.text(ft -> ft.analyzer("set_analyzer")))
+                        .analyzer("set_combinations_analyzer") // index: parts + colon combinations
+                        .searchAnalyzer("set_exact_search_analyzer") // search: keep the query whole
+                        .fields("custom", f -> f.text(ft -> ft // subfield <attr>.custom: for searches on smaller parts
+                                .analyzer("set_analyzer"))
+                        )
                         .fields("raw", f -> f.keyword(k -> k.ignoreAbove(10922)))
                         .fields("lowercase", f -> f.keyword(k -> k.normalizer("my_lowercase_normalizer").ignoreAbove(10922)))
                 )
         );
+
 
         for(final AttributeType type : AttributeType.values()) {
             if (type.getSyntax() == AttributeSyntax.EMAIL_SYNTAX) {
