@@ -37,18 +37,18 @@ public class Utf8Conversion {
         return new RpslAttribute(attribute.getKey(), result.toString());
     }
 
-    private static void convertUsingIDNA(final StringBuilder result, final char transformedCharacter) {
-        final StringBuilder idnaTransformation = new StringBuilder();
+    private static void convertUsingIDNA(final StringBuilder result, final char name) {
+        final StringBuilder converted = new StringBuilder();
         final Info info = new Info();
 
-        IDNA_INSTANCE.nameToUnicode(String.valueOf(transformedCharacter), idnaTransformation, info);
+        IDNA_INSTANCE.nameToUnicode(String.valueOf(name), converted, info);
 
         if (hasRelevantError(info)) {
             result.append("?"); // Question marks replace unknown characters
         } else {
-            result.append(Character.isUpperCase(transformedCharacter) ?
-                    idnaTransformation.toString().toUpperCase() :
-                    idnaTransformation);
+            result.append(Character.isUpperCase(name) ?
+                    converted.toString().toUpperCase() :
+                    converted);
         }
     }
 

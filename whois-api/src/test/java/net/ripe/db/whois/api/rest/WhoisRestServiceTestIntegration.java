@@ -827,7 +827,7 @@ public class WhoisRestServiceTestIntegration extends AbstractHttpsIntegrationTes
     }
 
     @Test
-    public void lookup_role_text_plain_extension_utf8() {
+    public void lookup_person_text_plain_extension_utf8() {
         final RpslObject person = RpslObject.parse("" +
                 "person:    Pauleth Palthen\n" +
                 "address:   remarks\n" +
@@ -6839,6 +6839,35 @@ public class WhoisRestServiceTestIntegration extends AbstractHttpsIntegrationTes
 
         assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("descr","")));
         assertThat(mntner.getWhoisObjects().getFirst().getAttributes(), hasItem(new Attribute("remarks", "你好ا Avenue")));
+    }
+
+    @Test
+    public void create_person_utf8_ordinal_is_substituted() {
+        final RpslObject person = RpslObject.parse("" +
+                "person:    Pauleth Palthen\n" +
+                "address:   remarks\n" +
+                "phone:     +31-1234567890\n" +
+                "e-mail:    noreply@ripe.net\n" +
+                "mnt-by:    OWNER-MNT\n" +
+                "nic-hdl:   PP1-TEST\n" +
+                "remarks:   R. Joaquim Bonifácio 21 5º\n" +     // ordinal character
+                "source:    TEST\n");
+
+        final WhoisResources whoisResources = RestTest.target(getPort(), "whois/test/person?password=test", true)
+                .request()
+                .post(Entity.entity(map(person), MediaType.APPLICATION_XML), WhoisResources.class);
+
+        assertThat(map(whoisResources.getWhoisObjects().get(0)), is(RpslObject.parse("" +
+                "person:         Pauleth Palthen\n" +
+                "address:        remarks\n" +
+                "phone:          +31-1234567890\n" +
+                "e-mail:         noreply@ripe.net\n" +
+                "mnt-by:         OWNER-MNT\n" +
+                "nic-hdl:        PP1-TEST\n" +
+                "remarks:        R. Joaquim Bonifácio 21 5o\n" +    // substituted character
+                "created:        2001-02-04T17:00:00Z\n" +
+                "last-modified:  2001-02-04T17:00:00Z\n" +
+                "source:         TEST\n")));
     }
 
     @Test
