@@ -162,6 +162,5 @@ public class WhoisServer {
                         LOGGER.error("Could not resolve property {} due to {}: {}", prop, e.getClass().getName(), e.getMessage());
                     }
                 });
-
     }
 }
