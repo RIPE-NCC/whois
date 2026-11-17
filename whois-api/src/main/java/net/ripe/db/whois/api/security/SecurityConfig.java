@@ -1,5 +1,8 @@
 package net.ripe.db.whois.api.security;
 
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,6 +46,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static net.ripe.db.whois.common.oauth.OAuthUtils.OAUTH_CUSTOM_AZP_PARAM;
@@ -94,27 +98,22 @@ public class SecurityConfig {
     @Bean
     public @NonNull NimbusJwtDecoder jwtDecoder(final OidcConfigurationProvider oidcProvider,
                                                 @Value("${keycloak.idp.client:}") final String whoisKeycloakId) {
-        final OIDCProviderMetadata metadata = oidcProvider.getMetadataOrInitOidcConfiguration();
-        if (metadata == null) {
-            throw new IllegalStateException("OIDC metadata not initialized");
+        final OidcConfigurationProvider.OidcConfigurationRecord configuration = oidcProvider.getOidcConfigurationOrInitialise();
+        if (configuration == null || configuration.oidcProviderMetadata() == null || configuration.jwkSource() == null) {
+            throw new IllegalStateException("OIDC configuration not initialized");
         }
+        final OIDCProviderMetadata oidcProviderMetadata = configuration.oidcProviderMetadata();
+        final DefaultJWTProcessor<SecurityContext> processor = getProcessor(configuration, oidcProviderMetadata);
 
-        final String issuer = metadata.getIssuer().toString();
-        final String jwksUri = metadata.getJWKSetURI().toString();
-
-        // --- Base decoder (signature + exp + nbf + alg handling via JWKS) ---
-        final NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksUri)
-                .restOperations(createRestTemplate())
-                .build();
+        final NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor);
 
         // --- Combine all validators ---
-        final OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
                 getRequiredClaimsValidator(),
-                JwtValidators.createDefaultWithIssuer(issuer),
+                JwtValidators.createDefaultWithIssuer(oidcProviderMetadata.getIssuer().toString()),
                 getIatValidator(),
                 getJwtAudienceValidator(whoisKeycloakId)
-        );
-        decoder.setJwtValidator(validator);
+        ));
         return decoder;
     }
 
@@ -264,6 +263,16 @@ public class SecurityConfig {
             );
             return OAuth2TokenValidatorResult.failure(error);
         };
+    }
+
+    private static @NonNull DefaultJWTProcessor<SecurityContext> getProcessor(final OidcConfigurationProvider.OidcConfigurationRecord configuration, final OIDCProviderMetadata oidcProviderMetadata) {
+        // --- Signature: algorithms from the IdP metadata, keys from the cached JWK source ---
+        final DefaultJWTProcessor<SecurityContext> processor = new DefaultJWTProcessor<>();
+        processor.setJWSKeySelector(new JWSVerificationKeySelector<>(
+                new HashSet<>(oidcProviderMetadata.getIDTokenJWSAlgs()), configuration.jwkSource()));
+        // Claims are validated by the Spring validators below, so the Nimbus claims check is a no-op
+        processor.setJWTClaimsSetVerifier((claims, context) -> { });
+        return processor;
     }
 
     private RestTemplate createRestTemplate() {

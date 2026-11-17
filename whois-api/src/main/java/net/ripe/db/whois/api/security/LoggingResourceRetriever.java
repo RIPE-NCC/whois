@@ -22,27 +22,14 @@ public class LoggingResourceRetriever implements ResourceRetriever {
 
     @Override
     public Resource retrieveResource(URL url) throws IOException {
-
         logger.debug("Fetching JWK set from URL: {}", url);
 
         try {
-            Resource resource = delegate.retrieveResource(url);
-
-            logger.debug(
-                    "Successfully fetched JWK set from {}",
-                    url
-            );
-
+            final Resource resource = delegate.retrieveResource(url);
+            logger.debug("Successfully fetched JWK set from {}", url);
             return resource;
-
         } catch (IOException e) {
-
-            logger.warn(
-                    "Failed to fetch JWK set from {}",
-                    url,
-                    e
-            );
-
+            logger.warn("Failed to fetch JWK set from {}", url, e);
             throw e;
         }
     }
