@@ -33,7 +33,7 @@
 
         <!-- dependencies -->
 
-        <aspectj.version>1.9.25.1</aspectj.version>
+        <aspectj.version>1.9.27</aspectj.version>
         <awaitility.version>4.3.0</awaitility.version>
 
         <bouncycastle.version>1.86</bouncycastle.version>
