@@ -36,7 +36,7 @@
         <aspectj.version>1.9.27</aspectj.version>
         <awaitility.version>4.3.0</awaitility.version>
 
-        <bouncycastle.version>1.86</bouncycastle.version>
+        <bouncycastle.version>1.87</bouncycastle.version>
         <!-- [ES] different version to the rest of bouncycastle -->
         <bouncycastle.bcprov.version>1.86</bouncycastle.bcprov.version>
 
