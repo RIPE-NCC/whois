@@ -1,5 +1,6 @@
 package net.ripe.db.whois.common.rpki;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.ripe.db.whois.common.collect.CollectionHelper;
 import net.ripe.db.whois.common.etree.NestedIntervalMap;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,6 +25,7 @@ public class RpkiService {
 
     private NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree;
     private NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree;
+    private Map<String, Set<Roa>> asnMap;
 
     private final RpkiDataProvider rpkiDataProvider;
 
@@ -54,15 +57,21 @@ public class RpkiService {
     private void buildTrees(final List<Roa> roas) {
         final NestedIntervalMap<Ipv4Resource, Set<Roa>> ipv4Tree = new NestedIntervalMap<>();
         final NestedIntervalMap<Ipv6Resource, Set<Roa>> ipv6Tree = new NestedIntervalMap<>();
+        final Map<String, Set<Roa>> asnMap = Maps.newHashMap();
+
         for (Roa roa : roas) {
             if (isIpv4(roa.getPrefix())) {
                 addRoaToTree(ipv4Tree, Ipv4Resource.parse(roa.getPrefix()), roa);
             } else {
-                addRoaToTree(ipv6Tree, Ipv6Resource.parse(roa.getPrefix()), roa);
+                if (isIpv6(roa.getPrefix())) {
+                    addRoaToTree(ipv6Tree, Ipv6Resource.parse(roa.getPrefix()), roa);
+                }
             }
+            addRoaToMap(asnMap, roa);
         }
         this.ipv4Tree = ipv4Tree;
         this.ipv6Tree = ipv6Tree;
+        this.asnMap = asnMap;
     }
 
     private <T extends IpInterval<T>> void addRoaToTree(final NestedIntervalMap<T, Set<Roa>> tree,
@@ -76,16 +85,47 @@ public class RpkiService {
         roas.add(roa);
     }
 
-    public Set<Roa> findRoas(final String prefix) {
-        return (isIpv4(prefix)?
-                ipv4Tree.findExactAndAllLessSpecific(Ipv4Resource.parse(prefix)) :
-                ipv6Tree.findExactAndAllLessSpecific(Ipv6Resource.parse(prefix)))
-                .stream()
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+    private void addRoaToMap(final Map<String, Set<Roa>> map, final Roa roa) {
+        final String asn = String.format("AS%d", roa.getAsn());
+        map.computeIfAbsent( asn, value -> Sets.newHashSet()).add(roa);
     }
 
-    private static boolean isIpv4(final String prefix) {
-        return prefix.contains(".");
+    private Set<Roa> getRoasFromMap(final String resource) {
+        return asnMap.get(resource.toUpperCase());
     }
+
+    public Set<Roa> findRoas(final String resource) {
+        if (isIpv4(resource)) {
+                return ipv4Tree.findExactAndAllLessSpecific(Ipv4Resource.parse(resource))
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+        } else {
+            if (isIpv6(resource)) {
+                return ipv6Tree.findExactAndAllLessSpecific(Ipv6Resource.parse(resource))
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+            } else {
+                if (isASN(resource)) {
+                    return getRoasFromMap(resource);
+                } else {
+                    throw new IllegalArgumentException("Invalid resource " + resource);
+                }
+            }
+        }
+    }
+
+    private static boolean isIpv4(final String resource) {
+        return resource.indexOf('.') > -1;
+    }
+
+    private static boolean isIpv6(final String resource) {
+        return resource.indexOf(':') > -1;
+    }
+
+    private static boolean isASN(final String resource) {
+        return resource.toUpperCase().startsWith("AS");
+    }
+
 }
