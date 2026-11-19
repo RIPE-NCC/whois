@@ -1,22 +1,42 @@
 # next
 
+# 1.125
+
+* [all] NWI-21 Add organisation "reg-nr:" attribute to daily dump and split files
+* [update]  Do not allow updates with revoked PGP subkey
+* [update] Add OIDC email address to update notifications
+* [update] Allow multiple OIDC issuers
+* [update] Maximum inet6num assignment-size is /64 according to RIPE policy.
+* [query] As-set in full text search should be found when filtering by attribute
+* [all] Updated dependencies
+
+# 1.124.2
+
+* [rdap] Remove personal data from nested RDAP entities
+* [rdap] Return 429 Too Many Reqests (exceeded limit) from RDAP if blocked by ACL
+* [all] Updated Jackson dependency to 2.22.4
+
+# 1.124.1
+
+* [update] Only use the signing certificate in Client Certificate authentication
+
 # 1.124
 
-[all] Added support for OIDC 2.0 authentication
-[nrtm] NRTMv3 server should skip invalid objects
-[update] Do not unescape characters in UTF-8 substitution
-[api] Added Content Security Policy (CSP) header
-[api] Added HTTP Strict-Transport-Security (HSTS) header 
-[api] Added text/plain responses to Versions API
-[api] Added unformatted responses to Versions API
-
+* [all] Added support for OIDC 2.0 authentication
+* [nrtm] NRTMv3 server should skip invalid objects
+* [update] Do not unescape characters in UTF-8 substitution
+* [api] Added Content Security Policy (CSP) header
+* [api] Added HTTP Strict-Transport-Security (HSTS) header 
+* [api] Added text/plain responses to Versions API
+* [api] Added unformatted responses to Versions API
+ 
 # 1.123
 
-[query] Fix version query encoding and support charset flag with version flags
-[all] Improved resiliency to API keys backend failures and improved logging
-[all] Normalise decomposed unicode
-[api] HTTP APIs use UTF-8 encoding by default
-[rdap] Relation search uses domains not domain element
+* [query] Fix version query encoding and support charset flag with version flags
+* [all] Improved resiliency to API keys backend failures and improved logging
+* [all] Normalise decomposed unicode
+* [api] HTTP APIs use UTF-8 encoding by default
+* [rdap] Relation search uses domains not domain element
 
 # 1.122.1
 
